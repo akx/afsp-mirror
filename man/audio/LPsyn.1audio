@@ -1,0 +1,125 @@
+.TH LPsyn 1audio "TSP (audio)"
+.SH Routine
+.in +4n
+.ti -4n
+LPsyn [options] -p PFile -c LPFile AFileI [AFileO]
+.in -4n
+.SH Purpose
+.in +4n
+.ti -4n
+LPC synthesis from a residual file
+.in -4n
+.SH Description
+This program does linear prediction synthesis given a file of residual
+samples and a file of linear prediction coefficients.  The output is an
+audio file containing the reconstructed signal.
+.PP
+The steps involved in forming the linear prediction coefficients are as
+follows.
+.in +4n
+.ti -4n
+ 1: Use the all-pole LPC filter to filter the residual signal
+.ti -4n
+ 2: Deemphasize the reconstructed signal
+.in -4n
+.SH Options
+.in +4n
+.ti -4n
+Input file name: AFileI:
+.br
+The environment variable AUDIOPATH specifies a list of directories to be
+searched for the input residual file.
+.ti -4n
+Output file name: AFileO:
+.br
+This name specifies the optional output file containing the reconstructed
+signal.  Specifying "-" as the output file indicates that output is to be
+written to standard output.
+.ti -4n
+-p PFile, --parameter_file=PFile
+.br
+Parameter file.
+.ti -4n
+-c LPFile, --lpc_file=LPFile
+.br
+LPC predictor coefficient file.
+.ti -4n
+-s, --statistics
+.br
+Print frame-by-frame statistics.
+.ti -4n
+-I INFO, --info=INFO
+.br
+Audio file information string for the output file.
+.ti -4n
+-h, --help
+.br
+Print a list of options and exit.
+.ti -4n
+-v, --version
+.br
+Print the version number and exit.
+.in -4n
+.PP
+The analysis parameters are read from the parameter file.
+.ft CW
+.nf
+.ne 3
+  preemphasis_factor = float  ! preemphasis factor (0 to 1, default 0)
+  window_length = int         ! analysis window length
+  window_offset = int         ! initial offset of the center of the analysis
+                              ! window from the center of the frame (negative
+                              ! values mean that the analysis window precedes
+                              ! frame, default  0)
+  window_type = char          ! window type (Hamming or rectangular, default
+                              ! Hamming)
+  frame_length = int          ! frame size
+  LPC_number = int            ! number of LPC coefficients
+  LPC_BW_expansion = float    ! bandwidth expansion factor (1 gives no
+                              ! bandwidth expansion, default 1)
+.fi
+.ft P
+.PP
+By default, the output file contains a standard audio file information
+string.
+.ft CW
+.nf
+.ne 3
+  Standard Audio File Information:
+     date: 1994-01-25 19:19:39 UTC    date
+     user: kabal@aldebaran            user
+     program: LPsyn                   program name
+     parameters: <parameters>         list of parameters
+.fi
+.ft P
+This information can be changed with the header information string which is
+specified as one of the command line options.  Structured information records
+should adhere to the above format with a named field terminated by a colon,
+followed by numeric data or text.  Comments can follow as unstructured
+information.
+.ft CW
+.nf
+.ne 3
+  Record delimiter: Newline character or the two character escape
+      sequence "\\" + "n".
+  Line delimiter: Within records, lines are delimiteded by a carriage
+      control character, the two character escape sequence "\\" + "r",
+      or the two character sequence "\\" + newline.
+.fi
+.ft P
+If the information string starts with a record delimiter, the header
+information string is appended to the standard header information.  If not,
+the user supplied header information string appears alone.
+.SH Environment variables
+.in +4n
+.ti -4n
+AUDIOPATH:
+.in -4n
+This environment variable specifies a list of directories to be searched when
+opening the input audio files.  Directories in the list are separated by
+colons (semicolons for Windows).
+.SH Author / version
+P. Kabal / v2r3e  2002-11-06
+.SH See Also
+LPanal,
+AFsp

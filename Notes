@@ -1,0 +1,49 @@
+Notes on the AFsp programs
+April 2003
+
+1. The Windows "Send To" menu can be used to select files for InfoAudio or
+   CompAudio.  A batch file to invoke, say InfoAudio, can be placed in the
+   "Send To" folder in a user's profile.  With that batch file in place, one
+   can right-click on an audio file to invoke InfoAudio.
+   - The batch file should start up a command window and pass its input
+     argument (the file name) to InfoAudio.  The input from InfoAudio will
+     then appear in the command window.  Use a PAUSE at the end of the
+     batch file to keep the command window on the screen.
+   - The file name passed to the batch file is the DOS version of the name.
+     A more sophisticated version of the batch file could expand the file
+     name before passing it to InfoAudio (for instance by invoking
+     "dir <name> /a:-D /x /b").
+   - This same strategy can be applied to playing files.  Use CopyAudio to
+     copy the selected file to a WAVE file in a temporary directory.  Then
+     a standard play routine (for instance, Windows Media Player) can be used
+     to play the file.
+
+2. Some external programs assume that WAVE files always have 44 byte headers
+   and that the data can be accessed by skipping over the header.  This is not
+   in general a safe assumption.
+   - The AFsp programs will by default add a trailer containing information
+     text.  This trailer can be suppressed if the user explicitly specifies an
+     empty information string (-I "").  Other WAVE files (not created by
+     the AFsp programs) can also contain trailer information, for instance
+     DISP and INFO chunks. 
+   - WAVE files specifying more than 2 channels, speaker locations, or a
+     number of valid bits which is not the same as the number of bits in
+     each sample, will be written as WAVE_FORMAT_EXTENSIBLE files.
+   - The WAVE-NOEX file type can be specified so that the AFsp Programs will
+     not use the WAVE_FORMAT_EXTENSIBLE format.
+   - The header lengths for WAVE files are as follows:
+       PCM                   44 byte header
+       non-PCM               58 byte header (e.g. mu-law data)
+       PCM extensible        68 byte header (e.g. 4 channel integer data)
+       non-PCM extensible    80 byte header (e.g. 4 channel mu-law data)
+
+3. The AFsp programs can be used as a front end to other programs that do not
+   know how to parse certain file headers.  In one scenario, CopyAudio can
+   be used to copy the input file to a canonical format (perhaps raw data).
+   Alternately, InfoAudio can be used to determine the data type, data
+   starting point (header length) and data length.  These value can then be
+   passed to a program that can handle raw files with an offset to the data.
+
+4. For Matlab use, CopyAudio can convert data from an input audio file to
+   text format.  The output text file can then be imported into Matlab with
+   a "load xxx.txt" command.

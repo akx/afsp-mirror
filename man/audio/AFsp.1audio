@@ -1,0 +1,137 @@
+.\" $Id: AFsp.1audio 1.9 2001/04/03 AFsp-v6r8 $
+.TH audio 1audio "TSP (audio)"
+.SH Name
+audio \- TSP Audio Programs
+.SH Description
+The AFsp
+package provides several audio file utility programs
+and a library of routines for reading and writing audio files.
+.SH Audio File Utilities
+.PD 0
+.RS 4
+.IP CompAudio 5
+Compare audio files, producing statistics and signal-to-noise
+ratio figures.
+.IP CopyAudio 5
+Copy audio files.  This program combines samples from input audio
+files (an arbitrary linear combination) and writes them to the
+output file in a user selectable format.  One application is to
+provide format conversion for an audio file; another is to combine
+samples from multi-channel files.
+.IP FiltAudio  5
+Filter audio files.  This program filters an audio file with an
+FIR, IIR or all-pole filter.  This program can be used with an
+appropriate filter for sample rate conversion.  The AFsp
+package includes a number of filter from the ITU-T Software
+Tool Library (G.191) in a form that can be used directly
+with the FiltAudio program.  
+.IP GenNoise 5
+Generate noise.  This program generates an audio file containing
+Gaussian white noise.
+.IP GenTone 5
+Generate a sinusoid.  This program generates an audio file
+containing a sine wave of a given amplitude and frequency.
+.IP InfoAudio 5
+Display information about an audio file.
+.IP LPanal 5
+Demonstration program to do LPC analysis on a speech file.
+.IP LPsyn 5
+Demonstration program to do LPC synthesis from a residual file.
+.IP ResampAudio 5
+Resample data from an audio file.  This process involves interpolating
+between the samples in the original file to create a new sequence of
+samples with a new spacing (sampling rate).
+.RE
+.PD
+.SH Audio File Library Routines
+The audio file open routine automatically senses the input file type.  The data
+format for the file is passed to the audio file reading routines.  The audio
+file reading routine does byte swapping and format conversion on the fly as the
+file is read.  The user sees float data without needing to worry about the
+underlying data format.
+.PP
+Once a file is opened for writing, the user calls routines which take the
+user's float data and do byte swapping and format conversion of
+the data transparently.
+.PP
+The library routines supplied in AFsp
+package form part of the libtsp signal processing library.
+The AFsp
+routines are written in C and have been tested on Unix and Windows.
+.PD 0
+.RS 4
+.IP AFclose 5
+Close an audio file
+.IP AFopenRead 5
+Open an audio file for reading
+.IP AFopenWrite 5
+Open an audio file for writing
+.IP AFreadData 5
+Read data from an audio file (return float values)
+.IP AFsetFileType 5
+Explicitly set the input audio file type
+.IP AFsetHinfo 5
+Set the audio file header information string
+.IP AFsetNHpar 5
+Set defaults for headerless audio files
+.IP AFwriteData 5
+Write data to an audio file (float input values)
+.RE
+.PD
+.SH Audio File Formats
+The following file formats are supported for reading.
+.RS 4
+.TP 5
+Headerless audio files
+.TP 5
+AU audio files
+.TP 5
+RIFF WAVE files
+.TP 5
+AIFF/AIFF-C audio files
+.TP 5
+NIST SPHERE audio files
+.TP 5
+IRCAM soundfiles
+.TP 5
+INRS-Telecom audio files
+.TP 5
+ESPS sampled data feature files
+.TP 5
+Comdisco SPW Signal files
+.TP 5
+Text audio files
+.RE
+.PP
+The following file formats are supported for writing.
+.RS 4
+.TP 5
+Headerless audio files (including text data)
+.TP 5
+AU audio files
+.TP 5
+RIFF WAVE files
+.TP 5
+AIFF-C audio files
+.RE
+.PD
+.SH Audio File Data Types
+The following (uncompressed) data types are supported.
+.RS 4
+.TP 5
+8-bit mu-law and A-law
+.TP 5
+8-bit signed and unsigned fixed-point
+.TP 5
+9-bit to 32-bit signed fixed-point
+.TP 5
+32-bit floating-point
+.TP 5
+64-bit floating-point
+.TP 5
+text data
+.RE
+.PP
+.SH See Also
+InfoAudio CompAudio ConcatAudio CopyAudio GenNoise LPanal LPsyn
+ResampAudio SunAudioPort SunPlay

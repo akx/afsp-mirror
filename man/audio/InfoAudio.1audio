@@ -1,0 +1,214 @@
+.TH InfoAudio 1audio "TSP (audio)"
+.SH Routine
+.in +4n
+.ti -4n
+InfoAudio [options] AFile1 [AFile2 ... ]
+.in -4n
+.SH Purpose
+.in +4n
+.ti -4n
+Print audio file information
+.in -4n
+.SH Description
+This program prints information about a number of audio files to standard
+output.  The full output consists of the file type and name (indented part
+of the output below), the file data parameters, and the header information
+records.
+.ft CW
+.nf
+.ne 3
+   AU audio file: /usr/local/src/audio/InfoAudio/test/xx.au
+     Number of samples : 23808  2001-02-04 14:12:50 UTC
+     Sampling frequency: 8000 Hz
+     Number of channels: 1 (14/16-bit integer) [FC]
+  File name: xx.au
+  Header length: 104
+  Sampling frequency: 8000
+  No. samples: 23808
+  No. channels: 1
+  Data type: integer16           (A-law8, mu-law8, unsigned8, integer8,
+                                  integer16, float32, float64, or text)
+  File byte order: big-endian    (big-endian, little-endian, or byte-stream)
+  Host byte order: big-endian    (big-endian or little-endian)
+  --Header information records--
+  date: 2001-02-04 14:12:50 UTC
+  user: library@aldebaran
+  program: CopyAudio
+.fi
+.ft P
+.PP
+For single byte or text data, the "File byte order" field is set to
+"byte-stream".
+.PP
+Non-printing characters (as defined by the routine isprint) in the header
+information records are replaced by question marks.
+.SH Options
+.in +4n
+.ti -4n
+Input file(s): AFile1 [AFile2 ... ]:
+.br
+The environment variable AUDIOPATH specifies a list of directories to be
+searched for the input audio file(s).
+.ti -4n
+-t FTYPE, --type=FTYPE
+.br
+Input audio file type.  In the default automatic mode, the input file
+type is determined from the file header.  For input from a non-random
+access file (e.g. a pipe), the input file type can be explicitly
+specified to avoid the lookahead used to read the file header.  This
+option can be specified more than once.  Each invocation applies to the
+input files that follow the option.  See the description of the
+environment variable AF_FILETYPE below for a list of file types.
+.ti -4n
+-P PARMS, --parameters=PARMS
+.br
+Parameters to be used for headerless input files.  This option may be
+given more than once.  Each invocation applies to the input files that
+follow the option.  See the description of the environment variable
+AF_NOHEADER below for the format of the parameter specification.
+.ti -4n
+-i ICODE, --info_code=ICODE
+.br
+Parameter to choose the information to be printed.  The information that
+can be printed consists of three parts.  The ICODE parameter is the sum
+of the codes which control printing of the individual parts.
+.ft CW
+.nf
+.ne 3
+  1:  Print the file type and name
+  2:  Print the file data parameters
+  4:  Print the header information records
+.fi
+.ft P
+The default is to print all of the information (ICODE=7).  For ICODE=0,
+no information is printed, but the program return code indicates if all
+files were opened successfully.
+.ti -4n
+-h, --help
+.br
+Print a list of options and exit.
+.ti -4n
+-v, --version
+.br
+Print the version number and exit.
+.in -4n
+.SH Environment variables
+.in +4n
+.ti -4n
+AF_FILETYPE:
+.in -4n
+This environment variable defines the input audio file type.  In the default
+mode, the input file type is determined from the file header.
+.ft CW
+.nf
+.ne 3
+  "auto"       - determine the input file type from the file header
+  "AU" or "au" - AU audio file
+  "WAVE" or "wave" - WAVE file
+  "AIFF" or "aiff" - AIFF or AIFF-C sound file
+  "noheader"   - headerless (non-standard or no header) audio file
+  "SPHERE"     - NIST SPHERE audio file
+  "ESPS"       - ESPS sampled data feature file
+  "IRCAM"      - IRCAM soundfile
+  "SPPACK"     - SPPACK file
+  "INRS"       - INRS-Telecom audio file
+  "SPW"        - Comdisco SPW Signal file
+  "CSL" or "NSP" - CSL NSP file
+  "text"       - Text audio file
+.fi
+.ft P
+.PP
+.in +4n
+.ti -4n
+AF_NOHEADER:
+.in -4n
+This environment variable defines the data format for headerless or
+non-standard input audio files.  The string consists of a list of parameters
+separated by commas.  The form of the list is
+.ft CW
+.nf
+.ne 3
+  "Format, Start, Sfreq, Swapb, Nchan, ScaleF"
+.fi
+.ft P
+.in +4n
+.ti -4n
+Format: File data format
+.br
+.ft CW
+.nf
+.ne 3
+ "undefined" - Headerless files will be rejected
+ "mu-law8"   - 8-bit mu-law data
+ "A-law8"    - 8-bit A-law data
+ "unsigned8" - offset-binary 8-bit integer data
+ "integer8"  - two's-complement 8-bit integer data
+ "integer16" - two's-complement 16-bit integer data
+ "integer24" - two's-complement 24-bit integer data
+ "integer32" - two's-complement 32-bit integer data
+ "float32"   - 32-bit floating-point data
+ "float64"   - 64-bit floating-point data
+ "text"      - text data
+.fi
+.ft P
+.ti -4n
+Start: byte offset to the start of data (integer value)
+.ti -4n
+Sfreq: sampling frequency in Hz (floating point number)
+.ti -4n
+Swapb: Data byte swap parameter
+.br
+.ft CW
+.nf
+.ne 3
+ "native"        - no byte swapping
+ "little-endian" - file data is in little-endian byte order
+ "big-endian"    - file data is in big-endian byte order
+ "swap"          - swap the data bytes as the data is read
+.fi
+.ft P
+.ti -4n
+Nchan: number of channels
+.br
+The data consists of interleaved samples from Nchan channels
+.ti -4n
+ScaleF: Scale factor
+.br
+.ft CW
+.nf
+.ne 3
+ "default" - Scale factor chosen appropriate to the type of data. The
+    scaling factors shown below are applied to the data in the file.
+    8-bit mu-law:    1
+    8-bit A-law:     1
+    8-bit integer:   128
+    16-bit integer:  1
+    24-bit integer:  1/256
+    32-bit integer:  1/65536
+    float data:      32768
+ "<number or ratio>" - Specify the scale factor to be applied to
+    the data from the file.
+.fi
+.ft P
+.in -4n
+The default values for the audio file parameters correspond to the following
+string.
+.ft CW
+.nf
+.ne 3
+  "undefined, 0, 8000., native, 1, default"
+.fi
+.ft P
+.PP
+.in +4n
+.ti -4n
+AUDIOPATH:
+.in -4n
+This environment variable specifies a list of directories to be searched when
+opening the input audio files.  Directories in the list are separated by
+colons (semicolons for Windows).
+.SH Author / version
+P. Kabal / v3r6  2003-04-28
+.SH See Also
+CompAudio,
+AFsp

@@ -1,0 +1,130 @@
+#!/bin/sh
+
+# Rudimentary tests for audio utility programs
+
+# $Id: txxxAudio 1.12 1999/06/07 AFsp-v6r8 $
+
+AUDIOPATH=audiofiles
+export AUDIOPATH
+CA=../bin/CompAudio
+CP=../bin/CopyAudio
+FA=../bin/FiltAudio
+RS=../bin/ResampAudio
+
+$CP --version
+$CA --version
+$FA --version
+$RS --version
+
+echo ""
+echo "========== CopyAudio: scale by 2, scale by 0.5, expect File A = File B"
+# scale and cross channels
+$CP -Dfloat --chanA "0.5*B" -cB"2*A" addf8.au addf8.au xx.au
+echo "------"
+# test gain expression and channel extraction
+$CP --chanA="B - 0.5*B" xx.au yy.wav
+echo "------"
+$CA addf8.au yy.wav
+rm -rf xx.au yy.wav
+
+echo ""
+echo "========== CopyAudio: apply mu-law, expect max diff 254"
+$CP -D mu-law addf8.au xx.au
+echo "------"
+$CA addf8.au xx.au
+
+echo ""
+echo "========== CopyAudio: apply mu-law again, expect File A = File B"
+$CP -D mu-law xx.au yy.au
+echo "------"
+$CA xx.au yy.au
+rm -rf xx.au yy.au
+
+echo ""
+echo "========== CopyAudio: headerless output, expect File A = File B"
+$CP -D float -F noheader_big-endian addf8.au xx.nh
+echo "------"
+$CA --param="float,0,,big-endian,," addf8.au xx.nh
+rm -rf xx.nh
+
+cat > fx5.cof << EoF
+!FIR - Nyquist Filter
+! Zero crossing interval:   5
+! Stopband:  Frequency  Weight
+!             0.11250   1.000    
+!             0.50000   10.00    
+   0.000000E+00   1.044477E-01   1.531728E-01   1.443447E-01   9.213434E-02
+   0.000000E+00  -1.049936E-01  -1.898603E-01  -2.155646E-01  -1.553697E-01
+   0.000000E+00   2.328272E-01   5.034337E-01   7.559171E-01   9.353607E-01
+   1.000000E+00   9.353607E-01   7.559171E-01   5.034337E-01   2.328272E-01
+   0.000000E+00  -1.553697E-01  -2.155646E-01  -1.898603E-01  -1.049936E-01
+   0.000000E+00   9.213434E-02   1.443447E-01   1.531728E-01   1.044477E-01
+   0.000000E+00
+EoF
+
+echo ""
+echo "-------- ALL - FIR, expect File A = File B"
+cat > f.cof << EoF
+!FIR
+2 1 .5
+EoF
+cat > a.cof << EoF
+!ALL
+2 1 .5
+EoF
+$FA -D float -f f.cof addf8.au tx1.au
+rm -rf f.cof
+echo ""
+$FA -f a.cof tx1.au tx2.wav
+rm -f tx1.au a.cof
+echo ""
+$CA addf8.au tx2.wav
+rm -f tx2.wav
+
+echo "-------- FIR x5 x(1/5), expect File A = File B"
+cat > fs5.cof << EoF
+!FIR - Ideal filter, but shifted
+0 0 0 1 0 0 0
+EoF
+$FA --interpolate=5 -f fx5.cof addf8.au tx5.au
+rm -f fx5.cof
+echo ""
+$FA --interp=1/5 -f fs5.cof tx5.au tx1.au
+echo ""
+$CA addf8.au tx1.au
+rm -f fs5.cof tx5.au tx1.au
+
+echo "-------- IIR, expect File A = File B"
+cat > fi1.cof << EoF
+!IIR
+1  .5 .25 0 0
+EoF
+cat > fi2.cof << EoF
+!IIR
+1  0 0 .5 .25
+EoF
+$FA -D float -f fi1.cof addf8.au tx1.au
+echo ""
+rm -rf fi1.cof
+$FA -f fi2.cof tx1.au tx2.au
+rm -rf fi2.cof tx1.au
+echo ""
+$CA addf8.au tx2.au 2>&1
+rm -rf tx2.au
+
+echo ""
+echo "========== ResampAudio: 8000 -> 8001 -> 8000"
+$RS -s 8001 addf8.au xxx.au
+$RS -s 8000 xxx.au yyy.wav
+$CA addf8.au yyy.wav
+rm -f xxx.au yyy.wav
+
+echo ""
+echo "========== ResampAudio: 8000 -> 48000 -> 8000"
+$RS -s 48000 -f write=temp.cof addf8.au xxxa.au
+cat temp.cof
+$RS -s 48000 -f file=temp.cof,ratio=6 addf8.au xxxb.au
+$CA xxxa.au xxxb.au
+$RS -s 8000 xxxa.au zzz.au
+$CA addf8.au zzz.au
+rm -f temp.cof xxxa.au xxxb.au zzz.au

@@ -1,0 +1,121 @@
+<html>
+
+<!-- $Id: AFsp.html 1.22 2001/10/15 AFsp-v6r8 $ -->
+
+<head>
+<meta http-equiv="Content-Language" content="en-ca">
+<meta NAME="GENERATOR" CONTENT="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>TSP Lab - Audio File Programs and Routines</title>
+</head>
+
+<body BGCOLOR="#fffacd">
+
+<h2>Telecommunications &amp; Signal Processing Laboratory</h2>
+<hr ALIGN="LEFT">
+<h3>AFsp Programs and Routines</h3>
+<p>The <i>AFsp</i> package provides audio file utility programs and a library of 
+routines for reading and writing audio files.</p>
+<h4>Audio File Utilities:</h4>
+<dl>
+  <dt><a HREF="CompAudio.html">CompAudio</a> </dt>
+  <dd>Compare audio files, producing statistics and signal-to-noise ratio 
+  figures. </dd>
+  <dt><a HREF="CopyAudio.html">CopyAudio</a> </dt>
+  <dd>Copy audio files. This program combines samples from input audio files (an 
+  arbitrary linear combination) and writes them to the output file in a user 
+  selectable format. One application is to provide format conversion for an 
+  audio file; another is to combine or select samples from multi-channel files.
+  </dd>
+  <dt><a HREF="FiltAudio.html">FiltAudio</a> </dt>
+  <dd>Filter audio files. This program filters an audio file with an FIR, IIR or 
+  all-pole filter. This program can be used with an appropriate filter for 
+  sample rate conversion. The <i>AFsp</i> package includes a number of filters 
+  from the <i>ITU-T Software Tool Library</i> (G.191) in a form that can be used 
+  directly with the <i>FiltAudio</i> program. </dd>
+  <dt><a HREF="GenNoise.html">GenNoise</a> </dt>
+  <dd>Generate noise. This program generates an audio file containing Gaussian 
+  white noise. </dd>
+  <dt><a HREF="GenTone.html">GenTone</a> </dt>
+  <dd>Generate a sinusoid. This program generates an audio file containing a 
+  sine wave of a given amplitude and frequency. </dd>
+  <dt><a HREF="InfoAudio.html">InfoAudio</a> </dt>
+  <dd>Display information about an audio file. </dd>
+  <dt><a HREF="LPanal.html">LPanal</a> </dt>
+  <dd>Demonstration program to do LPC analysis on a speech file. </dd>
+  <dt><a HREF="LPsyn.html">LPsyn</a> </dt>
+  <dd>Demonstration program to do LPC synthesis from a residual file. </dd>
+  <dt><a HREF="ResampAudio.html">ResampAudio</a> </dt>
+  <dd>Resample data from an audio file. This process involves interpolating 
+  between the samples in the original file to create a new sequence of samples 
+  with a new spacing (sampling rate). </dd>
+</dl>
+<h4>Audio File Library Routines:</h4>
+<p>The audio file open routine automatically senses the input file type. The 
+data format for the file is passed to the audio file reading routines. The audio 
+file reading routine does byte swapping and format conversion on the fly as the 
+file is read. The user sees float data without needing to worry about the 
+underlying data format.</p>
+<p>Once a file is opened for writing, the user calls routines which take the 
+user's float data and do byte swapping and format conversion of the data 
+transparently.</p>
+<p>The library routines supplied in <i>AFsp</i> package form part of the libtsp 
+signal processing library. The <i>AFsp</i> routines are written in C and have 
+been tested on Unix and Windows.</p>
+<dl>
+  <dt><a HREF="../libtsp/AF/AFclose.html">AFclose</a> </dt>
+  <dd>Close an audio file </dd>
+  <dt><a HREF="../libtsp/AF/AFopenRead.html">AFopenRead</a> </dt>
+  <dd>Open an audio file for reading </dd>
+  <dt><a href="../libtsp/AF/AFopenWrite.html">AFopenWrite</a> </dt>
+  <dd>Open an audio file for writing </dd>
+  <dt><a HREF="../libtsp/AF/AFreadData.html">AFreadData</a> </dt>
+  <dd>Read data from an audio file (return float values) </dd>
+  <dt><a HREF="../libtsp/AF/AFsetFileType.html">AFsetFileType</a> </dt>
+  <dd>Explicitly set the input audio file type </dd>
+  <dt><a HREF="../libtsp/AF/AFsetHinfo.html">AFsetHinfo</a> </dt>
+  <dd>Set the audio file header information string </dd>
+  <dt><a HREF="../libtsp/AF/AFsetNHpar.html">AFsetNHpar</a> </dt>
+  <dd>Set defaults for headerless audio files </dd>
+  <dt><a HREF="../libtsp/AF/AFsetSpeaker.html">AFsetSpeaker</a> </dt>
+  <dd>Set defaults for loudspeaker spacial positions </dd>
+  <dt><a HREF="../libtsp/AF/AFwriteData.html">AFwriteData</a> </dt>
+  <dd>Write data to an audio file (float input values) </dd>
+</dl>
+<h4>Audio File Formats:</h4>
+<p>The following file formats are supported for reading.</p>
+<ul>
+  <li>Headerless audio files </li>
+  <li>AU audio files </li>
+  <li>WAVE files </li>
+  <li>AIFF/AIFF-C audio files </li>
+  <li>NIST SPHERE audio files </li>
+  <li>IRCAM soundfiles </li>
+  <li>INRS-Telecom audio files </li>
+  <li>ESPS sampled data feature files </li>
+  <li>Comdisco SPW Signal files </li>
+  <li>Text audio files </li>
+</ul>
+<p>The following file formats are supported for writing.</p>
+<ul>
+  <li>Headerless audio files (including text data) </li>
+  <li>AU audio files </li>
+  <li>WAVE files </li>
+  <li>AIFF-C audio files </li>
+</ul>
+<h4>Audio File Data Types:</h4>
+<p>The following (uncompressed) data types are supported.</p>
+<ul>
+  <li>8-bit µ-law and A-law </li>
+  <li>8-bit signed and unsigned fixed-point </li>
+  <li>9-bit to 32-bit signed fixed-point </li>
+  <li>32-bit floating-point </li>
+  <li>64-bit floating-point </li>
+  <li>text data </li>
+</ul>
+<p></p>
+<hr ALIGN="LEFT">
+
+</body>
+
+</html>

@@ -1,0 +1,363 @@
+.TH CompAudio 1audio "TSP (audio)"
+.SH Routine
+.in +4n
+.ti -4n
+CompAudio [options] AFileA [AFileB]
+.in -4n
+.SH Purpose
+.in +4n
+.ti -4n
+Compare audio files, printing statistics
+.in -4n
+.SH Description
+This program gathers and prints statistics for one or two input audio files.
+With one input file, this program prints the statistics for that file.  With
+two input files, the signal-to-noise ratio (SNR) of the second file relative
+to the first file is also printed.  For this calculation, the first audio
+file is used as the reference signal.  The "noise" is the difference between
+sample values in the files.
+.PP
+For SNR comparisons between two-channel audio files, the data is treated as
+complex values.  For more than two channels, the audio files are treated as
+if they were single channel files with the effective sampling frequency
+increased by a factor equal to the number of channels.
+.PP
+For each file, the following statistical quantities are calculated and
+printed for each channel.
+.in +4n
+.ti -4n
+Mean:
+.br
+.ft CW
+.nf
+.ne 3
+ Xm = SUM x(i) / N
+.fi
+.ft P
+.ti -4n
+Standard deviation:
+.br
+.ft CW
+.nf
+.ne 3
+ sd = sqrt [ (SUM x(i)^2 - Xm^2) / (N-1) ]
+.fi
+.ft P
+.ti -4n
+Max value:
+.br
+.ft CW
+.nf
+.ne 3
+ Xmax = max (x(i))
+.fi
+.ft P
+.ti -4n
+Min value:
+.br
+.ft CW
+.nf
+.ne 3
+ Xmin = min (x(i))
+.fi
+.ft P
+.in -4n
+.PP
+For data which is restricted to the range [-32768,+32767], additional
+information is reported.
+.in +4n
+.ti -4n
+Number of Overloads:
+.br
+Count of values taking on values -32768 or +32767, along with the number
+of such runs.  For 16-bit data from a saturating A/D converter, the
+presence of such values is an indication of a clipped signal.
+.ti -4n
+Number of Anomalous Transitions:
+.br
+Dividing the 16-bit data range into 2 positive regions and 2 negative
+regions, an anomalous transition is a transition from a sample value in
+the most positive region directly to a sample value in the most negative
+region or vice-versa.  A large number of such transitions is an
+indication of byte-swapped data.
+.ti -4n
+Active Level:
+.br
+This measurement calculates the active speech level using Method B of
+ITU-T Recommendation P.56.  The smoothed envelope of the signal is used
+to divide the signal into active and non-active regions.  The active
+level is the average envelope value for the active region.  The activity
+factor in percent is also reported.
+.in -4n
+.PP
+An optional delay range can be specified when comparing files.  The samples
+in file B are delayed relative to those in file A by each of the delay values
+in the delay range.  For each delay, the SNR with optimized gain factor (see
+below) is calculated.  For the delay corresponding to the largest SNR, the
+full regalia of file comparison values is reported.
+.PP
+.in +4n
+.ti -4n
+Conventional SNR:
+.br
+.ft CW
+.nf
+.ne 3
+            SUM |xa(i)|^2
+  SNR = --------------------- .
+        SUM |xa(i) - xb(i)|^2
+.fi
+.ft P
+The corresponding value in dB is printed.
+.in -4n
+.PP
+.in +4n
+.ti -4n
+SNR with optimized gain factor:
+.br
+.ft CW
+.nf
+.ne 3
+  SNR = 1 / (1 - r^2) ,
+.fi
+.ft P
+where r is the (normalized) correlation coefficient,
+.ft CW
+.nf
+.ne 3
+                 SUM xa(i)*xb'(i)
+  r = -------------------------------------- .
+      sqrt [ SUM |xa(i)|^2 * SUM |xb(i)|^2 ]
+.fi
+.ft P
+The SNR value in dB is printed.  This SNR calculation corresponds to
+using an optimized gain factor Sf for file B,
+.ft CW
+.nf
+.ne 3
+       SUM xa(i)*xb'(i)
+  Sf = ---------------- .
+        SUM |xb(i)|^2
+.fi
+.ft P
+.in -4n
+.PP
+.in +4n
+.ti -4n
+Segmental SNR:
+.br
+This is the average of SNR values calculated for segments of data.  The
+default segment length corresponds to 16 ms (128 samples at a sampling
+rate of 8000 Hz).  However if the sampling rate is such that the segment
+length is less than 64 samples or more than 1024 samples, the segment
+length is set to 256 samples.  For each segment, the SNR is calculated
+as
+.ft CW
+.nf
+.ne 3
+                            SUM xa(i)^2
+  SS(k) = log10 (1 + --------------------------) .
+                     0.01 + SUM [xa(i)-xb(i)]^2
+.fi
+.ft P
+The term 0.01 in the denominator prevents a divide by zero.  This value
+is appropriate for data with values significantly larger than 0.01.  The
+additive unity term discounts segments with SNR's less than unity.  The
+final average segmental SNR is calculated as
+.ft CW
+.nf
+.ne 3
+  SSNR = 10 * log10 ( 10^[SUM SS(k) / N] - 1 ) dB.
+.fi
+.ft P
+The subtraction of the unity term tends to compensate for the unity term
+in SS(k).
+.in -4n
+.PP
+If any of these SNR values is infinite, only the optimal gain factor is
+printed as part of the message (Sf is the optimized gain factor),
+.ft CW
+.nf
+.ne 3
+  "File A = Sf * File B".
+.fi
+.ft P
+.SH Options
+.in +4n
+.ti -4n
+Input file(s): AFileA [AFileB]:
+.br
+The environment variable AUDIOPATH specifies a list of directories to be
+searched for the input audio file(s).  Specifying "-" as the input file
+indicates that input is from standard input.
+.ti -4n
+-d DL:DU, --delay=DL:DU
+.br
+Specify a delay range.  Each delay in the delay range represents a delay
+of file B relative to file A.  The default range is 0:0.
+.ti -4n
+-s SAMP, --segment=SAMP
+.br
+Segment length (in samples) to be used for calculating the segmental
+signal-to-noise ratio.  The default is a length corresponding to 16 ms.
+.ti -4n
+-g GAIN, --gain=GAIN
+.br
+A gain factor applied to the data from the input files.  This gain
+applies to all channels in a file.  The gain value can be given as a
+real number (e.g., "0.003") or as a ratio (e.g., "1/256"). This option
+may be given more than once.  Each invocation applies to the input files
+that follow the option.
+.ti -4n
+-l L:U, --limits=L:U
+.br
+Sample limits for the input files (numbered from zero).  Each invocation
+applies to the input files that follow the option.  The specification
+":" means the entire file; "L:" means from sample L to the end; ":U"
+means from sample 0 to sample U; "N" means from sample 0 to sample N-1.
+.ti -4n
+-t FTYPE, --type=FTYPE
+.br
+Input audio file type.  In the default automatic mode, the input file
+type is determined from the file header.  For input from a non-random
+access file (e.g. a pipe), the input file type can be explicitly
+specified to avoid the lookahead used to read the file header.  This
+option can be specified more than once.  Each invocation applies to the
+input files that follow the option.  See the description of the
+environment variable AF_FILETYPE below for a list of file types.
+.ti -4n
+-P PARMS, --parameters=PARMS
+.br
+Parameters to be used for headerless input files.  This option may be
+given more than once.  Each invocation applies to the input files that
+follow the option.  See the description of the environment variable
+AF_NOHEADER below for the format of the parameter specification.
+.ti -4n
+-h, --help
+.br
+Print a list of options and exit.
+.ti -4n
+-v, --version
+.br
+Print the version number and exit.
+.in -4n
+.SH Environment variables
+.in +4n
+.ti -4n
+AF_FILETYPE:
+.in -4n
+This environment variable defines the input audio file type.  In the default
+mode, the input file type is determined from the file header.
+.ft CW
+.nf
+.ne 3
+  "auto"       - determine the input file type from the file header
+  "AU" or "au" - AU audio file
+  "WAVE" or "wave" - WAVE file
+  "AIFF" or "aiff" - AIFF or AIFF-C sound file
+  "noheader"   - headerless (non-standard or no header) audio file
+  "SPHERE"     - NIST SPHERE audio file
+  "ESPS"       - ESPS sampled data feature file
+  "IRCAM"      - IRCAM soundfile
+  "SPPACK"     - SPPACK file
+  "INRS"       - INRS-Telecom audio file
+  "SPW"        - Comdisco SPW Signal file
+  "CSL" or "NSP" - CSL NSP file
+  "text"       - Text audio file
+.fi
+.ft P
+.PP
+.in +4n
+.ti -4n
+AF_NOHEADER:
+.in -4n
+This environment variable defines the data format for headerless or
+non-standard input audio files.  The string consists of a list of parameters
+separated by commas.  The form of the list is
+.ft CW
+.nf
+.ne 3
+  "Format, Start, Sfreq, Swapb, Nchan, ScaleF"
+.fi
+.ft P
+.in +4n
+.ti -4n
+Format: File data format
+.br
+.ft CW
+.nf
+.ne 3
+ "undefined" - Headerless files will be rejected
+ "mu-law8"   - 8-bit mu-law data
+ "A-law8"    - 8-bit A-law data
+ "unsigned8" - offset-binary 8-bit integer data
+ "integer8"  - two's-complement 8-bit integer data
+ "integer16" - two's-complement 16-bit integer data
+ "integer24" - two's-complement 24-bit integer data
+ "integer32" - two's-complement 32-bit integer data
+ "float32"   - 32-bit floating-point data
+ "float64"   - 64-bit floating-point data
+ "text"      - text data
+.fi
+.ft P
+.ti -4n
+Start: byte offset to the start of data (integer value)
+.ti -4n
+Sfreq: sampling frequency in Hz (floating point number)
+.ti -4n
+Swapb: Data byte swap parameter
+.br
+.ft CW
+.nf
+.ne 3
+ "native"        - no byte swapping
+ "little-endian" - file data is in little-endian byte order
+ "big-endian"    - file data is in big-endian byte order
+ "swap"          - swap the data bytes as the data is read
+.fi
+.ft P
+.ti -4n
+Nchan: number of channels
+.br
+The data consists of interleaved samples from Nchan channels
+.ti -4n
+ScaleF: Scale factor
+.br
+.ft CW
+.nf
+.ne 3
+ "default" - Scale factor chosen appropriate to the type of data. The
+    scaling factors shown below are applied to the data in the file.
+    8-bit mu-law:    1
+    8-bit A-law:     1
+    8-bit integer:   128
+    16-bit integer:  1
+    24-bit integer:  1/256
+    32-bit integer:  1/65536
+    float data:      32768
+ "<number or ratio>" - Specify the scale factor to be applied to
+    the data from the file.
+.fi
+.ft P
+.in -4n
+The default values for the audio file parameters correspond to the following
+string.
+.ft CW
+.nf
+.ne 3
+  "undefined, 0, 8000., native, 1, default"
+.fi
+.ft P
+.PP
+.in +4n
+.ti -4n
+AUDIOPATH:
+.in -4n
+This environment variable specifies a list of directories to be searched when
+opening the input audio files.  Directories in the list are separated by
+colons (semicolons for Windows).
+.SH Author / version
+P. Kabal / v4r3  2003-04-28
+.SH See Also
+InfoAudio,
+AFsp

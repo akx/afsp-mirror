@@ -1,0 +1,50 @@
+#
+#	Makefile for ResampAudio
+#
+
+PROG = ResampAudio
+OBJECTS = \
+	ResampAudio.o \
+	RSexpTime.o \
+	RSfiltSpec.o \
+	RSincTime.o \
+	RSinterp.o \
+	RSintFilt.o \
+	RSKaiserLPF.o \
+	RSoptions.o \
+	RSratio.o \
+	RSrefresh.o \
+	RSresamp.o \
+	RSuKaiser.o \
+	RSwriteCof.o \
+	#
+
+HEADERS = ResampAudio.h
+
+SHELL = /bin/sh
+
+dist_dir = ../..
+
+dist_libdir = $(dist_dir)/lib
+dist_bindir = $(dist_dir)/bin
+dist_includedir = $(dist_dir)/include
+
+EXEEXT =
+COPTS = -O
+CFLAGS = $(COPTS) -I$(dist_includedir)
+LDFLAGS = -s -lm
+
+LLIBS = $(dist_libdir)/libAO.a $(dist_libdir)/libtsp.a
+
+.PHONY: mostlyclean clean
+
+BIN = $(dist_bindir)/$(PROG)$(EXEEXT)
+$(BIN): $(OBJECTS) $(LLIBS)
+	$(CC) $(OBJECTS) $(LLIBS) $(LDFLAGS) -o $(BIN)
+
+$(OBJECTS): $(HEADERS)
+
+mostlyclean:
+	rm -f *.o
+clean:	mostlyclean
+	rm -f $(BIN)
