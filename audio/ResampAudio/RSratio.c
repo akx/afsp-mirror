@@ -38,13 +38,11 @@ Parameters:
       information about the filter is printed on the stream selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.14 $  $Date: 1999/06/13 15:49:05 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.15 $  $Date: 2003/05/13 01:09:07 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSratio.c 1.14 1999/06/13 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <float.h>	/* DBL_EPSILON */
 

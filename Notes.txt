@@ -1,0 +1,124 @@
+Notes on the AFsp programs
+May 2003
+
+1. Information about some of the audio file formats supported by the AFsp 
+   programs can be found on-line at
+     http://WWW.TSP.ECE.McGill.CA/MMSP/Documents/AudioFormats
+
+2. The html files documenting the programs and routines are also available 
+   on-line at
+     http://WWW.TSP.ECE.McGill.CA/MMSP/Software/AFsp/AFsp.html
+
+3. The Windows "Send To" menu can be used to select files for InfoAudio or
+   CompAudio.  A batch file to invoke, say InfoAudio, can be placed in the
+   "Send To" folder in a user's profile.  With that batch file in place, one
+   can right-click on an audio file to invoke InfoAudio.
+   - The batch file should start up a command window and pass its input
+     argument (the file name) to InfoAudio.  The input from InfoAudio will
+     then appear in the command window.  Use a PAUSE at the end of the
+     batch file to keep the command window on the screen.
+   - The file name passed to the batch file is the DOS version of the name.
+     A more sophisticated version of the batch file could expand the file
+     name before passing it to InfoAudio (for instance by invoking
+     "dir <name> /a:-D /x /b").
+   - This same strategy can be applied to playing files.  Use CopyAudio to
+     copy the selected file to a WAVE file in a temporary directory.  Then
+     a standard play routine (for instance, Windows Media Player) can be used
+     to play the file.
+
+4. Some external programs assume that WAVE files always have 44 byte headers
+   and that the data can be accessed by skipping over the header.  This is not
+   in general a safe assumption.
+   - The AFsp programs will by default add a trailer containing information
+     text.  This trailer can be suppressed if the user explicitly specifies an
+     empty information string (-I "").  Other WAVE files (not created by
+     the AFsp programs) can also contain trailer information, for instance
+     DISP and INFO chunks. 
+   - WAVE files specifying more than 2 channels, speaker locations, or a
+     number of valid bits which is not the same as the number of bits in
+     each sample, will be written as WAVE_FORMAT_EXTENSIBLE files.
+   - The WAVE-NOEX file type can be specified so that the AFsp Programs will
+     not use the WAVE_FORMAT_EXTENSIBLE format.
+   - The header lengths for WAVE files are as follows:
+       PCM                   44 byte header
+       non-PCM               58 byte header (e.g. mu-law data)
+       PCM extensible        68 byte header (e.g. 4 channel integer data)
+       non-PCM extensible    80 byte header (e.g. 4 channel mu-law data)
+
+5. The AFsp programs can be used as a front end to other programs that do not
+   know how to parse certain file headers.  In one scenario, CopyAudio can
+   be used to copy the input file to a canonical format (perhaps raw data).
+   Alternately, InfoAudio can be used to determine the data type, data
+   starting point (header length) and data length.  These value can then be
+   passed to a program that can handle raw files with an offset to the data.
+
+6. For Matlab use, CopyAudio can convert data from an input audio file to
+   text format.  The output text file can then be imported into Matlab with
+   a "load xxx.txt" command.
+
+----------------------------------------------
+Notes on Scaling
+
+In order to be able to treat data from files with differing data formats in 
+a uniform way, the data returned by the AFsp routines are normalized.  For 
+integer-valued data, this means that the full scale occupies the range 
+-1 to +1.  An exception is made for 8-bit data.  Full scale for that case is 
+-0.5 to +0.5.
+
+On reading data from a file, the data are normalized.  For integer data, this 
+means dividing by the largest representable integer number.  For instance for 
+16-bit data, the data are multiplied by 1/32768 to get the normalized values.  
+When writing to a file, the inverse scaling is used.  Thus normalized values 
+of -1 to +1 will appear as values from -32768 to +32767 in a file which is
+contains 16-bit integer data format.
+
+For floating-point data, the data are not scaled.  When converting from 
+fixed-point to floating-point, the floating point values will be in the range 
+-1 to +1.
+
+The CopyAudio routine allows for a linear combination of the input channels 
+together with an offset value.  The offset value is a normalized value.
+
+Ratios of Values
+
+For the AFsp programs, a ratio can be used in many places where a 
+floating-point number is allowed.  Thus a value "0.25" can also be specified 
+as "1/4" or "2/8".
+
+-------------------------------------------------------------------
+AFsp routines: Error Handling in the libtsp Routines:
+
+The general error handing philosophy for the libtsp routines is that all
+errors are reported and execution is halted.  This approach allows for the
+simplest programming style, avoiding constant checking for errors.
+
+Audio Routines:
+
+Error handling for the audio routines is of two forms:
+(1) Stop on errors (default, easiest programming)
+(2) Optionally report errors but continue
+
+If the optional error handling is enabled, the action for the user level
+routines is as follows.
+AFopnRead:
+  Returns a NULL pointer in case of error
+AFopnWrite
+  Returns a NULL pointer in case of error
+AFxWriteData:
+  Returns the number of samples written.  This is less than the number
+  requested in case of an error.  AFp->Error is set in case of an error.
+AFxReadData:
+  Returns the number of samples read.  If smaller than requested, either
+  end-of-file or an error has occurred.  Checking AFp->Error will distinguish
+  the two cases.
+
+The routine AFclose can be used to "close" the file, either for the case that
+an error occurred while opening the file (NULL audio file pointer), or an
+error occurred while reading or writing the file.
+
+Notes:
+  Some deeply imbedded routines can cause termination.  For instance some
+  string comparison routines allocate temporary memory while processing the
+  string.  If this allocation fails (UTmalloc), execution is stopped.  Since
+  all these routines allocate at most modest amounts of storage, these errors
+  should not be encountered in practice.

@@ -18,13 +18,11 @@ Parameters:
       each call to this routine overlays this storage.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.17 $  $Date: 2001/11/30 13:39:47 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.18 $  $Date: 2003/05/09 03:23:41 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTgetHost.c 1.17 2001/11/30 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* getenv */
 #include <string.h>
 

@@ -17,8 +17,8 @@ Print audio file information
 </DL>
 <H4>Description</H4>
 This program prints information about a number of audio files to standard
-output.  The full output consists of the file type and name (indented part
-of the output below), the file data parameters, and the header information
+output.  The full output consists of the file type and name (indented
+part of the output below), the file data parameters, and the information
 records.
 <PRE>
    AU audio file: /usr/local/src/audio/InfoAudio/test/xx.au
@@ -34,7 +34,7 @@ records.
                                   integer16, float32, float64, or text)
   File byte order: big-endian    (big-endian, little-endian, or byte-stream)
   Host byte order: big-endian    (big-endian or little-endian)
-  --Header information records--
+  --Information records--
   date: 2001-02-04 14:12:50 UTC
   user: library@aldebaran
   program: CopyAudio
@@ -43,7 +43,7 @@ records.
 For single byte or text data, the "File byte order" field is set to
 "byte-stream".
 <P>
-Non-printing characters (as defined by the routine isprint) in the header
+Non-printing characters (as defined by the routine isprint) in the
 information records are replaced by question marks.
 <H4>Options</H4>
 <DL>
@@ -78,7 +78,7 @@ of the codes which control printing of the individual parts.
 <PRE>
   1:  Print the file type and name
   2:  Print the file data parameters
-  4:  Print the header information records
+  4:  Print the information records
 </PRE>
 The default is to print all of the information (ICODE=7).  For ICODE=0,
 no information is printed, but the program return code indicates if all
@@ -163,15 +163,7 @@ The data consists of interleaved samples from Nchan channels
 ScaleF: Scale factor
 <DD>
 <PRE>
- "default" - Scale factor chosen appropriate to the type of data. The
-    scaling factors shown below are applied to the data in the file.
-    8-bit mu-law:    1
-    8-bit A-law:     1
-    8-bit integer:   128
-    16-bit integer:  1
-    24-bit integer:  1/256
-    32-bit integer:  1/65536
-    float data:      32768
+ "default" - Scale factor chosen appropriate to the type of data.
  "&lt;number or ratio&gt;" - Specify the scale factor to be applied to
     the data from the file.
 </PRE>
@@ -190,7 +182,7 @@ This environment variable specifies a list of directories to be searched when
 opening the input audio files.  Directories in the list are separated by
 colons (semicolons for Windows).
 <H4>Author / version</H4>
-P. Kabal / v3r6  2003-04-28
+P. Kabal / v4r0a  2003-11-03
 <H4>See Also</H4>
 <A HREF="CompAudio.html">CompAudio</A>
 <P>

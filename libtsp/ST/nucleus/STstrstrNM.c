@@ -23,13 +23,11 @@ Parameters:
       Number of characters in Ti
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.12 $  $Date: 1999/06/04 22:34:58 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.13 $  $Date: 2003/05/09 03:06:42 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STstrstrNM.c 1.12 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp/nucleus.h>
 
 

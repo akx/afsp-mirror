@@ -49,13 +49,11 @@ Parameters:
       selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.36 $  $Date: 2002/06/26 18:36:15 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.37 $  $Date: 2003/05/09 01:29:45 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FIreadFilt.c 1.36 2002/06/26 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/FIpar.h>

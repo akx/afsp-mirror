@@ -8,8 +8,8 @@ Description:
   Function prototypes for the TSP library AF data I/O internal routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.8 $  $Date: 1999/06/04 23:27:17 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/09 00:02:43 $
 
 ----------------------------------------------------------------------*/
 
@@ -30,54 +30,96 @@ typedef struct AF_filepar AFILE;	/* Audio file parameters */
 extern "C" {
 #endif
 
+int
+AFdRdAlaw (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdF4 (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdF8 (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdI1 (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdI2 (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdI3 (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdI4 (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdMulaw (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdTA (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdU1 (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdWrAlaw (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrF4 (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrF8 (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrI1 (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrI2 (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrI3 (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrI4 (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrMulaw (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrTA (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFdWrU1 (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFfRdAlaw (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfRdF4 (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfRdF8 (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfRdI1 (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfRdI2 (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfRdI3 (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfRdI4 (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfRdMulaw (AFILE *AFp, float Cbuff[], int Nreq);
+int
+AFfRdTA (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfRdU1 (AFILE *AFp, float Dbuff[], int Nreq);
+int
+AFfWrAlaw (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrF4 (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrF8 (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrI1 (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrI2 (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrI3 (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrI4 (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrMulaw (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrTA (AFILE *AFp, const float Dbuff[], int Nval);
+int
+AFfWrU1 (AFILE *AFp, const float Dbuff[], int Nval);
 char *
 AFgetLine (FILE *fp, int *ErrCode);
 int
-AFquant (double x, const float Xq[], int Nreg);
+AFposition (AFILE *AFp, long int offs);
 int
 AFrdAlaw (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdF4 (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdF8 (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdI1 (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdI2 (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdI3 (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdI4 (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdMulaw (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdTA (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFrdU1 (AFILE *AFp, float Fbuff[], int Nreq);
 int
 AFseek (FILE *fp, long int pos, int *ErrCode);
 long int
 AFtell (FILE *fp, int *ErrCode);
-int
-AFwrAlaw (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrF4 (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrF8 (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrI1 (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrI2 (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrI3 (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrI4 (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrMulaw (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrTA (AFILE *AFp, const float Fbuff[], int Nval);
-int
-AFwrU1 (AFILE *AFp, const float Fbuff[], int Nval);
 
 #ifdef __cplusplus
 }

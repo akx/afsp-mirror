@@ -11,7 +11,7 @@ Description:
   This routine sets the default audio file data parameters.  These parameters
   are used for reading audio files with unrecognized (non-standard) headers
   or files with no headers (raw audio files).  This routine must be called
-  before opening the file with AFopenRead.  The parameters for AFsetNHpar are
+  before opening the file with AFopnRead.  The parameters for AFsetNHpar are
   determined from an input string which consists of a list of parameters
   separated by commas and/or white space.  The form of the list is
     "Format, Start, Sfreq, Swapb, Nchan, ScaleF"
@@ -76,12 +76,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.51 $  $Date: 2003/04/29 23:16:21 $
+  $Revision: 1.53 $  $Date: 2003/05/09 01:03:46 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFsetNHpar.c 1.51 2003/04/29 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* getenv prototype */
 #include <string.h>
 

@@ -9,23 +9,21 @@ Purpose:
 
 Description:
   This routine updates the data length fields of a RIFF WAVE file.  The file
-  is assumed to have been opened with routine AFopenWrite.  This routine also
+  is assumed to have been opened with routine AFopnWrite.  This routine also
   writes information chunks at the end of the file.
 
 Parameters:
   <-  int AFupdWVhead
       Error code, zero for no error
    -> AFILE *AFp
-      Audio file pointer for an audio file opened by AFopenWrite
+      Audio file pointer for an audio file opened by AFopnWrite
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.31 $  $Date: 2002/11/06 18:49:15 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.34 $  $Date: 2003/11/03 18:48:31 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFupdWVhead.c 1.31 2002/11/06 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <setjmp.h>
 #include <string.h>
@@ -56,13 +54,13 @@ static char rcsid [] = "$Id: AFupdWVhead.c 1.31 2002/11/06 AFsp-v6r8 $";
 extern jmp_buf AFW_JMPENV;
 
 static const char *
-AF_findRec (const char *Id[], const struct AF_info *Hinfo);
+AF_findRec (const char *Id[], const struct AF_info *InfoS);
 static void
-AF_setAFSP (struct WV_AFSP *afsp, const struct AF_info *Hinfo);
+AF_setAFSP (struct WV_AFSP *afsp, const struct AF_info *InfoS);
 static void
-AF_setDISP (struct WV_DISP *disp, const struct AF_info *Hinfo);
+AF_setDISP (struct WV_DISP *disp, const struct AF_info *InfoS);
 static void
-AF_setLIST_INFO (struct WV_LIST_INFO *info, const struct AF_info *Hinfo);
+AF_setLIST_INFO (struct WV_LIST_INFO *info, const struct AF_info *InfoS);
 static int
 AF_wrAFSP (FILE *fp, const struct WV_AFSP *afsp);
 static int
@@ -115,9 +113,9 @@ AFupdWVhead (AFILE *AFp)
   Nbytes += WRPAD (AFp->fp, Nbytes, ALIGN);	/* Write pad byte */
 
 /* Generate the information records */
-  AF_setAFSP (&afsp, &AFp->Hinfo);
-  AF_setDISP (&disp, &AFp->Hinfo);
-  AF_setLIST_INFO (&info, &AFp->Hinfo);
+  AF_setAFSP (&afsp, &AFp->InfoS);
+  AF_setDISP (&disp, &AFp->InfoS);
+  AF_setLIST_INFO (&info, &AFp->InfoS);
 
 /* Write the information records (at the end of the file) */
   if (afsp.cksize > 4) {
@@ -162,16 +160,16 @@ AFupdWVhead (AFILE *AFp)
 
 
 static void
-AF_setAFSP (struct WV_AFSP *afsp, const struct AF_info *Hinfo)
+AF_setAFSP (struct WV_AFSP *afsp, const struct AF_info *InfoS)
 
 {
   MCOPY ("afsp", afsp->ckid);
-  if (Hinfo->N > 0)
-    afsp->cksize = (uint4_t) (4 + Hinfo->N);
+  if (InfoS->N > 0)
+    afsp->cksize = (uint4_t) (4 + InfoS->N);
   else
     afsp->cksize = (uint4_t) 4;
   MCOPY (FM_AFSP, afsp->AFspID);
-  afsp->text = Hinfo->Info;
+  afsp->text = InfoS->Info;
 
   return;
 }
@@ -200,7 +198,7 @@ AF_wrAFSP (FILE *fp, const struct WV_AFSP *afsp)
 
 
 static void
-AF_setDISP (struct WV_DISP *disp, const struct AF_info *Hinfo)
+AF_setDISP (struct WV_DISP *disp, const struct AF_info *InfoS)
 
 {
   const char *title;
@@ -208,7 +206,7 @@ AF_setDISP (struct WV_DISP *disp, const struct AF_info *Hinfo)
 				  "user_comment:", NULL};
 
   MCOPY ("DISP", disp->ckid);
-  title = AF_findRec (TitleID, Hinfo);
+  title = AF_findRec (TitleID, InfoS);
   if (title == NULL)
     disp->cksize = (uint4_t) 4;
   else
@@ -243,7 +241,7 @@ AF_wrDISP (FILE *fp, const struct WV_DISP *disp)
 
 
 static void
-AF_setLIST_INFO (struct WV_LIST_INFO *info, const struct AF_info *Hinfo)
+AF_setLIST_INFO (struct WV_LIST_INFO *info, const struct AF_info *InfoS)
 
 {
   int i, k, Nk, size;
@@ -279,7 +277,7 @@ AF_setLIST_INFO (struct WV_LIST_INFO *info, const struct AF_info *Hinfo)
   while (k < Nk && i < WV_N_LIST_INFO) {
 
     /* Look for a record with the given keywords */
-    text = AF_findRec (&IID[k+1], Hinfo);	/* Keywords */
+    text = AF_findRec (&IID[k+1], InfoS);	/* Keywords */
     if (text != NULL) {
       MCOPY (IID[k], info->listitem[i].ckid);	/* Item ID */
       info->listitem[i].cksize = strlen (text) + 1;
@@ -328,7 +326,7 @@ AF_wrLIST_INFO (FILE *fp, const struct WV_LIST_INFO *info)
 
 
 static const char *
-AF_findRec (const char *Id[], const struct AF_info *Hinfo)
+AF_findRec (const char *Id[], const struct AF_info *InfoS)
 
 {
   int i;
@@ -336,7 +334,7 @@ AF_findRec (const char *Id[], const struct AF_info *Hinfo)
 
   p = NULL;
   for (i = 0; Id[i] != NULL; ++i) {
-    p = AFgetHrec (Id[i], Hinfo);
+    p = AFgetInfoRec (Id[i], InfoS);
     if (p != NULL)
       break;
   }

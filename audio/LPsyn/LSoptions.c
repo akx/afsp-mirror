@@ -2,8 +2,7 @@
                            McGill University
 
 Routine:
-  void LSoptions (int argc, const char *argv[], int *Fstats
-		  char Fname[4][FILENAME_MAX])
+  void LSoptions (int argc, const char *argv[], char Fname[4][FILENAME_MAX])
 
 Purpose:
   Decode options for LPsyn
@@ -16,8 +15,6 @@ Parameters:
       Number of command line arguments
    -> const char *argv[]
       Array of pointers to argument strings
-  <-  int *Fstats
-      Frame statistics flag
   <-  const char *Fname[4]
       File names: input parameter file,
                   input audio file,
@@ -25,13 +22,11 @@ Parameters:
                   output audio file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.1 $  $Date: 2001/04/03 03:06:39 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.2 $  $Date: 2003/05/13 01:18:00 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: LSoptions.c 1.1 2001/04/03 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* prototype for exit */
 
 #include <libtsp.h>
@@ -51,7 +46,6 @@ static const char *nullTable[] = { NULL };
 static const char *OptTable[] = {
   "-p#", "--par*ameter_file=",
   "-c#", "--lpc*_file=",
-  "-s",  "--s*tatistics",
   "-h",  "--h*elp",
   "-v",  "--v*ersion",
   "--",
@@ -64,24 +58,20 @@ Options:\n\
                               Parameter file.\n\
   -c LPFile, --lpc_file=LPFile\n\
                               LPC predictor coefficient file.\n\
-  -s, --statistics            Print frame-by-frame statistics.\n\
   -h, --help                  Print a list of options and exit.\n\
   -v, --version               Print the version number and exit.";
 
 void
-LSoptions (int argc, const char *argv[], int *Fstats,
-	   char Fname[4][FILENAME_MAX])
+LSoptions (int argc, const char *argv[], char Fname[4][FILENAME_MAX])
 
 {
   int Index;
   const char *OptArg;
   const char **optt;
-  int Fstatsx;
 
   int nF, n, nn;
 
 /* Defaults */
-  Fstatsx = 0;
   Fname[2][0] = '\0';
   Fname[3][0] = '\0';
 
@@ -114,10 +104,6 @@ LSoptions (int argc, const char *argv[], int *Fstats,
       /* LPC file */
       STcopyMax (OptArg, Fname[2], FILENAME_MAX-1);
       break;
-    case 3:
-      /* Frame statistics */
-      Fstatsx = 1;
-      break;
     case LOPT-2:
       /* Help */
       UTwarn (Usage, PROGRAM);
@@ -146,9 +132,6 @@ LSoptions (int argc, const char *argv[], int *Fstats,
     UThalt ("%s: No parameter file", PROGRAM);
   if (Fname[2][0] == '\0')
     UThalt ("%s: No LPC coefficient file", PROGRAM);
-
-/* Return value */
-  *Fstats = Fstatsx;
 
   return;
 }

@@ -22,11 +22,13 @@ Options:
       file type.
         ".au"   - AU audio file
         ".wav"  - WAVE file
-        ".aif"  - AIFF-C sound file
+        ".aif"  - AIFF sound file
+        ".afc"  - AIFF-C sound file
         ".raw"  - Headerless file (native byte order)
         ".txt"  - Headerless file (text data)
   -d SDEV, --std_deviation=SDEV
-      Standard deviation of the noise samples, default 1000.
+      Standard deviation of the noise samples in normalized units, default
+      0.03.
   -x SEED, --seed=SEED
       Seed for the random number generator, default from current time.
   -n NSAMPLE, --number_samples=NSAMPLE
@@ -100,12 +102,10 @@ Options:
   the user supplied header information string appears alone.
 
 Author / version:
-  P. Kabal / v4r2  2003-01-27  Copyright (C) 2003
+  P. Kabal / v5r0a  2003-11-06  Copyright (C) 2003
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: GenNoise.c 1.54 2003/01/30 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* EXIT_SUCCESS */
 #include <string.h>
 
@@ -125,9 +125,10 @@ main (int argc, const char *argv[])
   struct GN_FOpar FO;
   AFILE *AFp;
   FILE *fpinfo;
-  int i, n, seed, Fformat;
+  int i, n, seed, Ftype, Dformat;
   long int k;
-  float rms, x[MAXBUF];
+  double rms;
+  float x[MAXBUF];
 
 /* Get the input parameters */
   GNoptions (argc, argv, &rms, &seed, &FO);
@@ -139,11 +140,12 @@ main (int argc, const char *argv[])
     fpinfo = stdout;
 
 /* Open the output file */
-  Fformat = AOsetFormat (&FO, NULL, 0);
+  Ftype = AOsetFtype (&FO);
+  Dformat = AOsetDformat (&FO, NULL, 0);
   AOsetFOopt (&FO);
   if (strcmp (FO.Fname, "-") != 0)
     FLbackup (FO.Fname);
-  AFp = AFopenWrite (FO.Fname, Fformat, 1L, FO.Sfreq, fpinfo);
+  AFp = AFopnWrite (FO.Fname, Ftype, Dformat, 1L, FO.Sfreq, fpinfo);
 
 /* Generate the noise samples */
   MSrandSeed (seed);
@@ -151,9 +153,9 @@ main (int argc, const char *argv[])
   while (k < FO.Nframe) {
     n = (int) MINV (FO.Nframe - k, MAXBUF);
     for (i = 0; i < n; ++i)
-      x[i] = (float) MSfGaussRand ((double) rms);
+      x[i] = (float) MSfGaussRand (rms);
     k += n;
-    AFwriteData (AFp, x, n);
+    AFfWriteData (AFp, x, n);
   }
 
 /* Close the audio file */

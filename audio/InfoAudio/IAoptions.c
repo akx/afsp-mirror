@@ -24,13 +24,11 @@ Parameters:
       Number of input file names
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.30 $  $Date: 1999/06/05 02:14:30 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.31 $  $Date: 2003/05/13 01:19:47 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: IAoptions.c 1.30 1999/06/05 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>

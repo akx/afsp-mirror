@@ -29,13 +29,11 @@ Parameters:
       Channel gain matrix
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.77 $  $Date: 1999/06/05 00:58:31 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.78 $  $Date: 2003/05/13 01:33:07 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CPoptions.c 1.77 1999/06/05 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <AO.h>
 #include "CopyAudio.h"

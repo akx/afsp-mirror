@@ -34,13 +34,11 @@ Parameters:
       Data offset into the rate-increased data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.18 $  $Date: 2002/03/25 16:38:32 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.19 $  $Date: 2003/05/13 01:25:16 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FAfiltSI.c 1.18 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include "FiltAudio.h"
 
@@ -166,7 +164,7 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[], int Ncof,
 
 /* Prime the array */
   l = loffs;
-  AFreadData (AFpI, l - lmem, &x[0], (int) lmem);
+  AFfReadData (AFpI, l - lmem, &x[0], (int) lmem);
 
 /* Main processing loop */
   k = 0;
@@ -179,7 +177,7 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[], int Ncof,
 /* Read the input data into the input buffer */
     Ni = ICEILV ((NsampO - k - 1) * NSUB + mp + 1, IR);
     Nx = MINV (Nxmax, Ni);
-    AFreadData (AFpI, l, &x[lmem], (int) Nx);
+    AFfReadData (AFpI, l, &x[lmem], (int) Nx);
     l = l + Nx;
 
 /* Convolve the input samples with the filter response */
@@ -191,7 +189,7 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[], int Ncof,
     mp = mp + NSUB * Ny;
 
 /* Write the output buffer to the output audio file */
-    AFwriteData (AFpO, y, (int) Ny);
+    AFfWriteData (AFpO, y, (int) Ny);
 
 /* Update the filter memory */
     VRfShift (x, (int) lmem, (int) Nx);

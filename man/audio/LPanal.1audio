@@ -132,7 +132,7 @@ This environment variable specifies a list of directories to be searched when
 opening the input audio files.  Directories in the list are separated by
 colons (semicolons for Windows).
 .SH Author / version
-P. Kabal / v2r3d  2002-11-06
+P. Kabal / v3r0a  2003-11-03
 .SH See Also
 LPsyn,
 AFsp

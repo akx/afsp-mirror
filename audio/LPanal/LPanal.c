@@ -86,13 +86,10 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v2r3d  2002-11-06  Copyright (C) 2002
+  P. Kabal / v3r0a  2003-11-03  Copyright (C) 2003
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: LPanal.c 1.40 2002/11/06 AFsp-v6r8 $";
-
-
 #include <stdlib.h>	/* EXIT_SUCCESS */
 #include <string.h>
 
@@ -100,26 +97,22 @@ static char rcsid[] = "$Id: LPanal.c 1.40 2002/11/06 AFsp-v6r8 $";
 #include <libtsp/AFpar.h>
 #include "LPanal.h"
 
-#define MAXHEADER	1024
-
 
 int
 main (int argc, const char *argv[])
 
 {
-  int Fformat;
   char Fname[4][FILENAME_MAX];
   AFILE *AFpI, *AFpL, *AFpO;
   FILE *fpinfo;
   long int Nsamp, Nchan;
-  int Lwin, Woffs, Lframe, Np, Fstats;
+  int Lwin, Woffs, Lframe, Np;
   const float *Win;
-  float Sfreq, pre, bwexp;
-  char Hstring[MAXHEADER+1];
+  double Sfreq, pre, bwexp;
+  char Info[MAXINFO+1];
 
 /* Get the input parameters */
-  LPoptions (argc, argv, &Fstats, Fname);
-  Fformat = FTW_code (FTW_AU, FD_FLOAT32);
+  LPoptions (argc, argv, Fname);
 
 /* If output is to stdout, use stderr for informational messages */
   if (strcmp (Fname[2], "-") == 0 || strcmp (Fname[3], "-") == 0)
@@ -133,34 +126,33 @@ main (int argc, const char *argv[])
 /* Open the input audio file */
   AFsetNHpar ("$NOHEADER_AUDIOFILE");
   FLpathList (Fname[1], "$AUDIOPATH", Fname[1]);
-  AFpI = AFopenRead (Fname[1], &Nsamp, &Nchan, &Sfreq, fpinfo);
+  AFpI = AFopnRead (Fname[1], &Nsamp, &Nchan, &Sfreq, fpinfo);
   if (Nchan != 1)
     UThalt ("%s: Multiple input channels not supported", PROGRAM);
 
 /* Set the header information string */
-  STcopyMax ((AFoptions ())->Uinfo, Hstring, MAXHEADER);
-  AFsetHinfo (NULL);
+  STcopyMax ((AFoptions ())->Uinfo, Info, MAXINFO);
+  AFsetInfo (NULL);
   fprintf (fpinfo, "\n");
 
 /* Open the LPC coefficient file */
-  AFsetHinfo (Hstring);		/* Header string including parameters */
+  AFsetInfo (Info);		/* Header string including parameters */
   if (strcmp (Fname[2], "-") != 0)
     FLbackup (Fname[2]);
-  AFpL = AFopenWrite (Fname[2], Fformat, Np, Sfreq/Lframe, fpinfo);
+  AFpL = AFopnWrite (Fname[2], FTW_AU, FD_FLOAT32, Np, Sfreq/Lframe, fpinfo);
 
 /* Open the output residual file */
-  AFsetHinfo (Hstring);
+  AFsetInfo (Info);
   if (Fname[3] != NULL) {
     if (strcmp (Fname[3], "-") != 0)
       FLbackup (Fname[3]);
-    AFpO = AFopenWrite (Fname[3], Fformat, 1L, Sfreq, fpinfo);
+    AFpO = AFopnWrite (Fname[3], FTW_AU, FD_FLOAT32, 1L, Sfreq, fpinfo);
   }
   else
     AFpO = NULL;
 
 /* Process the input file */
-  LPlpcAnal (AFpI, AFpL, AFpO, Fstats, pre, Win, Lwin, Woffs, Lframe, Np,
-	     bwexp);
+  LPlpcAnal (AFpI, AFpL, AFpO, pre, Win, Lwin, Woffs, Lframe, Np, bwexp);
 
 /* Close the files */
   AFclose (AFpI);

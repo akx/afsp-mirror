@@ -29,15 +29,14 @@ Parameters:
       1 - File must be random access
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.2 $  $Date: 2001/10/04 23:04:18 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.3 $  $Date: 2003/05/09 12:32:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AOsetFIopt.c 1.2 2001/10/04 AFsp-v6r8 $";
-
 #include <libtsp/AFpar.h>
 #include <AO.h>
+
 
 void
 AOsetFIopt (const struct AO_FIpar *FI, int NsampND, int RAccess)

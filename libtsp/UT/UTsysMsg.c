@@ -37,13 +37,11 @@ Parameters:
       vprintf.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.7 $  $Date: 1999/06/04 22:41:07 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.8 $  $Date: 2003/05/09 03:20:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTsysMsg.c 1.7 1999/06/04 AFsp-v6r8 $";
-
 #include <errno.h>
 #include <stdarg.h>		/* ANSI C variable-length argument list */
 

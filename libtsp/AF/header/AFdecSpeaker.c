@@ -62,13 +62,11 @@ Parameters:
       Null-terminated string containing the speaker location codes
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.6 $  $Date: 2001/10/12 21:12:42 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.7 $  $Date: 2003/05/09 01:21:35 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFdecSpeaker.c 1.6 2001/10/12 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <string.h>
 

@@ -25,8 +25,7 @@ sample values in the files.
 <P>
 For SNR comparisons between two-channel audio files, the data is treated as
 complex values.  For more than two channels, the audio files are treated as
-if they were single channel files with the effective sampling frequency
-increased by a factor equal to the number of channels.
+if they were single channel files.
 <P>
 For each file, the following statistical quantities are calculated and
 printed for each channel.
@@ -57,22 +56,21 @@ Min value:
 </PRE>
 </DL>
 <P>
-For data which is restricted to the range [-32768,+32767], additional
-information is reported.
+These values are reported as a percent of full scale.  For instance for
+16-bit data, full scale is 32768.
 <DL>
 <DT>
 Number of Overloads:
 <DD>
-Count of values taking on values -32768 or +32767, along with the number
-of such runs.  For 16-bit data from a saturating A/D converter, the
-presence of such values is an indication of a clipped signal.
+Count of values at or exceeding the full scale value.  For integer data
+from a saturating A/D converter, the presence of such values is an
+indication of a clipped signal.
 <DT>
 Number of Anomalous Transitions:
 <DD>
-Dividing the 16-bit data range into 2 positive regions and 2 negative
-regions, an anomalous transition is a transition from a sample value in
-the most positive region directly to a sample value in the most negative
-region or vice-versa.  A large number of such transitions is an
+An anomalous transition is defined as a transition from a sample value
+greater than +0.5 full scale directly to a sample value less than -0.5
+full scale or vice versa.  A large number of such transitions is an
 indication of byte-swapped data.
 <DT>
 Active Level:
@@ -135,18 +133,18 @@ length is less than 64 samples or more than 1024 samples, the segment
 length is set to 256 samples.  For each segment, the SNR is calculated
 as
 <PRE>
-                            SUM xa(i)^2
-  SS(k) = log10 (1 + --------------------------) .
-                     0.01 + SUM [xa(i)-xb(i)]^2
+                    SUM xa(i)^2
+  SS(k) = 1 + ------------------------- .
+              eps + SUM [xa(i)-xb(i)]^2
 </PRE>
-The term 0.01 in the denominator prevents a divide by zero.  This value
-is appropriate for data with values significantly larger than 0.01.  The
-additive unity term discounts segments with SNR's less than unity.  The
-final average segmental SNR is calculated as
+The term eps in the denominator prevents divides by zero.  The additive
+unity term discounts segments with SNR's less than unity.  The final
+average segmental SNR in dB is calculated as
 <PRE>
-  SSNR = 10 * log10 ( 10^[SUM SS(k) / N] - 1 ) dB.
+  SSNR = 10 * log10 ( 10^[SUM log10 (SS(k)) / N] - 1 ) dB.
 </PRE>
-The subtraction of the unity term tends to compensate for the unity term
+The first term in the bracket is the geometric mean of SS(k).  The
+subtraction of the unity term tends to compensate for the unity term
 in SS(k).
 </DL>
 <P>
@@ -166,8 +164,9 @@ indicates that input is from standard input.
 <DT>
 -d DL:DU, --delay=DL:DU
 <DD>
-Specify a delay range.  Each delay in the delay range represents a delay
-of file B relative to file A.  The default range is 0:0.
+Specify a delay range (in samples).  Each delay in the delay range
+represents a delay of file B relative to file A.  The default range is
+0:0.
 <DT>
 -s SAMP, --segment=SAMP
 <DD>
@@ -287,13 +286,13 @@ ScaleF: Scale factor
 <PRE>
  "default" - Scale factor chosen appropriate to the type of data. The
     scaling factors shown below are applied to the data in the file.
-    8-bit mu-law:    1
-    8-bit A-law:     1
-    8-bit integer:   128
-    16-bit integer:  1
-    24-bit integer:  1/256
-    32-bit integer:  1/65536
-    float data:      32768
+    8-bit mu-law:    1/32768
+    8-bit A-law:     1/32768
+    8-bit integer:   128/32768
+    16-bit integer:  1/32768
+    24-bit integer:  1/(256*32768)
+    32-bit integer:  1/(65536*32768)
+    float data:      1
  "&lt;number or ratio&gt;" - Specify the scale factor to be applied to
     the data from the file.
 </PRE>
@@ -312,7 +311,7 @@ This environment variable specifies a list of directories to be searched when
 opening the input audio files.  Directories in the list are separated by
 colons (semicolons for Windows).
 <H4>Author / version</H4>
-P. Kabal / v4r3  2003-04-28
+P. Kabal / v5r1  2003-07-11
 <H4>See Also</H4>
 <A HREF="InfoAudio.html">InfoAudio</A>
 <P>

@@ -29,13 +29,11 @@ Parameters:
       Number of autocorrelation terms
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.7 $  $Date: 1999/06/12 17:17:30 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.8 $  $Date: 2003/05/09 02:45:14 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: SPautoc.c 1.7 1999/06/12 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 

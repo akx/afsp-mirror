@@ -14,7 +14,7 @@ CFLAGS = $(COPTS) -I$(dist_includedir)
 
 LIB = $(dist_libdir)/libAO.a
 
-.PHONY: all
+.PHONY: all mostlyclean clean
 
 all:	$(LIB)
 
@@ -25,9 +25,16 @@ $(LIB): \
 	$(LIB)(AOdecHelp.o) \
 	$(LIB)(AOdecOpt.o) \
 	$(LIB)(AOnFrame.o) \
+	$(LIB)(AOsetDformat.o) \
 	$(LIB)(AOsetFIopt.o) \
 	$(LIB)(AOsetFOopt.o) \
-	$(LIB)(AOsetFormat.o) \
+	$(LIB)(AOsetFtype.o) \
 	$(LIB)(AOstdin.o) \
+	$(LIB)(AOsetFormat.o) \
 	#
 	ranlib $(LIB)
+
+mostlyclean:
+	rm -f *.o
+clean:	mostlyclean
+

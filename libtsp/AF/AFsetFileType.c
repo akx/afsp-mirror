@@ -40,12 +40,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.15 $  $Date: 2003/01/30 03:35:25 $
+  $Revision: 1.16 $  $Date: 2003/05/09 01:03:46 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFsetFileType.c 1.15 2003/01/30 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* getenv prototype */
 
 #include <libtsp.h>

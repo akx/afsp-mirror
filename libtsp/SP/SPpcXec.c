@@ -32,13 +32,11 @@ Parameters:
       Number of predictor coefficients (Np can be zero)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.8 $  $Date: 2000/12/04 21:18:59 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/09 02:45:04 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: SPpcXec.c 1.8 2000/12/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 

@@ -39,13 +39,11 @@ Parameters:
       FILENAME_MAX characters including the terminating null character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.19 $  $Date: 1999/06/15 21:40:19 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.20 $  $Date: 2003/05/09 01:36:43 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLdefName.c 1.19 1999/06/15 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 

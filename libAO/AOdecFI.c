@@ -28,13 +28,11 @@ Parameters:
       Input file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.9 $  $Date: 2002/06/19 20:07:42 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/12 23:51:12 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AOdecFI.c 1.9 2002/06/19 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include <AO.h>
@@ -65,7 +63,7 @@ AOdecFI (struct AO_FIpar *FI)
 {
   const char *OptArg;
   int n, Sindex;
-  double DN, DD;
+  double Nv, Dv;
   struct AO_CmdArg *Carg;
   struct AF_opt *AFopt;
   long int D[2] = {0, AO_LIM_UNDEF};
@@ -105,9 +103,9 @@ AOdecFI (struct AO_FIpar *FI)
   case 5:
   case 6:
     /* Gain for input files */
-    if (STdecDfrac (OptArg, &DN, &DD))
+    if (STdecDfrac (OptArg, &Nv, &Dv))
       ERRSTOP (AOM_BadGain, OptArg);
-    FI->Gain = DN / DD;
+    FI->Gain = Nv / Dv;
     break;
   case 7:
   case 8:

@@ -18,13 +18,11 @@ Parameters:
       Number of elements
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.6 $  $Date: 1999/06/04 22:51:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.7 $  $Date: 2003/05/09 03:33:11 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: VRiZero.c 1.6 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 

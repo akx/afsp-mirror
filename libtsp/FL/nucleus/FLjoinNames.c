@@ -32,13 +32,11 @@ Parameters:
       character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.18 $  $Date: 2000/09/26 14:04:12 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.19 $  $Date: 2003/05/09 01:39:26 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLjoinNames.c 1.18 2000/09/26 AFsp-v6r8 $";
-
 #include <ctype.h>
 #include <libtsp.h>
 #include <libtsp/nucleus.h>

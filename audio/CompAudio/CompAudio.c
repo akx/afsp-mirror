@@ -17,8 +17,7 @@ Description:
 
   For SNR comparisons between two-channel audio files, the data is treated as
   complex values.  For more than two channels, the audio files are treated as
-  if they were single channel files with the effective sampling frequency
-  increased by a factor equal to the number of channels.
+  if they were single channel files.
 
   For each file, the following statistical quantities are calculated and
   printed for each channel.
@@ -31,17 +30,16 @@ Description:
   Min value:
        Xmin = min (x(i))
 
-  For data which is restricted to the range [-32768,+32767], additional
-  information is reported.
+  These values are reported as a percent of full scale.  For instance for
+  16-bit data, full scale is 32768.
   Number of Overloads:
-      Count of values taking on values -32768 or +32767, along with the number
-      of such runs.  For 16-bit data from a saturating A/D converter, the
-      presence of such values is an indication of a clipped signal.
+      Count of values at or exceeding the full scale value.  For integer data
+      from a saturating A/D converter, the presence of such values is an
+      indication of a clipped signal.
   Number of Anomalous Transitions:
-      Dividing the 16-bit data range into 2 positive regions and 2 negative
-      regions, an anomalous transition is a transition from a sample value in
-      the most positive region directly to a sample value in the most negative
-      region or vice-versa.  A large number of such transitions is an
+      An anomalous transition is defined as a transition from a sample value
+      greater than +0.5 full scale directly to a sample value less than -0.5
+      full scale or vice versa.  A large number of such transitions is an
       indication of byte-swapped data.
   Active Level:
       This measurement calculates the active speech level using Method B of
@@ -81,16 +79,16 @@ Description:
       length is less than 64 samples or more than 1024 samples, the segment
       length is set to 256 samples.  For each segment, the SNR is calculated
       as
-                                  SUM xa(i)^2
-        SS(k) = log10 (1 + --------------------------) .
-                           0.01 + SUM [xa(i)-xb(i)]^2
-      The term 0.01 in the denominator prevents a divide by zero.  This value
-      is appropriate for data with values significantly larger than 0.01.  The
-      additive unity term discounts segments with SNR's less than unity.  The
-      final average segmental SNR is calculated as
-        SSNR = 10 * log10 ( 10^[SUM SS(k) / N] - 1 ) dB.
-      The subtraction of the unity term tends to compensate for the unity term
-      in SS(k).
+                          SUM xa(i)^2
+        SS(k) = 1 + ------------------------- .
+                    eps + SUM [xa(i)-xb(i)]^2
+      The term eps in the denominator prevents divides by zero.  The additive
+      unity term discounts segments with SNR's less than unity.  The final
+      average segmental SNR in dB is calculated as
+        SSNR = 10 * log10 ( 10^[SUM log10 (SS(k)) / N] - 1 ) dB.
+      The first term in the bracket is the geometric mean of SS(k).  The
+      subtraction of the unity term tends to compensate for the unity term
+      in SS(k). 
 
   If any of these SNR values is infinite, only the optimal gain factor is
   printed as part of the message (Sf is the optimized gain factor),
@@ -102,8 +100,9 @@ Options:
       searched for the input audio file(s).  Specifying "-" as the input file
       indicates that input is from standard input.
   -d DL:DU, --delay=DL:DU
-      Specify a delay range.  Each delay in the delay range represents a delay
-      of file B relative to file A.  The default range is 0:0.
+      Specify a delay range (in samples).  Each delay in the delay range
+      represents a delay of file B relative to file A.  The default range is
+      0:0.
   -s SAMP, --segment=SAMP
       Segment length (in samples) to be used for calculating the segmental
       signal-to-noise ratio.  The default is a length corresponding to 16 ms.
@@ -183,13 +182,13 @@ Environment variables:
   ScaleF: Scale factor
        "default" - Scale factor chosen appropriate to the type of data. The
           scaling factors shown below are applied to the data in the file.
-          8-bit mu-law:    1
-          8-bit A-law:     1
-          8-bit integer:   128
-          16-bit integer:  1
-          24-bit integer:  1/256
-          32-bit integer:  1/65536
-          float data:      32768
+          8-bit mu-law:    1/32768
+          8-bit A-law:     1/32768
+          8-bit integer:   128/32768
+          16-bit integer:  1/32768
+          24-bit integer:  1/(256*32768)
+          32-bit integer:  1/(65536*32768)
+          float data:      1
        "<number or ratio>" - Specify the scale factor to be applied to
           the data from the file.
   The default values for the audio file parameters correspond to the following
@@ -202,12 +201,10 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v4r3  2003-04-28  Copyright (C) 2003
+  P. Kabal / v5r1  2003-07-11  Copyright (C) 2003
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CompAudio.c 1.88 2003/04/29 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* EXIT_SUCCESS */
 #include <string.h>
 
@@ -215,6 +212,9 @@ static char rcsid[] = "$Id: CompAudio.c 1.88 2003/04/29 AFsp-v6r8 $";
 #include <libtsp/AFpar.h>
 #include <AO.h>
 #include "CompAudio.h"
+
+static long int
+CA_CheckNchan (long int NchanA, long int NchanB);
 
 
 int
@@ -224,9 +224,10 @@ main (int argc, const char *argv[])
   struct CA_FIpar FI[2];
   AFILE *AFp[2];
   long int Nsamp[2], Nchan[2], Start[2];
-  long int Nframe, Ns, Nsseg;
-  int NsampND, RAccess, i, Nch, delayL, delayU, delayM, Nfiles;
-  float Sfreq[2];
+  long int Nframe, Ns, Nsseg, Nch;
+  long int delayL, delayU, delayM;
+  int NsampND, RAccess, i, Nfiles;
+  double Sfreq[2], ScaleF[2];
   struct Stats_F *StatsF;
   struct Stats_T StatsT;
 
@@ -246,22 +247,14 @@ main (int argc, const char *argv[])
     RAccess = 1;	/* Must be random access (need to rewind) */
 
 /* Open the input files */
+  AFp[1] = NULL;
   for (i = 0; i < Nfiles; ++i) {
     AOsetFIopt (&FI[i], NsampND, RAccess);
     FLpathList (FI[i].Fname, AFPATH_ENV, FI[i].Fname);
-    AFp[i] = AFopenRead (FI[i].Fname, &Nsamp[i], &Nchan[i], &Sfreq[i], stdout);
-    AFp[i]->ScaleF *= FI[i].Gain;  /* Gain absorbed into the scaling factor */
+    AFp[i] = AFopnRead (FI[i].Fname, &Nsamp[i], &Nchan[i], &Sfreq[i], stdout);
+    ScaleF[i] = AFp[i]->ScaleF;		/* Native data scaling */
+    AFp[i]->ScaleF *= FI[i].Gain;	/* Gain absorbed into scaling factor */
   }
-
-  /* Number of channels */
-  if (Nfiles > 1 && Nchan[0] != Nchan[1])
-    UThalt ("%s: %s", PROGRAM, CAM_DiffNChan);
-  if (Nchan[0] > 2) {
-    UTwarn ("%s: %s", PROGRAM, CAM_XNChan);
-    Nch = 1;
-  }
-  else
-    Nch = (int) Nchan[0];
 
   /* Resolve the file limits */
   Nframe = AOnFrame (AFp, FI, Nfiles, AF_NFRAME_UNDEF);
@@ -270,16 +263,33 @@ main (int argc, const char *argv[])
   else
     Ns = Nchan[0] * Nframe;
 
+  Start[0] = Nchan[0] * FI[0].Lim[0];
+  if (Nfiles == 2)
+    Start[1] = Nchan[1] * FI[1].Lim[0];
+
+  /* Check and warn about Nchan */
+  if (Nfiles == 1)
+    Nch = CA_CheckNchan (AFp[0]->Nchan, AFp[0]->Nchan);
+  else
+    Nch = CA_CheckNchan (AFp[0]->Nchan, AFp[1]->Nchan);
+
+  /*
+    - Nch is the possibly reduced number of channels, while AFp[i]->Nchan is
+      the real number of channels
+    - Ns is the number of samples to be processed (starting from sample
+      Start[i])
+    - ScaleF[i] is the scale factor before introducting the user supplied
+      gain; AFp[i]->ScaleF includes the user supplied gain
+  */
+
   if (Ns == 0L)
     exit (EXIT_SUCCESS);
 
 /* File statistics */
   StatsF = (struct Stats_F *)
     UTmalloc (Nfiles * Nch * (sizeof (struct Stats_F)));
-  for (i = 0; i < Nfiles; ++i) {
-    Start[i] = Nchan[i] * FI[i].Lim[0];
-    CAstats (AFp[i], Start[i], Ns, &StatsF[i*Nch], Nch);
-  }
+  for (i = 0; i < Nfiles; ++i)
+    CAstats (AFp[i], Start[i], Ns, &StatsF[i*Nch]);
 
   /* Find the cross file statistics over the delay range */
   if (Nfiles == 2)
@@ -287,12 +297,17 @@ main (int argc, const char *argv[])
 
 /* File A statistics */
   printf ("\n");
-  if (Nfiles == 2 && StatsT.Ndiff > 0)
+  if (Nfiles == 2 && (StatsT.Ndiff > 0 || ScaleF[0] != ScaleF[1]))
     printf (CAMF_FileA);
-  CAprstat (&StatsF[0], Nch);
+  CAprstat (&StatsF[0*Nch], Nch, ScaleF[0]);
 
 /* File comparisons */
   if (Nfiles == 2) {
+
+    if (StatsT.Ndiff > 0 || ScaleF[0] != ScaleF[1]) {
+      printf (CAMF_FileB);
+      CAprstat (&StatsF[1*Nch], Nch, ScaleF[1]);
+    }
 
     if (StatsT.Ndiff == 0) {
       /* Identical files */
@@ -304,14 +319,12 @@ main (int argc, const char *argv[])
     }
     else {
       /* File B statistics */
-      printf (CAMF_FileB);
-      CAprstat (&StatsF[Nch], Nch);
-
       if (delayL < delayU)
 	printf (CAMF_BestMatch, delayM);
       else if (delayL != 0)
 	printf (CAMF_Delay, delayM);
-      CAprcorr (&StatsT);
+
+      CAprcorr (&StatsT, ScaleF);
     }
   }
 
@@ -321,4 +334,28 @@ main (int argc, const char *argv[])
   UTfree (StatsF);
 
   return EXIT_SUCCESS;
+}
+
+/* Resolve the number of channels
+   - Reduce Nchan, if Nchan > 2
+*/
+
+
+static long int
+CA_CheckNchan (long int NchanA, long int NchanB)
+
+{
+  long int Nchan;
+
+  /* Set the number of channels to one if Nchan > 2 */
+  if (NchanA != NchanB)
+    UThalt ("%s: %s", PROGRAM, CAM_DiffNChan);
+  if (NchanA > 2) {
+    UTwarn ("%s: %s", PROGRAM, CAM_XNChan);
+    Nchan = 1;
+  }
+  else
+    Nchan = NchanA;
+
+  return Nchan;
 }

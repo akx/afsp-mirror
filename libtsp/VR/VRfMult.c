@@ -24,14 +24,13 @@ Parameters:
       Number of elements in the arrays (may be zero)
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.5 $  $Date: 1999/06/04 22:51:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.6 $  $Date: 2003/05/09 03:33:10 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: VRfMult.c 1.5 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
+
 
 void
 VRfMult (const float x1[], const float x2[], float y[], int N)

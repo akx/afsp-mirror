@@ -59,12 +59,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.43 $  $Date: 2003/04/27 03:09:17 $
+  $Revision: 1.46 $  $Date: 2003/11/03 18:50:17 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFsetRead.c 1.43 2003/04/27 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <math.h>
 #include <string.h>
@@ -92,13 +90,13 @@ static long int
 AF_Nrec (FILE *fp);
 /* ---------- */
 static struct AF_info
-AF_setInfo (const struct AF_infoX *Hinfo);
+AF_setInfo (const struct AF_infoX *InfoX);
 static double
-AF_srateInfo (const struct AF_info *Hinfo, double Sfreq);
+AF_srateInfo (const struct AF_info *InfoS, double Sfreq);
 static int
-AF_NbSInfo (const struct AF_info *Hinfo, const struct AF_dformat *DFormat);
+AF_NbSInfo (const struct AF_info *InfoS, const struct AF_dformat *DFormat);
 static void
-AF_spkrInfo (const struct AF_info *Hinfo, unsigned char *SpkrConfig);
+AF_spkrInfo (const struct AF_info *InfoS, unsigned char *SpkrConfig);
 static unsigned char *
 AF_setSpeaker (const unsigned char *SpkrX, int Nchan);
 
@@ -131,6 +129,8 @@ AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, int Fix)
   AFp->Format = AFr->DFormat.Format;
   AFp->Nchan = NData.Nchan;
   AFp->ScaleF = AFr->DFormat.ScaleF;
+  if (AFp->ScaleF == AF_SF_DEFAULT)
+    AFp->ScaleF = AF_SF[AFp->Format];
   AFp->Start = Dstart;
   AFp->Isamp = 0;
   AFp->Nsamp = NData.Nsamp;
@@ -139,10 +139,10 @@ AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, int Fix)
   else
     AFp->Swapb = UTswapCode (AFr->DFormat.Swapb);
 
-  AFp->Hinfo = AF_setInfo (&AFr->Hinfo);
-  AFp->Sfreq = AF_srateInfo (&AFp->Hinfo, AFr->Sfreq);
-  AFp->NbS = AF_NbSInfo (&AFp->Hinfo, &AFr->DFormat);
-  AF_spkrInfo (&AFp->Hinfo, NData.SpkrConfig);
+  AFp->InfoS = AF_setInfo (&AFr->InfoX);
+  AFp->Sfreq = AF_srateInfo (&AFp->InfoS, AFr->Sfreq);
+  AFp->NbS = AF_NbSInfo (&AFp->InfoS, &AFr->DFormat);
+  AF_spkrInfo (&AFp->InfoS, NData.SpkrConfig);
   AFp->SpkrConfig = AF_setSpeaker (NData.SpkrConfig, NData.Nchan);
 
   return AFp;
@@ -334,34 +334,34 @@ AF_Nrec (FILE *fp)
 /* -------------------- */
 /* Fill in the AFsp Information structure */
 
-/* This routine allocates the space for the info string.  It is expected
+/* This routine allocates the space for the information string.  It is expected
    that the calling routine take care of freeing up the space.
 */
 
 
 static struct AF_info
-AF_setInfo (const struct AF_infoX *Hinfo)
+AF_setInfo (const struct AF_infoX *InfoX)
 
 {
   int N;
-  struct AF_info AFinfo;
+  struct AF_info InfoS;
 
-  N = Hinfo->N;
+  N = InfoX->N;
   if (N <= 0) {
-    AFinfo.Info = NULL;
-    AFinfo.N = 0;
+    InfoS.Info = NULL;
+    InfoS.N = 0;
   }
   else {
-    if (Hinfo->Info[N-1] != '\0')
+    if (InfoX->Info[N-1] != '\0')
       ++N;
-    AFinfo.Info = (char *) UTmalloc (N);
-    memcpy (AFinfo.Info, Hinfo->Info, Hinfo->N);
-    if (N != Hinfo->N)
-      AFinfo.Info[N-1] = '\0';	/* Make sure there is a terminating null */
-    AFinfo.N = N;
+    InfoS.Info = (char *) UTmalloc (N);
+    memcpy (InfoS.Info, InfoX->Info, InfoX->N);
+    if (N != InfoX->N)
+      InfoS.Info[N-1] = '\0';	/* Make sure there is a terminating null */
+    InfoS.N = N;
   }
 
-  return AFinfo;
+  return InfoS;
 }
 
 /* Scan the header information string for the sampling frequency */
@@ -370,7 +370,7 @@ AF_setInfo (const struct AF_infoX *Hinfo)
 
 
 static double
-AF_srateInfo (const struct AF_info *Hinfo, double Sfreq)
+AF_srateInfo (const struct AF_info *InfoS, double Sfreq)
 
 {
   const char *Csf;
@@ -380,7 +380,7 @@ AF_srateInfo (const struct AF_info *Hinfo, double Sfreq)
   if (Sfreq == floor(Sfreq)) {
 
     /* Scan the information string for a "sample_rate:" record */
-    Csf = AFgetHrec ("sample_rate:", Hinfo);
+    Csf = AFgetInfoRec ("sample_rate:", InfoS);
     if (Csf != NULL) {
       if (STdec1double (Csf, &Fv))
 	UTwarn ("AFsetRead - %s", AFM_BadSRate);
@@ -403,7 +403,7 @@ AF_srateInfo (const struct AF_info *Hinfo, double Sfreq)
 
 
 static int
-AF_NbSInfo (const struct AF_info *Hinfo, const struct AF_dformat *DFormat)
+AF_NbSInfo (const struct AF_info *InfoS, const struct AF_dformat *DFormat)
 
 {
   int Res, NbS, ResX, Format;
@@ -416,7 +416,7 @@ AF_NbSInfo (const struct AF_info *Hinfo, const struct AF_dformat *DFormat)
   /* Pick up NbS from the Info string */
   if (NbS == 0) {
     NbS = Res;
-    Csf = AFgetHrec ("bits_per_sample:", Hinfo); 
+    Csf = AFgetInfoRec ("bits_per_sample:", InfoS); 
     if (Csf != NULL) {
       ResX = Res;
       if (STdecIfrac (Csf, &NbS, &ResX))
@@ -457,7 +457,7 @@ AF_NbSInfo (const struct AF_info *Hinfo, const struct AF_dformat *DFormat)
 
 
 static void
-AF_spkrInfo (const struct AF_info *Hinfo, unsigned char *SpkrConfig)
+AF_spkrInfo (const struct AF_info *InfoS, unsigned char *SpkrConfig)
 
 {
   const char *Csf;
@@ -466,7 +466,7 @@ AF_spkrInfo (const struct AF_info *Hinfo, unsigned char *SpkrConfig)
   if (SpkrConfig[0] == AF_X_SPKR) {
 
     /* Scan the information string for a "loudspeakers:" record */
-    Csf = AFgetHrec ("loudspeakers:", Hinfo);
+    Csf = AFgetInfoRec ("loudspeakers:", InfoS);
     if (Csf != NULL)
       AFdecSpeaker (Csf, SpkrConfig, AF_MAXN_SPKR);
   }

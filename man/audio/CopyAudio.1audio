@@ -44,6 +44,10 @@ number of channels in each input file must be the same.  For the concatenate
 mode, sample limits can be specified for each input file.  The default sample
 limits for an input file correspond to the length of that file.
 .PP
+For fixed point data, the data is normalized to the range -1 to +1.  This
+normalization becomes important when files with different data formats are
+combined.
+.PP
 The default data format for the output file is chosen according to a data
 format promotion rule based on the data types of the input files.  For single
 input files, the output data format will be the same as the input data format
@@ -55,7 +59,7 @@ Input file names: AFileA AFileB ...:
 .br
 The environment variable AUDIOPATH specifies a list of directories to be
 searched for the input audio file(s).  Specifying "-" as the input file
-indicates that input is from standard input.
+name indicates that input is from standard input.
 .ti -4n
 Output file name: AFileO:
 .br
@@ -68,7 +72,8 @@ the output file name is used to determine the file type.
 .ne 3
   ".au"   - AU audio file
   ".wav"  - WAVE file
-  ".aif"  - AIFF-C sound file
+  ".aif"  - AIFF sound file
+  ".afc"  - AIFF-C sound file
   ".raw"  - Headerless file (native byte order)
   ".txt"  - Headerless file (text data)
 .fi
@@ -139,12 +144,14 @@ form
 .ft CW
 .nf
 .ne 3
-  [+/-] [gain *] chan +/- [gain *] chan ... +/- offset
+  [+|-] [gain *] chan +|- [gain *] chan ... +|- offset
 .fi
 .ft P
-where chan is A through L.  Note that * is a special character to Unix
-shells and should appear only within quotes to prevent the shell from
-interpreting it.
+where chan is A through L.  The gains can be expressed as ratios, i.e.
+of the form "n/m".  The offset is in normalized units, where an offset
+of one corresponds to full scale.  Note that that the character "*" is
+a special character to Unix shells and should appear only within quotes
+to prevent the shell from interpreting it.
 .ti -4n
 -cB CGAINS, --chanB=CGAINS
 .br
@@ -412,12 +419,12 @@ Form a stereo (2-channel) audio file from two single channel audio files.
 .ti -4n
  8: Add a dc value to a file.
 .br
-If the input file has a mean value of 8.63, the output file will have a
-zero mean after adding -8.63 to each sample.
+If the input file has a mean value of 8.63/32768, the output file will
+have a zero mean after adding -8.63/32768 to each sample.
 .ft CW
 .nf
 .ne 3
-  CopyAudio --chanA="A-8.63" abc.au zeromean.au
+  CopyAudio --chanA="A-8.63/32768" abc.au zeromean.au
 .fi
 .ft P
 .in -4n
@@ -460,6 +467,8 @@ separated by commas.  The form of the list is
   "Format, Start, Sfreq, Swapb, Nchan, ScaleF"
 .fi
 .ft P
+The list can be shortened and elements skipped (nothing between adjacent
+commas.  The missing parameters take on default values.
 .in +4n
 .ti -4n
 Format: File data format
@@ -508,13 +517,13 @@ ScaleF: Scale factor
 .ne 3
  "default" - Scale factor chosen appropriate to the type of data. The
     scaling factors shown below are applied to the data in the file.
-    8-bit mu-law:    1
-    8-bit A-law:     1
-    8-bit integer:   128
-    16-bit integer:  1
-    24-bit integer:  1/256
-    32-bit integer:  1/65536
-    float data:      32768
+    8-bit mu-law:    1/32768
+    8-bit A-law:     1/32768
+    8-bit integer:   128/32768
+    16-bit integer:  1/32768
+    24-bit integer:  1/(256*32768)
+    32-bit integer:  1/(65536*32768)
+    float data:      1
  "<number or ratio>" - Specify the scale factor to be applied to
     the data from the file.
 .fi
@@ -537,6 +546,6 @@ This environment variable specifies a list of directories to be searched when
 opening the input audio files.  Directories in the list are separated by
 colons (semicolons for Windows).
 .SH Author / version
-P. Kabal / v5r3  2003-04-28
+P. Kabal / v6r0  2003-05-08
 .SH See Also
 AFsp

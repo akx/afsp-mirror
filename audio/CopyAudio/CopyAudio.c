@@ -42,6 +42,10 @@ Description:
   mode, sample limits can be specified for each input file.  The default sample
   limits for an input file correspond to the length of that file.
 
+  For fixed point data, the data is normalized to the range -1 to +1.  This
+  normalization becomes important when files with different data formats are
+  combined.
+
   The default data format for the output file is chosen according to a data
   format promotion rule based on the data types of the input files.  For single
   input files, the output data format will be the same as the input data format
@@ -51,7 +55,7 @@ Options:
   Input file names: AFileA AFileB ...:
       The environment variable AUDIOPATH specifies a list of directories to be
       searched for the input audio file(s).  Specifying "-" as the input file
-      indicates that input is from standard input.
+      name indicates that input is from standard input.
   Output file name: AFileO:
       The last file name is the output file.  Specifying "-" as the output file
       name indicates that output is to be written to standard output.  If the
@@ -59,7 +63,8 @@ Options:
       the output file name is used to determine the file type.
         ".au"   - AU audio file
         ".wav"  - WAVE file
-        ".aif"  - AIFF-C sound file
+        ".aif"  - AIFF sound file
+        ".afc"  - AIFF-C sound file
         ".raw"  - Headerless file (native byte order)
         ".txt"  - Headerless file (text data)
   -c, --combine
@@ -107,10 +112,12 @@ Options:
       equal to the corresponding input channel.  Input channels are labelled
       A, B, C, ... , R, S, T.  The channel scaling factor string takes the
       form
-        [+/-] [gain *] chan +/- [gain *] chan ... +/- offset
-      where chan is A through L.  Note that * is a special character to Unix
-      shells and should appear only within quotes to prevent the shell from
-      interpreting it.
+        [+|-] [gain *] chan +|- [gain *] chan ... +|- offset
+      where chan is A through L.  The gains can be expressed as ratios, i.e.
+      of the form "n/m".  The offset is in normalized units, where an offset
+      of one corresponds to full scale.  Note that that the character "*" is
+      a special character to Unix shells and should appear only within quotes
+      to prevent the shell from interpreting it.
   -cB CGAINS, --chanB=CGAINS
       Channel scaling factors for output channel B.
         ...
@@ -250,9 +257,9 @@ Examples:
       Form a stereo (2-channel) audio file from two single channel audio files.
         CopyAudio abc1.wav abc2.wav -S "L R" stereo.wav
    8: Add a dc value to a file.
-      If the input file has a mean value of 8.63, the output file will have a
-      zero mean after adding -8.63 to each sample.
-        CopyAudio --chanA="A-8.63" abc.au zeromean.au
+      If the input file has a mean value of 8.63/32768, the output file will
+      have a zero mean after adding -8.63/32768 to each sample.
+        CopyAudio --chanA="A-8.63/32768" abc.au zeromean.au
 
 Environment variables:
   AF_FILETYPE:
@@ -277,6 +284,8 @@ Environment variables:
   non-standard input audio files.  The string consists of a list of parameters
   separated by commas.  The form of the list is
     "Format, Start, Sfreq, Swapb, Nchan, ScaleF"
+  The list can be shortened and elements skipped (nothing between adjacent
+  commas.  The missing parameters take on default values.
   Format: File data format
        "undefined" - Headerless files will be rejected
        "mu-law8"   - 8-bit mu-law data
@@ -301,13 +310,13 @@ Environment variables:
   ScaleF: Scale factor
        "default" - Scale factor chosen appropriate to the type of data. The
           scaling factors shown below are applied to the data in the file.
-          8-bit mu-law:    1
-          8-bit A-law:     1
-          8-bit integer:   128
-          16-bit integer:  1
-          24-bit integer:  1/256
-          32-bit integer:  1/65536
-          float data:      32768
+          8-bit mu-law:    1/32768
+          8-bit A-law:     1/32768
+          8-bit integer:   128/32768
+          16-bit integer:  1/32768
+          24-bit integer:  1/(256*32768)
+          32-bit integer:  1/(65536*32768)
+          float data:      1
        "<number or ratio>" - Specify the scale factor to be applied to
           the data from the file.
   The default values for the audio file parameters correspond to the following
@@ -320,12 +329,10 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v5r3  2003-04-28  Copyright (C) 2003
+  P. Kabal / v6r0  2003-05-08  Copyright (C) 2003
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CopyAudio.c 1.108 2003/04/29 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* EXIT_SUCCESS */
 #include <string.h>
 
@@ -348,16 +355,15 @@ int
 main (int argc, const char *argv[])
 
 {
-  int Fformat;
   struct CP_FIpar FI[MAXIFILE];
   struct CP_FOpar FO;
   struct CP_Chgain Chgain;
   AFILE *AFp[MAXIFILE], *AFpO;
   FILE *fpinfo;
+  int Ftype, Dformat;
   int NsampND, Nifiles, i, Mode;
   long int Nsamp, NchanI, NchanO;
-  float SfreqI;
-  double SfreqO;
+  double SfreqI, SfreqO;
 
 /* Get the input parameters */
   CPoptions (argc, argv, &Mode, FI, &Nifiles, &FO, &Chgain);
@@ -396,7 +402,7 @@ main (int argc, const char *argv[])
       NsampND = 1;
     AOsetFIopt (&FI[i], NsampND, 0);
     FLpathList (FI[i].Fname, AFPATH_ENV, FI[i].Fname);
-    AFp[i] = AFopenRead (FI[i].Fname, &Nsamp, &NchanI, &SfreqI, fpinfo);
+    AFp[i] = AFopnRead (FI[i].Fname, &Nsamp, &NchanI, &SfreqI, fpinfo);
     AFp[i]->ScaleF *= FI[i].Gain;	/* Gain absorbed into scaling factor */
   }
 
@@ -422,10 +428,11 @@ main (int argc, const char *argv[])
 
 /* Open the output file */
   AOsetFOopt (&FO);
-  Fformat = AOsetFormat (&FO, AFp, Nifiles);
+  Ftype = AOsetFtype (&FO);
+  Dformat = AOsetDformat (&FO, AFp, Nifiles);
   if (strcmp (FO.Fname, "-") != 0)
     FLbackup (FO.Fname);
-  AFpO = AFopenWrite (FO.Fname, Fformat, NchanO, SfreqO, fpinfo);
+  AFpO = AFopnWrite (FO.Fname, Ftype, Dformat, NchanO, SfreqO, fpinfo);
 
 /* Scale and copy samples */
   CPcopy (Mode, AFp, FI, Nifiles, &Chgain, FO.Nframe, AFpO);

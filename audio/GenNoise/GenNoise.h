@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.33 $  $Date: 2003/01/29 16:24:46 $
+  $Revision: 1.35 $  $Date: 2003/11/06 13:23:59 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,9 @@ Author / revision:
 #define GenNoise_h_
 
 #define PROGRAM "GenNoise"
-#define VERSION	"v4r2  2003-01-27"
+#define VERSION	"v5r0a  2003-11-06"
+
+#define RMS_DEFAULT 0.03
 
 #include <libtsp.h>		/* p_ */
 #include <AO.h>			/* struct AO_FOpar */
@@ -56,7 +58,7 @@ extern "C" {
 
 /* Prototypes */
 void
-GNoptions (int argc, const char *argv[], float *rms, int *seed,
+GNoptions (int argc, const char *argv[], double *rms, int *seed,
 	   struct GN_FOpar *FO);
 
 #ifdef __cplusplus

@@ -35,13 +35,11 @@ Parameters:
       path cannot be resolved.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.41 $  $Date: 2001/10/09 16:54:13 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.42 $  $Date: 2003/05/09 01:36:43 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLfullName.c 1.41 2001/10/09 AFsp-v6r8 $";
-
 #include <string.h>
 
 #if (SY_OS == SY_OS_UNIX || SY_OS == SY_OS_CYGWIN)

@@ -38,13 +38,11 @@ Parameters:
       Output audio file pointer
  
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.21 $  $Date: 2001/10/11 13:52:19 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.22 $  $Date: 2003/05/13 01:33:51 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CPcopyChan.c 1.21 2001/10/11 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <limits.h>
 
@@ -130,7 +128,7 @@ static long int
 CP_copy1 (AFILE *AFpI, long int StartF, long int Nframe, int eof, AFILE *AFpO)
 
 {
-  float Fbuf[BFSIZE];
+  double Dbuff[BFSIZE];
   long int offr, ioffs, Nrem, Nj;
   int Nr, Nv;
 
@@ -154,7 +152,7 @@ CP_copy1 (AFILE *AFpI, long int StartF, long int Nframe, int eof, AFILE *AFpO)
   offr = 0L;
   while (Nrem > 0L) {
     Nv = (int) MINV (Nrem, BFSIZE);
-    Nr = AFreadData (AFpI, offr + Nj * StartF, Fbuf, Nv);
+    Nr = AFdReadData (AFpI, offr + Nj * StartF, Dbuff, Nv);
 
     /* There is a potential problem when we encounter EOF since the
        number of samples may not be a multiple of the number of channels.
@@ -175,7 +173,7 @@ CP_copy1 (AFILE *AFpI, long int StartF, long int Nframe, int eof, AFILE *AFpO)
     Nrem -= Nv;
     offr += Nv;
 
-    AFwriteData (AFpO, Fbuf, Nv);
+    AFdWriteData (AFpO, Dbuff, Nv);
   }
   assert (Nj * (offr/Nj) == offr);
 
@@ -192,8 +190,8 @@ CP_copyNa (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
 {
   int i, j, k, n, Ns, Nj, NO, Nfr;
   long int offr, offs, Nrem, NchanMax;
-  float Fbuf[BFSIZE];
-  float *Fbufi, *Fbufo;
+  double Dbuff[BFSIZE];
+  double *Dbuffi, *Dbuffo;
 
   assert (Nframe != AF_NFRAME_UNDEF);
 
@@ -207,8 +205,8 @@ CP_copyNa (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
   Ns = (int) (BFSIZE / (NchanMax + NO));
   assert (Ns > 0);
 
-  Fbufi = Fbuf;
-  Fbufo = Fbuf + ((int) NchanMax) * Ns;
+  Dbuffi = Dbuff;
+  Dbuffo = Dbuff + ((int) NchanMax) * Ns;
 
   offr = 0L;
   Nrem = Nframe;
@@ -219,16 +217,16 @@ CP_copyNa (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
     for (j = 0; j < Nifiles; ++j) {
       Nj = (int) AFp[j]->Nchan;
       offs = Nj * (offr + StartF[j]);
-      AFreadData (AFp[j], offs, Fbufi, Nfr * Nj);
+      AFdReadData (AFp[j], offs, Dbuffi, Nfr * Nj);
       for (k = 0; k < Nj; ++k) {
 	for (i = 0; i < Nfr; ++i)
-	  Fbufo[i*NO+n+k] = Fbufi[i*Nj+k];
+	  Dbuffo[i*NO+n+k] = Dbuffi[i*Nj+k];
       }
       n += Nj;
     }
 
     /* Write the samples to the output file */
-    AFwriteData (AFpO, Fbufo, Nfr * NO);
+    AFdWriteData (AFpO, Dbuffo, Nfr * NO);
     offr += Nfr;
     Nrem -= Nfr;
   }
@@ -246,7 +244,7 @@ CP_copyNb (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
 {
   int j, Nc;
   long int offr, offs, l, Nj;
-  float Fbuf[BFSIZE];
+  double Dbuff[BFSIZE];
 
   assert (Nframe != AF_NFRAME_UNDEF);
 
@@ -257,8 +255,8 @@ CP_copyNb (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
       for (l = 0L; l < Nj; l += Nc) {
 	Nc = (int) MINV (Nj - l, BFSIZE);
 	offs = Nj * (offr + StartF[j]) + l;
-	AFreadData (AFp[j], offs, Fbuf, Nc);
-	AFwriteData (AFpO, Fbuf, Nc);
+	AFdReadData (AFp[j], offs, Dbuff, Nc);
+	AFdWriteData (AFpO, Dbuff, Nc);
       }
     }
   }

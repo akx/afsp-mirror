@@ -14,7 +14,7 @@ CFLAGS = $(COPTS) -I$(dist_includedir)
 
 LIB = $(dist_libdir)/libtsp.a
 
-.PHONY: all nucleus_routines
+.PHONY: all nucleus_routines mostlylean clean
 
 all:	$(LIB) nucleus_routines
 
@@ -22,7 +22,7 @@ all:	$(LIB) nucleus_routines
 $(LIB): \
 	$(LIB)(SPautoc.o) \
 	$(LIB)(SPcorXpc.o) \
-	$(LIB)(SPfQuantL.o) \
+	$(LIB)(SPdQuantL.o) \
 	$(LIB)(SPpcBWexp.o) \
 	$(LIB)(SPpcXec.o) \
 	#
@@ -32,3 +32,7 @@ nucleus_routines:
 	@(test -d nucleus && (cd nucleus; $(MAKE))) || true
 	@(test -d dataio && (cd dataio; $(MAKE))) || true
 	@(test -d header && (cd header; $(MAKE))) || true
+
+mostlyclean:
+	rm -f *.o */*.o
+clean:	mostlyclean

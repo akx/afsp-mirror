@@ -41,13 +41,11 @@ Parameters:
       String containing the list of speaker positions
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.1 $  $Date: 2001/09/26 21:56:09 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.2 $  $Date: 2003/05/09 01:03:46 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFsetSpeaker.c 1.1 2001/09/26 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

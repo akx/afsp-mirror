@@ -29,13 +29,11 @@ Parameters:
       Data offset into the input data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.14 $  $Date: 2002/03/25 16:38:47 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.15 $  $Date: 2003/05/13 01:25:15 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FAfiltIIR.c 1.14 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include "FiltAudio.h"
 
@@ -107,7 +105,7 @@ FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[][5],
       Nx = (int) MINV (Nxmax, loffs - l);
     else
       Nx = (int) MINV (Nxmax, NyO - k);
-    AFreadData (AFpI, l, &x[mem], Nx);
+    AFfReadData (AFpI, l, &x[mem], Nx);
 
 /* Convolve the input samples with the filter response */
     FIfFiltIIR (&x[mem-2], x, Nx, h, Nsec);
@@ -115,7 +113,7 @@ FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[][5],
 /* Write the output data to the output audio file */
     if (l >= loffs) {
       if (Nsub == 1)
-	AFwriteData (AFpO, &x[2], Nx);
+	AFfWriteData (AFpO, &x[2], Nx);
       else
 	FA_writeSubData (AFpO, k, Nsub, &x[2], Nx);
       k = k + Nx;
@@ -140,7 +138,7 @@ FA_writeSubData (AFILE *AFp0, long int k, int Nsub, const float x[], int Nx)
   for (m = 0, i = ist; i < Nx; ++m, i += Nsub) {
     xs[m] = x[i];
   }
-  AFwriteData (AFp0, xs, m);
+  AFfWriteData (AFp0, xs, m);
 
   return;
 }

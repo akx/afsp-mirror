@@ -32,13 +32,11 @@ Parameters:
       Array of output values
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.11 $  $Date: 1999/06/04 20:49:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.12 $  $Date: 2003/05/09 01:39:26 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLfReadTF.c 1.11 1999/06/04 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

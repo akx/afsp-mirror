@@ -16,13 +16,11 @@ Parameters:
       Flag, 1 if host uses IEEE float format, 0 otherwise
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.13 $  $Date: 1999/06/04 22:42:58 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.14 $  $Date: 2003/05/09 03:23:41 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: UTcheckIEEE.c 1.13 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp/nucleus.h>
 #include <libtsp/UTtypes.h>
 

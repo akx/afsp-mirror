@@ -27,12 +27,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.43 $  $Date: 2003/01/27 13:56:11 $
+  $Revision: 1.46 $  $Date: 2003/11/03 18:49:05 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFsetWrite.c 1.43 2003/01/27 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <string.h>
 
@@ -45,9 +43,9 @@ static char rcsid [] = "$Id: AFsetWrite.c 1.43 2003/01/27 AFsp-v6r8 $";
 #include <libtsp/AFpar.h>
 
 static void
-AF_setInfo (const struct AF_infoX *Hinfo, struct AF_info *AFinfo);
+AF_setInfo (const struct AF_infoX *InfoX, struct AF_info *InfoS);
 static int
-AF_setWNbS (const struct AF_dformat *DFormat);
+AF_setWNbS (int NbS, int Format);
 
 
 AFILE *
@@ -62,7 +60,6 @@ AFsetWrite (FILE *fp, int Ftype, const struct AF_write *AFw)
 	  Ftype == FT_AIFF || Ftype == FT_AIFF_C ||
 	  Ftype == FT_NH);
   assert (AFw->DFormat.Format > 0 && AFw->DFormat.Format < NFD);
-  assert (AFw->DFormat.ScaleF > 0.0);
   assert (AFw->Nchan > 0);
 
 /* Warnings */
@@ -92,8 +89,10 @@ AFsetWrite (FILE *fp, int Ftype, const struct AF_write *AFw)
     AFp->Swapb = DS_NATIVE;
   else
     AFp->Swapb = UTswapCode (AFw->DFormat.Swapb);
-  AFp->NbS = AF_setWNbS (&AFw->DFormat);
+  AFp->NbS = AF_setWNbS (AFw->DFormat.NbS, AFp->Format);
   AFp->ScaleF = AFw->DFormat.ScaleF;
+  if (AFp->ScaleF == AF_SF_DEFAULT)
+    AFp->ScaleF = 1. / AF_SF[AFp->Format];
   AFp->Nchan = AFw->Nchan;
 
   AFp->SpkrConfig = NULL;
@@ -106,7 +105,7 @@ AFsetWrite (FILE *fp, int Ftype, const struct AF_write *AFw)
   AFp->Start = Start;
   AFp->Isamp = 0;
   AFp->Nsamp = 0;
-  AF_setInfo (&AFw->Hinfo, &AFp->Hinfo);
+  AF_setInfo (&AFw->InfoX, &AFp->InfoS);
 
   return AFp;
 }
@@ -115,23 +114,23 @@ AFsetWrite (FILE *fp, int Ftype, const struct AF_write *AFw)
 
 
 static void
-AF_setInfo (const struct AF_infoX *Hinfo, struct AF_info *AFinfo)
+AF_setInfo (const struct AF_infoX *InfoX, struct AF_info *InfoS)
 
 {
   int N;
 
-  if (Hinfo == NULL || Hinfo->N <= 0) {
-    AFinfo->Info = NULL;
-    AFinfo->N = 0;
+  if (InfoX == NULL || InfoX->N <= 0) {
+    InfoS->Info = NULL;
+    InfoS->N = 0;
   }
   else {
-    N = Hinfo->N;
-    if (Hinfo->Info[N-1] != '\0')
+    N = InfoX->N;
+    if (InfoX->Info[N-1] != '\0')
       ++N;
-    AFinfo->Info = (char *) UTmalloc (N);
-    memcpy (AFinfo->Info, Hinfo->Info, Hinfo->N);
-    AFinfo->Info[N-1] = '\0';	/* Make sure there is a terminating null */
-    AFinfo->N = N;
+    InfoS->Info = (char *) UTmalloc (N);
+    memcpy (InfoS->Info, InfoX->Info, InfoX->N);
+    InfoS->Info[N-1] = '\0';	/* Make sure there is a terminating null */
+    InfoS->N = N;
   }
 
   return;
@@ -141,16 +140,16 @@ AF_setInfo (const struct AF_infoX *Hinfo, struct AF_info *AFinfo)
 
 
 static int
-AF_setWNbS (const struct AF_dformat *DFormat)
+AF_setWNbS (int NbS, int Format)
 
 {
-  int NbS;
+  int NbSx;
 
-  NbS = 8 * AF_DL[DFormat->Format];
-  if (DFormat->NbS < 0 || DFormat->NbS > NbS)
-    UTwarn (AFMF_InvNbS, "AFsetWrite -", DFormat->NbS, NbS);
-  else if (DFormat->NbS != 0)
-    NbS = DFormat->NbS;
+  NbSx = 8 * AF_DL[Format];
+  if (NbS < 0 || NbS > NbSx)
+    UTwarn (AFMF_InvNbS, "AFsetWrite -", NbS, NbSx);
+  else if (NbS != 0)
+    NbSx = NbS;
 
-  return NbS;
+  return NbSx;
 }

@@ -18,12 +18,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.7 $  $Date: 2003/01/27 14:14:04 $
+  $Revision: 1.8 $  $Date: 2003/05/09 01:21:36 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFupdHead.c 1.7 2003/01/27 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>

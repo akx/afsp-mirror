@@ -35,13 +35,11 @@ Parameters:
       non-negative for 0 <= a <= 0.5.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.18 $  $Date: 2002/03/25 16:14:09 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.19 $  $Date: 2003/05/09 01:29:45 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FIfWinHamm.c 1.18 2002/03/25 AFsp-v6r8 $";
-
 #include <math.h>
 
 #include <libtsp.h>

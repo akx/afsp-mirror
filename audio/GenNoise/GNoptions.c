@@ -2,7 +2,7 @@
                            McGill University
 
 Routine:
-  void GNoptions (int argc, const char *argv[], float *rms, int *seed,
+  void GNoptions (int argc, const char *argv[], double *rms, int *seed,
                   struct GN_FOpar *FO)
 
 Purpose:
@@ -16,21 +16,19 @@ Parameters:
       Number of command line arguments
    -> const char *argv[]
       Array of pointers to argument strings
-  <-  float *rms
-      Standard deviation for the noise samples, default 1000
+  <-  double *rms
+      Standard deviation for the noise samples, default 0.03
   <-  int *seed
       Seed for the random number generator, default 0
   <-  struct GN_FOpar *FO
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.33 $  $Date: 1999/06/05 01:30:21 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.35 $  $Date: 2003/11/06 13:24:09 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: GNoptions.c 1.33 1999/06/05 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>
@@ -49,13 +47,13 @@ static const char *OptTable[] = {
 
 
 void
-GNoptions (int argc, const char *argv[], float *rms, int *seed,
+GNoptions (int argc, const char *argv[], double *rms, int *seed,
 	   struct GN_FOpar *FO)
 
 {
   const char *OptArg;
   int nF, n;
-  float rmsx;
+  double rmsx, Nv, Dv;
   int seedx;
 
 /* Output file defaults */
@@ -63,7 +61,7 @@ GNoptions (int argc, const char *argv[], float *rms, int *seed,
   FO->Sfreq = AF_SFREQ_DEFAULT;
 
 /* Defaults */
-  rmsx = 1000.0;
+  rmsx = RMS_DEFAULT;
   seedx = 0;
 
 /* Initialization */
@@ -103,8 +101,9 @@ GNoptions (int argc, const char *argv[], float *rms, int *seed,
     case 1:
     case 2:
       /* Standard deviation */
-      if (STdec1float (OptArg, &rmsx) || rmsx < 0.0)
+      if (STdecDfrac (OptArg, &Nv, &Dv) || Nv / Dv < 0.0)
 	ERRSTOP (GNM_BadStdDev, OptArg);
+      rmsx = Nv / Dv;
       break;
     case 3:
     case 4:

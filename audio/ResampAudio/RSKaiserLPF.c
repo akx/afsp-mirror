@@ -50,13 +50,11 @@ Parameters:
       formulation above, equal to N-1 to get the full window)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.10 $  $Date: 2002/03/25 17:08:57 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/13 01:09:07 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSKaiserLPF.c 1.10 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include "ResampAudio.h"

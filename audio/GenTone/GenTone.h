@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.15 $  $Date: 2003/01/29 16:25:13 $
+  $Revision: 1.17 $  $Date: 2003/11/06 13:25:38 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,11 @@ Author / revision:
 #define GenTone_h_
 
 #define PROGRAM "GenTone"
-#define VERSION	"v4r2  2003-01-27"
+#define VERSION	"v5r0a  2003-11-06"
+
+#define SQRT2	1.41421356237309504880
+#define AMPL_DEF	(0.03 * SQRT2)
+
 
 #include <libtsp.h>		/* p_ */
 #include <AO.h>			/* struct AO_FOpar */

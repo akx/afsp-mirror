@@ -136,13 +136,11 @@ Parameters:
       to be placed in Token.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.34 $  $Date: 2001/11/30 13:37:38 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.36 $  $Date: 2003/05/09 03:16:39 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STfindToken.c 1.34 2001/11/30 AFsp-v6r8 $";
-
 #include <ctype.h>
 #include <string.h>
 #include <libtsp.h>
@@ -175,6 +173,8 @@ STfindToken (const char String[], const char Delims[], const char Quotes[],
   char *q;
   char QC[3];
   int State;
+
+  CharType = OTHER;
 
 /* Check for NULL string */
   if (String == NULL) {

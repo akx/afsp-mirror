@@ -23,13 +23,11 @@ Parameters:
       characters long including the terminating null character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.7 $  $Date: 2001/08/28 21:19:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.8 $  $Date: 2003/05/09 01:36:43 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLextName.c 1.7 2001/08/28 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

@@ -1,7 +1,7 @@
-CopyAudio: v5r3  2003-04-28
-CompAudio: v4r3  2003-04-28
-FiltAudio: v5r5  2003-04-28
-ResampAudio: v4r5  2003-04-28
+CopyAudio: v6r0  2003-05-08
+CompAudio: v5r1  2003-07-11
+FiltAudio: v6r0  2003-05-12
+ResampAudio: v5r0  2003-05-12
 
 ========== CopyAudio: scale by 2, scale by 0.5, expect File A = File B
  AU audio file: --path--/test/audiofiles/addf8.au
@@ -38,10 +38,16 @@ ResampAudio: v4r5  2003-04-28
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
+ File A:
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
+ File B:
+    Number of Samples: 23808
+    Std Dev = 0.052201 (5.22%),  Mean = -0.00060583 (-0.06058%)
+    Maximum = 0.29135 (29.14%),  Minimum = -0.3757 (-37.57%)
+    Active Level: 0.057815 (5.782%), Activity Factor: 81.5%
 
  File A = File B
 
@@ -68,19 +74,18 @@ ResampAudio: v4r5  2003-04-28
 
  File A:
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
  File B:
     Number of Samples: 23808
-    Std Dev = 1711.7      Mean = -19.25
-    Max     = 9340        Min  = -12412
-    Active Level: 1895.8 (Activity Factor: 81.5%)
+    Std Dev = 1711.7 (5.224%),  Mean = -19.25 (-0.05875%)
+    Maximum = 9340 (28.5%),  Minimum = -12412 (-37.88%)
+    Active Level: 1895.8 (5.785%), Activity Factor: 81.5%
  SNR      = 37.098   dB
  SNR      = 37.111   dB  (Gain for File B = 0.99924)
  Seg. SNR = 33.073   dB (128 sample segments)
- No. differing samples = 21910 (1543 runs)
- Max. difference = 254
+ Max Diff = 254 (0.7751%),  No. Diff = 21910 (1543 runs)
 
 ========== CopyAudio: apply mu-law again, expect File A = File B
  AU audio file: --path--/test/xx.au
@@ -102,9 +107,9 @@ ResampAudio: v4r5  2003-04-28
    Number of channels: 1 (8-bit mu-law)
 
     Number of Samples: 23808
-    Std Dev = 1711.7      Mean = -19.25
-    Max     = 9340        Min  = -12412
-    Active Level: 1895.8 (Activity Factor: 81.5%)
+    Std Dev = 1711.7 (5.224%),  Mean = -19.25 (-0.05875%)
+    Maximum = 9340 (28.5%),  Minimum = -12412 (-37.88%)
+    Active Level: 1895.8 (5.785%), Activity Factor: 81.5%
 
  File A = File B
 
@@ -129,10 +134,16 @@ ResampAudio: v4r5  2003-04-28
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
+ File A:
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
+ File B:
+    Number of Samples: 23808
+    Std Dev = 0.052201 (5.22%),  Mean = -0.00060583 (-0.06058%)
+    Maximum = 0.29135 (29.14%),  Minimum = -0.3757 (-37.57%)
+    Active Level: 0.057815 (5.782%), Activity Factor: 81.5%
 
  File A = File B
 
@@ -172,10 +183,16 @@ ResampAudio: v4r5  2003-04-28
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
+ File A:
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
+ File B:
+    Number of Samples: 23808
+    Std Dev = 0.052201 (5.22%),  Mean = -0.00060583 (-0.06058%)
+    Maximum = 0.29135 (29.14%),  Minimum = -0.3757 (-37.57%)
+    Active Level: 0.057815 (5.782%), Activity Factor: 81.5%
 
  File A = File B
 -------- FIR x5 x(1/5), expect File A = File B
@@ -215,9 +232,9 @@ ResampAudio: v4r5  2003-04-28
    Number of channels: 1 (16-bit integer)
 
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
 
  File A = File B
 -------- IIR, expect File A = File B
@@ -256,10 +273,16 @@ ResampAudio: v4r5  2003-04-28
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
+ File A:
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
+ File B:
+    Number of Samples: 23808
+    Std Dev = 0.052201 (5.22%),  Mean = -0.00060583 (-0.06058%)
+    Maximum = 0.29135 (29.14%),  Minimum = -0.3757 (-37.57%)
+    Active Level: 0.057815 (5.782%), Activity Factor: 81.5%
 
  File A = File B
 
@@ -303,19 +326,18 @@ ResampAudio: v4r5  2003-04-28
 
  File A:
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
  File B:
     Number of Samples: 23808
-    Std Dev = 1710.4      Mean = -19.852
-    Max     = 9543        Min  = -12306
-    Active Level: 1894.3 (Activity Factor: 81.5%)
+    Std Dev = 1710.4 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9543 (29.12%),  Minimum = -12306 (-37.55%)
+    Active Level: 1894.3 (5.781%), Activity Factor: 81.5%
  SNR      = 71.818   dB
  SNR      = 72.556   dB  (Gain for File B = 1.0001)
  Seg. SNR = 62.008   dB (128 sample segments)
- No. differing samples = 3392 (2371 runs)
- Max. difference = 6
+ Max Diff = 6 (0.01831%),  No. Diff = 3392 (2371 runs)
 
 ========== ResampAudio: 8000 -> 48000 -> 8000
  AU audio file: --path--/test/audiofiles/addf8.au
@@ -442,19 +464,18 @@ ResampAudio: v4r5  2003-04-28
 
  File A:
     Number of Samples: 142843
-    Std Dev = 1710.5      Mean = -19.853
-    Max     = 9547        Min  = -12556
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.853 (-0.06059%)
+    Maximum = 9547 (29.14%),  Minimum = -12556 (-38.32%)
+    Active Level: 1894.2 (5.781%), Activity Factor: 81.6%
  File B:
     Number of Samples: 142843
-    Std Dev = 1710.5      Mean = -19.853
-    Max     = 9547        Min  = -12556
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.853 (-0.06059%)
+    Maximum = 9547 (29.14%),  Minimum = -12556 (-38.32%)
+    Active Level: 1894.2 (5.781%), Activity Factor: 81.6%
  SNR      = 110.19   dB
  SNR      = 110.19   dB  (Gain for File B = 1)
  Seg. SNR = 100.58   dB (768 sample segments)
- No. differing samples = 4 (4 runs)
- Max. difference = 1
+ Max Diff = 1 (0.003052%),  No. Diff = 4 (4 runs)
  AU audio file: --path--/test/xxxa.au
    Number of samples : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 48000 Hz
@@ -480,16 +501,15 @@ ResampAudio: v4r5  2003-04-28
 
  File A:
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
  File B:
     Number of Samples: 23808
-    Std Dev = 1710.5      Mean = -19.852
-    Max     = 9547        Min  = -12311
-    Active Level: 1894.5 (Activity Factor: 81.5%)
+    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
+    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
+    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
  SNR      = 86.203   dB
  SNR      = 86.203   dB  (Gain for File B = 1)
  Seg. SNR = 92.506   dB (128 sample segments)
- No. differing samples = 10 (2 runs)
- Max. difference = 12
+ Max Diff = 12 (0.03662%),  No. Diff = 10 (2 runs)

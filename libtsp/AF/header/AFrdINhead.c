@@ -28,13 +28,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.64 $  $Date: 2001/10/05 11:17:38 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.66 $  $Date: 2003/11/03 18:55:08 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdINhead.c 1.64 2001/10/05 AFsp-v6r8 $";
-
 #include <setjmp.h>
 #include <string.h>
 
@@ -103,13 +101,13 @@ AFrdINhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = IN_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = IN_MAXINFO;
 
 /* Read in the header */
   offs  = RHEAD_S (fp, Fhead.Sfreq);
   offs += RSKIP (fp, 6L - offs);
-  offs += AFrdHtext (fp, NDT, "date: ", &AFr.Hinfo, 1);
+  offs += AFrdTextAFsp (fp, NDT, "date: ", &AFr.InfoX, 1);
   offs += RHEAD_V (fp, Fhead.Nsamp, DS_EL);
 
 /* Use the sampling frequency as a file magic value */

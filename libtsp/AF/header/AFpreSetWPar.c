@@ -2,8 +2,8 @@
                              McGill University
 
 Routine:
-  int AF_write AFpreSetWPar (int Fformat, long int Nchan, double Sfreq,
-                             struct AF_write *AFw)
+  int AF_write AFpreSetWPar (int Ftype, int Dformat, long int Nchan,
+                             double Sfreq, struct AF_write *AFw)
 
 Purpose:
   Create a parameter structure for writing an audio file
@@ -21,7 +21,7 @@ Description:
   Fields set from options:
     AFw->DFormat.NbS
     AFw->SpkrConfig
-    AFw->Hinfo
+    AFw->InfoX
     AFw->Nframe
   Fields preset to tentative values
     AFw->DFormat.ScaleF
@@ -30,9 +30,10 @@ Description:
 Parameters:
   <-  int AFpreSetWPar
       Error flag, 0 for no error
-   -> int Fformat
-      Audio file format code, evaluated as the sum of a data format code and a
-      file type
+   -> int Ftype
+      File type code
+   -> int Dformat
+      Data format code
    -> long int Nchan
       Number of channels
    -> double Sfreq
@@ -42,12 +43,10 @@ Parameters:
  
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.14 $  $Date: 2003/04/27 03:06:32 $
+  $Revision: 1.18 $  $Date: 2003/11/03 18:52:47 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFpreSetWPar.c 1.14 2003/04/27 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <math.h>	/* floor */
 #include <string.h>
@@ -63,14 +62,16 @@ static char rcsid [] = "$Id: AFpreSetWPar.c 1.14 2003/04/27 AFsp-v6r8 $";
 #define ICEILV(n,m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
 
 static int
-AF_checkDT (int Ftype, int Dformat);
+AF_checkDT (int Ftype, int Format);
+static int
+AF_checkIEEE (int Ftype, int Format);
 static int
 AF_setNbS (int Format, int NbS);
 static void
 AF_setSpeaker (const unsigned char *SpkrX, int Nchan,
 	       unsigned char *SpkrConfig);
 static struct AF_infoX
-AF_genHinfo (const char *Uinfo, const struct AF_write *AFw);
+AF_genInfo (const char *Uinfo, const struct AF_write *AFw);
 static int
 AF_stdInfo (const struct AF_write *AFw, char *Sinfo);
 static int
@@ -78,20 +79,21 @@ AF_nlNull (const char *InfoX, char *Info);
 
 
 int
-AFpreSetWPar (int Fformat, long int Nchan, double Sfreq, struct AF_write *AFw)
+AFpreSetWPar (int Ftype, int Dformat, long int Nchan, double Sfreq,
+	      struct AF_write *AFw)
 
 {
   struct AF_opt *AFopt;
 
   AFopt = AFoptions ();
 
-/* Separate the file type and data type */
-  AFw->DFormat.Format = FTW_dformat (Fformat);
-  AFw->Ftype = FTW_ftype (Fformat);
+/* File type and data format */
+  AFw->Ftype = Ftype;
+  AFw->DFormat.Format = Dformat;
 
 /* Set file data parameters */
   AFw->Sfreq = Sfreq;
-  AFw->DFormat.ScaleF = AF_SF[AFw->DFormat.Format]; /* Tentative */
+  AFw->DFormat.ScaleF = AF_SF_DEFAULT;
   AFw->DFormat.Swapb = DS_NATIVE;		    /* Tentative */
   AFw->DFormat.NbS = AF_setNbS (AFw->DFormat.Format, AFopt->NbS);
   AFw->Nchan = Nchan;
@@ -99,21 +101,23 @@ AFpreSetWPar (int Fformat, long int Nchan, double Sfreq, struct AF_write *AFw)
   AF_setSpeaker (AFopt->SpkrConfig, Nchan, AFw->SpkrConfig);
 
 /* Info string:
-     The space for the info string is allocated within AF_genHinfo.  It is
+     The space for the info string is allocated within AF_genInfo.  It is
      reclaimed each time AF_genInfo is called.
   */
-  AFw->Hinfo = AF_genHinfo (AFopt->Uinfo, AFw);
+  AFw->InfoX = AF_genInfo (AFopt->Uinfo, AFw);
 
 /* Error Checks */
   if (AF_checkDT (AFw->Ftype, AFw->DFormat.Format))
-      return 1;
+    return 1;
+  if (AF_checkIEEE (AFw->Ftype, AFw->DFormat.Format))
+    return 1;
 
   if (AFw->Nchan <= 0L) {
-    UTwarn ("AFopenWrite - %s: %ld", AFM_BadNChan, AFw->Nchan);
+    UTwarn ("AFopnWrite - %s: %ld", AFM_BadNChan, AFw->Nchan);
     return 1;
   }
   if (AFw->Nframe != AF_NFRAME_UNDEF && AFw->Nframe < 0L) {
-    UTwarn ("AFopenWrite - %s: %ld", AFM_BadNFrame, AFw->Nframe);
+    UTwarn ("AFopnWrite - %s: %ld", AFM_BadNFrame, AFw->Nframe);
     return 1;
   }
 
@@ -143,7 +147,7 @@ AF_checkDT (int Ftype, int Format)
 
   ErrCode = 0;
   if (Format < 1 || Format >= NFD) {
-    UTwarn ("AFopenWrite - %s: \"%d\"", AFM_BadDataC, Format);
+    UTwarn ("AFopnWrite - %s: \"%d\"", AFM_BadDataC, Format);
     ErrCode = 1;
     return ErrCode;
   }
@@ -151,26 +155,26 @@ AF_checkDT (int Ftype, int Format)
   switch (Ftype) {
   case FTW_AU:
     if (DT_AU[Format] == 0) {
-      UTwarn ("AFopenWrite - %s: \"%s\"", AFM_AU_UnsData, AF_DTN[Format]);
+      UTwarn ("AFopnWrite - %s: \"%s\"", AFM_AU_UnsData, AF_DTN[Format]);
       ErrCode = 1;
     }
     break;
   case FTW_WAVE:
   case FTW_WAVE_NOEX:
     if (DT_WAVE[Format] == 0) {
-      UTwarn ("AFopenWrite - %s: \"%s\"", AFM_WV_UnsData, AF_DTN[Format]);
+      UTwarn ("AFopnWrite - %s: \"%s\"", AFM_WV_UnsData, AF_DTN[Format]);
       ErrCode = 1;
     }
     break;
   case FTW_AIFF_C:
     if (DT_AIFF_C[Format] == 0) {
-      UTwarn ("AFopenWrite - %s: \"%s\"", AFM_AIFF_UnsData, AF_DTN[Format]);
+      UTwarn ("AFopnWrite - %s: \"%s\"", AFM_AIFF_UnsData, AF_DTN[Format]);
       ErrCode = 1;
     }
     break;
   case FTW_AIFF:
     if (DT_AIFF[Format] == 0) {
-      UTwarn ("AFopenWrite - %s: \"%s\"", AFM_AIFF_UnsData, AF_DTN[Format]);
+      UTwarn ("AFopnWrite - %s: \"%s\"", AFM_AIFF_UnsData, AF_DTN[Format]);
       ErrCode = 1;
     }
     break;
@@ -179,13 +183,49 @@ AF_checkDT (int Ftype, int Format)
   case FTW_NH_NATIVE:
   case FTW_NH_SWAP:
     if (DT_NH[Format] == 0) {
-      UTwarn ("AFopenWrite - %s: \"%s\"", AFM_NH_UnsData, AF_DTN[Format]);
+      UTwarn ("AFopnWrite - %s: \"%s\"", AFM_NH_UnsData, AF_DTN[Format]);
       ErrCode = 1;
     }
     break;
   default:
-    UTwarn ("AFopenWrite - %s: %d", AFM_BadFTypeC, Ftype);
+    UTwarn ("AFopnWrite - %s: %d", AFM_BadFTypeC, Ftype);
     ErrCode = 1;
+    break;
+  }
+  return ErrCode;
+}
+
+/* Check for IEEE data format */
+
+static int
+AF_checkIEEE (int Ftype, int Format)
+
+{
+  int ErrCode;
+
+  ErrCode = 0;
+  switch (Ftype) {
+  case FTW_AU:
+    if ((Format == FD_FLOAT32 || Format == FD_FLOAT64) && ! UTcheckIEEE ()) {
+      UTwarn ("AFwrAUhead - %s", AFM_NoIEEE);
+      ErrCode = 1;
+    }
+    break;
+  case FTW_WAVE:
+  case FTW_WAVE_NOEX:
+    if ((Format == FD_FLOAT32 || Format == FD_FLOAT64) && ! UTcheckIEEE ()) {
+      UTwarn ("AFwrWVhead - %s", AFM_NoIEEE);
+      ErrCode = 1;
+    }
+    break;
+  case FTW_AIFF_C:
+  case FTW_AIFF:
+    if ((Format == FD_FLOAT32 || Format == FD_FLOAT64) && ! UTcheckIEEE ()) {
+      UTwarn ("AFwrAIhead - %s", AFM_NoIEEE);
+      ErrCode = 1;
+    }
+    break;
+  default:
     break;
   }
 
@@ -207,11 +247,11 @@ AF_setNbS (int Format, int NbS)
 
   /* Res == 0 for text files */
   if (Res > 0 && (NbS <= 0 || NbS > Res)) {
-    UTwarn (AFMF_InvNbS, "AFopenWrite -", NbS, Res);
+    UTwarn (AFMF_InvNbS, "AFopnWrite -", NbS, Res);
     NbS = Res;
   }
   else if (Res == 0 && NbS != 0) {
-    UTwarn ("AFopenWrite - %s", AFM_BadNbS);
+    UTwarn ("AFopnWrite - %s", AFM_BadNbS);
     NbS = Res;
   }
 
@@ -219,7 +259,7 @@ AF_setNbS (int Format, int NbS)
   if (NbS != Res &&
       ! (Format == FD_UINT8 || Format == FD_INT8 || Format == FD_INT16 ||
 	 Format == FD_INT24 || Format == FD_INT32)) {
-    UTwarn ("AFopenWrite - %s", AFM_InaNbS);
+    UTwarn ("AFopnWrite - %s", AFM_InaNbS);
     NbS = Res;
   }
 
@@ -243,7 +283,7 @@ AF_setSpeaker (const unsigned char *SpkrX, int Nchan,
     if (Nspkr > Nchan)
       Nspkr = Nchan;
     if (Nspkr > AF_MAXN_SPKR)
-      UTwarn ("AFopenWrite - %s", AFM_XSpkr);
+      UTwarn ("AFopnWrite - %s", AFM_XSpkr);
     else {
       strncpy ((char *) SpkrConfig, (const char *) SpkrX, Nspkr);
       SpkrConfig[Nspkr] = '\0';
@@ -257,12 +297,12 @@ AF_setSpeaker (const unsigned char *SpkrX, int Nchan,
 
 
 static struct AF_infoX
-AF_genHinfo (const char *Uinfo, const struct AF_write *AFw)
+AF_genInfo (const char *Uinfo, const struct AF_write *AFw)
 
 {
   char Sinfo[MAX_SINFO];
   int Nc, ns, nu;
-  static struct AF_infoX Hinfo = {NULL, 0, 0};
+  static struct AF_infoX InfoX = {NULL, 0, 0};
 
   if (Uinfo == NULL || Uinfo[0] == '\n' ||
       (Uinfo[0] == '\\' && Uinfo[1] == 'n'))
@@ -280,9 +320,9 @@ AF_genHinfo (const char *Uinfo, const struct AF_write *AFw)
 
 /* Allocate storage */
   Nc = nu + ns + 1;	/* Leave room for a null */
-  UTfree ((void *) Hinfo.Info);
-  Hinfo.Info = (char *) UTmalloc (Nc);
-  Hinfo.Nmax = Nc;
+  UTfree ((void *) InfoX.Info);
+  InfoX.Info = (char *) UTmalloc (Nc);
+  InfoX.Nmax = Nc;
 
 /* Form the output string.
    - Uinfo == NULL
@@ -296,15 +336,15 @@ AF_genHinfo (const char *Uinfo, const struct AF_write *AFw)
    - Uinfo does not start with '\n'
        Info <= Uinfo
 */
-  strcpy (Hinfo.Info, Sinfo);
+  strcpy (InfoX.Info, Sinfo);
   if (Uinfo != NULL)
-    strcpy (&Hinfo.Info[ns], Uinfo);
+    strcpy (&InfoX.Info[ns], Uinfo);
 
 /* Change newlines to nulls */
-  Hinfo.N = AF_nlNull (Hinfo.Info, Hinfo.Info);
+  InfoX.N = AF_nlNull (InfoX.Info, InfoX.Info);
 
 /* Return a pointer to the information records */
-  return Hinfo;
+  return InfoX;
 }
 
 /* Generate the standard information string */

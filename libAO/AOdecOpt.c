@@ -37,13 +37,11 @@ Parameters:
       decoded option does not take a value, this pointer will be NULL.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.10 $  $Date: 2000/12/04 19:32:25 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/09 12:32:37 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AOdecOpt.c 1.10 2000/12/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <AObase.h>
 

@@ -24,13 +24,11 @@ Parameters:
       File pointer to the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.14 $  $Date: 1999/06/04 20:47:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.15 $  $Date: 2003/05/09 01:36:44 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLgetLine.c 1.14 1999/06/04 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

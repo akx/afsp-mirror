@@ -74,14 +74,13 @@ Parameters:
       convolving with the filter coefficients.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.15 $  $Date: 2002/03/25 16:09:48 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.16 $  $Date: 2003/05/09 01:29:44 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FIfConvSI.c 1.15 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
+
 
 void
 FIfConvSI (const float x[], float y[], int Nout, const float h[], int Ncof,

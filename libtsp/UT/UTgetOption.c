@@ -139,13 +139,11 @@ Parameters:
       const attribute, an explict cast to (const char **) is required.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.30 $  $Date: 1999/06/04 22:41:07 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.31 $  $Date: 2003/05/09 03:20:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTgetOption.c 1.30 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/UTmsg.h>

@@ -26,13 +26,11 @@ Parameters:
       Filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.8 $  $Date: 1999/06/05 02:20:44 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/13 01:09:07 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSwriteCof.c 1.8 1999/06/05 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include "ResampAudio.h"
 

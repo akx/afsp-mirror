@@ -28,7 +28,8 @@ file type.
 .ne 3
   ".au"   - AU audio file
   ".wav"  - WAVE file
-  ".aif"  - AIFF-C sound file
+  ".aif"  - AIFF sound file
+  ".afc"  - AIFF-C sound file
   ".raw"  - Headerless file (native byte order)
   ".txt"  - Headerless file (text data)
 .fi
@@ -40,12 +41,14 @@ Frequency of the sine wave in Hertz, default 1000.
 .ti -4n
 -r SDEV, --rms=SDEV
 .br
-Root-mean-square value of the sinusoid, default 1000.
+Root-mean-square value of the sinusoid in normalized units, default
+0.03.
 .ti -4n
 -a AMPL, --amplitude_max=AMPL
 .br
-Maximum amplitude of the sine wave, default 1414.  The amplitude of the
-sine wave is specified by either the rms value or the maximum amplitude.
+Maximum amplitude of the sine wave in normalized units.  The amplitude
+of the sine wave is specified by either the rms value or the maximum
+amplitude.
 .ti -4n
 -p PHASE, --phase PHASE
 .br
@@ -181,6 +184,6 @@ If the information string starts with a record delimiter, the header
 information string is appended to the standard header information.  If not,
 the user supplied header information string appears alone.
 .SH Author / version
-P. Kabal / v4r2  2003-01-27
+P. Kabal / v5r0a  2003-11-06
 .SH See Also
 AFsp

@@ -9,22 +9,20 @@ Purpose:
 
 Description:
   This routine updates the data length field of an AU format audio file.  The
-  file is assumed to have been opened with routine AFopenWrite.
+  file is assumed to have been opened with routine AFopnWrite.
 
 Parameters:
   <-  int AFupdAUhead
       Error code, zero for no error
    -> AFILE *AFp
-      Audio file pointer for an audio file opened by AFopenWrite
+      Audio file pointer for an audio file opened by AFopnWrite
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.36 $  $Date: 1999/06/04 20:07:54 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.38 $  $Date: 2003/05/09 01:21:35 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFupdAUhead.c 1.36 1999/06/04 AFsp-v6r8 $";
-
 #include <setjmp.h>
 
 #include <libtsp.h>

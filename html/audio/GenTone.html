@@ -32,7 +32,8 @@ file type.
 <PRE>
   ".au"   - AU audio file
   ".wav"  - WAVE file
-  ".aif"  - AIFF-C sound file
+  ".aif"  - AIFF sound file
+  ".afc"  - AIFF-C sound file
   ".raw"  - Headerless file (native byte order)
   ".txt"  - Headerless file (text data)
 </PRE>
@@ -43,12 +44,14 @@ Frequency of the sine wave in Hertz, default 1000.
 <DT>
 -r SDEV, --rms=SDEV
 <DD>
-Root-mean-square value of the sinusoid, default 1000.
+Root-mean-square value of the sinusoid in normalized units, default
+0.03.
 <DT>
 -a AMPL, --amplitude_max=AMPL
 <DD>
-Maximum amplitude of the sine wave, default 1414.  The amplitude of the
-sine wave is specified by either the rms value or the maximum amplitude.
+Maximum amplitude of the sine wave in normalized units.  The amplitude
+of the sine wave is specified by either the rms value or the maximum
+amplitude.
 <DT>
 -p PHASE, --phase PHASE
 <DD>
@@ -157,7 +160,7 @@ If the information string starts with a record delimiter, the header
 information string is appended to the standard header information.  If not,
 the user supplied header information string appears alone.
 <H4>Author / version</H4>
-P. Kabal / v4r2  2003-01-27
+P. Kabal / v5r0a  2003-11-06
 <P>
 <HR>
 Main Index <A HREF="AFsp.html">AFsp</A>

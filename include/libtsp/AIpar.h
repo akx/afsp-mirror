@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.20 $  $Date: 2003/01/30 03:37:05 $
+  $Revision: 1.21 $  $Date: 2003/05/13 01:48:10 $
 
 ----------------------------------------------------------------------*/
 
@@ -73,15 +73,6 @@ Author / revision:
 #define CN_FLOAT64	"IEEE 64-bit float"
 #define CN_X_ALAW	"ITU-T G.711 A-law"
 #define CN_X_ULAW	"ITU-T G.711 mu-law"
-
-#define AI_SF_ULAW	(1.)
-#define AI_SF_ALAW	(1.)
-#define AI_SF_NONE8	(128.)
-#define AI_SF_NONE16	(1.)
-#define AI_SF_NONE24	(1./256.)
-#define AI_SF_NONE32	(1./65536.)
-#define AI_SF_FLOAT32	(32768.)
-#define AI_SF_FLOAT64	(32768.)
 
 #define AIFCVersion1	0xA2805140	/* AIFF-C Version 1 identifier */
 

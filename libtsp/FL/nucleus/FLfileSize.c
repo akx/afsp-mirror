@@ -19,13 +19,11 @@ Parameters:
       File pointer associated with the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.21 $  $Date: 1999/06/04 20:49:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.22 $  $Date: 2003/05/09 01:39:26 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: FLfileSize.c 1.21 1999/06/04 AFsp-v6r8 $";
-
 #include <errno.h>
 
 #include <libtsp.h>

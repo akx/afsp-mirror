@@ -1,8 +1,8 @@
 /*------------- Telecommunications & Signal Processing Lab --------------
                           McGill University
 Routine:
-  void CAcorr (AFILE *AFp[2], long int Start[2], long int Nsamp, int delay,
-               long int Nsseg, struct Stats_T *Stats)
+  void CAcorr (AFILE *AFp[2], long int Start[2], long int Nsamp,
+               long int delay, long int Nsseg, struct Stats_T *Stats)
 
 Purpose:
   Gather correlation statistics for two audio files
@@ -20,22 +20,21 @@ Parameters:
       Start samples
    -> long int Nsamp
       Number of samples
-   -> int delay
+   -> long int delay
       delay of file B relative to file A
-   -> int Nsseg
+   -> long int Nsseg
       Segment length in samples for segmental SNR computations
   <-  struct Stats_T *Stats
       Structure containing the file statistics
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.17 $  $Date: 1999/06/12 21:51:21 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.21 $  $Date: 2003/07/14 11:28:54 $
 
 -----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CAcorr.c 1.17 1999/06/12 AFsp-v6r8 $";
-
-#include <math.h>	/* fabs, log10 */
+#include <assert.h>
+#include <math.h>	/* log10 */
 
 #include <libtsp.h>
 #include "CompAudio.h"
@@ -43,25 +42,47 @@ static char rcsid[] = "$Id: CAcorr.c 1.17 1999/06/12 AFsp-v6r8 $";
 #define ABSV(x)		(((x) < 0) ? -(x) : (x))
 #define MINV(a, b)	(((a) < (b)) ? (a) : (b))
 #define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
+#define SQRV(x)		((x) * (x))
 
 #define NBUF	2560
 
+struct ActLev_W {
+  double Ssx2;		/* Sum x[i]*x[i] for a segment */
+  double Ssd2;		/* Sum (x[i]-y[i])(x[i]-y[i]) for a segment */
+  int ks;		/* Segment sample counter */
+};
+
+static const struct Stats_T Stats_T_Init = {
+  0.0, 0.0, 0.0, 0L, 0.0, 0L, 0, 0L, 0L, 0.0 };
+static const struct ActLev_W ActLev_W_Init = { 0.0, 0.0, 0 };
+
+    
 static void
-CA_corr (struct Stats_T *Stats, const float Xa[], const float Xb[], int N);
+CA_corr (struct Stats_T *Stats, const double Xa[], const double Xb[], int N,
+	 struct ActLev_W *AWork);
 
 
 void
-CAcorr (AFILE *AFp[2], long int Start[2], long int Nsamp, int delay,
+CAcorr (AFILE *AFp[2], long int Start[2], long int Nsamp, long int delay,
 	long int Nsseg, struct Stats_T *Stats)
 
 {
-  float Xa[NBUF];
-  float Xb[NBUF];
-  int Nv, diffA, diffB;
+  double Xa[NBUF];
+  double Xb[NBUF];
+  int Nv;
+  long int diffA, diffB;
   long int ioffs, Nrem;
+  struct ActLev_W AWork;
 
 /* Initialization */
-  Stats_T_INIT (Stats, Nsseg);
+  *Stats = Stats_T_Init;
+  Stats->Nsseg = Nsseg;
+  AWork = ActLev_W_Init;
+
+/* Treat multi-channel files as single channel files */
+  assert (AFp[0]->Nchan == AFp[1]->Nchan);
+  delay *= AFp[0]->Nchan;
+  Nsseg *= AFp[0]->Nchan;
 
   ioffs = 0L;
   diffA = MAXV (0, -delay) + Start[0];
@@ -71,26 +92,27 @@ CAcorr (AFILE *AFp[2], long int Start[2], long int Nsamp, int delay,
 
 /* Read the audio files */
     Nv = (int) MINV (Nrem, NBUF);
-    AFreadData (AFp[0], ioffs+diffA, Xa, Nv);
-    AFreadData (AFp[1], ioffs+diffB, Xb, Nv);
+    AFdReadData (AFp[0], ioffs+diffA, Xa, Nv);
+    AFdReadData (AFp[1], ioffs+diffB, Xb, Nv);
     ioffs += Nv;
     Nrem -= Nv;
 
-    CA_corr (Stats, Xa, Xb, Nv);
+    CA_corr (Stats, Xa, Xb, Nv, &AWork);
   }
 
   return;
 }
 
+#define EPSD	(0.01/(32768.*32768.))
 
 
 static void
-CA_corr (struct Stats_T *Stats, const float Xa[], const float Xb[], int N)
+CA_corr (struct Stats_T *Stats, const double Xa[], const double Xb[], int N,
+	 struct ActLev_W *AWork)
 
 {
   int i;
-  double Sx2, Sy2, Sxy;
-  float diff;
+  double diff, Sx2, Sy2, Sxy;
 
   /* Data comparisons */
   Sx2 = 0.0;
@@ -108,28 +130,30 @@ CA_corr (struct Stats_T *Stats, const float Xa[], const float Xb[], int N)
       diff = Xa[i] - Xb[i];
       Stats->Diffmax = MAXV (Stats->Diffmax, ABSV (diff));
     }
-    else {
+    else
       Stats->Inrun = 0;
-    }
 
     /* Cross products */
-    Sx2 += (double) Xa[i] * (double) Xa[i];
-    Sy2 += (double) Xb[i] * (double) Xb[i];
-    Sxy += (double) Xa[i] * (double) Xb[i];
+    Sx2 += SQRV (Xa[i]);
+    Sy2 += SQRV (Xb[i]);
+    Sxy += Xa[i] * Xb[i];
 
     /* Segmental SNR update */
-    Stats->Ssx2 += (double) Xa[i] * (double) Xa[i];
-    Stats->Ssd2 += (double) (Xb[i] - Xa[i]) * (double) (Xb[i] - Xa[i]);
-    ++Stats->ks;
-    if (Stats->ks >= Stats->Nsseg) {
-      Stats->SNRlog += log10 (1.0 + Stats->Ssx2 / Stats->Ssd2);
+    AWork->Ssx2 += SQRV (Xa[i]);
+    AWork->Ssd2 += SQRV (Xb[i] - Xa[i]);
+    ++AWork->ks;
+    if (AWork->ks >= Stats->Nsseg) {
+      Stats->SNRlog += log10 (1.0 + AWork->Ssx2 / (EPSD + AWork->Ssd2));
       ++Stats->Nseg;
-      Stats->Ssx2 = 0.0;
-      Stats->Ssd2 = 1e-2;
-      Stats->ks = 0;
+      *AWork = ActLev_W_Init;
     }
-
+    /* EPSD ensures that the denominator is non-zero. It was set to
+       0.01 for 16-bit data, i.e. a small fraction of the minimum
+       non-zero value. This value is 0.01/(32768*32768) for unit
+       full scale.
+    */
   }
+
   Stats->Sx2 += Sx2;
   Stats->Sy2 += Sy2;
   Stats->Sxy += Sxy;

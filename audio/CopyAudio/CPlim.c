@@ -51,13 +51,11 @@ Parameters:
       AF_NFRAME_UNDEF, it is not used.
  
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.8 $  $Date: 1999/06/05 00:58:31 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/13 01:33:07 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CPlim.c 1.8 1999/06/05 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <AO.h>
 #include "CopyAudio.h"

@@ -8,8 +8,8 @@ Description:
   Declarations for AU audio file headers
 
 Author / revision:
-  P. Kabal  Copyright (C) 1998
-  $Revision: 1.26 $  $Date: 1998/10/15 16:11:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.27 $  $Date: 2003/05/13 01:48:11 $
 
 ----------------------------------------------------------------------*/
 
@@ -42,15 +42,6 @@ enum {
   AU_G723_5	= 26,	/* CCITT G.723 5-bit ADPCM */
   AU_ALAW8	= 27	/* A-law 8-bit data */
 };
-
-#define AU_SF_MULAW8	(1.)
-#define AU_SF_ALAW8	(1.)
-#define AU_SF_LIN8	(128.)
-#define AU_SF_LIN16	(1.)
-#define AU_SF_LIN24	(1./256.)
-#define AU_SF_LIN32	(1./65536.)
-#define AU_SF_FLOAT32	(32768.)
-#define AU_SF_DOUBLE64	(32768.)
 
 #define	AU_NOSIZE	(~((uint4_t) 0))	/* Indeterminate data length */
 

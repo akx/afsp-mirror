@@ -20,13 +20,11 @@ Parameters:
       Input character string
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.7 $  $Date: 2001/11/30 13:38:24 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.8 $  $Date: 2003/05/09 03:06:42 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STtrimIws.c 1.7 2001/11/30 AFsp-v6r8 $";
-
 #include <ctype.h>
 
 #include <libtsp/nucleus.h>

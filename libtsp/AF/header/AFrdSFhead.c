@@ -29,13 +29,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.69 $  $Date: 2001/10/30 16:37:21 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.72 $  $Date: 2003/11/03 18:56:00 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdSFhead.c 1.69 2001/10/30 AFsp-v6r8 $";
-
 #include <setjmp.h>
 #include <string.h>
 
@@ -91,7 +89,7 @@ extern jmp_buf AFR_JMPENV;
 AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
 
 static int
-AF_getComment (FILE *fp, int Size, int Fbo, struct AF_infoX *Hinfo);
+AF_getComment (FILE *fp, int Size, int Fbo, struct AF_infoX *InfoX);
 
 
 AFILE *
@@ -110,8 +108,8 @@ AFrdSFhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = SF_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = SF_MAXINFO;
 
 /* Check the file magic */
   offs = RHEAD_S (fp, Fhead.Magic);
@@ -170,7 +168,7 @@ AFrdSFhead (FILE *fp)
      used by the MIT Media lab csound package.  For instance, the csound
      program uses SF_ULAW as 0x00001.
    - There are examples of IRCAM files (bicsf files) with float data which
-     have been scaled to +/-1.  We use a scale factor of 32768 for float data.
+     have been scaled to +/-1.
 */
 
 /* Read in the rest of the header */
@@ -180,7 +178,7 @@ AFrdSFhead (FILE *fp)
 
 /* Pick up comments */
   offs += AF_getComment (fp, (int) (LHEAD - offs), AFr.DFormat.Swapb,
-			 &AFr.Hinfo);
+			 &AFr.InfoX);
 
 /* Position at the start of data */
   RSKIP (fp, LHEAD - offs);
@@ -189,35 +187,27 @@ AFrdSFhead (FILE *fp)
   switch (Fhead.sf_packmode) {
   case SF_CHAR:
     AFr.DFormat.Format = FD_INT8;
-    AFr.DFormat.ScaleF = 128.;
     break;
   case SF_ULAW:
     AFr.DFormat.Format = FD_MULAW8;
-    AFr.DFormat.ScaleF = 1.;
     break;
   case SF_ALAW:
     AFr.DFormat.Format = FD_ALAW8;
-    AFr.DFormat.ScaleF = 1.;
     break;
   case SF_SHORT:
     AFr.DFormat.Format = FD_INT16;
-    AFr.DFormat.ScaleF = 1.;
     break;
   case SF_24INT:
     AFr.DFormat.Format = FD_INT24;
-    AFr.DFormat.ScaleF = 1./256.;
     break;
   case SF_LONG:
     AFr.DFormat.Format = FD_INT32;
-    AFr.DFormat.ScaleF = 1./65536.;
     break;
   case SF_FLOAT:
     AFr.DFormat.Format = FD_FLOAT32;
-    AFr.DFormat.ScaleF = 32768.;
     break;
   case SF_DOUBLE:
     AFr.DFormat.Format = FD_FLOAT64;
-    AFr.DFormat.ScaleF = 32768.;
     break;
   default:
     UTwarn ("AFrdSFhead - %s: \"%ld\"", AFM_SF_UnsData, Fhead.sf_packmode);
@@ -237,7 +227,7 @@ AFrdSFhead (FILE *fp)
 
 
 static int
-AF_getComment (FILE *fp, int Size, int Fbo, struct AF_infoX *Hinfo)
+AF_getComment (FILE *fp, int Size, int Fbo, struct AF_infoX *InfoX)
 
 {
   int offs, nc;
@@ -251,7 +241,7 @@ AF_getComment (FILE *fp, int Size, int Fbo, struct AF_infoX *Hinfo)
     offs += RHEAD_V (fp, SFcode.bsize, Fbo);
     nc = SFcode.bsize - (sizeof SFcode.code) - (sizeof SFcode.bsize);
     if (SFcode.code == SF_COMMENT)
-      offs += AFrdHtext (fp, nc, "IRCAM comment: ", Hinfo, 1);
+      offs += AFrdTextAFsp (fp, nc, "IRCAM comment: ", InfoX, 1);
     else
       offs += RSKIP (fp, nc);
   }

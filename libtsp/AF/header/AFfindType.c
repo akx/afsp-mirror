@@ -42,12 +42,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.80 $  $Date: 2003/01/30 03:36:24 $
+  $Revision: 1.82 $  $Date: 2003/08/07 11:09:04 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFfindType.c 1.80 2003/01/30 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>
@@ -176,9 +174,13 @@ static const struct AF_magic MagicS[] = {
   /* MP3 files */
   MAGIC_S (FTU_CODE(17), 2, 0L, "\377\373"),
   MAGIC_S (FTU_CODE(17), 2, 0L, "\377\372"),
+  /* Nyvalla DSP StdHead files */
   MAGIC_S (FTU_CODE(18), 1024, 0L, "file=samp\r\n"),
   MAGIC_S (FTU_CODE(18), 1024, 0L, "data=int16\r\nfile=samp\r\n"),
+  /* NIST Sphere file with extra carriage returns */
   MAGIC_S (FTU_CODE(19), 1024, 0L, "NIST_1A\r\n"),
+  /* ILS Sampled Data files */
+  MAGIC_S (FTU_CODE(20), 512, 124, "\0\203\225\175"),
 };
 #define NTEST	NELEM (MagicS)
 
@@ -192,7 +194,7 @@ static const char *FTU_desc[] = {
   "Psion alaw file",
   "SampleVision file",
   "Audio Visual Research file",
-  "Entropic Esignal file",
+  "Esignal file",
   "Macintosh HCOM file",
   "Gravis Ultrasound Patch file",
   "Gold sample file",
@@ -203,7 +205,8 @@ static const char *FTU_desc[] = {
   "RealAudio file",
   "MPEG-1 Layer III",
   "Nyvalla DSP StdHead file",
-  "Damaged NIST Sphere audio file"
+  "Damaged NIST Sphere audio file",
+  "ILS Sampled Data file"
 };
 
 /* LHEADBUF is the number of header bytes to be read */

@@ -24,13 +24,11 @@ Parameters:
       Number of values to be byte-swapped
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.20 $  $Date: 1999/06/04 22:52:48 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.21 $  $Date: 2003/05/09 03:33:52 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: VRswapBytes.c 1.20 1999/06/04 AFsp-v6r8 $";
-
 #include <stdlib.h>
 #include <string.h>
 

@@ -14,7 +14,7 @@ CFLAGS = $(COPTS) -I$(dist_includedir)
 
 LIB = $(dist_libdir)/libtsp.a
 
-.PHONY: all
+.PHONY: all mostlyclean clean
 
 all:	$(LIB)
 
@@ -32,3 +32,7 @@ $(LIB): \
 	$(LIB)(UTswapCode.o) \
 	#
 	ranlib $(LIB)
+
+mostlyclean:
+	rm -f *.o
+clean:	mostlyclean

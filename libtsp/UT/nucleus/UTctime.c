@@ -35,14 +35,13 @@ Parameters:
       Date / time format code, taking on values from 0 to 3
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.19 $  $Date: 2001/11/30 13:40:17 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.22 $  $Date: 2003/05/09 03:49:05 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTctime.c 1.19 2001/11/30 AFsp-v6r8 $";
-
 #include <time.h>	/* strftime definition */
+			/* tzset (Section 8.3.2.1 of Posix) */
 
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
@@ -72,7 +71,6 @@ UTctime (time_t *timer, int format)
    - Setting the TZ environment variable will force the time zone names,
      for instance TZ=EST5EDT with force the use of the 3 letter short forms
      for the time zones.
-   - On Cygwin, the time zone is blank even when TZ is set.
 */
 
   switch (format) {

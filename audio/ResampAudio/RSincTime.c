@@ -20,13 +20,11 @@ Description:
   increment occurs without accumulation of error.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.3 $  $Date: 1999/06/13 00:01:37 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.4 $  $Date: 2003/05/13 01:08:13 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSincTime.c 1.3 1999/06/13 AFsp-v6r8 $";
-
 #include <math.h>
 
 #include "ResampAudio.h"

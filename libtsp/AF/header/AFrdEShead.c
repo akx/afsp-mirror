@@ -38,13 +38,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.68 $  $Date: 2001/10/31 22:05:53 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.70 $  $Date: 2003/11/03 18:54:48 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdEShead.c 1.68 2001/10/31 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <ctype.h>
 #include <setjmp.h>
@@ -102,8 +100,8 @@ AFrdEShead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = ES_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = ES_MAXINFO;
 
 /* Read selected preamble values */
 /* We do not know the byte order until after we have read the file magic */
@@ -133,11 +131,11 @@ AFrdEShead (FILE *fp)
   offs += RHEAD_V (fp, FheadF.Type, AFr.DFormat.Swapb);
   offs += RSKIP (fp, 2);
   offs += RHEAD_S (fp, FheadF.Magic);
-  offs += AFrdHtext (fp, 26, "date: ", &AFr.Hinfo, 1);
-  offs += AFrdHtext (fp,  8, "header_version: ", &AFr.Hinfo, 1);
-  offs += AFrdHtext (fp, 16, "program_name: ", &AFr.Hinfo, 1);
-  offs += AFrdHtext (fp,  8, "program_version: ", &AFr.Hinfo, 1);
-  offs += AFrdHtext (fp, 26, "program_compile_date: ", &AFr.Hinfo, 1);
+  offs += AFrdTextAFsp (fp, 26, "date: ", &AFr.InfoX, 1);
+  offs += AFrdTextAFsp (fp,  8, "header_version: ", &AFr.InfoX, 1);
+  offs += AFrdTextAFsp (fp, 16, "program_name: ", &AFr.InfoX, 1);
+  offs += AFrdTextAFsp (fp,  8, "program_version: ", &AFr.InfoX, 1);
+  offs += AFrdTextAFsp (fp, 26, "program_compile_date: ", &AFr.InfoX, 1);
   offs += RHEAD_V (fp, FheadF.Ndrec, AFr.DFormat.Swapb);
   offs += RSKIP (fp, 4);
   offs += RHEAD_V (fp, FheadF.Ndouble, AFr.DFormat.Swapb);
@@ -146,7 +144,7 @@ AFrdEShead (FILE *fp)
   offs += RHEAD_V (fp, FheadF.Nshort, AFr.DFormat.Swapb);
   offs += RHEAD_V (fp, FheadF.Nchar, AFr.DFormat.Swapb);
   offs += RSKIP (fp, 8);
-  offs += AFrdHtext (fp, 8, "user: ", &AFr.Hinfo, 1);
+  offs += AFrdTextAFsp (fp, 8, "user: ", &AFr.InfoX, 1);
 
 /* Read selected feature file header values */
   offs += RSKIP (fp, 188 - offs);
@@ -211,13 +209,13 @@ AFrdEShead (FILE *fp)
   if (AF_getGeneric (GenItems, NgI, "start_time", AFr.DFormat.Swapb,
 		     1, ES_DOUBLE, &STime)) {
     Nv = sprintf (str, "%.7g", STime);
-    AFaddHtext ("start_time: ", str, Nv, &AFr.Hinfo); 
+    AFaddAFspRec ("start_time: ", str, Nv, &AFr.InfoX); 
   }
   /* Pick up "max_value" only if it is a single value */
   if (AF_getGeneric (GenItems, NgI, "max_value", AFr.DFormat.Swapb,
 		     1, ES_DOUBLE, &STime)) {
     Nv = sprintf (str, "%.7g", STime);
-    AFaddHtext ("max_value: ", str, Nv, &AFr.Hinfo); 
+    AFaddAFspRec ("max_value: ", str, Nv, &AFr.InfoX); 
   }
 
 /* Set the parameters for file access */

@@ -22,13 +22,11 @@ Parameters:
       Structure with channel gains and offsets
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.19 $  $Date: 2001/11/03 12:57:24 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.20 $  $Date: 2003/05/13 01:33:24 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CPdecChan.c 1.19 2001/11/03 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <string.h>
 
@@ -39,7 +37,7 @@ static char rcsid[] = "$Id: CPdecChan.c 1.19 2001/11/03 AFsp-v6r8 $";
 #define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
 
 static void
-CP_decChan (const char String[], int *NI, float Gain[MAXNI], float *Offset);
+CP_decChan (const char String[], int *NI, double Gain[MAXNI], double *Offset);
 static char *
 CP_chan (char String[], int *NI);
 
@@ -61,14 +59,14 @@ CPdecChan (const char String[], int Ichan, struct CP_Chgain *Chgain)
 
 
 static void
-CP_decChan (const char String[], int *NI, float Gain[MAXNI], float *Offset)
+CP_decChan (const char String[], int *NI, double Gain[MAXNI], double *Offset)
 
 {
   int nc, n, sign, nsign;
   const char *p;
   char *gp;
   char *token;
-  float gain;
+  double gain;
   double DN, DD;
 
 /* Allocate temporary space */
@@ -78,7 +76,7 @@ CP_decChan (const char String[], int *NI, float Gain[MAXNI], float *Offset)
   token = (char *) UTmalloc (nc + 1);
 
 /* Loop over subexpressions */
-  VRfZero (Gain, MAXNI);
+  VRdZero (Gain, MAXNI);
   *Offset = 0.0;
   p = String;
   nsign = 1;
@@ -111,7 +109,7 @@ CP_decChan (const char String[], int *NI, float Gain[MAXNI], float *Offset)
     DD = 1.0;
     if (gp != NULL && STdecDfrac (gp, &DN, &DD))
       UThalt ("%s: %s: \"%s\"", PROGRAM, CPM_BadChanEx, String);
-    gain = (float) (sign * DN / DD);
+    gain = sign * DN / DD;
     if (n < MAXNI) {
       Gain[n] += gain;
       *NI = MAXV (*NI, n+1);

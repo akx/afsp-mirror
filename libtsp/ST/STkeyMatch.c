@@ -40,13 +40,11 @@ Parameters:
       explicit cast to (const char **) is required.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.17 $  $Date: 1999/06/04 22:32:50 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.18 $  $Date: 2003/05/09 03:02:44 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STkeyMatch.c 1.17 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 #define NOSTAR	0

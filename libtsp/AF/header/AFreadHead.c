@@ -39,13 +39,11 @@ Parameters:
       DS_SWAP   - File data is byte-swapped
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.20 $  $Date: 1999/06/04 20:07:54 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.21 $  $Date: 2003/05/09 01:21:35 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFreadHead.c 1.20 1999/06/04 AFsp-v6r8 $";
-
 #include <setjmp.h>
 
 #include <libtsp.h>

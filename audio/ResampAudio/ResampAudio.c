@@ -151,7 +151,8 @@ Options:
       of the output file name is used to determine the file type.
         ".au"   - AU audio file
         ".wav"  - WAVE file
-        ".aif"  - AIFF-C sound file
+        ".aif"  - AIFF sound file
+        ".afc"  - AIFF-C sound file
         ".raw"  - Headerless file (native byte order)
         ".txt"  - Headerless file (text data)
   -s SFREQ, --srate=SFREQ
@@ -383,13 +384,13 @@ Environment variables:
   ScaleF: Scale factor
        "default" - Scale factor chosen appropriate to the type of data. The
           scaling factors shown below are applied to the data in the file.
-          8-bit mu-law:    1
-          8-bit A-law:     1
-          8-bit integer:   128
-          16-bit integer:  1
-          24-bit integer:  1/256
-          32-bit integer:  1/65536
-          float data:      32768
+          8-bit mu-law:    1/32768
+          8-bit A-law:     1/32768
+          8-bit integer:   128/32768
+          16-bit integer:  1/32768
+          24-bit integer:  1/(256*32768)
+          32-bit integer:  1/(65536*32768)
+          float data:      1
        "<number or ratio>" - Specify the scale factor to be applied to
           the data from the file.
   The default values for the audio file parameters correspond to the following
@@ -402,11 +403,9 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v4r5  2003-04-28  Copyright (C) 2003
+  P. Kabal / v5r0  2003-05-12  Copyright (C) 2003
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: ResampAudio.c 1.54 2003/04/29 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* EXIT_SUCCESS */
 #include <string.h>
 
@@ -424,12 +423,11 @@ main (int argc, const char *argv[])
 {
   struct RS_FIpar FI;
   struct RS_FOpar FO;
-  int Fformat;
+  int Ftype, Dformat;
   long int Nsamp, Nchan, NframeI;
   AFILE *AFpI, *AFpO;
   FILE *fpinfo;
-  double Soffs, Sratio, FDel, toffs;
-  float SfreqI;
+  double SfreqI, Soffs, Sratio, FDel, toffs;
   struct Fspec_T Fspec;
   struct Fpoly_T PF;
 
@@ -445,7 +443,7 @@ main (int argc, const char *argv[])
 /* Open the input audio file */
   AOsetFIopt (&FI, 0, 0);
   FLpathList (FI.Fname, AFPATH_ENV, FI.Fname);
-  AFpI = AFopenRead (FI.Fname, &Nsamp, &Nchan, &SfreqI, fpinfo);
+  AFpI = AFopnRead (FI.Fname, &Nsamp, &Nchan, &SfreqI, fpinfo);
   AFpI->ScaleF *= FI.Gain;	/* Gain absorbed into scaling factor */
 
 /* Get the interpolating filter coefficients */
@@ -463,11 +461,12 @@ main (int argc, const char *argv[])
 /* Open the output audio file */
   if (FO.SpkrConfig == NULL)
     FO.SpkrConfig = AFpI->SpkrConfig;
-  Fformat = AOsetFormat (&FO, &AFpI, 1);
+  Ftype = AOsetFtype (&FO);
+  Dformat = AOsetDformat (&FO, &AFpI, 1);
   AOsetFOopt (&FO);
   if (strcmp (FO.Fname, "-") != 0)
     FLbackup (FO.Fname);
-  AFpO = AFopenWrite (FO.Fname, Fformat, Nchan, FO.Sfreq, fpinfo);
+  AFpO = AFopnWrite (FO.Fname, Ftype, Dformat, Nchan, FO.Sfreq, fpinfo);
 
 /* Default number of output samples, filter time offset */
   NframeI = AOnFrame (&AFpI, &FI, 1, AF_NFRAME_UNDEF);

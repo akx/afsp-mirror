@@ -18,13 +18,11 @@ Parameters:
       Structure with the decoded filter specifications
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.12 $  $Date: 2002/04/04 13:31:34 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.13 $  $Date: 2003/05/13 01:08:13 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSfiltSpec.c 1.12 2002/04/04 AFsp-v6r8 $";
-
 #include <math.h>
 #include <string.h>
 

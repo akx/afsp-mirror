@@ -26,13 +26,11 @@ Parameters:
       segmental SNR is not available.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.7 $  $Date: 1999/06/05 00:54:10 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/15 01:21:28 $
 
 -----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CASNR.c 1.7 1999/06/05 AFsp-v6r8 $";
-
 #include <float.h>	/* DBL_MAX */
 #include <math.h>	/* log10 */
 
@@ -103,7 +101,7 @@ CASNR (const struct Stats_T *Stats, double *SNR, double *SNRG, double *SF,
   
   /* Segmental SNR */
   if (Stats->Nseg > 0)
-    *SSNR = pow (10.0, (Stats->SNRlog/Stats->Nseg)) - 1.0;
+    *SSNR = pow (10.0, (Stats->SNRlog / Stats->Nseg)) - 1.0;
   else
     *SSNR = -1.0;
 

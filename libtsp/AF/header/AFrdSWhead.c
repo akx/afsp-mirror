@@ -41,13 +41,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.37 $  $Date: 2001/10/31 22:05:14 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.39 $  $Date: 2003/11/03 18:56:26 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdSWhead.c 1.37 2001/10/31 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>
@@ -139,8 +137,8 @@ AFrdSWhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = SW_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = SW_MAXINFO;
 
   /* Defaults */
   AFr.Sfreq = -1.0;
@@ -182,7 +180,7 @@ AFrdSWhead (FILE *fp)
 
       case SW_USER_COMMENT:
 	if (strlen (line) > 0)
-	  AFaddHtext ("user_comment: ", line, strlen (line), &AFr.Hinfo);
+	  AFaddAFspRec ("user_comment: ", line, strlen (line), &AFr.InfoX);
 	break;
 
       case SW_COMMON_INFO:

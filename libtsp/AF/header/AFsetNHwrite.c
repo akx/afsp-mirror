@@ -21,12 +21,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.32 $  $Date: 2003/04/27 03:08:12 $
+  $Revision: 1.34 $  $Date: 2003/05/09 01:21:35 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFsetNHwrite.c 1.32 2003/04/27 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>
@@ -44,7 +42,7 @@ AFsetNHwrite (FILE *fp, struct AF_write *AFw)
 
 /* Set the parameters for file access */
   AFw->DFormat.ScaleF = 1. / AF_SF[AFw->DFormat.Format];
-  AFw->DFormat.Swapb = FTW_subtype (AFw->Ftype);
+  AFw->DFormat.Swapb = AFw->Ftype / FTW_SUBTYPE_MOD;
 
 /* Check the swap code */
   if (! (AFw->DFormat.Swapb == DS_EB     || AFw->DFormat.Swapb == DS_EL ||

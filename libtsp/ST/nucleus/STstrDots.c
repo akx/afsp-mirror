@@ -57,13 +57,11 @@ Parameters:
       for the output string.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.4 $  $Date: 2001/11/30 13:38:46 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.5 $  $Date: 2003/05/09 03:06:42 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STstrDots.c 1.4 2001/11/30 AFsp-v6r8 $";
-
 #include <ctype.h>
 #include <string.h>
 

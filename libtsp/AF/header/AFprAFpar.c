@@ -21,13 +21,11 @@ Parameters:
       fpinfo is NULL, no information is printed.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.50 $  $Date: 2002/11/06 18:53:55 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.52 $  $Date: 2003/11/03 18:52:25 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFprAFpar.c 1.50 2002/11/06 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <string.h>
 
@@ -43,7 +41,7 @@ static char rcsid [] = "$Id: AFprAFpar.c 1.50 2002/11/06 AFsp-v6r8 $";
 #define NC_SPKR ((AF_NC_SPKR + 1) * AF_MAXN_SPKR - 1)
 
 static const char *
-AF_findRec (const char *Id[], const struct AF_info *Hinfo);
+AF_findRec (const char *Id[], const struct AF_info *InfoS);
 
 
 void
@@ -91,7 +89,7 @@ AFprAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo)
 
     /* ---------------- */
     /* Title */
-    Title = AF_findRec (IDtitle, &AFp->Hinfo);
+    Title = AF_findRec (IDtitle, &AFp->InfoS);
     if (Title != NULL)
       fprintf (fpinfo, AFMF_Desc, STstrDots (Title, 56));
 
@@ -108,7 +106,7 @@ AFprAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo)
 	fprintf (fpinfo, " (%.4g s)", (AFp->Nsamp / AFp->Nchan) / AFp->Sfreq);
 
       /* Date */
-      Datetime = AF_findRec (IDdate, &AFp->Hinfo);
+      Datetime = AF_findRec (IDdate, &AFp->InfoS);
       if (Datetime == NULL) {
 	Datetime = "";
 	if (AFp->fp != stdin)
@@ -144,7 +142,7 @@ AFprAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo)
 
 
 static const char *
-AF_findRec (const char *Id[], const struct AF_info *Hinfo)
+AF_findRec (const char *Id[], const struct AF_info *InfoS)
 
 {
   int i;
@@ -152,7 +150,7 @@ AF_findRec (const char *Id[], const struct AF_info *Hinfo)
 
   p = NULL;
   for (i = 0; Id[i] != NULL; ++i) {
-    p = AFgetHrec (Id[i], Hinfo);
+    p = AFgetInfoRec (Id[i], InfoS);
     if (p != NULL)
       break;
   }

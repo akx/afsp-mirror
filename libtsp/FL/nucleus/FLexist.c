@@ -18,13 +18,11 @@ Parameters:
       File name
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.9 $  $Date: 2001/12/10 22:33:02 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.10 $  $Date: 2003/05/09 01:39:26 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLexist.c 1.9 2001/12/10 AFsp-v6r8 $";
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -33,6 +31,7 @@ static char rcsid[] = "$Id: FLexist.c 1.9 2001/12/10 AFsp-v6r8 $";
 #ifndef S_ISREG		/* Defined by POSIX */
 #  define S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)
 #endif
+
 
 int
 FLexist (const char Fname[])

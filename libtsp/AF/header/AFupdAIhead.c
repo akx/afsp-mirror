@@ -9,22 +9,20 @@ Purpose:
 
 Description:
   This routine updates the data length fields of an AIFF or AIFF-C sound file.
-  The file is assumed to have been opened with routine AFopenWrite.
+  The file is assumed to have been opened with routine AFopnWrite.
 
 Parameters:
   <-  int AFupdAIhead
       Error code, zero for no error
    -> AFILE *AFp
-      Audio file pointer for an audio file opened by AFopenWrite
+      Audio file pointer for an audio file opened by AFopnWrite
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.25 $  $Date: 2003/01/27 14:12:25 $
+  $Revision: 1.27 $  $Date: 2003/05/09 01:21:35 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFupdAIhead.c 1.25 2003/01/27 AFsp-v6r8 $";
-
 #include <setjmp.h>
 
 #include <libtsp.h>

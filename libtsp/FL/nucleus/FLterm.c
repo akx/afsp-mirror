@@ -18,14 +18,12 @@ Parameters:
       File pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.12 $  $Date: 2001/10/09 02:34:54 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.14 $  $Date: 2003/05/09 01:39:26 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLterm.c 1.12 2001/10/09 AFsp-v6r8 $";
-
-#include <stdio.h>	/* fileno */
+#include <stdio.h>	/* fileno (Section 8.2.1.1 of Posix) */
 
 #include <libtsp/nucleus.h>
 #include <libtsp/sysOS.h>

@@ -19,13 +19,11 @@ Parameters:
       contains the sign bit and the first part of the exponent.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.6 $  $Date: 2000/07/20 17:44:13 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.7 $  $Date: 2003/05/09 03:23:41 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTdIEEE80.c 1.6 2000/07/20 AFsp-v6r8 $";
-
 #include <math.h>		/* ld_exp, sqrt */
 
 #include <libtsp/nucleus.h>

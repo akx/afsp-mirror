@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.44 $  $Date: 2003/04/29 23:15:54 $
+  $Revision: 1.45 $  $Date: 2003/05/13 01:07:24 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define ResampAudio_h_
 
 #define PROGRAM "ResampAudio"
-#define VERSION	"v4r5  2003-04-28"
+#define VERSION	"v5r0  2003-05-12"
 
 #include <float.h>		/* DBL_MAX */
 

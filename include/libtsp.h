@@ -8,8 +8,8 @@ Description:
   Function prototypes and declarations for the TSP library routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 2.99 $  $Date: 2002/03/25 16:28:15 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 2.102 $  $Date: 2003/11/04 10:34:51 $
 
 ----------------------------------------------------------------------*/
 
@@ -31,6 +31,30 @@ extern "C" {
 /* ----- AF Prototypes ----- */
 void
 AFclose (AFILE *AFp);
+int
+AFdReadData (AFILE *AFp, long int offs, double Dbuff[], int Nreq);
+int
+AFdWriteData (AFILE *AFp, const double Dbuff[], int Nval);
+int
+AFfReadData (AFILE *AFp, long int offs, float Dbuff[], int Nreq);
+int
+AFfWriteData (AFILE *AFp, const float Dbuff[], int Nval);
+AFILE *
+AFopnRead (const char Fname[], long int *Nsamp, long int *Nchan, double *Sfreq,
+	   FILE *fpinfo);
+AFILE *
+AFopnWrite (const char Fname[], int Ftype, int Dformat, long int Nchan,
+	    double Sfreq, FILE *fpinfo);
+int
+AFsetFileType (const char String[]);
+void
+AFsetInfo (const char Info[]);
+int
+AFsetNHpar (const char String[]);
+int
+AFsetSpeaker(const char String[]);
+
+  /* Deprecated */
 AFILE *
 AFopenRead (const char Fname[], long int *Nsamp, long int *Nchan, float *Sfreq,
 	    FILE *fpinfo);
@@ -38,17 +62,10 @@ AFILE *
 AFopenWrite (const char Fname[], int Fformat, long int Nchan, double Sfreq,
 	     FILE *fpinfo);
 int
-AFreadData (AFILE *AFp, long int offs, float Fbuff[], int Nreq);
+AFreadData (AFILE *AFp, long int offs, float Dbuff[], int Nreq);
 int
-AFsetFileType (const char String[]);
-void
-AFsetHinfo (const char Info[]);
-int
-AFsetNHpar (const char String[]);
-int
-AFsetSpeaker(const char String[]);
-int
-AFwriteData (AFILE *AFp, const float Fbuff[], int Nval);
+AFwriteData (AFILE *AFp, const float Dbuff[], int Nval);
+
 
 /* ----- FI Prototypes ----- */
 void
@@ -259,6 +276,8 @@ void
 SPcovar (const float x[], int Nx, float *Cov[], int Np);
 void
 SPdCFFT (double x[], double y[], int N, int Ifn);
+int
+SPdQuantL (double x, const double Xq[], int Nreg);
 void
 SPdRFFT (double x[], int N, int Ifn);
 void

@@ -26,13 +26,11 @@ Parameters:
 		  and DS_EB if the current host uses little-endian byte order.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.2 $  $Date: 1999/06/04 22:42:58 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.3 $  $Date: 2003/05/09 03:23:41 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTbyteCode.c 1.2 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/UTpar.h>

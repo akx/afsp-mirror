@@ -2,8 +2,8 @@
                           McGill University
 Routine:
   void CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp,
-               long int Nsseg, int delayL, int delayU, int *delayM,
-	       struct Stats_T *Stats)
+               long int Nsseg, long int delayL, long int delayU,
+	       long int *delayM, struct Stats_T *Stats)
 
 Purpose:
   Gather correlation statistics for two audio files over a range of delays
@@ -25,25 +25,23 @@ Parameters:
    -> long int Nsseg
       Segment length in samples for segmental SNR computations. If Nsseg is
       zero, a default value is used.
-   -> int delayL
+   -> long int delayL
       Start delay value.  Normally delayL <= delayU.  If this condition is not
       satisfied, no statistics are calculated.
-   -> int delayU
+   -> long int delayU
       End delay value
-  <-  int *delayM
+  <-  long int *delayM
       Delay of file B relative to file A which maximizes the gain adjusted SNR.
   <-  struct Stats_T *Stats
       Structure containing the cross-file statistics corresponding to the delay
       value delayM
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.20 $  $Date: 1999/06/12 22:07:39 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.23 $  $Date: 2003/07/11 14:35:36 $
 
 -----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CAcomp.c 1.20 1999/06/12 AFsp-v6r8 $";
-
 #include <float.h>	/* DBL_MAX */
 #include <math.h>	/* log10 */
 
@@ -54,17 +52,18 @@ static char rcsid[] = "$Id: CAcomp.c 1.20 1999/06/12 AFsp-v6r8 $";
 
 static double
 CA_sfreq (double SfreqA, double SfreqB);
-static int
-CA_nsseg (int Nsseg, double Sfreq);
+static long int
+CA_nsseg (long int Nsseg, double Sfreq);
 
 
 void
 CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp, long int Nsseg,
-	int delayL, int delayU, int *delayM, struct Stats_T *Stats)
+	long int delayL, long int delayU, long int *delayM,
+	struct Stats_T *Stats)
 
 {
   struct Stats_T Statst;
-  int delay;
+  long int delay;
   double Sfreq, SNR, SNRG, SNRGmax, SF, SSNR;
 
 /* Find the segment length */
@@ -79,7 +78,7 @@ CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp, long int Nsseg,
    gain factor:
    - gain factor is a 2 x 2 matrix allowing mixing and scaling
    - gain factor is a scalar for each channel
-   - gain factor is single scalar applied to each channel
+   - gain factor is a scalar, the same value being applied to each channel
    For the last case, the 2-channel computations are exactly the same as if
    the data were treated as one channel data.  This is the case that is
    implemented.
@@ -149,13 +148,13 @@ CA_sfreq (double SfreqA, double SfreqB)
 #define NSSEG_MID	256
 
 
-static int
-CA_nsseg (int Nsseg, double Sfreq)
+static long int
+CA_nsseg (long int Nsseg, double Sfreq)
 
 {
-  /* Choose a block size which is a multiple of 16 ms long */
+  /* Choose a block size, 16 ms by default */
   if (Nsseg == 0) {
-    Nsseg = (int) MSdNint (DSEGTIME * Sfreq);
+    Nsseg = (long int) MSdNint (DSEGTIME * Sfreq);
     if (Nsseg < NSSEG_MIN || Nsseg > NSSEG_MAX) {
       Nsseg = NSSEG_MID;
       UTwarn (CAMF_SegSize, PROGRAM, Nsseg);

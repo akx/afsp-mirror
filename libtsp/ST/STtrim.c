@@ -22,13 +22,11 @@ Parameters:
       the input string pointer.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.6 $  $Date: 2001/11/30 13:37:19 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.7 $  $Date: 2003/05/09 03:02:44 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STtrim.c 1.6 2001/11/30 AFsp-v6r8 $";
-
 #include <ctype.h>
 #include <string.h>
 

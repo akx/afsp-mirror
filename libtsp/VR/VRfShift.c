@@ -31,13 +31,11 @@ Parameters:
       and negative for a shift up.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.10 $  $Date: 1999/06/04 22:51:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/09 03:33:10 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: VRfShift.c 1.10 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 

@@ -29,13 +29,11 @@ Parameters:
       the appropriate representable value.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.20 $  $Date: 2001/11/30 13:39:07 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.22 $  $Date: 2003/05/09 03:17:00 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STdec1val.c 1.20 2001/11/30 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -75,6 +73,8 @@ STdec1val (const char String[], int Type, void *Val)
      is documented in the man page: "Overflow conditions are ignored.")
   */
 
+  dv = 0.0;	/* stop compiler warnings */
+  lv = 0;
   errno = 0;
   BS = 0;
   switch (Type) {

@@ -1,6 +1,6 @@
 <html>
 
-<!-- $Id: AFsp.html 1.22 2001/10/15 AFsp-v6r8 $ -->
+<!-- $Id: AFsp.html 1.24 2003/05/21 AFsp-v7r2 $ -->
 
 <head>
 <meta http-equiv="Content-Language" content="en-ca">
@@ -54,23 +54,28 @@ routines for reading and writing audio files.</p>
 <p>The audio file open routine automatically senses the input file type. The 
 data format for the file is passed to the audio file reading routines. The audio 
 file reading routine does byte swapping and format conversion on the fly as the 
-file is read. The user sees float data without needing to worry about the 
-underlying data format.</p>
+file is read. The user sees floating-point data without needing to worry about 
+the underlying data format.</p>
 <p>Once a file is opened for writing, the user calls routines which take the 
-user's float data and do byte swapping and format conversion of the data 
+user's data and do byte swapping and format conversion of the data 
 transparently.</p>
 <p>The library routines supplied in <i>AFsp</i> package form part of the libtsp 
-signal processing library. The <i>AFsp</i> routines are written in C and have 
-been tested on Unix and Windows.</p>
+signal processing library.&nbsp; These routines are written in C.</p>
 <dl>
   <dt><a HREF="../libtsp/AF/AFclose.html">AFclose</a> </dt>
   <dd>Close an audio file </dd>
-  <dt><a HREF="../libtsp/AF/AFopenRead.html">AFopenRead</a> </dt>
-  <dd>Open an audio file for reading </dd>
-  <dt><a href="../libtsp/AF/AFopenWrite.html">AFopenWrite</a> </dt>
-  <dd>Open an audio file for writing </dd>
-  <dt><a HREF="../libtsp/AF/AFreadData.html">AFreadData</a> </dt>
+  <dt><a href="../libtsp/AF/AFdReadData.html">AFdReadData</a> </dt>
+  <dd>Read data from an audio file (return double values) </dd>
+  <dt><a href="../libtsp/AF/AFdWriteData.html">AFdWriteData</a> </dt>
+  <dd>Write data to an audio file (double input values) </dd>
+  <dt><a href="../libtsp/AF/AFfReadData.html">AFfReadData</a> </dt>
   <dd>Read data from an audio file (return float values) </dd>
+  <dt><a href="../libtsp/AF/AFfWriteData.html">AFfWriteData</a> </dt>
+  <dd>Write data to an audio file (float input values) </dd>
+  <dt><a href="../libtsp/AF/AFopnRead.html">AFopnRead</a> </dt>
+  <dd>Open an audio file for reading </dd>
+  <dt><a href="../libtsp/AF/AFopnWrite.html">AFopnWrite</a> </dt>
+  <dd>Open an audio file for writing </dd>
   <dt><a HREF="../libtsp/AF/AFsetFileType.html">AFsetFileType</a> </dt>
   <dd>Explicitly set the input audio file type </dd>
   <dt><a HREF="../libtsp/AF/AFsetHinfo.html">AFsetHinfo</a> </dt>
@@ -78,9 +83,7 @@ been tested on Unix and Windows.</p>
   <dt><a HREF="../libtsp/AF/AFsetNHpar.html">AFsetNHpar</a> </dt>
   <dd>Set defaults for headerless audio files </dd>
   <dt><a HREF="../libtsp/AF/AFsetSpeaker.html">AFsetSpeaker</a> </dt>
-  <dd>Set defaults for loudspeaker spacial positions </dd>
-  <dt><a HREF="../libtsp/AF/AFwriteData.html">AFwriteData</a> </dt>
-  <dd>Write data to an audio file (float input values) </dd>
+  <dd>Set defaults for loudspeaker spatial positions </dd>
 </dl>
 <h4>Audio File Formats:</h4>
 <p>The following file formats are supported for reading.</p>
@@ -92,6 +95,7 @@ been tested on Unix and Windows.</p>
   <li>NIST SPHERE audio files </li>
   <li>IRCAM soundfiles </li>
   <li>INRS-Telecom audio files </li>
+  <li>CSL NSP files</li>
   <li>ESPS sampled data feature files </li>
   <li>Comdisco SPW Signal files </li>
   <li>Text audio files </li>
@@ -101,7 +105,7 @@ been tested on Unix and Windows.</p>
   <li>Headerless audio files (including text data) </li>
   <li>AU audio files </li>
   <li>WAVE files </li>
-  <li>AIFF-C audio files </li>
+  <li>AIFF or AIFF-C audio files </li>
 </ul>
 <h4>Audio File Data Types:</h4>
 <p>The following (uncompressed) data types are supported.</p>
@@ -113,7 +117,6 @@ been tested on Unix and Windows.</p>
   <li>64-bit floating-point </li>
   <li>text data </li>
 </ul>
-<p></p>
 <hr ALIGN="LEFT">
 
 </body>

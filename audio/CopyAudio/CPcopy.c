@@ -31,13 +31,11 @@ Parameters:
       Output audio file pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.6 $  $Date: 1999/06/05 00:58:31 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.7 $  $Date: 2003/05/13 01:34:27 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CPcopy.c 1.6 1999/06/05 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>

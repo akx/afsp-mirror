@@ -44,12 +44,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.67 $  $Date: 2003/04/27 03:09:39 $
+  $Revision: 1.69 $  $Date: 2003/05/13 01:57:49 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFwrWVhead.c 1.67 2003/04/27 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <setjmp.h>
 #include <string.h>
@@ -85,8 +83,6 @@ static void
 AF_wrRIFF (FILE *fp, const struct WV_CKRIFF *CKRIFF);
 static int
 AF_wrFMT (FILE *fp, const struct WV_CKfmt *CKfmt);
-static double
-AF_ScaleF (int Format);
 static uint4_t
 AF_encChannelConfig (const unsigned char *SpkrConfig);
 
@@ -105,9 +101,6 @@ AFwrWVhead (FILE *fp, struct AF_write *AFw)
     return NULL;	/* Return from a header write error */
 
 /* Set up the encoding parameters */
-  AFw->DFormat.ScaleF = AF_ScaleF (AFw->DFormat.Format);
-  AFw->DFormat.Swapb = DS_EL;
-
   Lw = AF_DL[AFw->DFormat.Format];
   if (AFw->Nframe != AF_NFRAME_UNDEF)
     Ldata = AFw->Nframe * AFw->Nchan * Lw;
@@ -145,59 +138,13 @@ AFwrWVhead (FILE *fp, struct AF_write *AFw)
   CKRIFF.ckSize = (uint4_t) size;
 
 /* Write out the header (error return via longjmp) */
+  AFw->DFormat.Swapb = DS_EL;
   AF_wrRIFF (fp, &CKRIFF);
 
 /* Set the parameters for file access */
   AFp = AFsetWrite (fp, FT_WAVE, AFw);
 
   return AFp;
-}
-
-/* Set the scale factor */
-
-
-static double
-AF_ScaleF (int Format)
-
-{
-  double ScaleF;
-
-  switch (Format) {
-  case FD_INT16:
-    ScaleF = 1./WV_SF_PCM16;
-    break;
-  case FD_INT24:
-    ScaleF = 1./WV_SF_PCM24;
-    break;
-  case FD_INT32:
-    ScaleF = 1./WV_SF_PCM32;
-    break;
-  case FD_UINT8:
-    ScaleF = 1./WV_SF_PCM8;
-    break;
-  case FD_MULAW8:
-    ScaleF = 1./WV_SF_MULAW;
-    break;
-  case FD_ALAW8:
-    ScaleF = 1./WV_SF_ALAW;
-    break;
-  case FD_FLOAT32:
-    ScaleF = 1./WV_SF_FLOAT32;
-    if (! UTcheckIEEE ())
-      UTwarn ("AFwrWVhead - %s", AFM_NoIEEE);
-    break;
-  case FD_FLOAT64:
-    ScaleF = 1./WV_SF_FLOAT64;
-    if (! UTcheckIEEE ())
-      UTwarn ("AFwrWVhead - %s", AFM_NoIEEE);
-    break;
-  default:
-    UTwarn ("AFwrWVhead - %s", AFM_WV_UnsData);
-    ScaleF = 0.0;	/* Error */
-    break;
-  }
-
-  return ScaleF;
 }
 
 /* Fill in the fmt chunk */

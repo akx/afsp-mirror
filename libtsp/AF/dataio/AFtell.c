@@ -24,13 +24,11 @@ Parameters:
       remains unchanged.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.8 $  $Date: 2001/10/05 21:08:37 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/09 01:11:35 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFtell.c 1.8 2001/10/05 AFsp-v6r8 $";
-
 #include <errno.h>
 
 #include <libtsp.h>

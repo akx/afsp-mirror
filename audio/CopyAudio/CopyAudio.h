@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.78 $  $Date: 2003/04/29 23:13:48 $
+  $Revision: 1.79 $  $Date: 2003/05/13 01:32:38 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define CopyAudio_h_
 
 #define PROGRAM "CopyAudio"
-#define VERSION	"v5r3  2003-04-28"
+#define VERSION	"v6r0  2003-05-08"
 
 #include <libtsp.h>		/* typedef for AFILE */
 #include <libtsp/AFpar.h>	/* struct AF_NHpar */
@@ -42,17 +42,17 @@ Author / revision:
 struct CP_Chgain {
   int NI;
   int NO;
-  float Offset[MAXNO];
-  float Gain[MAXNO][MAXNI];
+  double Offset[MAXNO];
+  double Gain[MAXNO][MAXNI];
 };  
 
 #define Chgain_INIT(p) { \
 	int i__; \
 	(p)->NI = 0; \
 	(p)->NO = 0; \
-	VRfZero ((p)->Offset, MAXNO); \
+	VRdZero ((p)->Offset, MAXNO); \
 	for (i__ = 0; i__ < MAXNO; ++i__) \
-	  VRfZero ((p)->Gain[i__], MAXNI); }
+	  VRdZero ((p)->Gain[i__], MAXNI); }
 
 /* Warning messages */
 #define CPM_DiffSFreq	"Input sampling frequencies differ"

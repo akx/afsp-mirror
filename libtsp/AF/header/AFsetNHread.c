@@ -23,12 +23,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.67 $  $Date: 2003/04/27 03:07:48 $
+  $Revision: 1.68 $  $Date: 2003/05/09 01:21:35 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFsetNHread.c 1.67 2003/04/27 AFsp-v6r8 $";
-
 #include <stdio.h>
 
 #include <libtsp.h>

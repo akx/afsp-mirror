@@ -28,13 +28,11 @@ Parameters:
       terminating null character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.23 $  $Date: 1999/06/15 22:21:16 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.24 $  $Date: 2003/05/09 01:36:44 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLhomeDir.c 1.23 1999/06/15 AFsp-v6r8 $";
-
 #include <stdlib.h>		/* getenv prototype */
 #include <string.h>
 

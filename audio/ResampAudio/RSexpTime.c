@@ -29,13 +29,11 @@ Parameters:
       Structure containing the expanded time value
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.7 $  $Date: 2001/10/17 13:36:22 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.8 $  $Date: 2003/05/13 01:08:13 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSexpTime.c 1.7 2001/10/17 AFsp-v6r8 $";
-
 #include <math.h>
 
 #include "ResampAudio.h"

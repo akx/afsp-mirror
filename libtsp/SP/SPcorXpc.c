@@ -78,13 +78,11 @@ Parameters:
       Number of predictor coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.18 $  $Date: 1999/06/12 17:47:01 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.19 $  $Date: 2003/05/09 02:45:14 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: SPcorXpc.c 1.18 1999/06/12 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/SPmsg.h>
 

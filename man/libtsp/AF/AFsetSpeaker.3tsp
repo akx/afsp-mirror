@@ -53,4 +53,6 @@ String containing the list of speaker positions
 .in -4n
 .SH Author / revision
 P. Kabal
-/ Revision 1.1  2001/09/26
+/ Revision 1.2  2003/05/09
+.SH See Also
+AFopnWrite

@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_mIRSR_FIR_8k.cof
 ! See ITU-T G.191 (2000), Software Tools Library (module fir-irs.c)
-! $Id: STL_mIRSR_FIR_16k.cof 1.1 2002/06/18 AFsp-v6r8 $
+! $Id: STL_mIRSR_FIR_16k.cof 1.1 2002/06/18 AFsp-v7r2 $
 !
 ! Modified IRS (receive) filter, ITU-T Recommendation P.48 (SRAEN response removed)
 !  - Linear phase FIR filter, 148 taps

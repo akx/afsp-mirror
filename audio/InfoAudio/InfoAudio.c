@@ -9,8 +9,8 @@ Purpose:
 
 Description:
   This program prints information about a number of audio files to standard
-  output.  The full output consists of the file type and name (indented part
-  of the output below), the file data parameters, and the header information
+  output.  The full output consists of the file type and name (indented
+  part of the output below), the file data parameters, and the information
   records.
      AU audio file: /usr/local/src/audio/InfoAudio/test/xx.au
        Number of samples : 23808  2001-02-04 14:12:50 UTC
@@ -25,7 +25,7 @@ Description:
                                     integer16, float32, float64, or text)
     File byte order: big-endian    (big-endian, little-endian, or byte-stream)
     Host byte order: big-endian    (big-endian or little-endian)
-    --Header information records--
+    --Information records--
     date: 2001-02-04 14:12:50 UTC
     user: library@aldebaran
     program: CopyAudio
@@ -33,7 +33,7 @@ Description:
   For single byte or text data, the "File byte order" field is set to
   "byte-stream".
 
-  Non-printing characters (as defined by the routine isprint) in the header
+  Non-printing characters (as defined by the routine isprint) in the
   information records are replaced by question marks.
 
 Options:
@@ -59,7 +59,7 @@ Options:
       of the codes which control printing of the individual parts.
         1:  Print the file type and name
         2:  Print the file data parameters
-        4:  Print the header information records
+        4:  Print the information records
       The default is to print all of the information (ICODE=7).  For ICODE=0,
       no information is printed, but the program return code indicates if all
       files were opened successfully.
@@ -113,15 +113,7 @@ Environment variables:
   Nchan: number of channels
     The data consists of interleaved samples from Nchan channels
   ScaleF: Scale factor
-       "default" - Scale factor chosen appropriate to the type of data. The
-          scaling factors shown below are applied to the data in the file.
-          8-bit mu-law:    1
-          8-bit A-law:     1
-          8-bit integer:   128
-          16-bit integer:  1
-          24-bit integer:  1/256
-          32-bit integer:  1/65536
-          float data:      32768
+       "default" - Scale factor chosen appropriate to the type of data.
        "<number or ratio>" - Specify the scale factor to be applied to
           the data from the file.
   The default values for the audio file parameters correspond to the following
@@ -134,12 +126,10 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v3r6  2003-04-28  Copyright (C) 2003
+  P. Kabal / v4r0a  2003-11-03  Copyright (C) 2003
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: InfoAudio.c 1.82 2003/04/29 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>	/* EXIT_SUCCESS */
@@ -177,9 +167,9 @@ static const char *DataSwap[] = {
 };
 
 static void
-IA_nonPrint (struct AF_info *Hinfo);
+IA_nonPrint (struct AF_info *InfoS);
 static void
-IA_printInfo (const struct AF_info *Hinfo);
+IA_printInfo (const struct AF_info *InfoS);
 
 
 int
@@ -191,7 +181,7 @@ main (int argc, const char *argv[])
   FILE *fpinfo;
   int Hbo, Dbo, i, Icode, Nfiles;
   long int Nsamp, Nchan;
-  float Sfreq;
+  double Sfreq;
 
 /* Option handling */
   IAoptions (argc, argv, &Icode, FI, &Nfiles);
@@ -207,7 +197,7 @@ main (int argc, const char *argv[])
     /* Open the audio file */
     AOsetFIopt (&FI[i], 0, 1);
     FLpathList (FI[i].Fname, AFPATH_ENV, FI[i].Fname);
-    AFp = AFopenRead (FI[i].Fname, &Nsamp, &Nchan, &Sfreq, fpinfo);
+    AFp = AFopnRead (FI[i].Fname, &Nsamp, &Nchan, &Sfreq, fpinfo);
 
     /* Print the audio file parameter information */
     if (EXTCODE (Icode, 2) != 0) {
@@ -230,12 +220,12 @@ main (int argc, const char *argv[])
     assert (AFp->Format > 0);
     assert (AF_DL[AFp->Format] > 1 || AFp->Swapb == DS_NATIVE);
 
-    /* Print the header information strings (modifies the string) */
-    if (EXTCODE (Icode, 4) != 0 && AFp->Hinfo.N > 0) {
+    /* Print the information strings (modifies the string) */
+    if (EXTCODE (Icode, 4) != 0 && AFp->InfoS.N > 0) {
 
       /* Replace non-printing characters with a ? */
-      IA_nonPrint (&AFp->Hinfo);
-      IA_printInfo (&AFp->Hinfo);
+      IA_nonPrint (&AFp->InfoS);
+      IA_printInfo (&AFp->InfoS);
     }
 
     AFclose (AFp);
@@ -249,40 +239,36 @@ main (int argc, const char *argv[])
 /* Replace non-printing characters by ? */
 
 static void
-IA_nonPrint (Hinfo)
-
-     struct AF_info *Hinfo;
+IA_nonPrint (struct AF_info *InfoS)
 
 {
   int i;
 
-  for (i = 0; i < Hinfo->N; ++i) {
-    if (! (Hinfo->Info[i] == '\0' || Hinfo->Info[i] == '\n' ||
-	   Hinfo->Info[i] == '\t' || Hinfo->Info[i] == '\r')
-	&& ! isprint (Hinfo->Info[i]))
-      Hinfo->Info[i] = '?';	/* Replace non-printing characters by ? */
+  for (i = 0; i < InfoS->N; ++i) {
+    if (! (InfoS->Info[i] == '\0' || InfoS->Info[i] == '\n' ||
+	   InfoS->Info[i] == '\t' || InfoS->Info[i] == '\r')
+	&& ! isprint (InfoS->Info[i]))
+      InfoS->Info[i] = '?';	/* Replace non-printing characters by ? */
   }
 
   return;
 }
 
-/* Print the header information string */
+/* Print the information string */
 
 
 static void
-IA_printInfo (Hinfo)
-
-     const struct AF_info *Hinfo;
+IA_printInfo (const struct AF_info *InfoS)
 
 {
   int n, ls;
 
-  printf (IAMF_HInfo);
+  printf (IAMF_InfoRec);
   n = 0;
-  while (n < Hinfo->N) {
-    ls = strlen (&Hinfo->Info[n]);
-    if (n < Hinfo->N - 1)	/* Don't print the last empty line */
-      printf ("%s\n", &Hinfo->Info[n]);
+  while (n < InfoS->N) {
+    ls = strlen (&InfoS->Info[n]);
+    if (n < InfoS->N - 1)	/* Don't print the last empty line */
+      printf ("%s\n", &InfoS->Info[n]);
     n += ls + 1;
   }
 

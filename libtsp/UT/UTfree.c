@@ -16,13 +16,11 @@ Parameters:
       taken.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.14 $  $Date: 1999/06/12 19:50:26 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.15 $  $Date: 2003/05/09 03:20:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTfree.c 1.14 1999/06/12 AFsp-v6r8 $";
-
 #include <errno.h>
 #include <stdlib.h>		/* free */
 

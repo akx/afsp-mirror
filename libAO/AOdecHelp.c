@@ -26,13 +26,11 @@ Parameters:
       a "%s" for substitution of the program name.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.4 $  $Date: 2000/12/04 19:40:09 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.5 $  $Date: 2003/05/09 12:32:37 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AOdecHelp.c 1.4 2000/12/04 AFsp-v6r8 $";
-
 #include <stdlib.h>   /* EXIT_SUCCESS */
 
 #include <libtsp.h>
@@ -52,6 +50,7 @@ static const char *OThelp[] = {
   "**",
   NULL
 };
+
 
 int
 AOdecHelp (const char Version[], const char Usage[])

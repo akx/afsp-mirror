@@ -41,13 +41,11 @@ Parameters:
 
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.5 $  $Date: 1999/06/05 02:20:44 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.6 $  $Date: 2003/05/13 01:09:07 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSuKaiser.c 1.5 1999/06/05 AFsp-v6r8 $";
-
 #include <math.h>
 
 #include "ResampAudio.h"

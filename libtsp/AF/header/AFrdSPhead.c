@@ -30,13 +30,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.77 $  $Date: 2001/11/10 05:02:57 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.80 $  $Date: 2003/11/03 18:56:14 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdSPhead.c 1.77 2001/11/10 AFsp-v6r8 $";
-
 #include <setjmp.h>
 #include <string.h>
 
@@ -139,7 +137,7 @@ static int
 AF_getNchan (const char Rec[], int Lr, long int *Nchan);
 static int
 AF_getComment (const char *ID[], const char Rec[], int Lr,
-	       struct AF_infoX *Hinfo);
+	       struct AF_infoX *InfoX);
 static const char *
 AF_sepSPrec (const char name[], const char head[], int Lr);
 static int
@@ -165,8 +163,8 @@ AFrdSPhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = SP_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = SP_MAXINFO;
 
 /* Read in the header */
   RHEAD_S (fp, Fhead.ident);
@@ -204,7 +202,7 @@ AFrdSPhead (FILE *fp)
     return NULL;
 
 /* Comment fields */
-  if (AF_getComment (CommentID, Fhead.rec, Lr, &AFr.Hinfo))
+  if (AF_getComment (CommentID, Fhead.rec, Lr, &AFr.InfoX))
     return NULL;
 
 /* Set the parameters for file access */
@@ -287,8 +285,6 @@ AF_getFormat (const char Rec[], int Lr, struct AF_dformat *DFormat)
     return 1;
   }
 
-  DFormat->ScaleF = 1.0;
-
   return 0;
 }
 
@@ -324,7 +320,7 @@ AF_getNchan (const char Rec[], int Lr, long int *Nchan)
 
 static int
 AF_getComment (const char *ID[], const char Rec[], int Lr,
-	       struct AF_infoX *Hinfo)
+	       struct AF_infoX *InfoX)
 
 {
   char Sval[MAXRECORD+1];
@@ -335,7 +331,7 @@ AF_getComment (const char *ID[], const char Rec[], int Lr,
     if (GET_REC (ID[i], Rec, Lr, T_STRVAL, Sval, OPTIONAL) == 0) {
       strcpy (Ident, ID[i]);
       strcat (Ident, ": ");
-      AFaddHtext (Ident, Sval, strlen (Sval), Hinfo);
+      AFaddAFspRec (Ident, Sval, strlen (Sval), InfoX);
     }
   }
 

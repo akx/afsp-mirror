@@ -82,14 +82,13 @@ Parameters:
       Number of filter sections
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.12 $  $Date: 2002/08/25 19:13:18 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.13 $  $Date: 2003/05/09 01:29:45 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FIfFiltIIR.c 1.12 2002/08/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
+
 
 void
 FIfFiltIIR (const float x[], float y[], int Nout, const float h[][5], int Nsec)

@@ -65,7 +65,7 @@ SOURCE=..\..\libtsp\AF\header\AFfindType.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\AF\header\AFgetHrec.c
+SOURCE=..\..\libtsp\AF\header\AFgetInfoRec.c
 # End Source File
 # Begin Source File
 
@@ -97,14 +97,6 @@ SOURCE=..\..\libtsp\AF\header\AFrdEShead.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\AF\header\AFrdHinfo.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\header\AFrdHtext.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\libtsp\AF\header\AFrdINhead.c
 # End Source File
 # Begin Source File
@@ -126,6 +118,10 @@ SOURCE=..\..\libtsp\AF\header\AFrdSWhead.c
 # Begin Source File
 
 SOURCE=..\..\libtsp\AF\header\AFrdTAhead.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\header\AFrdTextAFsp.c
 # End Source File
 # Begin Source File
 
@@ -189,31 +185,107 @@ SOURCE=..\..\libtsp\AF\header\AFwrWVhead.c
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\libtsp\AF\dataio\AFdRdAlaw.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdRdFx.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdRdIx.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdRdMulaw.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdRdTA.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdRdU1.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdWrAlaw.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdWrFx.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdWrIx.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdWrMulaw.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdWrTA.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFdWrU1.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfRdAlaw.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfRdFx.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfRdIx.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfRdMulaw.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfRdTA.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfRdU1.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfWrAlaw.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfWrFx.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfWrIx.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfWrMulaw.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfWrTA.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\dataio\AFfWrU1.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\libtsp\AF\dataio\AFgetLine.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\AF\dataio\AFrdAlaw.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFrdFx.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFrdIx.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFrdMulaw.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFrdTA.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFrdU1.c
+SOURCE=..\..\libtsp\AF\dataio\AFposition.c
 # End Source File
 # Begin Source File
 
@@ -223,34 +295,26 @@ SOURCE=..\..\libtsp\AF\dataio\AFseek.c
 
 SOURCE=..\..\libtsp\AF\dataio\AFtell.c
 # End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFwrAlaw.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFwrFx.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFwrIx.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFwrMulaw.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFwrTA.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\AF\dataio\AFwrU1.c
-# End Source File
 # End Group
 # Begin Source File
 
 SOURCE=..\..\libtsp\AF\AFclose.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\AFdReadData.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\AFdWriteData.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\AFfReadData.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\AFfWriteData.c
 # End Source File
 # Begin Source File
 
@@ -262,6 +326,14 @@ SOURCE=..\..\libtsp\AF\AFopenWrite.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\libtsp\AF\AFopnRead.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\AF\AFopnWrite.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\libtsp\AF\AFreadData.c
 # End Source File
 # Begin Source File
@@ -270,7 +342,7 @@ SOURCE=..\..\libtsp\AF\AFsetFileType.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\AF\AFsetHinfo.c
+SOURCE=..\..\libtsp\AF\AFsetInfo.c
 # End Source File
 # Begin Source File
 
@@ -486,7 +558,7 @@ SOURCE=..\..\libtsp\SP\SPcorXpc.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\SP\SPfQuantL.c
+SOURCE=..\..\libtsp\SP\SPdQuantL.c
 # End Source File
 # Begin Source File
 
@@ -567,10 +639,6 @@ SOURCE=..\..\libtsp\ST\STdecDfrac.c
 # Begin Source File
 
 SOURCE=..\..\libtsp\ST\STdecIfrac.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\ST\STdecIrange.c
 # End Source File
 # Begin Source File
 
@@ -710,6 +778,10 @@ SOURCE=..\..\libtsp\VR\nucleus\VRswapBytes.c
 # End Group
 # Begin Source File
 
+SOURCE=..\..\libtsp\VR\VRdZero.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\libtsp\VR\VRfCorSym.c
 # End Source File
 # Begin Source File
@@ -719,10 +791,6 @@ SOURCE=..\..\libtsp\VR\VRfDotProd.c
 # Begin Source File
 
 SOURCE=..\..\libtsp\VR\VRfMult.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\VR\VRfScale.c
 # End Source File
 # Begin Source File
 

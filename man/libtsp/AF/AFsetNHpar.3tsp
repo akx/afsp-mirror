@@ -13,7 +13,7 @@ Set defaults for input headerless audio files from a string specification
 This routine sets the default audio file data parameters.  These parameters
 are used for reading audio files with unrecognized (non-standard) headers
 or files with no headers (raw audio files).  This routine must be called
-before opening the file with AFopenRead.  The parameters for AFsetNHpar are
+before opening the file with AFopnRead.  The parameters for AFsetNHpar are
 determined from an input string which consists of a list of parameters
 separated by commas and/or white space.  The form of the list is
 .ft CW
@@ -119,6 +119,6 @@ of an environment variable (with a leading $)
 .in -4n
 .SH Author / revision
 P. Kabal
-/ Revision 1.51  2003/04/29
+/ Revision 1.53  2003/05/09
 .SH See Also
-AFopenRead
+AFopnRead

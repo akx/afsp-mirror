@@ -42,13 +42,11 @@ Parameters:
       Output audio file pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.24 $  $Date: 2001/10/05 11:22:54 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.25 $  $Date: 2003/05/13 01:34:10 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CPcombChan.c 1.24 2001/10/05 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>
@@ -100,9 +98,9 @@ CP_comb1 (AFILE *AFpI, long int StartF, long int Nframe,
 {
   int eof, i, k, m, NO, Nc, Nr, Ns, Nfv, Nfr;
   long int offr, offs, Nj, Nfrem;
-  float g;
-  float Fbuf[BFSIZE];
-  float *Fbufi, *Fbufo;
+  double g;
+  double Dbuff[BFSIZE];
+  double *Dbuffi, *Dbuffo;
 
   NO = (int) AFpO->Nchan;
   Nj = AFpI->Nchan;
@@ -112,8 +110,8 @@ CP_comb1 (AFILE *AFpI, long int StartF, long int Nframe,
 /* Split the buffer space up for the input and output buffers */
   Nc = (int) MINV (MAXNI, Nj);
   Ns = BFSIZE / (Nc + NO);
-  Fbufi = Fbuf;
-  Fbufo = Fbuf + Nc * Ns;
+  Dbuffi = Dbuff;
+  Dbuffo = Dbuff + Nc * Ns;
 
 /* Main loop */
   eof = (Nframe == AF_NFRAME_UNDEF);
@@ -137,18 +135,18 @@ CP_comb1 (AFILE *AFpI, long int StartF, long int Nframe,
 
     for (k = 0; k < NO; ++k) {
       for (i = 0; i < Nfv; ++i)
-	Fbufo[i*NO+k] = Chgain->Offset[k];	/* dc offset */
+	Dbuffo[i*NO+k] = Chgain->Offset[k];	/* dc offset */
     }
 
     /* Read Nc channels (out of Nj) channels from the input file */
     offs = Nj * (offr + StartF);
     if (Nc == Nj) {
-      Nr = AFreadData (AFpI, offs, Fbufi, Nfv * Nc);
+      Nr = AFdReadData (AFpI, offs, Dbuffi, Nfv * Nc);
       Nfr = ICEILV (Nr, Nc);
     }
     else {
       for (i = 0; i < Nfv; ++i) {
-	Nr = AFreadData (AFpI, offs + i * Nj, &Fbufi[i*Nc], Nc);
+	Nr = AFdReadData (AFpI, offs + i * Nj, &Dbuffi[i*Nc], Nc);
 	if (Nr == 0 && eof)
 	  break;
       }
@@ -168,13 +166,13 @@ CP_comb1 (AFILE *AFpI, long int StartF, long int Nframe,
 	g = Chgain->Gain[k][m];
 	if (g != 0.0) {
 	  for (i = 0; i < Nfv; ++i)
-	    Fbufo[i*NO+k] += g * Fbufi[i*Nc+m];
+	    Dbuffo[i*NO+k] += g * Dbuffi[i*Nc+m];
 	}
       }
     }
 
     /* Write the samples to the output file */
-    AFwriteData (AFpO, Fbufo, Nfv * NO);
+    AFdWriteData (AFpO, Dbuffo, Nfv * NO);
   }
 
   return offr;
@@ -190,9 +188,9 @@ CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
 {
   int i, j, k, m, n, Nt, NI, NO, Nc, Ns, Nfr, NchanMax;
   long int offr, offs, Nj, Nrem;
-  float g;
-  float Fbuf[BFSIZE];
-  float *Fbufi, *Fbufo;
+  double g;
+  double Dbuff[BFSIZE];
+  double *Dbuffi, *Dbuffo;
 
   assert (Nframe != AF_NFRAME_UNDEF);
   assert (AFpO->Nchan == Chgain->NO);
@@ -216,8 +214,8 @@ CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
 
 /* Split the buffer space up for the input and output buffers */
   Ns = BFSIZE / (NchanMax + NO);
-  Fbufi = Fbuf;
-  Fbufo = Fbuf + NchanMax * Ns;
+  Dbuffi = Dbuff;
+  Dbuffo = Dbuff + NchanMax * Ns;
 
 /*
    The copying operation takes scaled samples from the input si(n,i)
@@ -246,7 +244,7 @@ CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
     Nfr = (int) MINV (Nrem, Ns);
     for (k = 0; k < NO; ++k) {
       for (i = 0; i < Nfr; ++i)
-	Fbufo[i*NO+k] = Chgain->Offset[k];	/* dc offset */
+	Dbuffo[i*NO+k] = Chgain->Offset[k];	/* dc offset */
     }
     n = 0;
     Nt = 0;
@@ -257,10 +255,10 @@ CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
       /* Read Nc channels (out of Nj) channels from file j */
       offs = Nj * (offr + StartF[j]);
       if (Nc == Nj)
-	AFreadData (AFp[j], offs, Fbufi, Nfr * Nc);
+	AFdReadData (AFp[j], offs, Dbuffi, Nfr * Nc);
       else if (Nc > 0) {
 	for (i = 0; i < Nfr; ++i)
-	  AFreadData (AFp[j], offs + i * Nj, &Fbufi[i*Nc], Nc);
+	  AFdReadData (AFp[j], offs + i * Nj, &Dbuffi[i*Nc], Nc);
       }
       Nt += Nc;
 
@@ -270,14 +268,14 @@ CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
 	  g = Chgain->Gain[k][n];
 	  if (g != 0.0) {
 	    for (i = 0; i < Nfr; ++i)
-	      Fbufo[i*NO+k] += g * Fbufi[i*Nc+m];
+	      Dbuffo[i*NO+k] += g * Dbuffi[i*Nc+m];
 	  }
 	}
 	++n;
       }
     }
     /* Write the samples to the output file */
-    AFwriteData (AFpO, Fbufo, Nfr * NO);
+    AFdWriteData (AFpO, Dbuffo, Nfr * NO);
     offr += Nfr;
     Nrem -= Nfr;
   }

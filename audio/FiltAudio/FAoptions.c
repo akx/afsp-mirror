@@ -24,13 +24,11 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.47 $  $Date: 1999/06/05 01:28:29 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.48 $  $Date: 2003/05/13 01:25:28 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FAoptions.c 1.47 1999/06/05 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>

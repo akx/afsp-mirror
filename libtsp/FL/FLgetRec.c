@@ -43,13 +43,11 @@ Parameters:
       2, echo with comments intact
       
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.17 $  $Date: 1999/06/04 20:47:11 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.18 $  $Date: 2003/05/09 01:36:44 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLgetRec.c 1.17 1999/06/04 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

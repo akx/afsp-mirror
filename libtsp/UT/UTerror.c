@@ -39,13 +39,11 @@ Parameters:
       vprintf.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.26 $  $Date: 1999/06/04 22:41:07 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.27 $  $Date: 2003/05/09 03:20:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTerror.c 1.26 1999/06/04 AFsp-v6r8 $";
-
 #include <errno.h>
 #include <stdarg.h>
 #include <stdlib.h>

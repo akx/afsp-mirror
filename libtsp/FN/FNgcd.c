@@ -21,13 +21,11 @@ Parameters:
       Second integer value
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.2 $  $Date: 1999/06/04 21:00:08 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.3 $  $Date: 2003/05/09 01:41:29 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FNgcd.c 1.2 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 #define ABSV(x)		(((x) < 0) ? -(x) : (x))

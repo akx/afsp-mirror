@@ -8,8 +8,8 @@ Description:
   Declarations for WAVE file headers
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.27 $  $Date: 2001/11/30 16:12:52 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.28 $  $Date: 2003/05/13 01:48:11 $
 
 ----------------------------------------------------------------------*/
 
@@ -113,16 +113,6 @@ static const struct WV_GUID WAVEFORMATEX_TEMPLATE =
 #define IS_VALID_WAVEFORMATEX_GUID(Guid) \
     (!memcmp(&WAVEFORMATEX_TEMPLATE.guidx, &Guid.guidx, 14))
 #endif
-
-#define WV_SF_MULAW	(1.)
-#define WV_SF_ALAW	(1.)
-#define WV_SF_PCM8	(128.)
-#define WV_SF_PCM16	(1.)
-#define WV_SF_PCM24	(1./256.)
-#define WV_SF_PCM32	(1./65536.)
-#define WV_SF_FLOAT32_X	(1./256.)	/* Used by CoolEdit */
-#define WV_SF_FLOAT32	(32768.)
-#define WV_SF_FLOAT64	(32768.)
 
 /* Text flag used in the DISP chunk */
 #define CF_TEXT		((uint4_t) 1)

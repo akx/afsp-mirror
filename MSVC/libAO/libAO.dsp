@@ -71,6 +71,10 @@ SOURCE=..\..\libAO\AOnFrame.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\libAO\AOsetDformat.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\libAO\AOsetFIopt.c
 # End Source File
 # Begin Source File
@@ -80,6 +84,10 @@ SOURCE=..\..\libAO\AOsetFOopt.c
 # Begin Source File
 
 SOURCE=..\..\libAO\AOsetFormat.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libAO\AOsetFtype.c
 # End Source File
 # Begin Source File
 

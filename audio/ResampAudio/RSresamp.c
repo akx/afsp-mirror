@@ -31,13 +31,11 @@ Parameters:
       information about the filter is printed on the stream selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.16 $  $Date: 1999/09/03 13:33:06 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.17 $  $Date: 2003/05/13 01:09:45 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSresamp.c 1.16 1999/09/03 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <limits.h>
 
@@ -299,7 +297,7 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
     }
 
     /* Write the output data */
-    AFwriteData (AFpO, y, Ny*Nchan);
+    AFfWriteData (AFpO, y, Ny*Nchan);
 
     /* Update the sample pointers */
     k += Ny;

@@ -27,13 +27,11 @@ Parameters:
       DS_SWAP   - Data is byte-swapped
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.4 $  $Date: 1999/06/04 22:42:58 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.5 $  $Date: 2003/05/09 03:23:41 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTswapCode.c 1.4 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/UTpar.h>

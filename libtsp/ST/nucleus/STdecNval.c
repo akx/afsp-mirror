@@ -41,13 +41,11 @@ Parameters:
       than Nmin.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.7 $  $Date: 1999/06/04 22:34:58 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/09 03:17:23 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STdecNval.c 1.7 1999/06/04 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>
@@ -78,6 +76,7 @@ STdecNval (const char String[], int Nmin, int Nmax, int Type, void *Val,
     token = cbuf;
 
 /* Find the substrings */
+  v = NULL;
   p = String;
   n = 0;
   status = 0;

@@ -46,13 +46,11 @@ Parameters:
       missing, this pointer will be NULL.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.22 $  $Date: 1999/06/04 22:42:58 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.23 $  $Date: 2003/05/09 03:23:41 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTdecOption.c 1.22 1999/06/04 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp/nucleus.h>
@@ -67,6 +65,7 @@ static char rcsid[] = "$Id: UTdecOption.c 1.22 1999/06/04 AFsp-v6r8 $";
 #define NOMATCH	0	/* No match */
 #define MATCH	1	/* Match, argument present or not needed */
 #define MVAL	-2	/* Match, argument missing */
+
 
 int
 UTdecOption (const char String[], const char Option[], const char **Arg)

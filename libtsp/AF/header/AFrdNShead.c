@@ -38,13 +38,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.4 $  $Date: 2001/10/31 22:12:55 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.7 $  $Date: 2003/11/03 18:55:23 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdNShead.c 1.4 2001/10/31 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <setjmp.h>
 #include <string.h>
@@ -102,9 +100,9 @@ struct NS_CkHEDR {
 static int
 AF_rdFORM_DS16 (FILE *fp, struct NS_CkFORM *CkFORM);
 static int
-AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *Hinfo);
+AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *InfoX);
 static void
-AF_setIval (const char Ident[], int Ival, struct AF_infoX *Hinfo);
+AF_setIval (const char Ident[], int Ival, struct AF_infoX *InfoX);
 
 
 AFILE *
@@ -125,8 +123,8 @@ AFrdNShead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = AF_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = AF_MAXINFO;
   AFr.NData.Nchan = 0L;
 
 /* Check the file magic for an NSP file */
@@ -142,22 +140,21 @@ AFrdNShead (FILE *fp)
 
     /* HEDR or HDR8 chunk */
     if (SAME_CSTR (CkHead.ckID, "HEDR") || SAME_CSTR (CkHead.ckID, "HDR8")) {
-      offs += AF_rdHEDR (fp, &CkHEDR, &AFr.Hinfo);
+      offs += AF_rdHEDR (fp, &CkHEDR, &AFr.InfoX);
       AFr.Sfreq = (double) CkHEDR.Srate;
       AFr.DFormat.Format = FD_INT16;
-      AFr.DFormat.ScaleF = 1.0;
       AFr.DFormat.Swapb = DS_EL;
       AFr.NData.Nsamp = CkHEDR.Nsamp;
       if (CkHEDR.MaxAbsA != NS_MAXABS_UNDEF)
-	AF_setIval ("max_abs_A: ", CkHEDR.MaxAbsA, &AFr.Hinfo);
+	AF_setIval ("max_abs_A: ", CkHEDR.MaxAbsA, &AFr.InfoX);
       if (CkHEDR.MaxAbsB != NS_MAXABS_UNDEF)
-	AF_setIval ("max_abs_B: ", CkHEDR.MaxAbsB, &AFr.Hinfo);
+	AF_setIval ("max_abs_B: ", CkHEDR.MaxAbsB, &AFr.InfoX);
     }
 
     /* NOTE chunk */
     else if (SAME_CSTR (CkHead.ckID, "NOTE")) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += AFrdHtext (fp, CkHead.ckSize, "note: ", &AFr.Hinfo, ALIGN);
+      offs += AFrdTextAFsp (fp, CkHead.ckSize, "note: ", &AFr.InfoX, ALIGN);
     }
 
     /* SDA_, SD_B or SDAB chunk */
@@ -231,7 +228,7 @@ AF_rdFORM_DS16 (FILE *fp, struct NS_CkFORM *CkFORM)
 
 
 static int
-AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *Hinfo) 
+AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *InfoX) 
 
 {
   int offs;
@@ -242,7 +239,7 @@ AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *Hinfo)
     longjmp (AFR_JMPENV, 1);
   }
 
-  offs += AFrdHtext (fp, 20, "date: ", Hinfo, ALIGN);
+  offs += AFrdTextAFsp (fp, 20, "date: ", InfoX, ALIGN);
   offs += RHEAD_V (fp, CkHEDR->Srate, DS_EL);
   offs += RHEAD_V (fp, CkHEDR->Nsamp, DS_EL);
   offs += RHEAD_V (fp, CkHEDR->MaxAbsA, DS_EL);
@@ -258,14 +255,14 @@ AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *Hinfo)
 
 
 static void
-AF_setIval (const char Ident[], int Ival, struct AF_infoX *Hinfo)
+AF_setIval (const char Ident[], int Ival, struct AF_infoX *InfoX)
 
 {
   int Nv;
   char str[20];
 
   Nv = sprintf (str, "%d", Ival); 
-  AFaddHtext (Ident, str, Nv, Hinfo);
+  AFaddAFspRec (Ident, str, Nv, InfoX);
 
   return;
 }

@@ -31,13 +31,11 @@ Parameters:
       truncated to this length.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.22 $  $Date: 2001/09/26 17:36:55 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.23 $  $Date: 2003/05/09 03:02:43 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STcatMax.c 1.22 2001/09/26 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/STmsg.h>
 

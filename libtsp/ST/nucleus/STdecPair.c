@@ -38,13 +38,11 @@ Parameters:
       Second value (may be unchanged)
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.8 $  $Date: 1999/06/17 18:53:38 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/09 03:06:42 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STdecPair.c 1.8 1999/06/17 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

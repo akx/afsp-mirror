@@ -21,13 +21,11 @@ Parameters:
         1 - Little-endian storage order
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.23 $  $Date: 1999/06/04 22:42:58 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.24 $  $Date: 2003/05/09 03:23:41 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: UTbyteOrder.c 1.23 1999/06/04 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>

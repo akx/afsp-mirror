@@ -1,7 +1,7 @@
 /*------------- Telecommunications & Signal Processing Lab --------------
                           McGill University
 Routine:
-  void CAprcorr (const struct Stats_T *Stats)
+  void CAprcorr (const struct Stats_T *Stats, const double ScaleF[2])
 
 Purpose:
   Print SNR values for two files
@@ -14,15 +14,16 @@ Description:
 Parameters:
    -> const struct Stats_T *Stats
       Structure containing the cross-statistics
+   -> const double ScaleF[2]
+      Native scale factor for each file. These should be the scale factors
+      before any other user supplied scale factors are applied.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.15 $  $Date: 1999/06/05 00:54:10 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.17 $  $Date: 2003/05/18 14:51:40 $
 
 -----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CAprcorr.c 1.15 1999/06/05 AFsp-v6r8 $";
-
 #include <float.h>	/* DBL_MAX */
 #include <math.h>	/* log10 */
 
@@ -32,7 +33,7 @@ static char rcsid[] = "$Id: CAprcorr.c 1.15 1999/06/05 AFsp-v6r8 $";
 
 
 void
-CAprcorr (const struct Stats_T *Stats)
+CAprcorr (const struct Stats_T *Stats, const double ScaleF[2])
 
 {
   double SNR, SNRG, SF, SSNR;
@@ -53,12 +54,21 @@ CAprcorr (const struct Stats_T *Stats)
   if (SSNR >= 0.0)
     printf (CAMF_SegSNR, DB (SSNR), Stats->Nsseg);
 
-/* Number of differing samples */
-  if (Stats->Nrun == 1)
-    printf (CAMF_NumDiff1, Stats->Ndiff);
-  else
-    printf (CAMF_NumDiffN, Stats->Ndiff, Stats->Nrun);
-  printf (CAMF_MaxDiff, Stats->Diffmax);
 
+  /* Differences */
+  if (ScaleF[0] == ScaleF[1]) {
+    if (Stats->Nrun == 1)
+      printf (CAMF_DiffAP1, Stats->Diffmax / ScaleF[0], 100. * Stats->Diffmax,
+	      Stats->Ndiff);
+    else
+      printf (CAMF_DiffAP2, Stats->Diffmax / ScaleF[0], 100. * Stats->Diffmax,
+	      Stats->Ndiff, Stats->Nrun);
+  }
+  else {
+    if (Stats->Nrun == 1)
+      printf (CAMF_DiffP1, 100. * Stats->Diffmax, Stats->Ndiff);
+    else
+      printf (CAMF_DiffP2, 100. * Stats->Diffmax, Stats->Ndiff, Stats->Nrun);
+  }
   return;
 }

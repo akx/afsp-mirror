@@ -19,13 +19,11 @@ Parameters:
       Number of input file structures
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.5 $  $Date: 1999/06/05 02:36:25 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.6 $  $Date: 2003/05/09 12:32:49 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AOstdin.c 1.5 1999/06/05 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

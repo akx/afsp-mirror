@@ -40,12 +40,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.65 $  $Date: 2003/05/06 16:14:33 $
+  $Revision: 1.68 $  $Date: 2003/11/03 18:53:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdAIhead.c 1.65 2003/05/06 AFsp-v6r8 $";
-
 #include <setjmp.h>
 #include <string.h>
 
@@ -90,10 +88,9 @@ AFrdAIhead (FILE *fp)
 {
   AFILE *AFp;
   long int offs, LFORM, Dstart, EoD;
-  int Ftype, AtData, N;
+  int Ftype, AtData;
   char Info[AF_MAXINFO];
   struct AF_read AFr;
-
   struct AI_CkFORM CkFORM;
   struct AI_CkPreamb CkHead;
   struct AI_CkCOMM CkCOMM;
@@ -124,8 +121,8 @@ AFrdAIhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = AF_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = AF_MAXINFO;
 
 /* Check the FORM chunk */
   if (AF_rdFORM_AIFF (fp, &CkFORM, &Ftype))
@@ -154,27 +151,24 @@ AFrdAIhead (FILE *fp)
     /* Text chunks */
     else if (SAME_CSTR (CkHead.ckID, CKID_NAME)) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
-      offs += AFrdHtext (fp, (int) CkHead.ckSize, "name: ",
-			 &AFr.Hinfo, ALIGN);
+      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "name: ",
+			    &AFr.InfoX, ALIGN);
     }
     else if (SAME_CSTR (CkHead.ckID, CKID_AUTHOR)) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
-      offs += AFrdHtext (fp, (int) CkHead.ckSize, "author: ",
-			 &AFr.Hinfo, ALIGN);
+      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "author: ",
+			    &AFr.InfoX, ALIGN);
     }
     else if (SAME_CSTR (CkHead.ckID, CKID_COPYRIGHT)) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
-      offs += AFrdHtext (fp, (int) CkHead.ckSize, "copyright: ",
-			 &AFr.Hinfo, ALIGN);
+      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "copyright: ",
+			    &AFr.InfoX, ALIGN);
     }
     /* Annotation chunk */
     else if (SAME_CSTR (CkHead.ckID, CKID_ANNOTATION)) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
-      N = AFr.Hinfo.N;
-      offs += AFrdHinfo (fp, (int) CkHead.ckSize, &AFr.Hinfo, ALIGN);
-      if (AFr.Hinfo.N == N)
-	offs += AFrdHtext (fp, (int) CkHead.ckSize, "annotation: ",
-			   &AFr.Hinfo, ALIGN);
+      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "annotation: ",
+			    &AFr.InfoX, ALIGN);
     }
 
     /* SSND chunk */
@@ -351,22 +345,14 @@ AF_decCOMM (struct AI_CkCOMM *CkCOMM, struct AF_read *AFr)
 
     NBytesS = ICEILV (CkCOMM->sampleSize, 8);
     AFr->DFormat.NbS = (int) CkCOMM->sampleSize;
-    if (NBytesS == 1) {
+    if (NBytesS == 1)
       AFr->DFormat.Format = FD_INT8;
-      AFr->DFormat.ScaleF = AI_SF_NONE8;
-    }
-    else if (NBytesS == 2) {
+    else if (NBytesS == 2)
       AFr->DFormat.Format = FD_INT16;
-      AFr->DFormat.ScaleF = AI_SF_NONE16;
-    }
-    else if (NBytesS == 3) {
+    else if (NBytesS == 3)
       AFr->DFormat.Format = FD_INT24;
-      AFr->DFormat.ScaleF = AI_SF_NONE24;
-    }
-    else if (NBytesS == 4) {
+    else if (NBytesS == 4)
       AFr->DFormat.Format = FD_INT32;
-      AFr->DFormat.ScaleF = AI_SF_NONE32;
-    }
     else {
       UTwarn ("AFrdAIhead - %s: \"%d\"", AFM_AIFF_UnsSSize,
 	      (int) CkCOMM->sampleSize);
@@ -381,19 +367,16 @@ AF_decCOMM (struct AI_CkCOMM *CkCOMM, struct AF_read *AFr)
 	   SAME_CSTR (CkCOMM->compressionType, CT_X_ULAW)) {
     AFr->DFormat.Format = FD_MULAW8;
     AFr->DFormat.NbS = 8 * FDL_MULAW8;
-    AFr->DFormat.ScaleF = AI_SF_ULAW;
   }
   else if (SAME_CSTR (CkCOMM->compressionType, CT_ALAW) ||
 	   SAME_CSTR (CkCOMM->compressionType, CT_X_ALAW)) {
     AFr->DFormat.Format = FD_ALAW8;
     AFr->DFormat.NbS = 8 * FDL_ALAW8;
-    AFr->DFormat.ScaleF = AI_SF_ALAW;
   }
   else if (SAME_CSTR (CkCOMM->compressionType, CT_FLOAT32) ||
 	   SAME_CSTR (CkCOMM->compressionType, CT_FL32)) {
     AFr->DFormat.Format = FD_FLOAT32;
     AFr->DFormat.NbS = 8 * FDL_FLOAT32;
-    AFr->DFormat.ScaleF = AI_SF_FLOAT32;
     if (! UTcheckIEEE ())
       UTwarn ("AFrdAIhead - %s", AFM_NoIEEE);
   }
@@ -401,7 +384,6 @@ AF_decCOMM (struct AI_CkCOMM *CkCOMM, struct AF_read *AFr)
 	   SAME_CSTR (CkCOMM->compressionType, CT_FL64)) {
     AFr->DFormat.Format = FD_FLOAT64;
     AFr->DFormat.NbS = 8 * FDL_FLOAT64;
-    AFr->DFormat.ScaleF = AI_SF_FLOAT64;
     if (! UTcheckIEEE ())
       UTwarn ("AFrdAIhead - %s", AFM_NoIEEE);
   }

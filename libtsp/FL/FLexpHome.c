@@ -26,13 +26,11 @@ Parameters:
       FILENAME_MAX characters long including the terminating null character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.19 $  $Date: 2000/07/27 21:19:01 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.20 $  $Date: 2003/05/09 01:36:43 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLexpHome.c 1.19 2000/07/27 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

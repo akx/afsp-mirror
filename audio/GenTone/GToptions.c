@@ -22,13 +22,11 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.9 $  $Date: 1999/06/13 15:46:20 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/11/06 13:25:58 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: GToptions.c 1.9 1999/06/13 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <math.h>
 
@@ -38,9 +36,6 @@ static char rcsid[] = "$Id: GToptions.c 1.9 1999/06/13 AFsp-v6r8 $";
 #include "GenTone.h"
 
 #define PI	3.14159265358979323846
-#define SQRT2	1.41421356237309504880
-
-#define AMPL_DEF	(1000.0 * SQRT2)
 #define DEG_RAD		(PI / 180.0)
 
 #define ERRSTOP(text,par)	UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
@@ -62,15 +57,15 @@ GToptions (int argc, const char *argv[], struct GT_Sine *Sine,
 {
   const char *OptArg;
   int nF, n;
-  double rms, phase;
+  double Nv, Dv;
 
 /* Output file defaults */
   FOpar_INIT (FO);
   FO->Sfreq = AF_SFREQ_DEFAULT;
 
 /* Defaults */
-  Sine->Freq = (float) (AF_SFREQ_DEFAULT / 8.0);
-  Sine->Ampl = (float) AMPL_DEF;
+  Sine->Freq = AF_SFREQ_DEFAULT / 8.0;
+  Sine->Ampl = AMPL_DEF;
 
 /* Initialization */
   UTsetProg (PROGRAM);
@@ -109,28 +104,30 @@ GToptions (int argc, const char *argv[], struct GT_Sine *Sine,
     case 1:
     case 2:
       /* frequency */
-      if (STdec1double (OptArg, &Sine->Freq) || Sine->Freq < 0.0)
+      if (STdecDfrac (OptArg, &Nv, &Dv) || Nv / Dv < 0.0)
 	ERRSTOP (GTM_BadFreq, OptArg);
+      Sine->Freq = Nv / Dv;
       break;
     case 3:
     case 4:
       /* rms value */
-      if (STdec1double (OptArg, &rms) || rms < 0.0)
+      if (STdecDfrac (OptArg, &Nv, &Dv) || Nv / Dv < 0.0)
 	ERRSTOP (GTM_BadRMS, OptArg);
-      Sine->Ampl = SQRT2 * rms;
+      Sine->Ampl = SQRT2 * Nv / Dv;
       break;
     case 5:
     case 6:
       /* amplitude */
-      if (STdec1double (OptArg, &Sine->Ampl) || Sine->Ampl < 0.0)
+      if (STdecDfrac (OptArg, &Nv, &Dv) || Nv / Dv < 0.0)
 	ERRSTOP (GTM_BadAmpl, OptArg);
+      Sine->Ampl = Nv / Dv;
       break;
     case 7:
     case 8:
       /* phase */
-      if (STdec1double (OptArg, &phase))
+      if (STdecDfrac (OptArg, &Nv, &Dv))
 	ERRSTOP (GTM_BadPhase, OptArg);
-      Sine->Phase = phase * DEG_RAD;	/* Radians */
+      Sine->Phase =  DEG_RAD * Nv / Dv;	/* Radians */
       break;
     default:
       assert (0);

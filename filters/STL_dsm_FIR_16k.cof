@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_dsm_FIR_16k.cof
 ! See ITU-T G.191 (2000), Software Tools Library (module fir-dsm.c)
-! $Id: STL_dsm_FIR_16k.cof 1.3 2002/06/18 AFsp-v6r8 $
+! $Id: STL_dsm_FIR_16k.cof 1.3 2002/06/18 AFsp-v7r2 $
 !
 ! Delta-SM filtering, used to modify far-field-to-near-field
 ! characteristics when adding background noise to speech

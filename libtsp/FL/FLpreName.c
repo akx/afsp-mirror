@@ -24,13 +24,11 @@ Parameters:
       character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.7 $  $Date: 2001/08/28 21:19:50 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.8 $  $Date: 2003/05/09 01:36:44 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLpreName.c 1.7 2001/08/28 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.34 $  $Date: 2003/01/30 03:35:02 $
+  $Revision: 1.36 $  $Date: 2003/11/04 12:51:30 $
 
 ----------------------------------------------------------------------*/
 
@@ -47,7 +47,7 @@ struct AO_FOpar {
   double Sfreq;
   struct AO_dformat DFormat;
   unsigned char *SpkrConfig;
-  const char *Hinfo;
+  const char *Info;
 };
 
 /* Initialization macros */
@@ -71,7 +71,7 @@ struct AO_FOpar {
 	(fo)->DFormat.NbS = 0; \
 	(fo)->Ftype = FTW_UNDEF; \
 	(fo)->SpkrConfig = NULL; \
-	(fo)->Hinfo = NULL; }
+	(fo)->Info = NULL; }
 
 /* Default output file type */
 #if (SY_OS == SY_OS_UNIX)
@@ -100,7 +100,6 @@ struct AO_FOpar {
 #define AOM_BadOption	"Option error, use -h for a list of options"
 #define AOM_BadSFreq	"Invalid sampling frequency"
 #define AOM_BadSpkr	"Invalid speaker configuration"
-#define AOM_BadText	"Invalid data format for output file (text file)"
 #define AOM_InvFTypeC	"Invalid output file type code"
 #define AOM_InvNbS	"Invalid no. bits/sample"
 #define AOM_stdin1	"Error, standard input can be used only once"
@@ -122,12 +121,16 @@ AOinitOpt (const int argc, const char *argv[]);
 long int
 AOnFrame (AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
 	  long int Nframe);
+int
+AOsetDformat (const struct AO_FOpar *FO, AFILE *AFp[], int Nf);
 void
 AOsetFIopt (const struct AO_FIpar *FI, int NsampND, int RAccess);
 void
 AOsetFOopt (const struct AO_FOpar *FO);
 int
 AOsetFormat (const struct AO_FOpar *FO, AFILE *AFp[], int Nf);
+int
+AOsetFtype (const struct AO_FOpar *FO);
 void
 AOstdin (const struct AO_FIpar FI[], int N);
 

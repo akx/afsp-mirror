@@ -31,13 +31,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.85 $  $Date: 2001/10/05 11:17:56 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.89 $  $Date: 2003/11/04 12:25:49 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdAUhead.c 1.85 2001/10/05 AFsp-v6r8 $";
-
 #include <setjmp.h>
 #include <string.h>
 
@@ -72,8 +70,8 @@ AFrdAUhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = AF_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = AF_MAXINFO;
 
 /* Check the file magic */
   offs = RHEAD_S (fp, Fhead.Magic);
@@ -90,43 +88,35 @@ AFrdAUhead (FILE *fp)
   offs += RHEAD_V (fp, Fhead.Nchan, DS_EB);
 
 /* Pick up AFsp information records */
-  AFrdHinfo (fp, (int) (Fhead.Lhead - offs), &AFr.Hinfo, 1);
+  AFrdTextAFsp (fp, (int) (Fhead.Lhead - offs), "AU info: ", &AFr.InfoX, 1);
 
 /* Set up the decoding parameters */
   switch (Fhead.Dencod) {
   case AU_MULAW8:
     AFr.DFormat.Format = FD_MULAW8;
-    AFr.DFormat.ScaleF = AU_SF_MULAW8;
     break;
   case AU_ALAW8:
     AFr.DFormat.Format = FD_ALAW8;
-    AFr.DFormat.ScaleF = AU_SF_ALAW8;
     break;
   case AU_LIN8:
     AFr.DFormat.Format = FD_INT8;
-    AFr.DFormat.ScaleF = AU_SF_LIN8;
     break;
   case AU_LIN16:
     AFr.DFormat.Format = FD_INT16;
-    AFr.DFormat.ScaleF = AU_SF_LIN16;
     break;
   case AU_LIN24:
     AFr.DFormat.Format = FD_INT24;
-    AFr.DFormat.ScaleF = AU_SF_LIN24;
     break;
   case AU_LIN32:
     AFr.DFormat.Format = FD_INT32;
-    AFr.DFormat.ScaleF = AU_SF_LIN32;
     break;
   case AU_FLOAT32:
     AFr.DFormat.Format = FD_FLOAT32;
-    AFr.DFormat.ScaleF = AU_SF_FLOAT32;
     if (! UTcheckIEEE ())
       UTwarn ("AFrdAUhead - %s", AFM_NoIEEE);
     break;
   case AU_DOUBLE64:
     AFr.DFormat.Format = FD_FLOAT64;
-    AFr.DFormat.ScaleF = AU_SF_DOUBLE64;
     if (! UTcheckIEEE ())
       UTwarn ("AFrdAUhead - %s", AFM_NoIEEE);
     break;

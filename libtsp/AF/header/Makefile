@@ -14,7 +14,7 @@ CFLAGS = $(COPTS) -I$(dist_includedir)
 
 LIB = $(dist_libdir)/libtsp.a
 
-.PHONY: all
+.PHONY: all mostlyclean clean
 
 all:	$(LIB)
 
@@ -22,7 +22,7 @@ all:	$(LIB)
 $(LIB): \
 	$(LIB)(AFdecSpeaker.o) \
 	$(LIB)(AFfindType.o) \
-	$(LIB)(AFgetHrec.o) \
+	$(LIB)(AFgetInfoRec.o) \
 	$(LIB)(AFoptions.o) \
 	$(LIB)(AFprAFpar.o) \
 	$(LIB)(AFpreSetWPar.o) \
@@ -30,13 +30,12 @@ $(LIB): \
 	$(LIB)(AFrdAUhead.o) \
 	$(LIB)(AFrdBLhead.o) \
 	$(LIB)(AFrdEShead.o) \
-	$(LIB)(AFrdHinfo.o) \
-	$(LIB)(AFrdHtext.o) \
 	$(LIB)(AFrdINhead.o) \
 	$(LIB)(AFrdNShead.o) \
 	$(LIB)(AFrdSFhead.o) \
 	$(LIB)(AFrdSPhead.o) \
 	$(LIB)(AFrdSWhead.o) \
+	$(LIB)(AFrdTextAFsp.o) \
 	$(LIB)(AFrdTAhead.o) \
 	$(LIB)(AFrdWVhead.o) \
 	$(LIB)(AFreadHead.o) \
@@ -54,3 +53,7 @@ $(LIB): \
 	$(LIB)(AFwrWVhead.o) \
 	#
 	ranlib $(LIB)
+
+mostlyclean:
+	rm -f *.o
+clean:	mostlyclean

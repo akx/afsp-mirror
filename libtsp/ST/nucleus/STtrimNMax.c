@@ -33,13 +33,11 @@ Parameters:
       to be placed in So.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.12 $  $Date: 2001/11/30 13:38:05 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.13 $  $Date: 2003/05/09 03:06:42 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STtrimNMax.c 1.12 2001/11/30 AFsp-v6r8 $";
-
 #include <ctype.h>
 
 #include <libtsp.h>

@@ -33,12 +33,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.75 $  $Date: 2003/01/27 14:16:04 $
+  $Revision: 1.78 $  $Date: 2003/11/03 18:46:21 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFwrAUhead.c 1.75 2003/01/27 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <setjmp.h>
 #include <string.h>
@@ -65,8 +63,6 @@ static char rcsid [] = "$Id: AFwrAUhead.c 1.75 2003/01/27 AFsp-v6r8 $";
 /* setjmp / longjmp environment */
 extern jmp_buf AFW_JMPENV;
 
-static double
-AF_ScaleF (int Format);
 static int
 AF_setDencod (int Format);
 
@@ -83,13 +79,9 @@ AFwrAUhead (FILE *fp, struct AF_write *AFw)
   if (setjmp (AFW_JMPENV))
     return NULL;	/* Return from a header write error */
 
-/* Set up the encoding parameters */
-  AFw->DFormat.ScaleF = AF_ScaleF (AFw->DFormat.Format);
-  AFw->DFormat.Swapb = DS_EB;
-
 /* Leave room for the header information */
-  if (AFw->Hinfo.N > 0)
-    Lhead = RNDUPV (AU_LHMIN + (sizeof FM_AFSP) - 1 + AFw->Hinfo.N, ALIGN);
+  if (AFw->InfoX.N > 0)
+    Lhead = RNDUPV (AU_LHMIN + (sizeof FM_AFSP) - 1 + AFw->InfoX.N, ALIGN);
   else
     Lhead = RNDUPV (AU_LHMIN + 4L, ALIGN);
 
@@ -105,6 +97,7 @@ AFwrAUhead (FILE *fp, struct AF_write *AFw)
   Fhead.Nchan = (uint4_t) AFw->Nchan;
 
 /* Write out the header */
+  AFw->DFormat.Swapb = DS_EB;
   WHEAD_S (fp, Fhead.Magic);
   WHEAD_V (fp, Fhead.Lhead, DS_EB);
   WHEAD_V (fp, Fhead.Ldata, DS_EB);
@@ -113,10 +106,10 @@ AFwrAUhead (FILE *fp, struct AF_write *AFw)
   WHEAD_V (fp, Fhead.Nchan, DS_EB);
 
 /* AFsp information records */
-  if (AFw->Hinfo.N > 0) {
+  if (AFw->InfoX.N > 0) {
     WHEAD_SN (fp, FM_AFSP, (sizeof FM_AFSP) - 1);	/* Omit null char */
-    WHEAD_SN (fp, AFw->Hinfo.Info, AFw->Hinfo.N);
-    WRPAD (fp, AFw->Hinfo.N, ALIGN);
+    WHEAD_SN (fp, AFw->InfoX.Info, AFw->InfoX.N);
+    WRPAD (fp, AFw->InfoX.N, ALIGN);
   }
   else
     WHEAD_SN (fp, "\0\0\0\0", 4);
@@ -125,53 +118,6 @@ AFwrAUhead (FILE *fp, struct AF_write *AFw)
   AFp = AFsetWrite (fp, FT_AU, AFw);
 
   return AFp;
-}
-
-/* Set the scale factor */
-
-
-static double
-AF_ScaleF (int Format)
-
-{
-  double ScaleF;
-
-  switch (Format) {
-  case FD_MULAW8:
-    ScaleF = 1./AU_SF_MULAW8;
-    break;
-  case FD_ALAW8:
-    ScaleF = 1./AU_SF_ALAW8;
-    break;
-  case FD_INT8:
-    ScaleF = 1./AU_SF_LIN8;
-    break;
-  case FD_INT16:
-    ScaleF = 1./AU_SF_LIN16;
-    break;
-  case FD_INT24:
-    ScaleF = 1./AU_SF_LIN24;
-    break;
-  case FD_INT32:
-    ScaleF = 1./AU_SF_LIN32;
-    break;
-  case FD_FLOAT32:
-    ScaleF = 1./AU_SF_FLOAT32;
-    if (! UTcheckIEEE ())
-      UTwarn ("AFwrAUhead - %s", AFM_NoIEEE);
-    break;
-  case FD_FLOAT64:
-    ScaleF = 1./AU_SF_DOUBLE64;
-    if (! UTcheckIEEE ())
-      UTwarn ("AFwrAUhead - %s", AFM_NoIEEE);
-    break;
-  default:
-    UTwarn ("AFwrAUhead - %s", AFM_AU_UnsData);
-    ScaleF = 0.0;	/* Error */
-    break;
-  }
-
-  return ScaleF;
 }
 
 /* Set up the encoding parameters */

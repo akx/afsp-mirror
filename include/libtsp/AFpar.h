@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.77 $  $Date: 2003/04/29 23:18:05 $
+  $Revision: 1.80 $  $Date: 2003/11/04 10:35:51 $
 
 ----------------------------------------------------------------------*/
 
@@ -68,7 +68,7 @@ static const char *AF_Spkr_Names[] =
 };
 #endif
 
-/* Header information string */
+/* Information records */
 struct AF_infoX {
   char *Info;		/* Pointer to string */
   int N;		/* Number of characters (includes nulls) */
@@ -92,7 +92,7 @@ struct AF_read {
   double Sfreq;
   struct AF_dformat DFormat;
   struct AF_ndata NData;
-  struct AF_infoX Hinfo;
+  struct AF_infoX InfoX;
 };
 struct AF_write {
   double Sfreq;
@@ -101,13 +101,13 @@ struct AF_write {
   long int Nframe;	/* No. Frames: normally AF_NFRAME_UNDEF */
   int Ftype;		/* FTW_WAVE, etc. */
   unsigned char SpkrConfig[AF_MAXN_SPKR+1];	/* Speaker configuration */
-  struct AF_infoX Hinfo;
+  struct AF_infoX InfoX;
 };
 
 #define AF_READ_DEFAULT(x) \
 	static const struct AF_read x = \
 		{0.0, \
-		 {FD_UNDEF, DS_NATIVE, 0, 1.0}, \
+		 {FD_UNDEF, DS_NATIVE, 0, AF_SF_DEFAULT}, \
 		 {AF_LDATA_UNDEF, AF_NSAMP_UNDEF, 1L, {AF_X_SPKR, 0}}, \
 		 {NULL, 0, 0}}
 
@@ -135,7 +135,7 @@ struct AF_filepar {
   long int Start;	/* Start byte */
   long int Isamp;	/* Sample offset */
   long int Nsamp;	/* Number of samples */
-  struct AF_info Hinfo;	/* AFsp information string */
+  struct AF_info InfoS;	/* Information structure */
 };
 
 /* Error codes for the Error field in the audio parameter structure */
@@ -196,19 +196,26 @@ static const int AF_DL[NFD] = {
 #endif
 
 /* Default scale factors */
+/* For the fixed-point formats, data is returned in the range
+   [-1, +1). An exception is 8-bit data which gives values
+   [-1/2,1/2).
+*/
 #define AF_SF_UNDEF	(1.)
-#define AF_SF_MULAW8	(1.)
-#define AF_SF_ALAW8	(1.)
-#define AF_SF_UINT8	(128.)
-#define AF_SF_INT8	(128.)
-#define AF_SF_INT16	(1.)
-#define AF_SF_INT24	(1./256.)
-#define AF_SF_INT32	(1./65536.)
-#define AF_SF_FLOAT32	(32768.)
-#define AF_SF_FLOAT64	(32768.)
+#define AF_SF_MULAW8	(1./32768.)
+#define AF_SF_ALAW8	(1./32768.)
+#define AF_SF_UINT8	(128./32768.)
+#define AF_SF_INT8	(128./32768.)
+#define AF_SF_INT16	(1./32768.)
+#define AF_SF_INT24	(1./(256.*32768.))
+#define AF_SF_INT32	(1./(65536.*32768.))
+#define AF_SF_FLOAT32	(1.)
+#define AF_SF_FLOAT64	(1.)
 #define AF_SF_TEXT	(1.)
 #define AF_SF_DEFAULT	(-(DBL_MAX))
 
+/* Scale factors */
+/* These are the scale factors for reading, the scale factors for
+   writing are the inverses */
 static const double AF_SF[NFD] = {
   AF_SF_UNDEF,
   AF_SF_MULAW8,
@@ -351,13 +358,6 @@ struct AF_NHpar {
 #define FTW_NH_SWAP	(FTW_NH_X + DS_SWAP * FTW_SUBTYPE_MOD)
 
 #define FTW_WAVE_NOEX	(FTW_WAVE + 1 * FTW_SUBTYPE_MOD)
-
-/* External file type codes for AFopenWrite */
-#define FTW_FTYPE_MOD	256
-#define FTW_code(ftype,dformat)	((ftype) * FTW_FTYPE_MOD + (dformat))
-#define FTW_dformat(code)	((code) % FTW_FTYPE_MOD)
-#define FTW_ftype(code)		((code) / FTW_FTYPE_MOD)
-#define FTW_subtype(ftype)	((ftype) / FTW_SUBTYPE_MOD)
 
 #ifdef AF_OUTPUT_FILE_TYPE_NAMES
 static const char *AF_FTWN[NFT] = {

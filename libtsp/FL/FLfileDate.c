@@ -30,13 +30,11 @@ Parameters:
       Date / time format code, taking on values from 0 to 3
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.22 $  $Date: 2001/10/12 13:32:05 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.23 $  $Date: 2003/05/09 01:36:43 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLfileDate.c 1.22 2001/10/12 AFsp-v6r8 $";
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>

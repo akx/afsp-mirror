@@ -45,12 +45,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.42 $  $Date: 2003/01/30 03:35:48 $
+  $Revision: 1.45 $  $Date: 2003/11/03 18:47:04 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFwrAIhead.c 1.42 2003/01/30 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <setjmp.h>
 #include <string.h>
@@ -79,11 +77,9 @@ extern jmp_buf AFW_JMPENV;
 
 static void
 AF_setCOMM (struct AI_CkCOMM *CkCOMM, const struct AF_write *AFw);
-static double
-AF_ScaleF (int Format);
 static void
 AF_wrFORM (FILE *fp, const struct AI_CkFORM *CkFORM,
-	   const struct AF_infoX *Hinfo);
+	   const struct AF_infoX *InfoX);
 static int
 AF_wPstring (FILE *fp, const char string[]);
 static int
@@ -104,11 +100,6 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
     return NULL;	/* Return from a header write error */
 
 /* Set up the encoding parameters */
-  AFw->DFormat.ScaleF = AF_ScaleF (AFw->DFormat.Format);
-  if (AFw->DFormat.ScaleF <= 0.0)
-    return NULL;
-  AFw->DFormat.Swapb = DS_EB;
-
   Lw = AF_DL[AFw->DFormat.Format];
   if (AFw->Nframe != AF_NFRAME_UNDEF)
     Ldata = AFw->Nframe * AFw->Nchan * Lw;
@@ -141,7 +132,7 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
 
   /* ANNO chunk */
   MCOPY (CKID_ANNOTATION, CkFORM.CkANNO.ckID);
-  CkFORM.CkANNO.ckSize = (uint4_t) (4 + AFw->Hinfo.N);
+  CkFORM.CkANNO.ckSize = (uint4_t) (4 + AFw->InfoX.N);
 
   /* SSND chunk */
   MCOPY (CKID_SSND, CkFORM.CkSSND.ckID);
@@ -153,12 +144,13 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
   size = 4 + 8 + RNDUPV(CkFORM.CkCOMM.ckSize, ALIGN)
            + 8 + RNDUPV(CkFORM.CkFVER.ckSize, ALIGN)
            + 8 + RNDUPV(CkFORM.CkSSND.ckSize, ALIGN);
-  if (AFw->Hinfo.N > 0)
+  if (AFw->InfoX.N > 0)
     size += 8 + RNDUPV(CkFORM.CkANNO.ckSize, ALIGN);
   CkFORM.ckSize = (uint4_t) size;
 
 /* Write out the header */
-  AF_wrFORM (fp, &CkFORM, &(AFw->Hinfo));
+  AFw->DFormat.Swapb = DS_EB;
+  AF_wrFORM (fp, &CkFORM, &(AFw->InfoX));
 
 /* Channel configuration */
   AF_checkAISpeaker (AFw->SpkrConfig, AFw->Nchan);
@@ -170,52 +162,6 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
     AFp = AFsetWrite (fp, FT_AIFF, AFw);
 
   return AFp;
-}
-
-/* Set the scale factor */
-
-static double
-AF_ScaleF (int Format)
-
-{
-  double ScaleF;
-
-  switch (Format) {
-  case FD_INT8:
-    ScaleF = 1./AI_SF_NONE8;
-    break;
-  case FD_INT16:
-    ScaleF = 1./AI_SF_NONE16;
-    break;
-  case FD_INT24:
-    ScaleF = 1./AI_SF_NONE24;
-    break;
-  case FD_INT32:
-    ScaleF = 1./AI_SF_NONE32;
-    break;
-  case FD_MULAW8:
-    ScaleF = 1./AI_SF_ULAW;
-    break;
-  case FD_ALAW8:
-    ScaleF = 1./AI_SF_ALAW;
-    break;
-  case FD_FLOAT32:
-    ScaleF = 1./AI_SF_FLOAT32;
-    if (! UTcheckIEEE ())
-      UTwarn ("AFwrAIhead - %s", AFM_NoIEEE);
-    break;
-  case FD_FLOAT64:
-    ScaleF = 1./AI_SF_FLOAT64;
-    if (! UTcheckIEEE ())
-      UTwarn ("AFwrAUhead - %s", AFM_NoIEEE);
-    break;
-  default:
-    UTwarn ("AFwrAIhead - %s", AFM_AIFF_UnsData);
-    ScaleF = 0.0;	/* Error */
-    break;
-  }
-
-  return ScaleF;
 }
 
 /* Fill in the COMM chunk */
@@ -304,7 +250,7 @@ AF_setCOMM (struct AI_CkCOMM *CkCOMM, const struct AF_write *AFw)
 
 static void
 AF_wrFORM (FILE *fp, const struct AI_CkFORM *CkFORM,
-	   const struct AF_infoX *Hinfo)
+	   const struct AF_infoX *InfoX)
 
 {
   WHEAD_S (fp, CkFORM->ckID);
@@ -329,11 +275,11 @@ AF_wrFORM (FILE *fp, const struct AI_CkFORM *CkFORM,
     WRPAD (fp, CkFORM->CkCOMM.ckSize, ALIGN);
   }
 
-  if (Hinfo->N > 0) {
+  if (InfoX->N > 0) {
     WHEAD_S (fp, CkFORM->CkANNO.ckID);
     WHEAD_V (fp, CkFORM->CkANNO.ckSize, DS_EB);
     WHEAD_SN (fp, FM_AFSP, (sizeof FM_AFSP) - 1);	/* Omit null char */
-    WHEAD_SN (fp, Hinfo->Info, Hinfo->N);
+    WHEAD_SN (fp, InfoX->Info, InfoX->N);
     WRPAD (fp, CkFORM->CkANNO.ckSize, ALIGN);
   }
 

@@ -36,13 +36,11 @@ Parameters:
       Buffer length
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.4 $  $Date: 1999/06/05 02:20:44 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.5 $  $Date: 2003/05/13 01:09:30 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSrefresh.c 1.4 1999/06/05 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include "ResampAudio.h"
 
@@ -74,7 +72,7 @@ RSrefresh (AFILE *AFpI, long int offs, float x[], int Nx)
     Nkeep = 0;
 
   /* Read more data */
-  Nout = AFreadData (AFpI, offs + Nkeep, &x[Nkeep], Nx - Nkeep);
+  Nout = AFfReadData (AFpI, offs + Nkeep, &x[Nkeep], Nx - Nkeep);
 
   /* Reset the pointers */
   lst = offs;

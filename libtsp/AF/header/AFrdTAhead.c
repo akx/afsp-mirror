@@ -32,13 +32,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.31 $  $Date: 2001/10/30 23:01:17 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.34 $  $Date: 2003/11/03 18:51:32 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdTAhead.c 1.31 2001/10/30 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>
@@ -67,8 +65,8 @@ AFrdTAhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = AF_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = AF_MAXINFO;
 
   AFp = NULL;
   ErrCode = 0;
@@ -102,7 +100,7 @@ AFrdTAhead (FILE *fp)
       return NULL;
 
     /* Save the line in the AFsp information structure */
-    AFaddHtext ("", line, strlen (line), &AFr.Hinfo);
+    AFaddAFspRec ("", line, strlen (line), &AFr.InfoX);
 
     /* Check for a sampling frequency record */
     if (strncmp (line, TA_SRATE_STR, (sizeof (TA_SRATE_STR)) - 1) == 0)
@@ -122,6 +120,7 @@ AFrdTAhead (FILE *fp)
 /* Set the parameters for file access */
   AFr.Sfreq = 1000. * FkHz;
   AFr.DFormat.Format = FD_TEXT;
+  AFr.DFormat.ScaleF = AF_SF_INT16;
 
   AFp = AFsetRead (fp, FT_TXAUD, &AFr, AF_NOFIX);
 

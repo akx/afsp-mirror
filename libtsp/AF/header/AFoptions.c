@@ -15,7 +15,7 @@ Description:
 
   Program Behaviour:
   Error Control (ErrorHalt):
-    The top level AF routines (AFopenRead, AFopenWrite, AFreadData, etc.)
+    The top level AF routines (AFopnRead, AFopnWrite, AFdReadData, etc.)
     normally print an error message and halt when an error is passed from a
     lower level routine.  Optionally, errors can also be signalled by a return
     value such as NULL file pointer or other error flag.  The error options are
@@ -26,7 +26,7 @@ Description:
   Options for Input Files:
   Number of samples (NsampND):
     The number of samples in a speech file opened for read is normally
-    returned by AFopenRead.  In some cases, the number of samples can only
+    returned by AFopnRead.  In some cases, the number of samples can only
     be determined from the actual number of records in the file.  This
     determination is not possible for input streams which are not random
     access.  For such cases, the number of samples value can be set to a value
@@ -79,9 +79,8 @@ Description:
     AFsetSpeaker ("").
   Header information string (char *Uinfo):
     This string is the information string supplied by the user via the routine
-    AFsetHinfo.  The routine AFgenHinfo converts this information into a form
-    that can be written directly to a file header.  This string is allocated
-    as needed.  It can be deallocated by calling invoking AFsetHinfo (NULL).
+    AFsetInfo.  This string is allocated as needed.  It can be deallocated by
+    invoking AFsetInfo (NULL).
 
 Parameters:
   <-  struct AF_opt *
@@ -95,12 +94,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.16 $  $Date: 2003/04/29 02:32:06 $
+  $Revision: 1.19 $  $Date: 2003/11/03 18:52:00 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFoptions.c 1.16 2003/04/29 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/AFpar.h>
 

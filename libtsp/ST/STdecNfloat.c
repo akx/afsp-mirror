@@ -38,13 +38,11 @@ Parameters:
       than Nmin.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.21 $  $Date: 1999/06/04 22:32:50 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.22 $  $Date: 2003/05/09 03:02:44 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STdecNfloat.c 1.21 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 

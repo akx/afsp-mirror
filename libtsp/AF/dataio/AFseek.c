@@ -25,13 +25,11 @@ Parameters:
       In this case, the error status is in the function return value.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.7 $  $Date: 1999/06/04 19:57:35 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.8 $  $Date: 2003/05/09 01:11:35 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AFseek.c 1.7 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFmsg.h>

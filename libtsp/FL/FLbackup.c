@@ -23,13 +23,11 @@ Parameters:
       File name
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.32 $  $Date: 1999/06/15 21:38:57 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.33 $  $Date: 2003/05/09 01:36:43 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLbackup.c 1.32 1999/06/15 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

@@ -50,13 +50,11 @@ Parameters:
       Number of elements in the input array
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.2 $  $Date: 2002/06/20 13:13:09 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.3 $  $Date: 2003/05/09 03:33:10 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: VRfCorSym.c 1.2 2002/06/20 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 

@@ -53,13 +53,11 @@ Parameters:
       Maximum value for D.  This value should be at least floor(1/|Val|).
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.6 $  $Date: 2000/12/01 02:36:20 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.7 $  $Date: 2003/05/09 02:29:38 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: MSratio.c 1.6 2000/12/01 AFsp-v6r8 $";
-
 #include <math.h>
 
 #include <libtsp.h>

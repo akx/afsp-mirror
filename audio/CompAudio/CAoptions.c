@@ -2,8 +2,8 @@
                            McGill University
 
 Routine:
-  void CAoptions (int argc, const char *argv[], int *delayL, int *delayU,
-	          long int *Nsseg, struct CA_FIpar FI[2])
+  void CAoptions (int argc, const char *argv[], long int *delayL,
+                  long int *delayU, long int *Nsseg, struct CA_FIpar FI[2])
 
 Purpose:
   Decode options for CompAudio
@@ -16,9 +16,9 @@ Parameters:
       Number of command line arguments
    -> const char *argv[]
       Array of pointers to argument strings
-  <-  int *delayL
+  <-  long int *delayL
       Starting delay
-  <-  int *delayU
+  <-  long int *delayU
       End delay
   <-  long int *Nsseg
       Number of samples per segment (zero if unspecified)
@@ -26,13 +26,11 @@ Parameters:
       Input file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.45 $  $Date: 1999/06/05 00:54:10 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.47 $  $Date: 2003/07/11 14:37:27 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: CAoptions.c 1.45 1999/06/05 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>
@@ -50,12 +48,13 @@ static const char *OptTable[] = {
 
 
 void
-CAoptions (int argc, const char *argv[], int *delayL, int *delayU,
+CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
 	   long int *Nsseg, struct CA_FIpar FI[2])
 
 {
   struct CA_FIpar FIx;
-  int n, nF, delL, delU, FIParSet;
+  int n, nF, FIParSet;
+  long int delL, delU;
   const char *OptArg;
   long int nsseg;
 
@@ -107,7 +106,7 @@ CAoptions (int argc, const char *argv[], int *delayL, int *delayU,
     case 1:
     case 2:
       /* Delay specification */
-      if (STdecIrange (OptArg, &delL, &delU) || delL > delU)
+      if (STdecLrange (OptArg, &delL, &delU) || delL > delU)
 	ERRSTOP (CAM_BadDelay, OptArg);
       break;
     case 3:

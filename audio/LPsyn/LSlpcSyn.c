@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void LPlpcSyn (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats,
+  void LPlpcSyn (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO,
                  double pre, int Lframe, int Np)
 
 Purpose:
@@ -20,8 +20,6 @@ Parameters:
    -> AFILE *AFpO
       Audio file pointer for the output audio file.  If AFpO is NULL, the
       output signal is not written out.   
-   -> int Fstats
-      Statistics flag, set to 1 to get frame-by-frame information
    -> double pre
       Preemphasis factor
    -> int Lframe
@@ -30,19 +28,17 @@ Parameters:
       Number of LPC coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.2 $  $Date: 2002/03/25 16:57:18 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.3 $  $Date: 2003/05/13 01:18:00 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: LSlpcSyn.c 1.2 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include "LPsyn.h"
 
 
 void
-LSlpcSyn (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats, double pre,
+LSlpcSyn (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, double pre,
 	  int Lframe, int Np)
 
 {
@@ -72,13 +68,13 @@ LSlpcSyn (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats, double pre,
 
   while (1) {
     /* Read the residual signal */
-    Nout = AFreadData (AFpI, offr, Rbuff, Lframe);
+    Nout = AFfReadData (AFpI, offr, Rbuff, Lframe);
     offr = offr + Lframe;
     if (Nout == 0)
       break;
 
     /* read the LPC coefficients */
-    Nv = AFreadData (AFpL, nf * Np, pc, Np);
+    Nv = AFfReadData (AFpL, nf * Np, pc, Np);
     if (Nv != Np)
       UThalt ("%s: Unexpected end of LPC file", PROGRAM);
     nf = nf + 1;
@@ -92,7 +88,7 @@ LSlpcSyn (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats, double pre,
 
     /* Write the reconstructed signal to an audio file */
     if (AFpO != NULL)
-      AFwriteData (AFpO, Dbuff, Lframe);
+      AFfWriteData (AFpO, Dbuff, Lframe);
 
     /* Set up the LPC filter memory for the next frame */
     VRfShift (Sbuff, Np, Lframe);

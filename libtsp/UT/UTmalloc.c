@@ -25,13 +25,11 @@ Parameters:
       size is less than or equal to zero, a NULL pointer is returned.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.9 $  $Date: 1999/06/04 22:41:07 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.10 $  $Date: 2003/05/09 03:20:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTmalloc.c 1.9 1999/06/04 AFsp-v6r8 $";
-
 #include <stdlib.h>		/* malloc */
 
 #include <libtsp.h>

@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_BPF5k_FIR.cof
 ! See ITU-T G.191 (2000), Software Tools Library (module fir-wb.c)
-! $Id: STL_BPF5k_FIR_16k.cof 1.1 2002/06/18 AFsp-v6r8 $
+! $Id: STL_BPF5k_FIR_16k.cof 1.1 2002/06/18 AFsp-v7r2 $
 !
 ! Bandpass filter 50-5000 Hz, 16 kHz sampling rate
 !  - Equi-ripple, linear phase FIR filter, 592 taps

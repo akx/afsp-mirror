@@ -36,13 +36,11 @@ Parameters:
       value to 12345.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.17 $  $Date: 2000/01/08 00:18:09 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.18 $  $Date: 2003/05/09 02:29:38 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: MSfUnifRand.c 1.17 2000/01/08 AFsp-v6r8 $";
-
 #include <time.h>
 
 #include <libtsp.h>

@@ -34,13 +34,11 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.50 $  $Date: 2001/10/30 16:41:15 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.52 $  $Date: 2003/11/03 18:54:13 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdBLhead.c 1.50 2001/10/30 AFsp-v6r8 $";
-
 #include <ctype.h>
 #include <setjmp.h>
 #include <string.h>
@@ -119,13 +117,13 @@ AFrdBLhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = BL_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = BL_MAXINFO;
 
 /* Read the first part of the header */
-  offs = AFrdHtext (fp, 80, "cs1: ", &AFr.Hinfo, 1);
-  offs += AFrdHtext (fp, 80, "cs2: ", &AFr.Hinfo, 1);
-  offs += AFrdHtext (fp, 80, "cmd: ", &AFr.Hinfo, 1);
+  offs = AFrdTextAFsp (fp, 80, "cs1: ", &AFr.InfoX, 1);
+  offs += AFrdTextAFsp (fp, 80, "cs2: ", &AFr.InfoX, 1);
+  offs += AFrdTextAFsp (fp, 80, "cmd: ", &AFr.InfoX, 1);
   offs += RHEAD_V (fp, Fhead.Domain, DS_NATIVE);
   offs += RSKIP (fp, 2);	/* skip FrameSize */
   offs += RHEAD_V (fp, Fhead.Sfreq, DS_NATIVE);

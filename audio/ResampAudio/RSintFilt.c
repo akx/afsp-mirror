@@ -32,13 +32,11 @@ Parameters:
       information about the filter is printed on the stream selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.19 $  $Date: 2001/01/12 22:38:31 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.20 $  $Date: 2003/05/13 01:08:13 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSintFilt.c 1.19 2001/01/12 AFsp-v6r8 $";
-
 #include <limits.h>		/* LONG_MAX */
 #include <math.h>
 

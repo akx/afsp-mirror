@@ -27,13 +27,11 @@ Parameters:
       Data offset into the input data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.13 $  $Date: 2002/03/25 16:38:57 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.14 $  $Date: 2003/05/13 01:25:07 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FAfiltFIR.c 1.13 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include "FiltAudio.h"
 
@@ -90,7 +88,7 @@ FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[],
 
 /* Prime the array */
   l = loffs;
-  AFreadData (AFpI, l - lmem, &x[0], lmem);
+  AFfReadData (AFpI, l - lmem, &x[0], lmem);
 
 /* Main processing loop */
   k = 0;
@@ -98,14 +96,14 @@ FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[],
 
 /* Read the input data into the input buffer */
     Nx = (int) MINV (Nxmax, NsampO - k);
-    AFreadData (AFpI, l, &x[lmem], Nx);
+    AFfReadData (AFpI, l, &x[lmem], Nx);
     l = l + Nx;
 
 /* Convolve the input samples with the filter response */
     FIfConvol (x, x, Nx, h, Ncof);
 
 /* Write the output data to the output audio file */
-    AFwriteData (AFpO, x, Nx);
+    AFfWriteData (AFpO, x, Nx);
     k = k + Nx;
 
 /* Update the filter memory */

@@ -19,13 +19,11 @@ Parameters:
       Input value
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.6 $  $Date: 1999/06/04 22:08:35 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.7 $  $Date: 2003/05/09 02:29:38 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: MSdNint.c 1.6 1999/06/04 AFsp-v6r8 $";
-
 #include <math.h>	/* floor and ceil */
 
 #include <libtsp.h>

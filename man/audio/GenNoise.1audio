@@ -29,7 +29,8 @@ file type.
 .ne 3
   ".au"   - AU audio file
   ".wav"  - WAVE file
-  ".aif"  - AIFF-C sound file
+  ".aif"  - AIFF sound file
+  ".afc"  - AIFF-C sound file
   ".raw"  - Headerless file (native byte order)
   ".txt"  - Headerless file (text data)
 .fi
@@ -37,7 +38,8 @@ file type.
 .ti -4n
 -d SDEV, --std_deviation=SDEV
 .br
-Standard deviation of the noise samples, default 1000.
+Standard deviation of the noise samples in normalized units, default
+0.03.
 .ti -4n
 -x SEED, --seed=SEED
 .br
@@ -172,6 +174,6 @@ If the information string starts with a record delimiter, the header
 information string is appended to the standard header information.  If not,
 the user supplied header information string appears alone.
 .SH Author / version
-P. Kabal / v4r2  2003-01-27
+P. Kabal / v5r0a  2003-11-06
 .SH See Also
 AFsp

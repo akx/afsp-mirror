@@ -35,14 +35,13 @@ Parameters:
       Number of output samples to be calculated
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.8 $  $Date: 2002/03/25 16:08:44 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/09 01:29:45 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FIfPreem.c 1.8 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
+
 
 void
 FIfPreem (double a, float *Fmem, const float x[], float y[], int Nout)

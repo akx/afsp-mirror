@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.61 $  $Date: 2003/04/29 23:14:21 $
+  $Revision: 1.62 $  $Date: 2003/05/13 01:27:46 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define FiltAudio_h_
 
 #define PROGRAM "FiltAudio"
-#define VERSION	"v5r5  2003-04-28"
+#define VERSION	"v6r0  2003-05-12"
 
 #include <limits.h>		/* LONG_MIN */
 

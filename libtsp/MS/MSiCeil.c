@@ -20,13 +20,11 @@ Parameters:
       Input value (denominator)
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.7 $  $Date: 1999/06/04 22:08:35 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.8 $  $Date: 2003/05/09 02:29:38 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: MSiCeil.c 1.7 1999/06/04 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 

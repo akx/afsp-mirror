@@ -46,12 +46,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.86 $  $Date: 2003/05/06 16:14:46 $
+  $Revision: 1.89 $  $Date: 2003/11/03 18:51:18 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid [] = "$Id: AFrdWVhead.c 1.86 2003/05/06 AFsp-v6r8 $";
-
 #include <assert.h>
 #include <setjmp.h>
 #include <string.h>
@@ -86,13 +84,13 @@ AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
 static int
 AF_decFMT (const struct WV_CKfmt *CKfmt, struct AF_read *AFr);
 static int
-AF_rdDISP_text (FILE *fp, int Size, struct AF_infoX *Hinfo);
+AF_rdDISP_text (FILE *fp, int Size, struct AF_infoX *InfoX);
 static int
 AF_rdFMT (FILE *fp, struct WV_CKfmt *CKfmt);
 static int
 AF_rdFACT (FILE *fp, struct WV_CKfact *CKfact);
 static int
-AF_rdLIST_INFO (FILE *fp, int Size, struct AF_infoX *Hinfo);
+AF_rdLIST_INFO (FILE *fp, int Size, struct AF_infoX *InfoX);
 static int
 AF_rdRIFF_WAVE (FILE *fp, struct WV_CKRIFF *CKRIFF);
 static void
@@ -119,8 +117,8 @@ AFrdWVhead (FILE *fp)
 
 /* Defaults and inital values */
   AFr = AFr_default;
-  AFr.Hinfo.Info = Info;
-  AFr.Hinfo.Nmax = AF_MAXINFO;
+  AFr.InfoX.Info = Info;
+  AFr.InfoX.Nmax = AF_MAXINFO;
 
   Fact_Nsamp = AF_NSAMP_UNDEF;
 
@@ -171,16 +169,17 @@ AFrdWVhead (FILE *fp)
     /* Text chunks */
     else if (SAME_CSTR (CkHead.ckID, "afsp")) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += AFrdHinfo (fp, (int) CkHead.ckSize, &AFr.Hinfo, ALIGN);
+      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "AFsp: ", &AFr.InfoX,
+			    ALIGN);
       FoundAFsp = 1;
     }
     else if (SAME_CSTR (CkHead.ckID, "DISP") && ! FoundAFsp) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += AF_rdDISP_text (fp, (int) CkHead.ckSize, &AFr.Hinfo);
+      offs += AF_rdDISP_text (fp, (int) CkHead.ckSize, &AFr.InfoX);
     }
     else if (SAME_CSTR (CkHead.ckID, "LIST") && ! FoundAFsp) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += AF_rdLIST_INFO (fp, (int) CkHead.ckSize, &AFr.Hinfo);
+      offs += AF_rdLIST_INFO (fp, (int) CkHead.ckSize, &AFr.InfoX);
     }
     /* Miscellaneous chunks */
     else {
@@ -352,32 +351,24 @@ AF_decFMT (const struct WV_CKfmt *CKfmt, struct AF_read *AFr)
   switch (FormatTag) {
   case WAVE_FORMAT_PCM:
   
-    if (NBytesS == FDL_INT16) {
+    if (NBytesS == FDL_INT16)
       AFr->DFormat.Format = FD_INT16;
-      AFr->DFormat.ScaleF = WV_SF_PCM16;
-    }
     /* Special case: IEEE float from CoolEdit (samples are flagged as 24-bit
        integer, but are 32-bit IEEE float) */
     else if (CKfmt->wFormatTag == WAVE_FORMAT_PCM &&
 	     AFr->DFormat.NbS == 24 && NBytesS == 4) {
       AFr->DFormat.Format = FD_FLOAT32;
       AFr->DFormat.NbS = 8 * FDL_FLOAT32;
-      AFr->DFormat.ScaleF = WV_SF_FLOAT32_X;
+      AFr->DFormat.ScaleF = AF_SF_INT24;	/* Same scaling as INT24 */
       if (! UTcheckIEEE ())
 	UTwarn ("AFrdAIhead - %s", AFM_NoIEEE);
     }
-    else if (NBytesS == FDL_INT24) {
+    else if (NBytesS == FDL_INT24)
       AFr->DFormat.Format = FD_INT24;
-      AFr->DFormat.ScaleF = WV_SF_PCM24;
-    }
-    else if (NBytesS == FDL_INT32) {
+    else if (NBytesS == FDL_INT32)
       AFr->DFormat.Format = FD_INT32;
-      AFr->DFormat.ScaleF = WV_SF_PCM32;
-    }
-    else if (NBytesS == FDL_UINT8) {
+    else if (NBytesS == FDL_UINT8)
       AFr->DFormat.Format = FD_UINT8;
-      AFr->DFormat.ScaleF = WV_SF_PCM8;
-    }
     else {
       UTwarn ("AFrdWVhead - %s: \"%d\"", AFM_WV_UnsDSize, 8 * NBytesS);
       return 1;
@@ -394,7 +385,6 @@ AF_decFMT (const struct WV_CKfmt *CKfmt, struct AF_read *AFr)
       AFr->DFormat.NbS = 8;
     }
     AFr->DFormat.Format = FD_MULAW8;
-    AFr->DFormat.ScaleF = WV_SF_MULAW;
     break;
 
   case WAVE_FORMAT_ALAW:
@@ -407,18 +397,13 @@ AF_decFMT (const struct WV_CKfmt *CKfmt, struct AF_read *AFr)
       AFr->DFormat.NbS = 8;
     }
     AFr->DFormat.Format = FD_ALAW8;
-    AFr->DFormat.ScaleF = WV_SF_ALAW;
     break;
 
   case WAVE_FORMAT_IEEE_FLOAT:
-    if (NBytesS == FDL_FLOAT32) {
+    if (NBytesS == FDL_FLOAT32)
       AFr->DFormat.Format = FD_FLOAT32;
-      AFr->DFormat.ScaleF = WV_SF_FLOAT32;
-    }
-    else if (NBytesS == FDL_FLOAT64) {
+    else if (NBytesS == FDL_FLOAT64)
       AFr->DFormat.Format = FD_FLOAT64;
-      AFr->DFormat.ScaleF = WV_SF_FLOAT64;
-    }
     else
       UTwarn ("AFrdWVhead - %s: \"%d\"", AFM_WV_BadFloat, 8 * NBytesS);
     if (! UTcheckIEEE ())
@@ -503,7 +488,7 @@ AF_UnsFormat (int FormatTag)
 
 
 static int
-AF_rdDISP_text (FILE *fp, int Size, struct AF_infoX *Hinfo)
+AF_rdDISP_text (FILE *fp, int Size, struct AF_infoX *InfoX)
 
 {
   int offs;
@@ -511,7 +496,7 @@ AF_rdDISP_text (FILE *fp, int Size, struct AF_infoX *Hinfo)
 
   offs = RHEAD_V (fp, DISP_ID, DS_EL);
   if (DISP_ID == CF_TEXT)
-    offs += AFrdHtext (fp, Size - offs, "display_name: ", Hinfo, ALIGN);
+    offs += AFrdTextAFsp (fp, Size - offs, "display_name: ", InfoX, ALIGN);
   else
     offs += RSKIP (fp, RNDUPV (Size, ALIGN) - offs);
 
@@ -549,7 +534,7 @@ static const struct WV_LI IID[] = {
 
 
 static int
-AF_rdLIST_INFO (FILE *fp, int Size, struct AF_infoX *Hinfo)
+AF_rdLIST_INFO (FILE *fp, int Size, struct AF_infoX *InfoX)
 
 {
   int i, offs;
@@ -566,8 +551,8 @@ AF_rdLIST_INFO (FILE *fp, int Size, struct AF_infoX *Hinfo)
       /* Look for standard INFO ID values */
       for (i = 0; i < (int) NIID; ++i) {
 	if (SAME_CSTR (CkHead.ckID, IID[i].ckid)) {
-	  offs += AFrdHtext (fp, (int) CkHead.ckSize, IID[i].key,
-			     Hinfo, ALIGN);
+	  offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, IID[i].key,
+				InfoX, ALIGN);
 	  break;
 	}
       }
@@ -576,7 +561,7 @@ AF_rdLIST_INFO (FILE *fp, int Size, struct AF_infoX *Hinfo)
       if (i == NIID) {
 	strncpy (key, CkHead.ckID, 4);
 	strcpy (&key[4], ": ");
-	offs += AFrdHtext (fp, (int) CkHead.ckSize, key, Hinfo, ALIGN);
+	offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, key, InfoX, ALIGN);
       }
     }
   }

@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void LPlpcAnal (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats,
+  void LPlpcAnal (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO,
                   double pre, const float Win[], int Lwin, int Woffs,
 		  int Lframe, int Np, double bwexp)
 
@@ -42,18 +42,16 @@ Parameters:
       Bandwidth expansion factor
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.10 $  $Date: 2002/03/25 16:58:34 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/13 01:18:26 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: LPlpcAnal.c 1.10 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include "LPanal.h"
 
 void
-LPlpcAnal (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats, double pre,
+LPlpcAnal (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, double pre,
 	   const float Win[], int Lwin, int Woffs, int Lframe, int Np,
 	   double bwexp)
 
@@ -79,15 +77,15 @@ LPlpcAnal (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats, double pre,
   offw = MSiFloor (Lframe - Lwin, 2) - Woffs + offd;
 
 /* Preemphasis memory */
-  AFreadData (AFpI, offd-1, &Fmemd, 1);
+  AFfReadData (AFpI, offd-1, &Fmemd, 1);
 
 /* Filter memory */
-  AFreadData (AFpI, offd-Np, Dbuff, Np);
+  AFfReadData (AFpI, offd-Np, Dbuff, Np);
 
   while (1) {
 
     /* Read the data for LPC analysis */
-    AFreadData (AFpI, offw, Wbuff, Lwin);
+    AFfReadData (AFpI, offw, Wbuff, Lwin);
 
     /* Preemphasize the data */
     AFreadData (AFpI, offw-1, &Fmemw, 1);
@@ -98,7 +96,7 @@ LPlpcAnal (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats, double pre,
     VRfMult (Wbuff, Win, Wbuff, Lwin);
 
     /* Read the data for filtering */
-    Nout = AFreadData (AFpI, offd, &Dbuff[Np], Lframe);
+    Nout = AFfReadData (AFpI, offd, &Dbuff[Np], Lframe);
     offd = offd + Lframe;
     if (Nout == 0)
       break;
@@ -116,11 +114,11 @@ LPlpcAnal (AFILE *AFpI, AFILE *AFpL, AFILE *AFpO, int Fstats, double pre,
     FIfConvol (Dbuff, Rbuff, Lframe, ec, Np+1);
 
     /* Write the LPC coefficients */
-    AFwriteData (AFpL, pc, Np);
+    AFfWriteData (AFpL, pc, Np);
 
     /* Write the residual to an audio file */
     if (AFpO != NULL)
-      AFwriteData (AFpO, Rbuff, Lframe);
+      AFfWriteData (AFpO, Rbuff, Lframe);
 
     /* Set up the LPC filter memory */
     VRfShift (Dbuff, Np, Lframe);

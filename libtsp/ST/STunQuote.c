@@ -25,13 +25,11 @@ Parameters:
       case the output string overlays the input string.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.3 $  $Date: 2000/12/04 21:27:58 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.4 $  $Date: 2003/05/09 03:02:44 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STunQuote.c 1.3 2000/12/04 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

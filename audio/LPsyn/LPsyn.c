@@ -80,12 +80,10 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v2r3e  2002-11-06  Copyright (C) 2002
+  P. Kabal / v3r0a  2003-11-03  Copyright (C) 2003
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: LPsyn.c 1.31 2002/11/06 AFsp-v6r8 $";
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -100,19 +98,17 @@ int
 main (int argc, const char *argv[])
 
 {
-  int Fformat;
   AFILE *AFpI, *AFpL, *AFpO;
   FILE *fpout;
   char Fname[4][FILENAME_MAX];
   long int Nsamp, Nchan;
-  int Fstats, Lwin, Woffs, Lframe, Np;
+  int Lwin, Woffs, Lframe, Np;
   const float *Win;
-  float Sfreq, pre, bwexp, Frate;
+  double Sfreq, pre, bwexp, Frate;
   long int Npx, Ntcoef;
 
 /* Get the input parameters */
-  LSoptions (argc, argv, &Fstats, Fname);
-  Fformat = FTW_code (FTW_AU, FD_INT16);
+  LSoptions (argc, argv, Fname);
 
 /* If output is to stdout, use stderr for informational messages */
   if (strcmp (Fname[1], "-") == 0)
@@ -125,13 +121,13 @@ main (int argc, const char *argv[])
 
 /* Open the input residual file */
   FLpathList (Fname[1], "$AUDIOPATH", Fname[1]);
-  AFpI = AFopenRead (Fname[1], &Nsamp, &Nchan, &Sfreq, fpout);
+  AFpI = AFopnRead (Fname[1], &Nsamp, &Nchan, &Sfreq, fpout);
   if (Nchan != 1)
     UThalt ("%s: Multiple input channels not supported", PROGRAM);
 
 /* Open the LPC coefficient file */
   FLpathList (Fname[2], "$AUDIOPATH", Fname[2]);
-  AFpL = AFopenRead (Fname[2], &Ntcoef, &Npx, &Frate, fpout);
+  AFpL = AFopnRead (Fname[2], &Ntcoef, &Npx, &Frate, fpout);
   if (Np != Npx)
     UThalt ("%s: No. LPC coefficients does not match parameter file", PROGRAM);
   if (Frate * Lframe != Sfreq)
@@ -145,13 +141,13 @@ main (int argc, const char *argv[])
   if (Fname[3][0] != '\0') {
     if (strcmp (Fname[3], "-") != 0)
       FLbackup (Fname[3]);
-    AFpO = AFopenWrite (Fname[3], Fformat, 1L, Sfreq, fpout);
+    AFpO = AFopnWrite (Fname[3], FTW_AU, FD_INT16, 1L, Sfreq, fpout);
   }
   else
     AFpO = NULL;
 
 /* Process the residual file */
-  LSlpcSyn (AFpI, AFpL, AFpO, Fstats, pre, Lframe, Np);
+  LSlpcSyn (AFpI, AFpL, AFpO, pre, Lframe, Np);
 
 /* Close the files */
   AFclose (AFpI);

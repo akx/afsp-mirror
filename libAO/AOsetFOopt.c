@@ -16,18 +16,17 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.3 $  $Date: 2001/10/16 13:49:45 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.5 $  $Date: 2003/11/04 12:50:46 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AOsetFOopt.c 1.3 2001/10/16 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>
 #include <libtsp/AFpar.h>
 #include <AO.h>
+
 
 void
 AOsetFOopt (const struct AO_FOpar *FO)
@@ -48,8 +47,8 @@ AOsetFOopt (const struct AO_FOpar *FO)
     strcpy ((char *) AFopt->SpkrConfig, (const char *) FO->SpkrConfig);
   }
 
-  AFsetHinfo (NULL);	/* Reset the info string */
-  AFsetHinfo (FO->Hinfo);
+  AFsetInfo (NULL);	/* Reset the info string */
+  AFsetInfo (FO->Info);
 
   return;
 }

@@ -18,13 +18,11 @@ Parameters:
       each call to this routine overlays this storage.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.33 $  $Date: 2001/10/11 01:30:14 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.34 $  $Date: 2003/05/09 03:20:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTuserName.c 1.33 2001/10/11 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 

@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.32 $  $Date: 2003/01/27 12:59:25 $
+  $Revision: 1.34 $  $Date: 2003/11/04 10:35:29 $
 
 ----------------------------------------------------------------------*/
 
@@ -21,9 +21,9 @@ Author / revision:
 
 struct AF_opt;				/* Audio file routine options */
 struct AF_NHpar;			/* Headerless audio file parameters */
-struct AF_infox;			/* Header information string */
-struct AF_info;				/* Header information string */
-struct AF_infoX;       			/* Header information string */
+struct AF_info;				/* Information records (allocated
+					   string) */
+struct AF_infoX;       			/* Information fixed (fixed string) */
 struct AF_read;				/* File format and data parameters */
 struct AF_write;			/* File format and data parameters */
 
@@ -60,8 +60,8 @@ extern "C" {
 #endif
 
 void
-AFaddHtext (const char Ident[], const char line[], int Size,
-	    struct AF_infoX *Hinfo);
+AFaddAFspRec (const char Ident[], const char line[], int Size,
+	      struct AF_infoX *InfoX);
 int
 AFdecSpeaker (const char String[], unsigned char *SpkrConfig, int MaxN);
 int
@@ -69,13 +69,14 @@ AFcheckSpeakers (const unsigned char *SpkrConfig);
 int
 AFfindType (FILE *fp);
 const char *
-AFgetHrec (const char name[], const struct AF_info *Hinfo);
+AFgetInfoRec (const char name[], const struct AF_info *InfoS);
 struct AF_opt *
 AFoptions (void);
 void
 AFprAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo);
 int
-AFpreSetWPar (int Fformat, long int Nchan, double Sfreq, struct AF_write *AFw);
+AFpreSetWPar (int Ftype, int Dformat, long int Nchan, double Sfreq,
+	      struct AF_write *AFw);
 AFILE *
 AFrdAIhead (FILE *fp);
 AFILE *
@@ -84,11 +85,6 @@ AFILE *
 AFrdBLhead (FILE *fp);
 AFILE *
 AFrdEShead (FILE *fp);
-int
-AFrdHinfo (FILE *fp, int Size, struct AF_infoX *Hinfo, int Align);
-int
-AFrdHtext (FILE *fp, int Size, const char Ident[], struct AF_infoX *Hinfo,
-	   int Align);
 AFILE *
 AFrdINhead (FILE *fp);
 AFILE *
@@ -101,6 +97,9 @@ AFILE *
 AFrdSWhead (FILE *fp);
 AFILE *
 AFrdTAhead (FILE *fp);
+int
+AFrdTextAFsp (FILE *fp, int Size, const char Ident[], struct AF_infoX *InfoX,
+	      int Align);
 AFILE *
 AFrdWVhead (FILE *fp);
 int

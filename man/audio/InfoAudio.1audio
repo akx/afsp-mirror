@@ -11,8 +11,8 @@ Print audio file information
 .in -4n
 .SH Description
 This program prints information about a number of audio files to standard
-output.  The full output consists of the file type and name (indented part
-of the output below), the file data parameters, and the header information
+output.  The full output consists of the file type and name (indented
+part of the output below), the file data parameters, and the information
 records.
 .ft CW
 .nf
@@ -30,7 +30,7 @@ records.
                                   integer16, float32, float64, or text)
   File byte order: big-endian    (big-endian, little-endian, or byte-stream)
   Host byte order: big-endian    (big-endian or little-endian)
-  --Header information records--
+  --Information records--
   date: 2001-02-04 14:12:50 UTC
   user: library@aldebaran
   program: CopyAudio
@@ -40,7 +40,7 @@ records.
 For single byte or text data, the "File byte order" field is set to
 "byte-stream".
 .PP
-Non-printing characters (as defined by the routine isprint) in the header
+Non-printing characters (as defined by the routine isprint) in the
 information records are replaced by question marks.
 .SH Options
 .in +4n
@@ -77,7 +77,7 @@ of the codes which control printing of the individual parts.
 .ne 3
   1:  Print the file type and name
   2:  Print the file data parameters
-  4:  Print the header information records
+  4:  Print the information records
 .fi
 .ft P
 The default is to print all of the information (ICODE=7).  For ICODE=0,
@@ -177,15 +177,7 @@ ScaleF: Scale factor
 .ft CW
 .nf
 .ne 3
- "default" - Scale factor chosen appropriate to the type of data. The
-    scaling factors shown below are applied to the data in the file.
-    8-bit mu-law:    1
-    8-bit A-law:     1
-    8-bit integer:   128
-    16-bit integer:  1
-    24-bit integer:  1/256
-    32-bit integer:  1/65536
-    float data:      32768
+ "default" - Scale factor chosen appropriate to the type of data.
  "<number or ratio>" - Specify the scale factor to be applied to
     the data from the file.
 .fi
@@ -208,7 +200,7 @@ This environment variable specifies a list of directories to be searched when
 opening the input audio files.  Directories in the list are separated by
 colons (semicolons for Windows).
 .SH Author / version
-P. Kabal / v3r6  2003-04-28
+P. Kabal / v4r0a  2003-11-03
 .SH See Also
 CompAudio,
 AFsp

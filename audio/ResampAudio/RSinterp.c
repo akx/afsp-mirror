@@ -35,13 +35,11 @@ Parameters:
       Structure with the filter coefficients in a polyphase form
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.10 $  $Date: 1999/09/03 13:23:12 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/13 01:08:13 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: RSinterp.c 1.10 1999/09/03 AFsp-v6r8 $";
-
 #include <assert.h>
 
 #include <libtsp.h>
@@ -143,8 +141,8 @@ Parameters:
       Number of filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.10 $  $Date: 1999/09/03 13:23:12 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/13 01:08:13 $
 
 -------------------------------------------------------------------------*/
 

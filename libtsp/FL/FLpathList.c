@@ -56,13 +56,11 @@ Parameters:
       overlay the input string if desired.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.27 $  $Date: 1999/06/15 21:44:13 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.28 $  $Date: 2003/05/09 01:36:44 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLpathList.c 1.27 1999/06/15 AFsp-v6r8 $";
-
 #include <stdlib.h>	/* getenv */
 #include <sys/types.h>
 #include <sys/stat.h>

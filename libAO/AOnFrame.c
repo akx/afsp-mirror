@@ -38,13 +38,11 @@ Parameters:
       Number of frames.  If this value is AF_NFRAME_UNDEF, it is not used.
  
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.8 $  $Date: 2002/11/06 18:46:51 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.9 $  $Date: 2003/05/09 12:32:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AOnFrame.c 1.8 2002/11/06 AFsp-v6r8 $";
-
 #include <libtsp.h>
 #include <AO.h>
 

@@ -21,16 +21,19 @@ Options:
       file type.
         ".au"   - AU audio file
         ".wav"  - WAVE file
-        ".aif"  - AIFF-C sound file
+        ".aif"  - AIFF sound file
+        ".afc"  - AIFF-C sound file
         ".raw"  - Headerless file (native byte order)
         ".txt"  - Headerless file (text data)
   -f FREQ, --frequency=FREQ
       Frequency of the sine wave in Hertz, default 1000.
   -r SDEV, --rms=SDEV
-      Root-mean-square value of the sinusoid, default 1000.
+      Root-mean-square value of the sinusoid in normalized units, default
+      0.03.
   -a AMPL, --amplitude_max=AMPL
-      Maximum amplitude of the sine wave, default 1414.  The amplitude of the
-      sine wave is specified by either the rms value or the maximum amplitude.
+      Maximum amplitude of the sine wave in normalized units.  The amplitude
+      of the sine wave is specified by either the rms value or the maximum
+      amplitude.
   -p PHASE, --phase PHASE
       Initial phase of the sinusoid (cosine) in degrees, default 0.  Zero
       phase gives a cosine, -90 degrees gives a sine.
@@ -105,12 +108,10 @@ Options:
   the user supplied header information string appears alone.
 
 Author / version:
-  P. Kabal / v4r2  2003-01-27  Copyright (C) 2003
+  P. Kabal / v5r0a  2003-11-06  Copyright (C) 2003
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: GenTone.c 1.25 2003/01/30 AFsp-v6r8 $";
-
 #include <float.h>	/* DBL_EPSILON */
 #include <limits.h>
 #include <math.h>
@@ -137,7 +138,7 @@ main (int argc, const char *argv[])
   AFILE *AFp;
   FILE *fpinfo;
   long int N, D, PND;
-  int i, n, Fformat;
+  int i, n, Ftype, Dformat;
   long int k;
   double Sratio, Xratio;
   float x[MAXBUF];
@@ -153,11 +154,12 @@ main (int argc, const char *argv[])
     fpinfo = stdout;
 
 /* Open the output file */
-  Fformat = AOsetFormat (&FO, NULL, 0);
+  Ftype = AOsetFtype (&FO);
+  Dformat = AOsetDformat (&FO, NULL, 0);
   AOsetFOopt (&FO);
   if (strcmp (FO.Fname, "-") != 0)
     FLbackup (FO.Fname);
-  AFp = AFopenWrite (FO.Fname, Fformat, 1L, FO.Sfreq, fpinfo);
+  AFp = AFopnWrite (FO.Fname, Ftype, Dformat, 1L, FO.Sfreq, fpinfo);
 
 /* Resolve the normalized sine wave frequency as a ratio of integers.
    The phase advance can then be calculated as a ratio of integers, with no
@@ -182,7 +184,7 @@ main (int argc, const char *argv[])
 	PND -= D;
     }
     k += n;
-    AFwriteData (AFp, x, n);
+    AFfWriteData (AFp, x, n);
   }
 
 /* Close the audio file */

@@ -23,12 +23,10 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.15 $  $Date: 2003/01/27 14:21:45 $
+  $Revision: 1.18 $  $Date: 2003/11/04 12:50:33 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: AOdecFO.c 1.15 2003/01/27 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>
@@ -70,8 +68,9 @@ AO_decFType (const char string[]);
     is set, viz.
       (AFoptions())->NbS
     Information string: The corresponding audio file option is set, viz.
-      (AFoptions())->Hinfo
+      (AFoptions())->InfoS
 */
+
 
 int
 AOdecFO (struct AO_FOpar *FO)
@@ -79,6 +78,7 @@ AOdecFO (struct AO_FOpar *FO)
 {
   const char *OptArg;
   int n, Sindex;
+  double Nv, Dv;
   struct AO_CmdArg *Carg;
   struct AF_opt *AFopt;
 
@@ -107,8 +107,9 @@ AOdecFO (struct AO_FOpar *FO)
   case 3:
   case 4:
     /* Sampling rate */
-    if (STdec1double (OptArg, &(FO->Sfreq)) || FO->Sfreq <= 0.0)
+    if (STdecDfrac (OptArg, &Nv, &Dv) || Nv / Dv <= 0.0)
       ERRSTOP (AOM_BadSFreq, OptArg);
+    FO->Sfreq = Nv / Dv;
     break;
   case 5:
   case 6:
@@ -135,9 +136,9 @@ AOdecFO (struct AO_FOpar *FO)
     break;
   case 11:
   case 12:
-    /* Header information string */
-    FO->Hinfo = OptArg;
-    AFsetHinfo (OptArg);
+    /* Information string */
+    FO->Info = OptArg;
+    AFsetInfo (OptArg);
     break;
   default:
     Carg->Index = Sindex;		/* Reset the index */
@@ -171,7 +172,7 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.15 $  $Date: 2003/01/27 14:21:45 $
+  $Revision: 1.18 $  $Date: 2003/11/04 12:50:33 $
 
 -------------------------------------------------------------------------*/
 
@@ -237,7 +238,7 @@ Parameters:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.15 $  $Date: 2003/01/27 14:21:45 $
+  $Revision: 1.18 $  $Date: 2003/11/04 12:50:33 $
 
 -------------------------------------------------------------------------*/
 

@@ -57,13 +57,11 @@ Parameters:
       string can be the same string as Line.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.15 $  $Date: 2000/12/04 21:27:13 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.16 $  $Date: 2003/05/09 03:02:44 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: STkeyXpar.c 1.15 2000/12/04 AFsp-v6r8 $";
-
 #include <string.h>
 
 #include <libtsp.h>

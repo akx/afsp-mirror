@@ -19,13 +19,11 @@ Parameters:
       contains the sign bit and the first part of the exponent.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.10 $  $Date: 2000/07/20 17:43:56 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/09 03:23:41 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: UTeIEEE80.c 1.10 2000/07/20 AFsp-v6r8 $";
-
 #include <math.h>		/* frexp, ldexp, floor */
 
 #include <libtsp/nucleus.h>
@@ -86,6 +84,7 @@ static char rcsid[] = "$Id: UTeIEEE80.c 1.10 2000/07/20 AFsp-v6r8 $";
       texp = -1021.  But halve VN and the mantissa remains unchanged but texp
       jumps to -1024.
 */
+
 
 void
 UTeIEEE80 (double V, unsigned char b[10])

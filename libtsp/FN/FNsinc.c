@@ -20,13 +20,11 @@ Parameters:
       Input value
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.5 $  $Date: 1999/06/04 21:00:08 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.6 $  $Date: 2003/05/09 01:41:29 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FNsinc.c 1.5 1999/06/04 AFsp-v6r8 $";
-
 #include <math.h>
 
 #include <libtsp.h>

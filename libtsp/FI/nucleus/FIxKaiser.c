@@ -37,13 +37,11 @@ Parameters:
       Window parameter
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.3 $  $Date: 1999/06/04 20:40:02 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.4 $  $Date: 2003/05/09 01:30:46 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FIxKaiser.c 1.3 1999/06/04 AFsp-v6r8 $";
-
 #include <math.h>
 
 #include <libtsp.h>

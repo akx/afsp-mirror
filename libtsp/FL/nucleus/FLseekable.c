@@ -18,14 +18,12 @@ Parameters:
       File pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.9 $  $Date: 2001/12/10 22:33:33 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.11 $  $Date: 2003/05/09 01:39:26 $
 
 ----------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: FLseekable.c 1.9 2001/12/10 AFsp-v6r8 $";
-
-#include <stdio.h>	/* fileno */
+#include <stdio.h>	/* fileno (Section 8.2.1.1 of Posix) */
 #include <sys/types.h>
 #include <sys/stat.h>
 

@@ -2,8 +2,8 @@
                              McGill University
 
 Routine:
-  void LSlpcPar (const char Fname[], float *pre, const float **Win, int *Lwin,
-                 int *Woffs, int *Lframe, int *Np, float *bwexp)
+  void LSlpcPar (const char Fname[], double *pre, const float **Win, int *Lwin,
+                 int *Woffs, int *Lframe, int *Np, double *bwexp)
 
 Purpose:
   Read LPC analysis/sythesis parameters
@@ -14,7 +14,7 @@ Description:
 Parameters:
    -> const char Fname[]
       Parameter file
-  <-  float *pre
+  <-  double *pre
       Preemphasis factor
   <-  const float **Win
       Array of window coefficients
@@ -26,17 +26,15 @@ Parameters:
       Frame length
   <-  int *Np
       Number of LPC coefficients
-  <-  float *bwexp
+  <-  double *bwexp
       Bandwidth expansion factor
 
 Author / revision:
-  P. Kabal  Copyright (C) 2002
-  $Revision: 1.2 $  $Date: 2002/03/25 16:57:26 $
+  P. Kabal  Copyright (C) 2003
+  $Revision: 1.4 $  $Date: 2003/11/03 13:10:37 $
 
 -------------------------------------------------------------------------*/
 
-static char rcsid[] = "$Id: LSlpcPar.c 1.2 2002/03/25 AFsp-v6r8 $";
-
 #include <libtsp.h>
 
 #include "LPsyn.h"
@@ -67,15 +65,15 @@ static const char *wkey[]={
 
 
 void
-LSlpcPar (const char Fname[], float *pre, const float **Win, int *Lwin,
-	  int *Woffs, int *Lframe, int *Np, float *bwexp)
+LSlpcPar (const char Fname[], double *pre, const float **Win, int *Lwin,
+	  int *Woffs, int *Lframe, int *Np, double *bwexp)
 
 {
   FILE *fp;
   char *Line;
   int ind;
   int Wtype;
-  float prex, bwexpx;
+  double prex, bwexpx;
   int Lwinx, Woffsx, Lframex, Npx;
   char line[80];
   static float Wdata[MAXWINDOW];
@@ -104,7 +102,7 @@ LSlpcPar (const char Fname[], float *pre, const float **Win, int *Lwin,
       break;
     switch (ind) {
     case 0:
-      if (STdec1float (Line, &prex))
+      if (STdec1double (Line, &prex))
 	ERRSTOP ("Invalid preemphasis value", Line);
       break;
     case 1:
@@ -129,7 +127,7 @@ LSlpcPar (const char Fname[], float *pre, const float **Win, int *Lwin,
 	ERRSTOP ("Invalid number of LPC coefficients", Line);
       break;
     case 6:
-      if (STdec1float (Line, &bwexpx))
+      if (STdec1double (Line, &bwexpx))
 	ERRSTOP ("Invalid LPC bandwidth expansion factor", Line);
       break;
     }
@@ -152,23 +150,23 @@ LSlpcPar (const char Fname[], float *pre, const float **Win, int *Lwin,
 
 /* Write the parameters to the header information string */
   /* (each line starts with "\n" to append the line) */
-  AFsetHinfo ("\nparameters:\\");
+  AFsetInfo ("\nparameters:\\");
   sprintf (line, "\n  preemphasis_factor = %g\\", prex);
-  AFsetHinfo (line);
+  AFsetInfo (line);
   sprintf (line, "\n  window_length = %d\\", Lwinx);
-  AFsetHinfo (line);
+  AFsetInfo (line);
   sprintf (line, "\n  window_offset = %d\\", Woffsx);
-  AFsetHinfo (line);
+  AFsetInfo (line);
   if (Wtype == HAMMING)
-    AFsetHinfo ("\n  window_type = Hamming\\");
+    AFsetInfo ("\n  window_type = Hamming\\");
   else
-    AFsetHinfo ("\n  window_type = rectangular\\");
+    AFsetInfo ("\n  window_type = rectangular\\");
   sprintf (line, "\n  frame_length = %d\\", Lframex);
-  AFsetHinfo (line);
+  AFsetInfo (line);
   sprintf (line, "\n  LPC_number = %d\\", Npx);
-  AFsetHinfo (line);
+  AFsetInfo (line);
   sprintf (line, "\n  LPC_BW_expansion = %g", bwexpx);
-  AFsetHinfo (line);
+  AFsetInfo (line);
 
 /* Return the values */
   *pre = prex;

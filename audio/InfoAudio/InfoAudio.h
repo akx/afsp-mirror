@@ -9,7 +9,7 @@ Description:
 
 Author / revision:
   P. Kabal  Copyright (C) 2003
-  $Revision: 1.41 $  $Date: 2003/04/29 23:14:58 $
+  $Revision: 1.43 $  $Date: 2003/11/03 13:09:19 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define InfoAudio_h_
 
 #define PROGRAM "InfoAudio"
-#define VERSION	"v3r6  2003-04-28"
+#define VERSION	"v4r0a  2003-11-03"
 
 #define AFPATH_ENV	"$AUDIOPATH"
 
@@ -47,7 +47,7 @@ Data type: %s\n"
 #define IAMF_FByteOrder	"File byte order: %s\n"
 #define IAMF_ByteStream "File byte order: byte-stream\n"
 #define IAMF_HByteOrder	"Host byte order: %s\n"
-#define IAMF_HInfo	"--Header information records--\n"
+#define IAMF_InfoRec	"--Information records--\n"
 
 /* Usage */
 #define IAMF_Usage "\
