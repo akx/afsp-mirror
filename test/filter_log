@@ -29,4 +29,4 @@ sed 's| /.*/test/| --path--/test/|;
 	s| [A-Z][a-z][a-z] [ 0-3][0-9] hh:mm:ss | MMM dd hh:mm:ss |;
 	s| MMM dd hh:mm:ss [12][90][^78][0-9]| MMM dd hh:mm:ss YYYY|'
 
-# $Id: filter_log 1.11 2001/03/28 AFsp-v7r2 $
+# $Id: filter_log 1.11 2001/03/28 AFsp-v8r2 $

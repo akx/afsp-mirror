@@ -15,8 +15,11 @@ header or trailer.  By default the information records specify the date and
 user name.  This routine allows the user to specify information records
 that are used in addition to, or in place of, the standard information
 records.  This routine must be called before the audio file to be created
-is first opened using AFopnWrite.  AFopnWrite resets the information string
-to a NULL string.
+is opened using AFopnWrite. After the file has been opened (and the
+information records have been created), there is an implicit call
+AFsetInfo(NULL) to reset the information string to the default condition.
+To override the default condition, this routine must be called each time
+before a file is opened for writing.
 .PP
 Standard Information:
 .ft CW
@@ -24,7 +27,6 @@ Standard Information:
 .ne 3
   date: 1994-01-25 19:19:39 UTC    date
   sample_rate: 8012.5              sampling frequency (if non-integer)
-  user: kabal@aldebaran            user
   program: CopyAudio               program name (set by UTsetProg)
 .fi
 .ft P
@@ -81,4 +83,4 @@ String containing the user supplied information
 .in -4n
 .SH Author / revision
 P. Kabal
-/ Revision 1.44  2003/11/04
+/ Revision 1.45  2006/06/06

@@ -370,15 +370,35 @@ SOURCE=..\..\libtsp\FI\nucleus\FIxKaiser.c
 # End Group
 # Begin Source File
 
-SOURCE=..\..\libtsp\FI\FIfBiquad.c
+SOURCE=..\..\libtsp\FI\FIdBiquad.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\FI\FIdConvol.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\FI\FIdConvSI.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\FI\FIdFiltAP.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\FI\FIdFiltIIR.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\FI\FIdReadFilt.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\FI\FIdWinHamm.c
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\libtsp\FI\FIfConvol.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\FI\FIfConvSI.c
 # End Source File
 # Begin Source File
 
@@ -390,19 +410,11 @@ SOURCE=..\..\libtsp\FI\FIfFiltAP.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\FI\FIfFiltIIR.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\libtsp\FI\FIfPreem.c
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\libtsp\FI\FIfWinHamm.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\libtsp\FI\FIreadFilt.c
 # End Source File
 # End Group
 # Begin Group "FL"
@@ -411,6 +423,10 @@ SOURCE=..\..\libtsp\FI\FIreadFilt.c
 # Begin Group "FL-nucleus"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\libtsp\FL\nucleus\FLdReadTF.c
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\libtsp\FL\nucleus\FLexist.c
@@ -510,11 +526,11 @@ SOURCE=..\..\libtsp\FN\FNsinc.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\libtsp\MA\MAfAllocMat.c
+SOURCE=..\..\libtsp\MA\MAdAllocMat.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\MA\MAfFreeMat.c
+SOURCE=..\..\libtsp\MA\MAdFreeMat.c
 # End Source File
 # End Group
 # Begin Group "MS"
@@ -548,6 +564,18 @@ SOURCE=..\..\libtsp\MS\MSratio.c
 # Begin Group "SP"
 
 # PROP Default_Filter ""
+# Begin Group "nucleus"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\libtsp\SP\nucleus\SPdPreFFT.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\SP\nucleus\SPdTrMat2.c
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=..\..\libtsp\SP\SPautoc.c
@@ -558,7 +586,15 @@ SOURCE=..\..\libtsp\SP\SPcorXpc.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\libtsp\SP\SPdCFFT.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\libtsp\SP\SPdQuantL.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\SP\SPdRFFT.c
 # End Source File
 # Begin Source File
 
@@ -646,6 +682,10 @@ SOURCE=..\..\libtsp\ST\STdecLrange.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\libtsp\ST\STdecNdouble.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\libtsp\ST\STdecNfloat.c
 # End Source File
 # Begin Source File
@@ -709,10 +749,6 @@ SOURCE=..\..\libtsp\UT\nucleus\UTeIEEE80.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\UT\nucleus\UTgetHost.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\libtsp\UT\nucleus\UTgetUser.c
 # End Source File
 # Begin Source File
@@ -758,10 +794,6 @@ SOURCE=..\..\libtsp\UT\UTsysMsg.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\libtsp\UT\UTuserName.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\libtsp\UT\UTwarn.c
 # End Source File
 # End Group
@@ -776,6 +808,46 @@ SOURCE=..\..\libtsp\UT\UTwarn.c
 SOURCE=..\..\libtsp\VR\nucleus\VRswapBytes.c
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdAdd.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdCopy.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdCorSYm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdDotProd.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdLinInc.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdMult.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdRFFTMSq.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdScale.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdSet.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\libtsp\VR\VRdShift.c
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\libtsp\VR\VRdZero.c

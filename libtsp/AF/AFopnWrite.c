@@ -14,8 +14,8 @@ Description:
   writing data to the file, the routine AFclose should be called to update the
   file header information and close the file.
 
-  By default, information consisting of the date, the user and the program
-  creating the file is written to the audio file header or trailer.  The
+  By default, information consisting of the date and the program creating the
+  file (see UTsetProg) is written to the audio file header or trailer.  The
   routine AFsetInfo can be called before calling this routine to specify
   additional information to be written to the file.
  
@@ -47,7 +47,7 @@ Description:
     8-bit A-law     32,768         [-32,256, +32,256]
     8-bit integer   256            [-128, 127]
     16-bit integer  32,768         [-32,768, +32,767]
-    24-bit integer  8,288,608      [-8,288,608, +8,288,607]
+    24-bit integer  8,388,608      [-8,388,608, +8,388,607]
     32-bit integer  2,147,483,648  [-2,147,483,648, 2,147,483,647]
   For files containing floating-point data, values are scaled by unity before
   being written to the file.
@@ -91,8 +91,8 @@ Parameters:
       fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.5 $  $Date: 2003/11/03 18:45:03 $
+  P. Kabal  Copyright (C) 2006
+  $Revision: 1.7 $  $Date: 2006/06/06 13:53:15 $
 
 -------------------------------------------------------------------------*/
 

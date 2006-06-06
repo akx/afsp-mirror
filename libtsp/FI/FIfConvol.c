@@ -41,8 +41,8 @@ Parameters:
       Number of filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.13 $  $Date: 2003/05/09 01:29:44 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.14 $  $Date: 2005/02/01 13:20:51 $
 
 -------------------------------------------------------------------------*/
 
@@ -69,4 +69,6 @@ FIfConvol (const float x[], float y[], int Nout, const float h[], int Ncof)
     }
     y[m] = (float) sum;
   }
+
+  return;
 }

@@ -8,8 +8,8 @@ Description:
   Function prototypes for the TSP library internal (nucleus) routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 2.55 $  $Date: 2001/03/08 04:41:23 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 2.56 $  $Date: 2005/02/01 05:24:47 $
 
 ----------------------------------------------------------------------*/
 
@@ -30,6 +30,8 @@ double
 FIxKaiser (double x, double alpha);
 
 /* ----- FL Prototypes ----- */
+int
+FLdReadTF (FILE *fp, int MaxNval, int cc, double x[]);
 int
 FLexist (const char Fname[]);
 int

@@ -208,7 +208,6 @@ Options:
   string.
     Standard Audio File Information:
        date: 2001-01-25 19:19:39 UTC    date
-       user: kabal@aldebaran            user
        program: CopyAudio               program name
   This information can be changed with the information string which is
   specified as one of the command line options.  Structured information records
@@ -255,7 +254,7 @@ Examples:
         CopyAudio -l 1000:1999 abc.au out.au
    7: Create a stereo file.
       Form a stereo (2-channel) audio file from two single channel audio files.
-        CopyAudio abc1.wav abc2.wav -S "L R" stereo.wav
+        CopyAudio abc1.wav abc2.wav -S "FL FR" stereo.wav
    8: Add a dc value to a file.
       If the input file has a mean value of 8.63/32768, the output file will
       have a zero mean after adding -8.63/32768 to each sample.
@@ -329,7 +328,7 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v6r0  2003-05-08  Copyright (C) 2003
+  P. Kabal / v6r0  2003-05-08  Copyright (C) 2006
 
 -------------------------------------------------------------------------*/
 

@@ -87,7 +87,6 @@ string.
 .ne 3
   Standard Audio File Information:
      date: 1994-01-25 19:19:39 UTC    date
-     user: kabal@aldebaran            user
      program: LPsyn                   program name
      parameters: <parameters>         list of parameters
 .fi

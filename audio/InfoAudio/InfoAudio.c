@@ -27,7 +27,6 @@ Description:
     Host byte order: big-endian    (big-endian or little-endian)
     --Information records--
     date: 2001-02-04 14:12:50 UTC
-    user: library@aldebaran
     program: CopyAudio
 
   For single byte or text data, the "File byte order" field is set to
@@ -126,7 +125,7 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v4r0a  2003-11-03  Copyright (C) 2003
+  P. Kabal / v4r0a  2003-11-03  Copyright (C) 2006
 
 -------------------------------------------------------------------------*/
 

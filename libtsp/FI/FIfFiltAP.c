@@ -26,7 +26,7 @@ Description:
   next invocation of this routine.
 
   This routine can also be called with a single array x[.] of length mem+Nout,
-    FIfiltAP (&x[mem], x, Nout, h, Ncof)
+    FIfFiltAP (&x[mem], x, Nout, h, Ncof)
   Before entering this routine, the first mem values of x[.] are set to
   previous output values, while the next Nout values are new input values.
   On return, the Nout new output values replace the input values, starting at
@@ -50,8 +50,8 @@ Parameters:
       Number of filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.15 $  $Date: 2003/05/09 01:29:44 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.16 $  $Date: 2005/02/01 13:21:48 $
 
 -------------------------------------------------------------------------*/
 
@@ -69,7 +69,7 @@ FIfFiltAP (const float x[], float y[], int Nout, const float h[], int Ncof)
   float *yp;
 
   if (h[0] == 0.0F)
-    UThalt ("FIfiltAP: %s", FIM_NonCausal);
+    UThalt ("FIfFiltAP: %s", FIM_NonCausal);
 
   /* Loop over output points */
   yp = &y[Ncof-1];
@@ -79,4 +79,6 @@ FIfFiltAP (const float x[], float y[], int Nout, const float h[], int Ncof)
       sum = sum - h[j] * yp[m-j];
     yp[m] = (float) sum / h[0];
   }
+
+  return;
 }

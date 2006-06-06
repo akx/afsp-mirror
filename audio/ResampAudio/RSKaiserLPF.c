@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void RSKaiserLPF (float h[], int N, double Fc, double alpha, double Gain,
+  void RSKaiserLPF (double h[], int N, double Fc, double alpha, double Gain,
                     double Woffs, double Wspan)
 
 Purpose:
@@ -31,7 +31,7 @@ Description:
   McGraw-Hill, 1993.
 
 Parameters:
-  <-  float h[]
+  <-  double h[]
       Array containing the impulse response samples.  The reference point in
       the array is at offset (N-1)/2 - Woffs.
    -> int N
@@ -50,8 +50,8 @@ Parameters:
       formulation above, equal to N-1 to get the full window)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.11 $  $Date: 2003/05/13 01:09:07 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.12 $  $Date: 2005/02/01 04:20:01 $
 
 -------------------------------------------------------------------------*/
 
@@ -61,7 +61,7 @@ Author / revision:
 
 
 void
-RSKaiserLPF (float h[], int N, double Fc, double alpha, double Gain,
+RSKaiserLPF (double h[], int N, double Fc, double alpha, double Gain,
 	     double Woffs, double Wspan)
 
 {
@@ -75,11 +75,11 @@ RSKaiserLPF (float h[], int N, double Fc, double alpha, double Gain,
   for (i = 0, k = N-1; i <= k; ++i, --k) {
     t = i - T + Woffs;
     u = k - T + Woffs;
-    h[i] = (float) (Ga * FNsinc (2.0 * Fc * t) * FIxKaiser (t / T, alpha));
+    h[i] = Ga * FNsinc (2.0 * Fc * t) * FIxKaiser (t / T, alpha);
     if (-t == u)
       h[k] = h[i];
     else
-      h[k] = (float) (Ga * FNsinc (2.0 * Fc * u) * FIxKaiser (u / T, alpha));
+      h[k] = Ga * FNsinc (2.0 * Fc * u) * FIxKaiser (u / T, alpha);
   }
 
   return;

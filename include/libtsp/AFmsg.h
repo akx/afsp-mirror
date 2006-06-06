@@ -8,8 +8,8 @@ Description:
   Message texts for the TSP audio file routines.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.41 $  $Date: 2003/05/06 16:29:07 $
+  P. Kabal  Copyright (C) 2004
+  $Revision: 1.42 $  $Date: 2004/03/29 01:49:14 $
 
 ----------------------------------------------------------------------*/
 
@@ -193,6 +193,8 @@ Author / revision:
 #define AFM_WV_BadHead	"Invalid WAVE file header"
 #define AFM_WV_BadAlaw	"WAVE file: Invalid A-law data size"
 #define AFM_WV_BadBlock	"WAVE file: Invalid block align value"
+#define AFM_WV_BadBytesSec \
+		"WAVE file: Inconsistent header value AvgBytesPerSec ignored"
 #define AFM_WV_BadFACT  "WAVE file: Invalid fact chunk size"
 #define AFM_WV_BadFloat	"WAVE file: Invalid float data size"
 #define AFM_WV_BadHeader "Malformed WAVE file header"
@@ -207,7 +209,6 @@ Author / revision:
 #define AFM_WV_BadSize	"WAVE file: Header stucture size mismatch"
 #define AFM_WV_BadSS	"WAVE file: Inconsistent sample size"
 #define AFM_WV_FixRIFF	"WAVE file: Fixup for invalid RIFF chunk size"
-#define AFM_WV_MisNBytes "WAVE file: Mismatched sample size"
 #define AFM_WV_UnkChannel "WAVE file: Unknown Channel/Speaker combination"
 #define AFM_WV_UnsDSize	"WAVE file: Unsupported PCM data size"
 #define AFM_WV_UnsData	"WAVE file: Unsupported data format"

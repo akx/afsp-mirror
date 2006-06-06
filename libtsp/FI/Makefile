@@ -20,15 +20,18 @@ all:	$(LIB) nucleus_routines
 
 .PRECIOUS: $(LIB)
 $(LIB): \
-	$(LIB)(FIfBiquad.o) \
-	$(LIB)(FIfConvSI.o) \
+	$(LIB)(FIdBiquad.o) \
+	$(LIB)(FIdConvSI.o) \
+	$(LIB)(FIdConvol.o) \
+	$(LIB)(FIdFiltAP.o) \
+	$(LIB)(FIdFiltIIR.o) \
+	$(LIB)(FIdReadFilt.o) \
+	$(LIB)(FIdWinHamm.o) \
 	$(LIB)(FIfConvol.o) \
 	$(LIB)(FIfDeem.o) \
 	$(LIB)(FIfFiltAP.o) \
-	$(LIB)(FIfFiltIIR.o) \
 	$(LIB)(FIfPreem.o) \
 	$(LIB)(FIfWinHamm.o) \
-	$(LIB)(FIreadFilt.o) \
 	#
 	ranlib $(LIB)
 

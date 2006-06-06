@@ -62,7 +62,6 @@ Options:
   string.
     Standard Audio File Information:
        date: 1994-01-25 19:19:39 UTC    date
-       user: kabal@aldebaran            user
        program: LPanal                  program name
        parameters: <parameters>         list of analysis parameters
   This information can be changed with the header information string which is
@@ -86,7 +85,7 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v3r0a  2003-11-03  Copyright (C) 2003
+  P. Kabal / v3r0a  2003-11-03  Copyright (C) 2006
 
 -------------------------------------------------------------------------*/
 

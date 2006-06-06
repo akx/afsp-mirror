@@ -20,6 +20,16 @@ all:	$(LIB) nucleus_routines
 
 .PRECIOUS: $(LIB)
 $(LIB): \
+	$(LIB)(VRdAdd.o) \
+	$(LIB)(VRdCopy.o) \
+	$(LIB)(VRdCorSYm.o) \
+	$(LIB)(VRdDotProd.o) \
+	$(LIB)(VRdLinInc.o) \
+	$(LIB)(VRdMult.o) \
+	$(LIB)(VRdRFFTMSq.o) \
+	$(LIB)(VRdScale.o) \
+	$(LIB)(VRdSet.o) \
+	$(LIB)(VRdShift.o) \
 	$(LIB)(VRdZero.o) \
 	$(LIB)(VRfCorSym.o) \
 	$(LIB)(VRfDotProd.o) \

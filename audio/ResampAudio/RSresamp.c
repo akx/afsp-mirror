@@ -31,8 +31,8 @@ Parameters:
       information about the filter is printed on the stream selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.17 $  $Date: 2003/05/13 01:09:45 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.18 $  $Date: 2005/02/01 04:23:08 $
 
 ----------------------------------------------------------------------*/
 
@@ -54,7 +54,7 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
   int lmem, NbufI, NbufO, Nx, Ny, Nxm, i, j;
   long int k, Nchan, LNs;
   double Ds;
-  float *buf, *x, *y, *xc, *yc;
+  double *buf, *x, *y, *xc, *yc;
   struct Tval_T Ts;
 
 /*
@@ -235,14 +235,14 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
   assert (AFpI->Nchan == AFpO->Nchan);
   Nchan = AFpI->Nchan;
   if (Nchan == 1) {
-    buf = (float *) UTmalloc ((NbufI + NbufO) * sizeof (float));
+    buf = (double *) UTmalloc ((NbufI + NbufO) * sizeof (double));
     x = buf;			/* x has NbufI elements */
     y = buf + NbufI;		/* y has NbufO elements */
     xc = x;			/* xc is an alias for x */
     yc = y;			/* yc is an alias for y */
   }
   else {
-    buf = (float *) UTmalloc ((NbufI + NbufO) * (Nchan + 1) * sizeof (float));
+    buf = (double *) UTmalloc ((NbufI + NbufO) * (Nchan + 1) * sizeof (double));
     x = buf;			/* x has Nchan*NbufI elements */
     xc = buf + Nchan * NbufI;	/* xc has NbufI elements */
     yc = xc + NbufI;		/* yc has NbufO elements */
@@ -297,7 +297,7 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
     }
 
     /* Write the output data */
-    AFfWriteData (AFpO, y, Ny*Nchan);
+    AFdWriteData (AFpO, y, Ny*Nchan);
 
     /* Update the sample pointers */
     k += Ny;

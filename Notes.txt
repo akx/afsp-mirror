@@ -1,5 +1,5 @@
 Notes on the AFsp programs
-May 2003
+June 2006
 
 1. Information about some of the audio file formats supported by the AFsp 
    programs can be found on-line at
@@ -7,7 +7,7 @@ May 2003
 
 2. The html files documenting the programs and routines are also available 
    on-line at
-     http://WWW.TSP.ECE.McGill.CA/MMSP/Software/AFsp/AFsp.html
+     http://WWW.TSP.ECE.McGill.CA/MMSP/Documents/Software
 
 3. The Windows "Send To" menu can be used to select files for InfoAudio or
    CompAudio.  A batch file to invoke, say InfoAudio, can be placed in the
@@ -52,7 +52,11 @@ May 2003
    starting point (header length) and data length.  These value can then be
    passed to a program that can handle raw files with an offset to the data.
 
-6. For Matlab use, CopyAudio can convert data from an input audio file to
+6. By default an information string is placed in audio files opened for
+   writing. This information can be suppressed by specifying the option
+   '-I ""' in the audio programs.
+
+7. For Matlab use, CopyAudio can convert data from an input audio file to
    text format.  The output text file can then be imported into Matlab with
    a "load xxx.txt" command.
 
@@ -69,7 +73,7 @@ On reading data from a file, the data are normalized.  For integer data, this
 means dividing by the largest representable integer number.  For instance for 
 16-bit data, the data are multiplied by 1/32768 to get the normalized values.  
 When writing to a file, the inverse scaling is used.  Thus normalized values 
-of -1 to +1 will appear as values from -32768 to +32767 in a file which is
+of -1 to +1 will appear as values from -32768 to +32767 in a file which
 contains 16-bit integer data format.
 
 For floating-point data, the data are not scaled.  When converting from 

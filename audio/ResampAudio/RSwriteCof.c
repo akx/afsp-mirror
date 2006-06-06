@@ -3,7 +3,7 @@
 
 Routine:
   void RSwriteCof (const char Fname[], const struct Fspec_T *Fs,
-                   const float h[]);
+                   const double h[]);
 
 Purpose:
   Write a filter coefficient file
@@ -22,12 +22,12 @@ Parameters:
       File name for the coefficient file
    -> const struct Fspec_T *Fs
       Filter specification structure
-   -> const float h[]
+   -> const double h[]
       Filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.9 $  $Date: 2003/05/13 01:09:07 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.10 $  $Date: 2005/02/01 04:23:42 $
 
 -------------------------------------------------------------------------*/
 
@@ -36,7 +36,7 @@ Author / revision:
 
 
 void
-RSwriteCof (const char Fname[], const struct Fspec_T *Fs, const float h[])
+RSwriteCof (const char Fname[], const struct Fspec_T *Fs, const double h[])
 
 {
   FILE *fp;

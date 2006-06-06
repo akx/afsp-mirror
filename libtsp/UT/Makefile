@@ -29,7 +29,6 @@ $(LIB): \
 	$(LIB)(UTrealloc.o) \
 	$(LIB)(UTsetProg.o) \
 	$(LIB)(UTsysMsg.o) \
-	$(LIB)(UTuserName.o) \
 	$(LIB)(UTwarn.o) \
 	#
 	ranlib $(LIB)

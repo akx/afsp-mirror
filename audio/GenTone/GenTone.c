@@ -29,11 +29,13 @@ Options:
       Frequency of the sine wave in Hertz, default 1000.
   -r SDEV, --rms=SDEV
       Root-mean-square value of the sinusoid in normalized units, default
-      0.03.
+      0.03. The rms value can be given as a real number (e.g., "0.03")
+      or as a ratio (e.g., "983.04/32768").
   -a AMPL, --amplitude_max=AMPL
       Maximum amplitude of the sine wave in normalized units.  The amplitude
       of the sine wave is specified by either the rms value or the maximum
-      amplitude.
+      amplitude. The amplitude can be given as a real number (e.g., "0.0424")
+      or as a ratio (e.g., "1390.2/32768").
   -p PHASE, --phase PHASE
       Initial phase of the sinusoid (cosine) in degrees, default 0.  Zero
       phase gives a cosine, -90 degrees gives a sine.
@@ -91,7 +93,6 @@ Options:
   string.
     Standard Audio File Information:
        date: 1994-01-25 19:19:39 UTC    date
-       user: kabal@aldebaran            user
        program: GenTone                 program name
   This information can be changed with the header information string which is
   specified as one of the command line options.  Structured information records
@@ -108,7 +109,7 @@ Options:
   the user supplied header information string appears alone.
 
 Author / version:
-  P. Kabal / v5r0a  2003-11-06  Copyright (C) 2003
+  P. Kabal / v5r0a  2003-11-06  Copyright (C) 2006
 
 -------------------------------------------------------------------------*/
 

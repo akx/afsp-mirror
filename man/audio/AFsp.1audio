@@ -1,4 +1,4 @@
-.\" $Id: AFsp.1audio 1.9 2001/04/03 AFsp-v7r2 $
+.\" $Id: AFsp.1audio 1.10 2004/03/26 AFsp-v8r2 $
 .TH audio 1audio "TSP (audio)"
 .SH Name
 audio \- TSP Audio Programs
@@ -37,6 +37,8 @@ Display information about an audio file.
 Demonstration program to do LPC analysis on a speech file.
 .IP LPsyn 5
 Demonstration program to do LPC synthesis from a residual file.
+.IP PWevalAudio 5
+Perceptual evaluation of audio quality.
 .IP ResampAudio 5
 Resample data from an audio file.  This process involves interpolating
 between the samples in the original file to create a new sequence of
@@ -70,8 +72,8 @@ Open an audio file for writing
 Read data from an audio file (return float values)
 .IP AFsetFileType 5
 Explicitly set the input audio file type
-.IP AFsetHinfo 5
-Set the audio file header information string
+.IP AFsetInfo 5
+Set the audio file information string
 .IP AFsetNHpar 5
 Set defaults for headerless audio files
 .IP AFwriteData 5

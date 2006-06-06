@@ -49,12 +49,14 @@ Parameters:
 
   <-  int AFspeakerNames
       Error flag, zero for no error
+   -> int Nchan
+      Number of channels
    -> const unsigned char *SpkrConfig
       Null-terminated string containing the speaker location codes
+   -> int Nextra
+      Maximum number of extra (not-specified) speaker positions
   <-  char *SpkrNames
       String containing the list of speaker positions
-   -> int MaxNc
-      Maximum length of hte output string
 
   <-  int AFcheckSpeakers
       Error flag, zero for no error
@@ -62,8 +64,8 @@ Parameters:
       Null-terminated string containing the speaker location codes
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.7 $  $Date: 2003/05/09 01:21:35 $
+  P. Kabal  Copyright (C) 2004
+  $Revision: 1.8 $  $Date: 2004/03/31 13:25:41 $
 
 -------------------------------------------------------------------------*/
 
@@ -169,14 +171,24 @@ AFcheckSpeakers (const unsigned char *SpkrConfig)
 }
 
 /* Speaker configuration names */
+/* Let Nspkr be the number of locations specified in SpkrConfig. The number of
+   of speaker locations returned in SpkrNames is
+     if (Nchan <= Nspkr+Nextra)
+       Ns = Nchan
+     else
+       Ns = Nspkr
+   The "extra" speaker locations are designated "-".
+   SpkrNames must provides space for Ns * AF_NC_SPKR - 1 characters.
+*/
 
 
 int
-AFspeakerNames (const unsigned char *SpkrConfig, char *SpkrNames, int MaxNc)
+AFspeakerNames (int Nchan, const unsigned char *SpkrConfig, int Nextra,
+		char *SpkrNames)
 
 {
   int ErrCode;
-  int i, Nspkr, nc, NcN, n;
+  int i, Nspkr, Ns, nc, n;
 
   ErrCode = 0;
 
@@ -191,33 +203,25 @@ AFspeakerNames (const unsigned char *SpkrConfig, char *SpkrNames, int MaxNc)
     return ErrCode;
 
   Nspkr = strlen ((const char *) SpkrConfig);
-  nc = 0;
+  if (Nchan <= Nspkr + Nextra)
+    Ns = Nchan;
+  else
+    Ns = Nspkr;
 
-  for (i = 0; i < Nspkr; ++i) {
-
-    n = SpkrConfig[i];
+  SpkrNames[0] = '\0';
+  for (i = 0; i < Ns; ++i) {
 
     /* Append the speaker name */
-    NcN = strlen (AF_Spkr_Names[n-1]);
+    nc = strlen (SpkrNames);
     if (nc > 0) {
-      if (nc + NcN + 1 > MaxNc) {
-	UTwarn ("AFdecSpeaker - %s", AFM_XSpkr);
-	ErrCode = 1;
-	break;
-      }
       SpkrNames[nc] = ' ';
-      strcpy (&SpkrNames[nc+1], AF_Spkr_Names[n-1]);
-      nc = nc + NcN + 1;
+      nc = nc + 1;
     }
-    else {
-      if (NcN > MaxNc) {
-	UTwarn ("AFdecSpeaker - %s", AFM_XSpkr);
-	ErrCode = 1;
-	break;
-      }
-      strcpy (SpkrNames, AF_Spkr_Names[n-1]);
-      nc = NcN;
-    }
+    if (i >= Nspkr)
+      n = AF_SPKR_X;
+    else
+      n = SpkrConfig[i];
+    strcpy (&SpkrNames[nc], AF_Spkr_Names[n-1]);
   }
 
   if (ErrCode)

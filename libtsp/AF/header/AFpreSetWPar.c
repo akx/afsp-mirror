@@ -42,8 +42,8 @@ Parameters:
       Pointer to an audio write structure
  
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.18 $  $Date: 2003/11/03 18:52:47 $
+  P. Kabal  Copyright (C) 2006
+  $Revision: 1.20 $  $Date: 2006/06/06 13:55:37 $
 
 -------------------------------------------------------------------------*/
 
@@ -351,7 +351,6 @@ AF_genInfo (const char *Uinfo, const struct AF_write *AFw)
 /* "date: xxx"
    + "\n" + "sample_rate: xxx" (only if non-integer)
    + "\n" + "user: xxx"
-   + "\n" + "program: xxx"
    + "\n" + "bits_per_sample: xx" (only if not equal to full precision)
    + "\n" + "loudspeakers: xxx" (only if specified)
 
@@ -360,8 +359,8 @@ AF_genInfo (const char *Uinfo, const struct AF_write *AFw)
    including the terminating null.
 */
 
-
-#define NC_SPKR ((AF_NC_SPKR + 1) * AF_MAXN_SPKR -1)
+#define NSPKR_EXTRA 0
+#define NC_SPKR ((AF_NC_SPKR + 1) * (AF_MAXN_SPKR + NSPKR_EXTRA) - 1)
 
 static int
 AF_stdInfo (const struct AF_write *AFw, char *Sinfo)
@@ -377,20 +376,15 @@ AF_stdInfo (const struct AF_write *AFw, char *Sinfo)
   Record          Fixed    Variable
   Name            Length   Max       Total
    Date             6        40       46
-   User Name        7        40       47
    Program Name    10        40       50
    Sampling Freq.  14        15       29
    Number of Bits  19         4       23
    Loudspeakers    15        76       91
    null             1                  1
                                      ---
-                                     287
+                                     240
 */
   N = sprintf (Sinfo, "date: %.40s", UTdate(3));
-
-  p = UTuserName ();
-  if (*p != '\0')
-    N += sprintf (&Sinfo[N], "\nuser: %.40s", p);
 
   p = UTgetProg ();
   if (*p != '\0')
@@ -407,7 +401,7 @@ AF_stdInfo (const struct AF_write *AFw, char *Sinfo)
 
   SpkrConfig = AFw->SpkrConfig;
   if (SpkrConfig[0] != AF_X_SPKR) {
-    AFspeakerNames (SpkrConfig, SpkrNames, NC_SPKR);
+    AFspeakerNames (AFw->Nchan, SpkrConfig, NSPKR_EXTRA, SpkrNames);
     N += sprintf (&Sinfo[N], "\nloudspeakers: %s", SpkrNames);
   }
 

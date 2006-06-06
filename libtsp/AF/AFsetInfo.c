@@ -13,13 +13,15 @@ Description:
   user name.  This routine allows the user to specify information records
   that are used in addition to, or in place of, the standard information
   records.  This routine must be called before the audio file to be created
-  is first opened using AFopnWrite.  AFopnWrite resets the information string
-  to a NULL string.
+  is opened using AFopnWrite. After the file has been opened (and the
+  information records have been created), there is an implicit call
+  AFsetInfo(NULL) to reset the information string to the default condition.
+  To override the default condition, this routine must be called each time
+  before a file is opened for writing.
 
   Standard Information: 
     date: 1994-01-25 19:19:39 UTC    date
     sample_rate: 8012.5              sampling frequency (if non-integer)
-    user: kabal@aldebaran            user
     program: CopyAudio               program name (set by UTsetProg)
 
   Additional structured information records should follow this format; a named
@@ -56,8 +58,8 @@ Parameters:
       String containing the user supplied information
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.44 $  $Date: 2003/11/04 12:39:29 $
+  P. Kabal  Copyright (C) 2006
+  $Revision: 1.45 $  $Date: 2006/06/06 13:53:55 $
 
 -------------------------------------------------------------------------*/
 

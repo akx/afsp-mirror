@@ -30,6 +30,7 @@ $(LIB): \
 	$(LIB)(STdecDfrac.o) \
 	$(LIB)(STdecIfrac.o) \
 	$(LIB)(STdecLrange.o) \
+	$(LIB)(STdecNdouble.o) \
 	$(LIB)(STdecNfloat.o) \
 	$(LIB)(STfindToken.o) \
 	$(LIB)(STkeyMatch.o) \

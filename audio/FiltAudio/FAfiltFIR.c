@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, float h[],
+  void FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, double h[],
                   int Ncof, long int loffs)
 
 Purpose:
@@ -19,7 +19,7 @@ Parameters:
       Audio file pointer for the output audio file
    -> long int NsampO
       Number of output samples to be calculated
-   -> float h[]
+   -> double h[]
       Array of Ncof FIR filter coefficients
    -> int Ncof
       Number of filter coefficients
@@ -27,8 +27,8 @@ Parameters:
       Data offset into the input data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.14 $  $Date: 2003/05/13 01:25:07 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.15 $  $Date: 2005/02/01 13:24:07 $
 
 -------------------------------------------------------------------------*/
 
@@ -41,11 +41,11 @@ Author / revision:
 
 
 void
-FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[],
+FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
 	   int Ncof, long int loffs)
 
 {
-  float x[NBUF];
+  double x[NBUF];
   int lmem, Nxmax, Nx;
   long int l, k;
 
@@ -88,7 +88,7 @@ FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[],
 
 /* Prime the array */
   l = loffs;
-  AFfReadData (AFpI, l - lmem, &x[0], lmem);
+  AFdReadData (AFpI, l - lmem, &x[0], lmem);
 
 /* Main processing loop */
   k = 0;
@@ -96,18 +96,18 @@ FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[],
 
 /* Read the input data into the input buffer */
     Nx = (int) MINV (Nxmax, NsampO - k);
-    AFfReadData (AFpI, l, &x[lmem], Nx);
+    AFdReadData (AFpI, l, &x[lmem], Nx);
     l = l + Nx;
 
 /* Convolve the input samples with the filter response */
-    FIfConvol (x, x, Nx, h, Ncof);
+    FIdConvol (x, x, Nx, h, Ncof);
 
 /* Write the output data to the output audio file */
-    AFfWriteData (AFpO, x, Nx);
+    AFdWriteData (AFpO, x, Nx);
     k = k + Nx;
 
 /* Update the filter memory */
-    VRfShift (x, lmem, Nx);
+    VRdShift (x, lmem, Nx);
   }
 
   return;

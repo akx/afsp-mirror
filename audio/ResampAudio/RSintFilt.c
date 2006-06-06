@@ -32,8 +32,8 @@ Parameters:
       information about the filter is printed on the stream selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.20 $  $Date: 2003/05/13 01:08:13 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.21 $  $Date: 2005/02/01 04:19:45 $
 
 ----------------------------------------------------------------------*/
 
@@ -44,16 +44,16 @@ Author / revision:
 #include "ResampAudio.h"
 
 #define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define CHECKSYM(x,N)	((int) (1.00001 * VRfCorSym(x,N)))
+#define CHECKSYM(x,N)	((int) (1.00001 * VRdCorSym(x,N)))
 
 static void
 RS_parFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
 	    struct Fspec_T *Fs);
 static void
 RS_readFilt (const char Fname[], const struct Fspec_T *Fspec,
-	     float h[], int *Ncof, int *Ir, double *Del, FILE *fpinfo);
+	     double h[], int *Ncof, int *Ir, double *Del, FILE *fpinfo);
 static void
-RS_polyphase (const float h[], int Ncof, int Ir, struct Fpoly_T *PF);
+RS_polyphase (const double h[], int Ncof, int Ir, struct Fpoly_T *PF);
 
 
 void
@@ -63,12 +63,12 @@ RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
 {
   int i, is;
   struct Fspec_T Fs;
-  float *h;
+  double *h;
 
   if (Fspec->FFile != NULL) {
 
     /* Read the filter coefficients */
-    h = (float *) UTmalloc (MAXCOF * sizeof (float));
+    h = (double *) UTmalloc (MAXCOF * sizeof (double));
     RS_readFilt (Fspec->FFile, Fspec, h, &Fs.Ncof, &Fs.Ir, &Fs.Del, fpinfo);
     Fs.FFile = Fspec->FFile;
   }
@@ -86,7 +86,7 @@ RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
     }
 
     /* Design the filter */
-    h = (float *) UTmalloc (Fs.Ncof * sizeof (float));
+    h = (double *) UTmalloc (Fs.Ncof * sizeof (double));
     RSKaiserLPF (h, Fs.Ncof, Fs.Fc / Fs.Ir, Fs.alpha, Fs.Gain, Fs.Woffs,
 		 Fs.Wspan);
   }
@@ -121,7 +121,7 @@ RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
 
 
 static void
-RS_readFilt (const char Fname[], const struct Fspec_T *Fspec, float h[],
+RS_readFilt (const char Fname[], const struct Fspec_T *Fspec, double h[],
 	     int *Ncof, int *Ir, double *Del, FILE *fpinfo)
 
 {
@@ -129,7 +129,7 @@ RS_readFilt (const char Fname[], const struct Fspec_T *Fspec, float h[],
   double del;
 
   /* Read the coefficients */
-  FiltType = FIreadFilt (Fname, MAXCOF, h, &ncof, fpinfo);
+  FiltType = FIdReadFilt (Fname, MAXCOF, h, &ncof, fpinfo);
   if (FiltType != FI_FIR)
     UThalt ("%s: %s", PROGRAM, RSM_BadFilt);
 
@@ -255,7 +255,7 @@ RS_parFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
 /* Arrange the filter coefficients in polyphase form */
 
 static void
-RS_polyphase (const float h[], int Ncof, int Ir, struct Fpoly_T *PF)
+RS_polyphase (const double h[], int Ncof, int Ir, struct Fpoly_T *PF)
 
 {
   int i, j, m, mst, nc;
@@ -287,9 +287,9 @@ RS_polyphase (const float h[], int Ncof, int Ir, struct Fpoly_T *PF)
 
   /* Allocate storage for the polyphase filters */
   /* Include room for pointers to an extra subfilter */
-  /* (A deallocate via MAfFreeMat will free up the space properly) */
-  PF->hs = (float **) MAfAllocMat (Ir, Ncmax);
-  PF->hs = (float **) UTrealloc (PF->hs, (Ir+1) * sizeof (float **));
+  /* (A deallocate via MAdFreeMat will free up the space properly) */
+  PF->hs = (double **) MAdAllocMat (Ir, Ncmax);
+  PF->hs = (double **) UTrealloc (PF->hs, (Ir+1) * sizeof (double **));
 
   /*
     Rearrange the filter coefficients into polyphase components

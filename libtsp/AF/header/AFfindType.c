@@ -41,8 +41,8 @@ Parameters:
       File pointer associated with the audio file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.82 $  $Date: 2003/08/07 11:09:04 $
+  P. Kabal  Copyright (C) 2006
+  $Revision: 1.83 $  $Date: 2006/06/06 13:55:01 $
 
 -------------------------------------------------------------------------*/
 
@@ -181,6 +181,8 @@ static const struct AF_magic MagicS[] = {
   MAGIC_S (FTU_CODE(19), 1024, 0L, "NIST_1A\r\n"),
   /* ILS Sampled Data files */
   MAGIC_S (FTU_CODE(20), 512, 124, "\0\203\225\175"),
+  /* Littmann E4000 Digital Stethoscope files */
+  MAGIC_S (FTU_CODE(21), 51, 22, "E4000 digital stethoscope"),
 };
 #define NTEST	NELEM (MagicS)
 
@@ -206,7 +208,8 @@ static const char *FTU_desc[] = {
   "MPEG-1 Layer III",
   "Nyvalla DSP StdHead file",
   "Damaged NIST Sphere audio file",
-  "ILS Sampled Data file"
+  "ILS Sampled Data file",
+  "Littmann Digital Stethoscope file"
 };
 
 /* LHEADBUF is the number of header bytes to be read */

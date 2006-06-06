@@ -38,8 +38,8 @@ Parameters:
       Output audio file pointer
  
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.22 $  $Date: 2003/05/13 01:33:51 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.23 $  $Date: 2005/02/01 04:29:25 $
 
 -------------------------------------------------------------------------*/
 
@@ -159,8 +159,8 @@ CP_copy1 (AFILE *AFpI, long int StartF, long int Nframe, int eof, AFILE *AFpO)
        Here we round up to the next multiple of channels, resetting Nrem
        to the value it should have had before the read if we had known the
        number of samples in the file.
-       Note: AFreadData returns Nv samples, Nr of which are real samples and
-             the rest are zeros.
+       Note: AFdReadData returns Nv samples, Nr of which are real samples
+             and the rest are zeros.
     */
     if (eof && Nr < Nv) {
       ioffs = Nj * ICEILV (offr + Nr, Nj);

@@ -39,7 +39,8 @@ file type.
 -d SDEV, --std_deviation=SDEV
 .br
 Standard deviation of the noise samples in normalized units, default
-0.03.
+0.03. The standard deviation can be given as a real number (e.g.,
+"0.03") or as a ratio (e.g., "983.04/32768").
 .ti -4n
 -x SEED, --seed=SEED
 .br
@@ -151,7 +152,6 @@ string.
 .ne 3
   Standard Audio File Information:
      date: 1994-01-25 19:19:39 UTC    date
-     user: kabal@aldebaran            user
      program: GenNoise                program name
 .fi
 .ft P

@@ -8,15 +8,15 @@ Purpose:
   Binary search for a bounding interval
 
 Description:
-  This function returns the index of the quantizer region corresponding to a
-  given input value.  The quantizer is specified by an array of quantizer
-  decision levels.  A binary search is used to determine the quantizer region.
+  This function returns the index of the quantizer region corresponding to
+  a given input value. The quantizer is specified by an array of quantizer
+  decision levels. A binary search is used to determine the quantizer region.
 
-  The index value takes on values from 0 to Nreg-1.  If Nreg is equal to one,
-  the index is set to zero.  Otherwise, the index is determined as shown in
-  the following table.  Note that the number of decision levels is one less
-  than the number of regions.
-    index            SPfQuantL
+  The index value takes on values from 0 to Nreg-1. If Nreg is equal to one,
+  the index is set to zero. Otherwise, the index is determined as shown in
+  the following table. The number of decision levels is one less than the
+  number of regions.
+    index            input value
      0                    x < Xq[0]
      1           Xq[0] <= x < Xq[1]
      2           Xq[1] <= x < Xq[2]
@@ -39,8 +39,8 @@ Parameters:
       Number of quantizer regions
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 02:45:14 $
+  P. Kabal  Copyright (C) 2004
+  $Revision: 1.3 $  $Date: 2004/07/11 15:56:29 $
 
 -------------------------------------------------------------------------*/
 
@@ -53,7 +53,7 @@ SPdQuantL (double x, const double Xq[], int Nreg)
 {
   int iL, iU, i;
 
-/* Binary search for the interval (Xq[iL], Xq[iU]] which brackets x */
+/* Binary search for the interval [Xq[iL], Xq[iU]) which brackets x */
   iL = 0;
   iU = Nreg;
 

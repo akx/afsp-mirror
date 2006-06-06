@@ -32,7 +32,6 @@ records.
   Host byte order: big-endian    (big-endian or little-endian)
   --Information records--
   date: 2001-02-04 14:12:50 UTC
-  user: library@aldebaran
   program: CopyAudio
 .fi
 .ft P

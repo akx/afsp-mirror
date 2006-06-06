@@ -45,8 +45,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.89 $  $Date: 2003/11/03 18:51:18 $
+  P. Kabal  Copyright (C) 2004
+  $Revision: 1.90 $  $Date: 2004/03/29 01:49:41 $
 
 -------------------------------------------------------------------------*/
 
@@ -435,7 +435,7 @@ AF_decFMT (const struct WV_CKfmt *CKfmt, struct AF_read *AFr)
   /* Consistency check */
   if (CKfmt->nAvgBytesPerSec != CKfmt->nChannels * CKfmt->nSamplesPerSec *
       NBytesS)
-    UTwarn ("AFrdWVhead - %s", AFM_WV_MisNBytes);
+    UTwarn ("AFrdWVhead - %s", AFM_WV_BadBytesSec);
 
   AFr->DFormat.Swapb = DS_EL;
   AFr->Sfreq = (double) CKfmt->nSamplesPerSec;

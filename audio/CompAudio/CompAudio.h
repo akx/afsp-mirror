@@ -8,8 +8,8 @@ Description:
   Declarations for CompAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.62 $  $Date: 2003/07/11 14:42:36 $
+  P. Kabal  Copyright (C) 2004
+  $Revision: 1.63 $  $Date: 2004/06/25 00:15:59 $
 
 ----------------------------------------------------------------------*/
 
@@ -93,7 +93,7 @@ struct Stats_T {
 #define CAMF_NumOvldN	"    No. Overloads = %ld (%ld runs)\n"
 #define CAMF_NumSamp	"    Number of Samples: %ld\n"
 #define CAMF_SDevMean	"    Std Dev = %.5g (%.4g%%),  Mean = %.5g (%.4g%%)\n"
-#define CAMF_SegSNR	" Seg. SNR = %-8.5g dB (%ld sample segments)\n"
+#define CAMF_SegSNR	" Seg. SNR = %-8.5g dB  (%ld sample segments)\n"
 #define CAMF_SNR	" SNR      = %-8.5g dB\n"
 #define CAMF_SNRwGain	" SNR      = %-8.5g dB  (Gain for File B = %.5g)\n"
 

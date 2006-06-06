@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void FIfConvSI (const float x[], float y[], int Nout, const float h[],
+  void FIdConvSI (const double x[], double y[], int Nout, const double h[],
 		  int Ncof, int mr, int Nsub, int Ir)
 
 Purpose:
@@ -47,17 +47,17 @@ Description:
          = ceil((Ir*(Nx-lmem)-mr)/Nsub).
 
 Parameters:
-   -> const float x[]
+   -> const double x[]
       Input array of data.  Let lmem=(Ncof-1)/Ir.  The first output point is
       calculated as follows
         y[0] = h[mr]*x[lmem] + h[mr+Ir]*x[lmem-1]
                              + h[mr+2*Ir]*x[lmem-2] + ...
       The array x must have at least lmem+((Nout-1)*Nsub+mr)/Ir+1 elements.
-  <-  const float y[]
+  <-  const double y[]
       Array of output samples
    -> int Nout
       Number of output samples to be calculated
-   -> float h[]
+   -> const double h[]
       Array of Ncof filter coefficients
    -> int Ncof
       Number of filter coefficients
@@ -74,8 +74,8 @@ Parameters:
       convolving with the filter coefficients.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.16 $  $Date: 2003/05/09 01:29:44 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.1 $  $Date: 2005/02/01 13:19:58 $
 
 -------------------------------------------------------------------------*/
 
@@ -83,8 +83,8 @@ Author / revision:
 
 
 void
-FIfConvSI (const float x[], float y[], int Nout, const float h[], int Ncof,
-	  int mr, int Nsub, int Ir)
+FIdConvSI (const double x[], double y[], int Nout, const double h[], int Ncof,
+	   int mr, int Nsub, int Ir)
 
 {
   int l, m, lp, j, ia;
@@ -103,7 +103,7 @@ FIfConvSI (const float x[], float y[], int Nout, const float h[], int Ncof,
       sum += h[j] * x[lp];
       --lp;
     }
-    y[m] = (float) sum;
+    y[m] = sum;
 
     /* Advance the filter Nsub (interpolated) samples, recalculate (l,mr) */
     mr += Nsub;
@@ -111,5 +111,6 @@ FIfConvSI (const float x[], float y[], int Nout, const float h[], int Ncof,
     mr = mr - ia * Ir;
     l += ia;
   }
+
   return;
 }

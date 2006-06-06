@@ -27,7 +27,6 @@ $(LIB): \
 	$(LIB)(UTdIEEE80.o) \
 	$(LIB)(UTdecOption.o) \
 	$(LIB)(UTeIEEE80.o) \
-	$(LIB)(UTgetHost.o) \
 	$(LIB)(UTgetUser.o) \
 	$(LIB)(UTswapCode.o) \
 	#

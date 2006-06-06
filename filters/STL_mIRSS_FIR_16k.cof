@@ -1,12 +1,13 @@
 !FIR
-!   TSP Lab
+!   MMSP Lab
 !   Electrical & Computer Engineering
 !   McGill University
 ! File: STL_mIRSS_FIR_16k.cof
-! See ITU-T G.191 (2000), Software Tools Library (module fir-irs.c)
-! $Id: STL_mIRSS_FIR_16k.cof 1.3 2002/06/18 AFsp-v7r2 $
+! See ITU-T G.191 (2005), Software Tools Library (module fir-irs.c)
+! $Id: STL_mIRSS_FIR_16k.cof 1.4 2006/03/30 AFsp-v8r2 $
 !
-! Modified IRS (send) filter, ITU-T Recommendation P.48 (SRAEN response removed)
+! Modified IRS (send) filter, ITU-T Recommendation P.48 (SRAEN response
+! removed)
 !  - Linear phase, 495 taps
 !  - Designed for 16 kHz sampling
 !  - The coefficients can be represented as 16-bit values, i.e.

@@ -201,7 +201,6 @@ Options:
   string.
     Standard Audio File Information:
        date: 2001-01-25 19:19:39 UTC    date
-       user: kabal@aldebaran            user
        program: FiltAudio               program name
   This information can be changed with the header information string which is
   specified as one of the command line options.  Structured information records
@@ -283,7 +282,7 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v6r0  2003-05-12  Copyright (C) 2003
+  P. Kabal / v6r1  2005-02-01  Copyright (C) 2006
 
 -------------------------------------------------------------------------*/
 
@@ -296,7 +295,7 @@ Author / version:
 #include <AO.h>
 #include "FiltAudio.h"
 
-#define CHECKSYM(x,N)	((int) (1.00001 * VRfCorSym(x,N)))
+#define CHECKSYM(x,N)	((int) (1.00001 * VRdCorSym(x,N)))
 
 
 int
@@ -313,7 +312,7 @@ main (int argc, const char *argv[])
   long int Nsamp, Nchan;
   double SfreqO;
   double SfreqI;
-  float h[MAXCOF];
+  double h[MAXCOF];
 
 /* Get the input parameters */
   FAoptions (argc, argv, &FI, &FF, &FO);
@@ -333,7 +332,7 @@ main (int argc, const char *argv[])
   AFpI->ScaleF *= FI.Gain;	/* Gain absorbed into scaling factor */
 
 /* Read the coefficient file */
-  FiltType = FIreadFilt (FF.Fname, MAXCOF, h, &Ncof, fpinfo);
+  FiltType = FIdReadFilt (FF.Fname, MAXCOF, h, &Ncof, fpinfo);
   if (FiltType != FI_IIR && FiltType != FI_FIR && FiltType != FI_ALL)
     UThalt ("%s: %s", PROGRAM, FAM_BadFiltType);
   if (Ncof <= 0)
@@ -380,7 +379,7 @@ main (int argc, const char *argv[])
   }
   else if (FiltType == FI_IIR) {
     Nsec = Ncof / 5;
-    FAfiltIIR (AFpI, AFpO, FO.Nframe, (const float (*)[5]) h, Nsec,
+    FAfiltIIR (AFpI, AFpO, FO.Nframe, (const double (*)[5]) h, Nsec,
 	       FF.Nsub, FF.Doffs);
   }
   else if (FiltType == FI_ALL)

@@ -20,6 +20,7 @@ all:	$(LIB)
 
 .PRECIOUS: $(LIB)
 $(LIB): \
+	$(LIB)(FLdReadTF.o) \
 	$(LIB)(FLexist.o) \
 	$(LIB)(FLfReadTF.o) \
 	$(LIB)(FLfileSize.o) \

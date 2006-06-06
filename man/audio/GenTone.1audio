@@ -42,13 +42,15 @@ Frequency of the sine wave in Hertz, default 1000.
 -r SDEV, --rms=SDEV
 .br
 Root-mean-square value of the sinusoid in normalized units, default
-0.03.
+0.03. The rms value can be given as a real number (e.g., "0.03")
+or as a ratio (e.g., "983.04/32768").
 .ti -4n
 -a AMPL, --amplitude_max=AMPL
 .br
 Maximum amplitude of the sine wave in normalized units.  The amplitude
 of the sine wave is specified by either the rms value or the maximum
-amplitude.
+amplitude. The amplitude can be given as a real number (e.g., "0.0424")
+or as a ratio (e.g., "1390.2/32768").
 .ti -4n
 -p PHASE, --phase PHASE
 .br
@@ -161,7 +163,6 @@ string.
 .ne 3
   Standard Audio File Information:
      date: 1994-01-25 19:19:39 UTC    date
-     user: kabal@aldebaran            user
      program: GenTone                 program name
 .fi
 .ft P

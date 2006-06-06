@@ -8,8 +8,8 @@ Description:
   Function prototypes for the TSP library AF file internal routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.34 $  $Date: 2003/11/04 10:35:29 $
+  P. Kabal  Copyright (C) 2004
+  $Revision: 1.35 $  $Date: 2004/03/31 13:29:06 $
 
 ----------------------------------------------------------------------*/
 
@@ -115,7 +115,8 @@ AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, int Fix);
 AFILE *
 AFsetWrite (FILE *fp, int Ftype, const struct AF_write *AFw);
 int
-AFspeakerNames (const unsigned char *SpkrConfig, char *SpkrNames, int MaxNc);
+AFspeakerNames (int Nchan, const unsigned char *SpkrConfig, int Nextra,
+		char *SpkrNames);
 int
 AFupdAIhead (AFILE *AFp);
 int

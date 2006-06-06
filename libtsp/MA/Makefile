@@ -20,8 +20,8 @@ all:	$(LIB) nucleus_routines
 
 .PRECIOUS: $(LIB)
 $(LIB): \
-	$(LIB)(MAfAllocMat.o) \
-	$(LIB)(MAfFreeMat.o) \
+	$(LIB)(MAdAllocMat.o) \
+	$(LIB)(MAdFreeMat.o) \
 	#
 	ranlib $(LIB)
 

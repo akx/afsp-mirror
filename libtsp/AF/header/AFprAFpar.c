@@ -21,8 +21,8 @@ Parameters:
       fpinfo is NULL, no information is printed.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.52 $  $Date: 2003/11/03 18:52:25 $
+  P. Kabal  Copyright (C) 2004
+  $Revision: 1.53 $  $Date: 2004/03/31 13:26:04 $
 
 -------------------------------------------------------------------------*/
 
@@ -38,7 +38,8 @@ Author / revision:
 #define AF_DATA_LENGTHS
 #include <libtsp/AFpar.h>
 
-#define NC_SPKR ((AF_NC_SPKR + 1) * AF_MAXN_SPKR - 1)
+#define NSPKR_EXTRA 7
+#define NC_SPKR ((AF_NC_SPKR + 1) * (AF_MAXN_SPKR + NSPKR_EXTRA) - 1)
 
 static const char *
 AF_findRec (const char *Id[], const struct AF_info *InfoS);
@@ -130,7 +131,7 @@ AFprAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo)
     fprintf (fpinfo, " (%s)", FStr);
 
     /* Speaker configuration */
-    AFspeakerNames (AFp->SpkrConfig, SpkrNames, NC_SPKR);
+    AFspeakerNames (AFp->Nchan, AFp->SpkrConfig, NSPKR_EXTRA, SpkrNames);
     if (strlen (SpkrNames) > 0)
       fprintf (fpinfo, " [%s]", SpkrNames);
     fprintf (fpinfo, "\n");

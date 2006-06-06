@@ -1,0 +1,47 @@
+#
+#	Makefile for <<<MODULE>>>
+#
+
+PROG = <<<MODULE>>>
+OBJECTS = \
+	PQframeMOV.o \
+	PQloudTest.o \
+	PQmovBW.o \
+	PQmovEHS.o \
+	PQmovModDiffB.o \
+	PQmovNLoudB.o \
+	PQmovNMRB.o \
+	PQmovPD.o \
+	PQprtMOV.o \
+	PQprtMOVCi.o \
+	#
+
+HEADERS = <<<HEADER>>>
+
+SHELL = /bin/sh
+
+dist_dir = ../..
+
+dist_libdir = $(dist_dir)/lib
+dist_bindir = $(dist_dir)/bin
+dist_includedir = $(dist_dir)/include
+
+EXEEXT =
+COPTS = -O
+CFLAGS = $(COPTS) -I$(dist_includedir)
+LDFLAGS = -s -lm
+
+LLIBS = $(dist_libdir)/libAO.a $(dist_libdir)/libtsp.a
+
+.PHONY: mostlyclean clean
+
+BIN = $(dist_bindir)/$(PROG)$(EXEEXT)
+$(BIN): $(OBJECTS) $(LLIBS)
+	$(CC) $(OBJECTS) $(LLIBS) $(LDFLAGS) -o $(BIN)
+
+$(OBJECTS): $(HEADERS)
+
+mostlyclean:
+	rm -f *.o
+clean:	mostlyclean
+	rm -f $(BIN)

@@ -2,14 +2,14 @@
                          McGill University
 
 Routine:
-  FiltAudio.h
+  ResampAudio.h
 
 Description:
   Declarations for ResampAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.45 $  $Date: 2003/05/13 01:07:24 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.47 $  $Date: 2005/02/01 04:25:11 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define ResampAudio_h_
 
 #define PROGRAM "ResampAudio"
-#define VERSION	"v5r0  2003-05-12"
+#define VERSION	"v5r1  2005-01-31"
 
 #include <float.h>		/* DBL_MAX */
 
@@ -57,7 +57,7 @@ struct Fspec_T {
 };
 
 struct Fpoly_T {
-  float **hs;		/* Coefficients in subfilter order, hs[Ir+1][Ncmax] */
+  double **hs;		/* Coefficients in subfilter order, hs[Ir+1][Ncmax] */
   int *offs;		/* Offset of first coefficient in each subfilter */
   int *Nc;		/* Number of coefficients in each subfilter */
   int Ncmax;		/* Maximum number of coefficients in any subfilter */
@@ -173,7 +173,7 @@ extern "C" {
 
 /* Prototypes */
 void
-RSKaiserLPF (float h[], int N, double Fc, double alpha, double Gain,
+RSKaiserLPF (double h[], int N, double Fc, double alpha, double Gain,
 	     double Woffs, double Wspan);
 double
 RSKalphaXatt (double alpha);
@@ -191,7 +191,7 @@ void
 RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
 	   struct Fpoly_T *PF, double *FDel, FILE *fpinfo);
 void
-RSinterp (const float x[], int Nxm, float y[], int Ny, double Ds,
+RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
 	  const struct Tval_T *T, const struct Fpoly_T *PF);
 void
 RSoptions (int argc, const char *argv[], struct RS_FIpar *FI, double *Soffs,
@@ -200,12 +200,12 @@ void
 RSratio (double Sratio, int Ir, long int *Ns, double *Ds, long int NsMax,
 	 long int DsMax, FILE *fpinfo);
 int
-RSrefresh (AFILE *AFpI, long int offs, float x[], int Nx);
+RSrefresh (AFILE *AFpI, long int offs, double x[], int Nx);
 void
 RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout,
 	  double Soffs, const struct Fpoly_T *PF, FILE *fpinfo);
 void
-RSwriteCof (const char Fname[], const struct Fspec_T *Fs, const float h[]);
+RSwriteCof (const char Fname[], const struct Fspec_T *Fs, const double h[]);
 
 #ifdef __cplusplus
 }

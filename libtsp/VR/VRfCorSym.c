@@ -50,8 +50,8 @@ Parameters:
       Number of elements in the input array
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.3 $  $Date: 2003/05/09 03:33:10 $
+  P. Kabal  Copyright (C) 2004
+  $Revision: 1.4 $  $Date: 2004/06/10 02:54:54 $
 
 -------------------------------------------------------------------------*/
 
@@ -67,9 +67,9 @@ VRfCorSym (const float x[], int N)
 
 /*
   For two vectors x[i] and y[i], the correlation coefficient is
-              SUM x[i] y[i]
-    rho = ---------------------- .
-          sqrt(SUM x[i] SUM y[i])
+                SUM x[i] y[i]
+    rho = --------------------------- .
+          sqrt(SUM x[i]^2 SUM y[i]^2)
   
   The correlation takes on values from -1 to +1.  In our case, the vector
   y[i] is the reversal of x[i].  The two sums in the denominator are equal
@@ -78,7 +78,7 @@ VRfCorSym (const float x[], int N)
   Sn = 0.0;
   Sd = 0.0;
   for (i = 0, j = N-1; i < j; ++i, --j) {
-    Sn += ((double) x[i] * x[j] + (double) x[j] * x[i]);
+    Sn += ((double) x[i] * x[j] + (double) x[i] * x[j]);
     Sd += ((double) x[i] * x[i] + (double) x[j] * x[j]);
   }
   if (i == j) {

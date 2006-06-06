@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void RSinterp (const float x[], int Nxm, float y[], int Ny, double Ds,
+  void RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
                  const struct Tval_T *T, const struct Fpoly_T *PF)
 
 Purpose:
@@ -19,11 +19,11 @@ Description:
   value corresponding to one time value.
 
 Parameters:
-   -> const float x[]
+   -> const double x[]
       Input data array of size Nx+lmem
    -> int Nxm
       Number of data samples
-  <-  float y[]
+  <-  double y[]
       Output data array of size Ny
    -> int Ny
       Number of output values to be generated
@@ -35,8 +35,8 @@ Parameters:
       Structure with the filter coefficients in a polyphase form
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.11 $  $Date: 2003/05/13 01:08:13 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.12 $  $Date: 2005/02/01 04:18:47 $
 
 -------------------------------------------------------------------------*/
 
@@ -47,24 +47,24 @@ Author / revision:
 
 #define EPS	1E-10
 
-static float
-RS_conv (const float *xp, const float h[], int Nc);
+static double
+RS_conv (const double *xp, const double h[], int Nc);
 
 
 void
-RSinterp (const float x[], int Nxm, float y[], int Ny, double Ds,
+RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
 	  const struct Tval_T *T, const struct Fpoly_T *PF)
 
 {
-  float yl, yh;
+  double yl, yh;
   int lmem, i, n, mr;
   int Ir;
-  const float **hs;
+  const double **hs;
   const int *offs, *Nc;
   double tir, p;
   struct Tval_T To;
 
-  hs = (const float **) PF->hs;
+  hs = (const double **) PF->hs;
   offs = PF->offs;
   Nc = PF->Nc;
   Ir = PF->Ir;
@@ -104,7 +104,7 @@ RSinterp (const float x[], int Nxm, float y[], int Ny, double Ds,
     else {
       yl = RS_conv (&x[n-offs[mr]], hs[mr], Nc[mr]);
       yh = RS_conv (&x[n-offs[mr+1]], hs[mr+1], Nc[mr+1]);
-      y[i] = (float) ((1.0 - p) * yl + p * yh);
+      y[i] = (1.0 - p) * yl + p * yh;
     }
 
     /* Update the sample pointer (n, ds, dsr) - dsr remains unchanged */
@@ -118,7 +118,7 @@ RSinterp (const float x[], int Nxm, float y[], int Ny, double Ds,
                              McGill University
 
 Routine:
-  static float RS_conv (const float *xp, const float h[], int Nc)
+  static double RS_conv (const double *xp, const double h[], int Nc)
 
 Purpose:
   Generate one filtered value
@@ -131,40 +131,34 @@ Description:
         j=0
 
 Parameters:
-  <-  static float RS_conv
+  <-  static double RS_conv
       Output value
-   -> const float *xp
+   -> const double *xp
       Pointer to the last element to be processed, x[Nc-1]
-   -> float h[]
+   -> const double h[]
       Array of Nc filter coefficients
    -> int Nc
       Number of filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.11 $  $Date: 2003/05/13 01:08:13 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.12 $  $Date: 2005/02/01 04:18:47 $
 
 -------------------------------------------------------------------------*/
 
-static float
-RS_conv (const float *xp, const float h[], int Nc)
+static double
+RS_conv (const double *xp, const double h[], int Nc)
 
 {
   int l, j;
-  float y;
-  const float *x;
+  double y;
+  const double *x;
 
 /*
   There are many different ways to write this tight loop, including using
   indices (as here) or using pointers with decrement and increment.  Tests
   have shown that for all compilers tested, these different idioms result in
   equally fast execution.
-
-  For the filtering operation, single precision arrays and a single precision
-  accumulator are used.  For ANSI compilers this results in fast code.
-  However, non-ANSI compilers will promote the multiplicands to double for the
-  multiplication and then have to discard that precision for the accumulator.
-  For those older compilers, a double accumulator results in faster code.
 */
 
   /* Convolution with filter */

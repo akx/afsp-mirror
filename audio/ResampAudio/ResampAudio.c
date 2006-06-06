@@ -310,7 +310,6 @@ Options:
   string.
     Standard Audio File Information:
        date: 2001-01-25 19:19:39 UTC    date
-       user: kabal@aldebaran            user
        program: ResampAudio             program name
   This information can be changed with the header information string which is
   specified as one of the command line options.  Structured information records
@@ -403,7 +402,7 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v5r0  2003-05-12  Copyright (C) 2003
+  P. Kabal / v5r1  2005-01-31  Copyright (C) 2006
 -------------------------------------------------------------------------*/
 
 #include <stdlib.h>	/* EXIT_SUCCESS */
@@ -483,7 +482,7 @@ main (int argc, const char *argv[])
 
 /* Clean up allocated storage */
   UTfree (PF.offs);
-  MAfFreeMat (PF.hs);
+  MAdFreeMat (PF.hs);
 
   return EXIT_SUCCESS;
 }

@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  int RSrefresh (AFpI, offs, x, Nx)
+  int RSrefresh (AFILE *AFpI, long int offs, double x[], int Nx)
 
 Purpose:
   Read audio data into a buffer, reusing data in the buffer
@@ -30,14 +30,14 @@ Parameters:
       Audio file pointer for the audio file
    -> long int offs
       Sample offset into the file
-  <-> float x[]
+  <-> double x[]
       Data buffer
    -> int Nx
       Buffer length
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.5 $  $Date: 2003/05/13 01:09:30 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.6 $  $Date: 2005/02/01 04:22:28 $
 
 -------------------------------------------------------------------------*/
 
@@ -48,7 +48,7 @@ Author / revision:
 
 
 int
-RSrefresh (AFILE *AFpI, long int offs, float x[], int Nx)
+RSrefresh (AFILE *AFpI, long int offs, double x[], int Nx)
 
 {
   static long int lst = 0;
@@ -66,13 +66,13 @@ RSrefresh (AFILE *AFpI, long int offs, float x[], int Nx)
   if (offs < lnx && offs >= lst) {
     Nkeep = (int) MINV (lnx - offs, Nx);
     Nshift = (int) (offs - lst);
-    VRfShift (x, Nkeep, Nshift);
+    VRdShift (x, Nkeep, Nshift);
   }
   else
     Nkeep = 0;
 
   /* Read more data */
-  Nout = AFfReadData (AFpI, offs + Nkeep, &x[Nkeep], Nx - Nkeep);
+  Nout = AFdReadData (AFpI, offs + Nkeep, &x[Nkeep], Nx - Nkeep);
 
   /* Reset the pointers */
   lst = offs;

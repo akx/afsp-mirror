@@ -22,7 +22,9 @@ all:	$(LIB) nucleus_routines
 $(LIB): \
 	$(LIB)(SPautoc.o) \
 	$(LIB)(SPcorXpc.o) \
+	$(LIB)(SPdCFFT.o) \
 	$(LIB)(SPdQuantL.o) \
+	$(LIB)(SPdRFFT.o) \
 	$(LIB)(SPpcBWexp.o) \
 	$(LIB)(SPpcXec.o) \
 	#

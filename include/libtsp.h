@@ -8,8 +8,8 @@ Description:
   Function prototypes and declarations for the TSP library routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 2.102 $  $Date: 2003/11/04 10:34:51 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 2.104 $  $Date: 2005/02/01 13:22:34 $
 
 ----------------------------------------------------------------------*/
 
@@ -71,12 +71,24 @@ AFwriteData (AFILE *AFp, const float Dbuff[], int Nval);
 void
 FIdBiquad (const double x[], double y[], int Nout, const double h[5]);
 void
+FIdConvSI (const double x[], double y[], int Nout, const double h[], int Ncof,
+	  int mr, int Nsub, int Ir);
+void
+FIdConvol (const double x[], double y[], int Nout, const double h[], int Ncof);
+void
+FIdFiltAP (const double x[], double y[], int Nout, const double p[], int Np);
+void
 FIdFiltIIR (const double x[], double y[], int Nout, const double h[][5],
 	    int Nsec);
 void
+FIdKaiserLPF (double h[], int N, double Fc, double alpha);
+int
+FIdReadFilt (const char Fname[], int MaxNcof, double h[], int *Ncof,
+	     FILE *fpinfo);
+void
 FIdWinHamm (double win[], int N, double a);
 void
-FIKaiserLPF (float h[], int N, double Fc, double alpha);
+FIdWinKaiser (double win[], int N, double alpha);
 void
 FIfBiquad (const float x[], float y[], int Nout, const float h[5]);
 void
@@ -92,7 +104,12 @@ void
 FIfFiltIIR (const float x[], float y[], int Nout, const float h[][5],
 	    int Nsec);
 void
+FIfKaiserLPF (float h[], int N, double Fc, double alpha);
+void
 FIfPreem (double a, float *Fmem, const float x[], float y[], int Nout);
+int
+FIfReadFilt (const char Fname[], int MaxNcof, float h[], int *Ncof,
+	     FILE *fpinfo);
 void
 FIfWinHCos (float win[], double T1, double T2, double T3, double a);
 void
@@ -105,15 +122,16 @@ double
 FIgdelFIR (double w, const float h[], int Ncof);
 double
 FIgdelIIR (double w, const float h[][5], int Nsec);
-int
-FIreadFilt (const char Fname[], int MaxNcof, float h[], int *Ncof,
-	    FILE *fpinfo);
 
 /* ----- FL Prototypes ----- */
 void
 FLbackup (const char Fname[]);
 int
 FLbaseName (const char Fname[], char Bname[]);
+int
+FLdReadData (const char Fname[], int MaxNval, double x[]);
+void
+FLdWriteData (const char Fname[], const double x[], int N);
 char *
 FLdate (const char Fname[], int format);
 int
@@ -410,6 +428,8 @@ void
 VRdScale (double a, const double x[], double y[], int N);
 void
 VRdSet (double a, double y[], int N);
+void
+VRdShift (double x[], int Nkeep, int Nshift);
 void
 VRdSymPart (int Sym, const double x[], double y[], int N);
 void

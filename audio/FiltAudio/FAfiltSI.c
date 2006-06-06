@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, float h[],
+  void FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
                  int Ncof, int Nsub, int Ir, long int moffs)
 
 Purpose:
@@ -22,7 +22,7 @@ Parameters:
       Audio file pointer for the output audio file
    -> long int NsampO
       Number of output samples to be calculated
-   -> float h[]
+   -> const double h[]
       Array of Ncof FIR filter coefficients
    -> int Ncof
       Number of filter coefficients
@@ -34,8 +34,8 @@ Parameters:
       Data offset into the rate-increased data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.19 $  $Date: 2003/05/13 01:25:16 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.20 $  $Date: 2005/02/01 13:25:03 $
 
 -------------------------------------------------------------------------*/
 
@@ -50,12 +50,12 @@ Author / revision:
 
 
 void
-FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[], int Ncof,
-	  int Nsub, int Ir, long int moffs)
+FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+	  int Ncof, int Nsub, int Ir, long int moffs)
 
 {
-  float Fbuf[NBUF];
-  float *x, *y;
+  double Fbuf[NBUF];
+  double *x, *y;
   long int lmem;
   long int Nxmax, Nymax, Nx, Ny;
   long int loffs;
@@ -164,7 +164,7 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[], int Ncof,
 
 /* Prime the array */
   l = loffs;
-  AFfReadData (AFpI, l - lmem, &x[0], (int) lmem);
+  AFdReadData (AFpI, l - lmem, &x[0], (int) lmem);
 
 /* Main processing loop */
   k = 0;
@@ -177,22 +177,22 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[], int Ncof,
 /* Read the input data into the input buffer */
     Ni = ICEILV ((NsampO - k - 1) * NSUB + mp + 1, IR);
     Nx = MINV (Nxmax, Ni);
-    AFfReadData (AFpI, l, &x[lmem], (int) Nx);
+    AFdReadData (AFpI, l, &x[lmem], (int) Nx);
     l = l + Nx;
 
 /* Convolve the input samples with the filter response */
     Ny = ICEILV (IR * Nx - mp, NSUB);
     if (Ny > Nymax || Ny < 0 || Nx < 0 || mp < 0)
       UThalt ("FAfiltSI: Consistency check on no. values failed");
-    FIfConvSI (&x[lp], y, (int) Ny, h, Ncof, (int) mr, Nsub, Ir);
+    FIdConvSI (&x[lp], y, (int) Ny, h, Ncof, (int) mr, Nsub, Ir);
     k = k + Ny;
     mp = mp + NSUB * Ny;
 
 /* Write the output buffer to the output audio file */
-    AFfWriteData (AFpO, y, (int) Ny);
+    AFdWriteData (AFpO, y, (int) Ny);
 
 /* Update the filter memory */
-    VRfShift (x, (int) lmem, (int) Nx);
+    VRdShift (x, (int) lmem, (int) Nx);
     mp = mp - IR * Nx;
   }
 

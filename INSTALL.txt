@@ -58,4 +58,4 @@ Mac OS X:
   2. Omit the -s option for the linker,
      make "LDFLAGS=-lm"
 
-$Id: INSTALL 1.32 2003/05/06 AFsp-v7r2 $
+$Id: INSTALL 1.32 2003/05/06 AFsp-v8r2 $

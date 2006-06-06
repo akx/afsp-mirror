@@ -60,7 +60,7 @@ Description:
     8-bit A-law     [-32,256, +32,256]              1/32768
     8-bit integer   [-128, +127]                    1/256
     16-bit integer  [-32,768, +32,767]              1/32768
-    24-bit integer  [-8,288,608, +8,288,607]        1/8288608
+    24-bit integer  [-8,388,608, +8,388,607]        1/8388608
     32-bit integer  [-2,147,483,648, 2,147,483,647] 1/2147483648
   Floating-point data in the input audio file are scaled by unity.
 
@@ -119,8 +119,8 @@ Parameters:
       fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.3 $  $Date: 2003/05/13 01:51:57 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.4 $  $Date: 2005/11/16 04:13:45 $
 
 -------------------------------------------------------------------------*/
 

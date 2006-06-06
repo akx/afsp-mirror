@@ -8,8 +8,8 @@ Description:
   Declarations for FiltAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.62 $  $Date: 2003/05/13 01:27:46 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.63 $  $Date: 2005/02/01 13:26:09 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define FiltAudio_h_
 
 #define PROGRAM "FiltAudio"
-#define VERSION	"v6r0  2003-05-12"
+#define VERSION	"v6r1  2005-02-01"
 
 #include <limits.h>		/* LONG_MIN */
 
@@ -94,17 +94,17 @@ extern "C" {
 
 /* Prototypes */
 void
-FAfiltAP (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[], int Ncof,
-	  int Nsub, long int loffs);
+FAfiltAP (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+	  int Ncof, int Nsub, long int loffs);
 void
-FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[],
+FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
 	   int Ncof, long int loffs);
 void
-FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[][5],
+FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[][5],
 	   int Nsec, int Nsub, long int loffs);
 void
-FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const float h[], int Ncof,
-	  int Nsub, int Ir, long int moffs);
+FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+          int Ncof, int Nsub, int Ir, long int moffs);
 void
 FAoptions (int argc, const char *argv[], struct FA_FIpar *FI,
 	   struct FA_FFpar *FF, struct FA_FOpar *FO);

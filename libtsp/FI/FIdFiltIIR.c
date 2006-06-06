@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void FIfFiltIIR (const float x[], float y[], int Nout, const float h[][5],
+  void FIdFiltIIR (const double x[], double y[], int Nout, const double h[][5],
 		   int Nsec)
 
 Purpose:
@@ -49,7 +49,7 @@ Description:
   Consider an array A[] with mem+Nout elements, where mem=2*(Nsec+1).  The
   first 2 elements are previous outputs of the overall filter, the next two
   elements are previous outputs of the penultimate section, and so on up to
-  elements A[2*Nsec] and A[2*Nsec+1] which are previous inputs.  The remaining
+  elements A[mem-2] and A[mem-1] which are previous inputs.  The remaining
   Nout values are new input values.  Invoke this routine as
     FIfiltIIR (&A[mem-2], A, Nout, h, Nsec)
   On return, the Nout new output values start at A[2].  The top mem elements
@@ -64,10 +64,10 @@ Description:
                                |<---     filter memory     --->|
 
 Parameters:
-   -> const float x[]
+   -> const double x[]
       Input array with Nout+2 elements.  The first two elements are previous
       input values.  The next Nout values are new input values.
-  <-> float y[]
+  <-> double y[]
       Input/output array with Nout+2*Nsec elements.  On input, the first 2*Nsec
       elements represent filter memory values.  On output, Nout outputs are
       placed starting at y[2].  The top 2*Nsec elements of the array contain
@@ -75,15 +75,15 @@ Parameters:
       of this routine.
    -> int Nout
       Number of output samples
-   -> const float h[][5]
+   -> const double h[][5]
       Array of filter coefficients for the filter sections.  Each filter
       section is defined by 5 filter coefficients.
    -> int Nsec
       Number of filter sections
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.13 $  $Date: 2003/05/09 01:29:45 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.4 $  $Date: 2005/02/01 13:20:37 $
 
 -------------------------------------------------------------------------*/
 
@@ -91,19 +91,22 @@ Author / revision:
 
 
 void
-FIfFiltIIR (const float x[], float y[], int Nout, const float h[][5], int Nsec)
+FIdFiltIIR (const double x[], double y[], int Nout, const double h[][5],
+	    int Nsec)
 
 {
   int k;
   int i;
-  const float *xp;
+  const double *xp;
 
 /* Process the input, one section at a time */
   k = 2 * Nsec;
   xp = &x[0];
   for (i = 0; i < Nsec; ++i) {
-    FIfBiquad (xp, &y[k-2], Nout, h[i]);
+    FIdBiquad (xp, &y[k-2], Nout, h[i]);
     k = k - 2;
     xp = &y[k];
   }
+
+  return;
 }

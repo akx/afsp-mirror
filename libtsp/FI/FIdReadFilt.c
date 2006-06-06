@@ -2,8 +2,8 @@
                              McGill University
 
 Routine:
-  int FIreadFilt (const char Fname[], int MaxNcof, float h[], int *Ncof,
-		  FILE *fpinfo)
+  int FIdReadFilt (const char Fname[], int MaxNcof, double h[], int *Ncof,
+		   FILE *fpinfo)
 
 Purpose:
   Read a filter coefficient file
@@ -27,7 +27,7 @@ Description:
   error.
 
 Parameters:
-  <-  int FIreadFilt
+  <-  int FIdReadFilt
       Filter type coded as follows,
         FI_UNDEF = 0, undefined filter file identifier
         FI_FIR   = 1, FIR filter, direct form
@@ -39,7 +39,7 @@ Parameters:
       Filter file name
    -> int MaxNcof
       Maximum number of coefficients to be returned
-  <-  float h[]
+  <-  double h[]
       Array of Ncof output filter coefficients
   <-  int *Ncof
       Number of filter coefficients returned
@@ -49,8 +49,8 @@ Parameters:
       selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.37 $  $Date: 2003/05/09 01:29:45 $
+  P. Kabal  Copyright (C) 2005
+  $Revision: 1.1 $  $Date: 2005/02/01 01:21:13 $
 
 -------------------------------------------------------------------------*/
 
@@ -60,7 +60,7 @@ Author / revision:
 #include <libtsp/FImsg.h>
 
 #define COMMENT_CHAR	'!'
-#define CHECKSYM(x,N)	((int) (1.00001 * VRfCorSym(x,N)))
+#define CHECKSYM(x,N)	((int) (1.00001 * VRdCorSym(x,N)))
 
 /* Keyword templates for the filter types */
 static const char *FItab[] = {
@@ -84,8 +84,8 @@ static const char *FItype[] = {
 
 
 int
-FIreadFilt (const char Fname[], int MaxNcof, float h[], int *Ncof,
-	    FILE *fpinfo)
+FIdReadFilt (const char Fname[], int MaxNcof, double h[], int *Ncof,
+             FILE *fpinfo)
 
 {
   FILE *fp;
@@ -96,7 +96,7 @@ FIreadFilt (const char Fname[], int MaxNcof, float h[], int *Ncof,
 /* Open the filter coefficient file */
   fp = fopen (Fname, "r");
   if (fp == NULL)
-    UTerror ("FIreadFilt: %s: \"%s\"", FIM_OpenRErr, Fname);
+    UTerror ("FIdReadFilt: %s: \"%s\"", FIM_OpenRErr, Fname);
 
 /* Determine the filter type */
   FiltType = FI_UNDEF;
@@ -106,12 +106,12 @@ FIreadFilt (const char Fname[], int MaxNcof, float h[], int *Ncof,
   rewind (fp);
 
 /* Decode data records */
-  N = FLfReadTF (fp, MaxNcof, COMMENT_CHAR, h);
+  N = FLdReadTF (fp, MaxNcof, COMMENT_CHAR, h);
 
 /* Error checks */
   if (FiltType == FI_IIR) {
     if (N % 5 != 0)
-      UThalt ("FIreadFilt: %s", FIM_IIRNCoefErr);
+      UThalt ("FIdReadFilt: %s", FIM_IIRNCoefErr);
   }
 
 /* Print filter file information */

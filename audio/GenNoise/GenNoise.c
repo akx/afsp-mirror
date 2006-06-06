@@ -28,7 +28,8 @@ Options:
         ".txt"  - Headerless file (text data)
   -d SDEV, --std_deviation=SDEV
       Standard deviation of the noise samples in normalized units, default
-      0.03.
+      0.03. The standard deviation can be given as a real number (e.g.,
+      "0.03") or as a ratio (e.g., "983.04/32768").
   -x SEED, --seed=SEED
       Seed for the random number generator, default from current time.
   -n NSAMPLE, --number_samples=NSAMPLE
@@ -85,7 +86,6 @@ Options:
   string.
     Standard Audio File Information:
        date: 1994-01-25 19:19:39 UTC    date
-       user: kabal@aldebaran            user
        program: GenNoise                program name
   This information can be changed with the header information string which is
   specified as one of the command line options.  Structured information records
@@ -102,7 +102,7 @@ Options:
   the user supplied header information string appears alone.
 
 Author / version:
-  P. Kabal / v5r0a  2003-11-06  Copyright (C) 2003
+  P. Kabal / v5r0a  2003-11-06  Copyright (C) 2006
 
 -------------------------------------------------------------------------*/
 

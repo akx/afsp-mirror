@@ -1,4 +1,4 @@
-November 2003
+June 2006
 
 Audio File Programs and Routines
   The AFsp package contains audio file utility programs and a library of
@@ -21,6 +21,7 @@ Audio File Utility Programs:
               samples from a sinusoid.
   LPanal    - demonstration program to do LPC analysis on a speech file.
   LPsyn     - demonstation program to do LPC synthesis from a residual file.
+  PQevalAudio - Perceptual evaluation of audio quality
   ResampAudio - resample data from an audio file.  This process involves
               interpolating between the samples in the original file to create
               a new sequence of samples with a new spacing (sampling rate).
@@ -66,11 +67,17 @@ Audio File Formats:
 The AFsp routines are covered by copyright, see the file "Copying" for details
 of the distribution conditions.
 
-AFsp-v7r2.tar.gz
+AFsp-v8r2.tar.gz
 http://www.TSP.ECE.McGill.CA/MMSP/Documents/
 or ftp://ftp.TSP.ECE.McGill.CA/TSP/AFsp
 
 =============
+Changes in v8r2
+- User identity in Information fields has been removed
+Changes in v8r1
+- FiltAudio and ResampAudio use double precision internally
+Changes in v8r0
+- Add PQevalAudio
 Changes in v7r2
 - Internal changes, fix documentation on GenTone/GenNoise to reflect
   new normalization.
@@ -144,4 +151,4 @@ Electrical & Computer Engineering    McGill University
 +1 514 398-7130   +1 514 398-4470 Fax
 kabal@ECE.McGill.CA
 
-$Id: README.txt 1.75 2003/11/06 AFsp-v7r2 $
+$Id: README.txt 1.77 2006/06/06 AFsp-v8r2 $
