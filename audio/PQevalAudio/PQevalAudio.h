@@ -8,8 +8,8 @@ Description:
   Declarations for PQevalAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.24 $  $Date: 2003/05/13 01:10:54 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.29 $  $Date: 2009/03/23 15:49:15 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define PQevalAudio_h_
 
 #define PROGRAM "PQevalAudio"
-#define VERSION	"v2r0  2003-05-12"
+#define VERSION	"v3r0  2009-03-14"
 
 #include <libtsp.h>		/* typedef for AFILE */
 #include <libtsp/AFpar.h>	/* struct AF_NHpar */
@@ -32,7 +32,7 @@ Author / revision:
 #define PQ_CB_ADV	(PQ_NF/2)  /* Frame advance */
 #define PQ_FB_ADV	192	/* Sub-sampling factor in filter bank */
 #define PQ_FCS		1019.5	/* Test sine frequency */
-#define PQ_AMAX		32768.	/* Max. input level corresponding to
+#define PQ_AMAX		32767.	/* Max. input level corresponding to
 				   to the max. listening level */
 #define PQ_NL		256	/* Number of correlation lags (EHS MOV) */
 
@@ -261,18 +261,16 @@ struct PQ_Opt {
   int OverlapDelay;		/* Overlap warmup frames and delay */
   int DataBounds;		/* Find data boundaries */
   int EndMin;			/* Min. number of samples in last PEAQ frame */
-  int EHSLagStart;		/* First EHS correlation lag (0 or 1) */
 };
 
 #define LP_DEFAULT		92.
-#define NI_DEFAULT		-50
+#define NI_DEFAULT		-50   /* -50 means 50 printouts */
 #define CLIP_MOV_DEFAULT	0
 #define PC_INIT_DEFAULT		0.
 #define PD_FACTOR_DEFAULT	1.
 #define OVERLAP_DELAY_DEFAULT	1
 #define DATA_BOUNDS_DEFAULT	1
 #define END_MIN_DEFAULT		(PQ_NF/2)
-#define EHS_LAG_START_DEFAULT	1
 
 #define OPTIONS_INIT(p) { \
 	(p)->Lp = LP_DEFAULT; \
@@ -282,12 +280,10 @@ struct PQ_Opt {
 	(p)->PDfactor = PD_FACTOR_DEFAULT; \
         (p)->OverlapDelay = OVERLAP_DELAY_DEFAULT; \
         (p)->DataBounds = DATA_BOUNDS_DEFAULT; \
-        (p)->EndMin = END_MIN_DEFAULT; \
-        (p)->EHSLagStart = EHS_LAG_START_DEFAULT; }
+	(p)->EndMin = END_MIN_DEFAULT; }
 
 /* Error messages */
 #define PQM_BadEndMin	"Invald end_min value"
-#define PQM_BadEHSStart	"Invalid EHS_corr_start value"
 #define PQM_BadInfo	"Invalid info specification"
 #define PQM_BadKey	"Invalid option keyword"
 #define PQM_BadPCinit	"Invalid PC_init value"
@@ -314,7 +310,7 @@ Options:\n\
                               \"PC_init=V\", \"PD_factor=V\",\n\
                               \"overlap_delay\", \"no_overlap_delay\",\n\
                               \"data_bounds\", \"no_data_bounds\",\n\
-                              \"end_min=N\", \"EHS_lag_start=N\".\n\
+                              \"end_min=N\".\n\
   -t FTYPE, --type=FTYPE      Input file type,\n\
                               \"auto\", \"AU\", \"WAVE\", \"AIFF\", \"noheader\",\n\
                               \"SPHERE\", \"ESPS\", \"IRCAM\", \"SPPACK\",\n\
@@ -405,12 +401,12 @@ void
 PQmodPatt (const double *Es[2], const struct Par_MPatt *MPatt,
 	   double *M[2], double ERavg[], struct Mem_Env *Env);
 double
-PQnNet (const double MOV[], const struct Par_NNet *NNet);
+PQnNet (const double MOV[], const struct Par_NNet *NNet, double *DIp);
 void
 PQoptions (int argc, const char *argv[], struct PQ_Opt *PQopt,
 	   struct PQ_FIpar FI[2]);
 void
-PQprtMOV (const double MOV[], int N, double ODG);
+PQprtMOV (const double MOV[], int N, double DI, double ODG);
 void
 PQprtMOVCi (int Nchan, int i, const struct PQ_MOVBC *MOVC);
 int

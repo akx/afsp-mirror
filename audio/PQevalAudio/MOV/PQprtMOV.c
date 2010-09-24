@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void PQprtMOV (const double MOV[], int N, double ODG)
+  void PQprtMOV (const double MOV[], int N, double DI, double ODG)
 
 Purpose:
   Print model output values
@@ -15,12 +15,14 @@ Parameters:
       Input model output variables
    -> int N
       Number of model output variables
+   -> double DI
+      Distortion index
    -> double ODG
       Objective difference grade
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.4 $  $Date: 2003/05/13 01:15:13 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.5 $  $Date: 2009/03/12 18:29:33 $
 
 -------------------------------------------------------------------------*/
 
@@ -31,7 +33,7 @@ Author / revision:
 
 
 void
-PQprtMOV (const double MOV[], int N, double ODG)
+PQprtMOV (const double MOV[], int N, double DI, double ODG)
 
 {
   printf ("Model Output Variables:\n");
@@ -59,6 +61,7 @@ PQprtMOV (const double MOV[], int N, double ODG)
   else
     assert (0);
 
+  printf ("Distortion Index: %.3f\n", DI);
   printf ("Objective Difference Grade: %.3f\n", ODG);
   return;
 };

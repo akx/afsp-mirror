@@ -119,6 +119,6 @@ of an environment variable (with a leading $)
 .in -4n
 .SH Author / revision
 P. Kabal
-/ Revision 1.53  2003/05/09
+/ Revision 1.54  2009/03/01
 .SH See Also
 AFopnRead

@@ -22,8 +22,8 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.18 $  $Date: 2003/11/04 12:50:33 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.19 $  $Date: 2009/03/09 18:37:07 $
 
 ----------------------------------------------------------------------*/
 
@@ -77,7 +77,7 @@ AOdecFO (struct AO_FOpar *FO)
 
 {
   const char *OptArg;
-  int n, Sindex;
+  int n, Sindex, nc;
   double Nv, Dv;
   struct AO_CmdArg *Carg;
   struct AF_opt *AFopt;
@@ -129,9 +129,9 @@ AOdecFO (struct AO_FOpar *FO)
       ERRSTOP (AOM_BadSpkr, OptArg);
     if (AFopt->SpkrConfig != NULL) {
       UTfree (FO->SpkrConfig);
-      FO->SpkrConfig = (unsigned char *)
-	UTmalloc (strlen ((const char *) AFopt->SpkrConfig) + 1);
-      strcpy ((char *) FO->SpkrConfig, (const char *) AFopt->SpkrConfig);
+      nc = strlen ((const char *) AFopt->SpkrConfig);
+      FO->SpkrConfig = (unsigned char *) UTmalloc (nc + 1);
+      STcopyMax ((const char *) AFopt->SpkrConfig, (char *) FO->SpkrConfig, nc);
     }
     break;
   case 11:
@@ -171,8 +171,8 @@ Parameters:
       Input audio file type specifier
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.18 $  $Date: 2003/11/04 12:50:33 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.19 $  $Date: 2009/03/09 18:37:07 $
 
 -------------------------------------------------------------------------*/
 
@@ -237,8 +237,8 @@ Parameters:
       Input data format specifier
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.18 $  $Date: 2003/11/04 12:50:33 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.19 $  $Date: 2009/03/09 18:37:07 $
 
 -------------------------------------------------------------------------*/
 

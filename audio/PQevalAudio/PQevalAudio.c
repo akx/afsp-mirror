@@ -42,7 +42,7 @@ Description:
   Perceived Audio Quality", J. Audio Eng. Soc., vol. 48, pp. 3-29, Jan.-Feb.
   2000.
 
-  P. Kabal, "An Examination and Interpretation of ITU-R BS.1387: Perceptual  Copyright (C) 2004
+  P. Kabal, "An Examination and Interpretation of ITU-R BS.1387: Perceptual  Copyright (C) 2009
   Evaluation of Audio Quality", TSP Lab Technical Report, Dept. Electrical &
   Computer Engineering, McGill University, May 2002.
   (http://www.TSP.ECE.McGill.CA/MMSP/Documents)
@@ -87,7 +87,6 @@ Options:
 	  N samples (default value of N is 1024). The "-l" command line option
 	  can be used to shift the entire processing. For instance "-l -1024:"
 	  will add half a frame of zero padding before the start of data.
-        "EHS_lag_start=N" where N is 0 or 1. The default is 1.
   -t FTYPE, --type=FTYPE
       Input audio file type.  In the default automatic mode, the input file
       type is determined from the file header.  For input from a non-random
@@ -172,7 +171,7 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v2r0  2003-05-12  Copyright (C) 2004
+  P. Kabal / v3r0  2009-03-14  Copyright (C) 2009
 
 ----------------------------------------------------------------------*/
 
@@ -206,7 +205,7 @@ main (int argc, const char *argv[])
   int  Fstart, Fend, Np, Nwup, is, i, j;
   int NsampND, RAccess, Nch;
   double Sfreq[2];
-  double ODG;
+  double DI, ODG;
   struct PQ_Par PQpar;
   struct PQ_FiltMem Fmem[2];
   struct PQ_MOVBI MOVBI[2];
@@ -296,10 +295,10 @@ main (int argc, const char *argv[])
   PQavgMOVB (MOVC, Nch, Nwup, Np, MOV);
 
   /* Neural net */
-  ODG = PQnNet (MOV, &PQpar.NNet);
+  ODG = PQnNet (MOV, &PQpar.NNet, &DI);
 
   /* Summary printout */
-  PQprtMOV (MOV, PQ_NMOV_B, ODG);
+  PQprtMOV (MOV, PQ_NMOV_B, DI, ODG);
 
 /* Clean up */
   MAdFreeMat (xR);

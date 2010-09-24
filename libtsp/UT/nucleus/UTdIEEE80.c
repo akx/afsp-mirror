@@ -19,8 +19,8 @@ Parameters:
       contains the sign bit and the first part of the exponent.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.7 $  $Date: 2003/05/09 03:23:41 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 19:58:18 $
 
 -------------------------------------------------------------------------*/
 
@@ -29,8 +29,12 @@ Author / revision:
 #include <libtsp/nucleus.h>
 #include <libtsp/UTtypes.h>
 
-#define INFINITY	(sqrt(1.)/0.0)
-#define NAN		(sqrt(-1.))
+#ifndef INFINITY
+#  define INFINITY	(sqrt(1.0)/0.0)
+#endif
+#ifndef NAN
+#  define NAN		(sqrt(-1.0))
+#endif
 
 #define EXP_BIAS	16383
 #define EXPC_ZERO	0
@@ -63,17 +67,17 @@ double UTdIEEE80 (const unsigned char b[10])
 
 {
   double dv;
-  int2_t expc;
+  UT_int2_t expc;
   int exp;
-  uint4_t mantH, mantL;
+  UT_uint4_t mantH, mantL;
 
-  expc = ((int2_t) (b[0] & 0x7F) << 8) | (int2_t) b[1];
+  expc = ((UT_int2_t) (b[0] & 0x7F) << 8) | (UT_int2_t) b[1];
   exp = expc - EXP_BIAS;
 
-  mantH = ((uint4_t) b[2] << 24) | ((uint4_t) b[3] << 16) |
-          ((uint4_t) b[4] << 8)  | ((uint4_t) b[5]);
-  mantL = ((uint4_t) b[6] << 24) | ((uint4_t) b[7] << 16) |
-          ((uint4_t) b[8] << 8)  | ((uint4_t) b[9]);
+  mantH = ((UT_uint4_t) b[2] << 24) | ((UT_uint4_t) b[3] << 16) |
+          ((UT_uint4_t) b[4] << 8)  | ((UT_uint4_t) b[5]);
+  mantL = ((UT_uint4_t) b[6] << 24) | ((UT_uint4_t) b[7] << 16) |
+          ((UT_uint4_t) b[8] << 8)  | ((UT_uint4_t) b[9]);
 
   if (expc == EXPC_ZERO && mantH == 0 && mantL == 0) 	/* Zero */
 

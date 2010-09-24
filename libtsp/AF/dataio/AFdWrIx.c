@@ -29,8 +29,8 @@ Parameters:
       Number of samples to be written
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:14:44 $
 
 -------------------------------------------------------------------------*/
 
@@ -45,8 +45,8 @@ Author / revision:
 #define LW4		FDL_INT32
 #define MINV(a, b)	(((a) < (b)) ? (a) : (b))
 #define NBBUF		8192
-#define INT3_MAX	8388607
-#define INT3_MIN	-8388608
+#define UT_INT3_MAX	8388607
+#define UT_INT3_MIN	-8388608
 
 #define FWRITE(buf,size,nv,fp)	(int) fwrite ((const char *) buf, \
 					      (size_t) size, (size_t) nv, fp)
@@ -57,7 +57,7 @@ AFdWrI1 (AFILE *AFp, const double Dbuff[], int Nval)
 
 {
   int is, N, Nw, i;
-  int1_t Buf[NBBUF/LW1];
+  UT_int1_t Buf[NBBUF/LW1];
   double g, Dv;
 
 /* Write data to the audio file */
@@ -69,19 +69,19 @@ AFdWrI1 (AFILE *AFp, const double Dbuff[], int Nval)
       Dv = g * Dbuff[i+is];
       if (Dv >= 0.0) {
 	Dv += 0.5;
-	if (Dv >= INT1_MAX + 1) {
+	if (Dv >= UT_INT1_MAX + 1) {
 	  ++AFp->Novld;
-	  Dv = INT1_MAX;
+	  Dv = UT_INT1_MAX;
 	}
       }
       else {
 	Dv += -0.5;
-	if (Dv <= INT1_MIN - 1) {
+	if (Dv <= UT_INT1_MIN - 1) {
 	  ++AFp->Novld;
-	  Dv = INT1_MIN;
+	  Dv = UT_INT1_MIN;
 	}
       }
-      Buf[i] = (int1_t) Dv;
+      Buf[i] = (UT_int1_t) Dv;
     }
     Nw = FWRITE (Buf, LW1, N, AFp->fp);
     is += Nw;
@@ -97,7 +97,7 @@ AFdWrI2 (AFILE *AFp, const double Dbuff[], int Nval)
 
 {
   int is, N, Nw, i;
-  int2_t Buf[NBBUF/LW2];
+  UT_int2_t Buf[NBBUF/LW2];
   double g, Dv;
   unsigned char *cp;
   unsigned char t;
@@ -111,19 +111,19 @@ AFdWrI2 (AFILE *AFp, const double Dbuff[], int Nval)
       Dv = g * Dbuff[i+is];
       if (Dv >= 0.0) {
 	Dv += 0.5;
-	if (Dv >= INT2_MAX + 1) {
+	if (Dv >= UT_INT2_MAX + 1) {
 	  ++AFp->Novld;
-	  Dv = INT2_MAX;
+	  Dv = UT_INT2_MAX;
 	}
       }
       else {
 	Dv += -0.5;
-	if (Dv <= INT2_MIN - 1) {
+	if (Dv <= UT_INT2_MIN - 1) {
 	  ++AFp->Novld;
-	  Dv = INT2_MIN;
+	  Dv = UT_INT2_MIN;
 	}
       }
-      Buf[i] = (int2_t) Dv;
+      Buf[i] = (UT_int2_t) Dv;
       if (AFp->Swapb == DS_SWAP) {
 	cp = (unsigned char *) &Buf[i];
 	t = cp[1]; cp[1] = cp[0]; cp[0] = t;
@@ -138,13 +138,12 @@ AFdWrI2 (AFILE *AFp, const double Dbuff[], int Nval)
   return is;
 }
 
-
 int
 AFdWrI3 (AFILE *AFp, const double Dbuff[], int Nval)
 
 {
   int is, N, Nw, i, j, Hbo;
-  int4_t Iv;
+  UT_int4_t Iv;
   unsigned char Buf[NBBUF];
   double g, Dv;
   unsigned char *cp;
@@ -160,22 +159,22 @@ AFdWrI3 (AFILE *AFp, const double Dbuff[], int Nval)
       Dv = g * Dbuff[j];
       if (Dv >= 0.0) {
 	Dv += 0.5;
-	if (Dv >= INT3_MAX + 1) {
+	if (Dv >= UT_INT3_MAX + 1) {
 	  ++AFp->Novld;
-	  Dv = INT3_MAX;
+	  Dv = UT_INT3_MAX;
 	}
       }
       else {
 	Dv += -0.5;
-	if (Dv <= INT3_MIN - 1) {
+	if (Dv <= UT_INT3_MIN - 1) {
 	  ++AFp->Novld;
-	  Dv = INT3_MIN;
+	  Dv = UT_INT3_MIN;
 	}
       }
       if (Hbo == DS_EL)
-	Iv = (int4_t) Dv;		/* DS_EL:  X  2  1  0  */
+	Iv = (UT_int4_t) Dv;		/* DS_EL:  X  2  1  0  */
       else				/*        MSB      LSB */
-	Iv = 256 * ((int4_t) Dv);       /* DS_EB:  0  1  2  X  */
+	Iv = 256 * ((UT_int4_t) Dv);       /* DS_EB:  0  1  2  X  */
       if (AFp->Swapb == DS_SWAP) {
 	Buf[i] = cp[2];
 	Buf[i+1] = cp[1];
@@ -202,7 +201,7 @@ AFdWrI4 (AFILE *AFp, const double Dbuff[], int Nval)
 
 {
   int is, N, Nw, i;
-  int4_t Buf[NBBUF/LW4];
+  UT_int4_t Buf[NBBUF/LW4];
   double g, Dv;
   unsigned char *cp;
   unsigned char t;
@@ -216,19 +215,19 @@ AFdWrI4 (AFILE *AFp, const double Dbuff[], int Nval)
       Dv = g * Dbuff[i+is];
       if (Dv >= 0.0) {
 	Dv += 0.5;
-	if (Dv >= (double) INT4_MAX + 1.) {
+	if (Dv >= (double) UT_INT4_MAX + 1.) {
 	  ++AFp->Novld;
-	  Dv = INT4_MAX;
+	  Dv = UT_INT4_MAX;
 	}
       }
       else {
 	Dv += -0.5;
-	if (Dv <= (double) (INT4_MIN) - 1.) {
+	if (Dv <= (double) (UT_INT4_MIN) - 1.) {
 	  ++AFp->Novld;
-	  Dv = INT4_MIN;
+	  Dv = UT_INT4_MIN;
 	}
       }
-      Buf[i] = (int4_t) Dv;
+      Buf[i] = (UT_int4_t) Dv;
       if (AFp->Swapb == DS_SWAP) {
 	cp = (unsigned char *) &Buf[i];
 	t = cp[3]; cp[3] = cp[0]; cp[0] = t;

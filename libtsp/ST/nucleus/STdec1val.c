@@ -29,8 +29,8 @@ Parameters:
       the appropriate representable value.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.22 $  $Date: 2003/05/09 03:17:00 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.23 $  $Date: 2009/03/11 20:02:21 $
 
 -------------------------------------------------------------------------*/
 
@@ -39,8 +39,12 @@ Author / revision:
 #include <errno.h>
 #include <float.h>
 #include <limits.h>
+#include <math.h>
 #include <stdlib.h>	/* strtod */
 
+#ifndef INFINITY
+#  define INFINITY     (sqrt(1.0)/0.0)
+#endif
 
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
@@ -85,14 +89,14 @@ STdec1val (const char String[], int Type, void *Val)
       if (dv == 0.0)
 	BS = -1;
       else
-	BS = 1;
+	BS = +1;
     }
     break;
   case 'L':
   case 'I':
     lv = strtol (String, &endstr, 10);
     if (errno == ERANGE)
-      BS = 1;
+      BS = +1;
     break;
   default:
     assert (0);
@@ -115,15 +119,19 @@ STdec1val (const char String[], int Type, void *Val)
     break;
   case 'F':
     if (dv > FLT_MAX) {
-      dv = FLT_MAX;
-      BS = 1;
+      dv = INFINITY;
+      BS = +1;
     }
     else if (dv < -FLT_MAX) {
-      dv = -FLT_MAX;
-      BS = 1;
+      dv = -(INFINITY);
+      BS = +1;
     }
-    else if (dv != 0.0 && ABSV (dv) < FLT_MIN) {
+    else if (dv > 0.0 && dv < FLT_MIN) {
       dv = 0.0;
+      BS = -1;
+    }
+    else if (dv < 0.0 && ABSV(dv) < FLT_MIN) {
+      dv = -0.0;
       BS = -1;
     }
     *((float *) Val) = (float) dv;
@@ -141,9 +149,8 @@ STdec1val (const char String[], int Type, void *Val)
       lv = INT_MAX;
       BS = +1;
     }
-#else
-    *((int *) Val) = lv;
 #endif
+    *((int *) Val) = lv;
     break;
   }
 

@@ -8,8 +8,8 @@ Description:
   Declarations for ESPS sampled data feature file headers
 
 Author / revision:
-  P. Kabal  Copyright (C) 2001
-  $Revision: 1.18 $  $Date: 2001/10/27 21:44:11 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:15:52 $
 
 ----------------------------------------------------------------------*/
 
@@ -55,51 +55,51 @@ Author / revision:
 #define ES_SHORT	4
 
 struct ES_preamb {
-/*  int4_t Machine_code; */	/* machine which wrote file */
-/*  int4_t Check_code;	 */	/* version check code (3000) */
-  int4_t Data_offset;		/* data offset in bytes */
-  int4_t Record_size;		/* record size */
+/*  UT_int4_t Machine_code; */	/* machine which wrote file */
+/*  uT_int4_t Check_code; */	/* version check code (3000) */
+  UT_int4_t Data_offset;       	/* data offset in bytes */
+  UT_int4_t Record_size;       	/* record size */
   char Magic[4];		/* file magic */
-/*  int4_t Edr; */		/* EDR_ESPS flag */
-/*  int4_t Align_pad_size; */	/* alignment pad */
-/*  int4_t Foreign_hd; */	/* pointer to foreign header */
+/*  UT_int4_t Edr; */		/* EDR_ESPS flag */
+/*  UT_int4_t Align_pad_size; */  /* alignment pad */
+/*  UT_int4_t Foreign_hd; */	/* pointer to foreign header */
 };
 
 struct ES_fixhead {
-  int2_t Type;		/* File type (e.g. ES_FT_FEA) */
-/*  int2_t pad1; */
-  char Magic[4];	/* File magic */
+  UT_int2_t Type;		/* File type (e.g. ES_FT_FEA) */
+/*  UT_int2_t pad1; */
+  char Magic[4];		/* File magic */
 /*  char Datetime[26]; */	/* File creation date */
 /*  char Version[8];   */	/* Header version */
 /*  char Prog[16];     */	/* Program name */
 /*  char Vers[8];      */	/* Program version */
 /*  char Progdate[26]; */	/* Program compile date */
-  int4_t Ndrec;		/* Number of data records (often bogus) */
-/*  int2_t Tag; */	/* Non-zero if data is tagged */
-/*  int2_t nd1; */
-  int4_t Ndouble;
-  int4_t Nfloat;
-  int4_t Nlong;
-  int4_t Nshort;
-  int4_t Nchar;
-/*  int4_t Fixsiz; */	/* Fixed header structure size (40 longs) */
-/*  int4_t Hsize; */	/* Variable header structure size (bytes) */
+  UT_int4_t Ndrec;		/* Number of data records (often bogus) */
+/*  UT_int2_t Tag; */		/* Non-zero if data is tagged */
+/*  UT_int2_t nd1; */
+  UT_int4_t Ndouble;
+  UT_int4_t Nfloat;
+  UT_int4_t Nlong;
+  UT_int4_t Nshort;
+  UT_int4_t Nchar;
+/*  UT_int4_t Fixsiz; */	/* Fixed header structure size (40 longs) */
+/*  UT_int4_t Hsize; */		/* Variable header structure size (bytes) */
 /*  char User[8]; */
-/*  int2_t spares[10]; */
+/*  UT_int2_t spares[10]; */
 };
 
 struct ES_FEAhead {
-  int2_t Fea_type;	/* Feature file subcode (e.g. ES_FEA_SD) */
+  UT_int2_t Fea_type;		/* Feature file subcode (e.g. ES_FEA_SD) */
 };
 
 /* Structure for a Generic Item */
 #define ES_MAX_gID	32
 struct ES_genItem {
-  uint2_t code;		/* Generic Item code */ 
-  uint2_t ID_len;	/* Length of ID in 4-byte words */
-  char ID[ES_MAX_gID];	/* ID */
-  int4_t count;		/* Number of data items */
-  uint2_t data_code;	/* Data type */
+  UT_uint2_t code;		/* Generic Item code */ 
+  UT_uint2_t ID_len;		/* Length of ID in 4-byte words */
+  char ID[ES_MAX_gID];		/* ID */
+  UT_int4_t count;			/* Number of data items */
+  UT_uint2_t data_code;		/* Data type */
   /* data */
 };
 

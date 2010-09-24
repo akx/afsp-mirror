@@ -43,8 +43,8 @@ Parameters:
       2, echo with comments intact
       
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.18 $  $Date: 2003/05/09 01:36:44 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.19 $  $Date: 2009/03/01 21:13:30 $
 
 -------------------------------------------------------------------------*/
 
@@ -112,12 +112,12 @@ FLgetRec (FILE *fp, const char CommChar[], const char ContChar[], int echo)
       *c = '\0';
       if (lbuf == NULL) {
 	lbuf = (char *) UTmalloc (nl+1);
-	strcpy (lbuf, line);
+	STcopyMax (line, lbuf, nl);
       }
       else {
 	nc = strlen (lbuf);
 	lbuf = (char *) UTrealloc (lbuf, nc+nl+1);
-	strcpy (&lbuf[nc], line);
+	STcopyMax (line, &lbuf[nc], nl);
       }
       continue;			/* Loop again to pick up the next line */
     }
@@ -136,7 +136,7 @@ FLgetRec (FILE *fp, const char CommChar[], const char ContChar[], int echo)
       if (nl > 0) {
 	nc = strlen (lbuf);
 	lbuf = (char *) UTrealloc (lbuf, nc+nl+1);
-	strcpy (&lbuf[nc], line);
+	STcopyMax (line, &lbuf[nc], nl);
       }
       rec = lbuf;		/* return the concatenated line */
       break;

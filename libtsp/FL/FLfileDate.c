@@ -30,11 +30,16 @@ Parameters:
       Date / time format code, taking on values from 0 to 3
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.23 $  $Date: 2003/05/09 01:36:43 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.24 $  $Date: 2009/03/09 17:58:19 $
 
 ----------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#endif
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>

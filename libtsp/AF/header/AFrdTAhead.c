@@ -12,10 +12,10 @@ Description:
   is used to set the file data format information in the audio file pointer
   structure.
 
-  Text audio files are used to store audio data (specifically noise samples) on
-  CDROM's.  The audio data itself is stored as text.  The text specifies
-  integer values, with one value per line.  Access to data should normally be
-  sequential since moving backwards in the file is inefficient.
+  Audio files using text to store audio data have been used to store noise
+  samples on CDROM's.  The audio data itself is stored as text.  The text
+  specifies integer values, with one value per line.  Access to data should
+  normally be sequential since moving backwards in the file is inefficient.
 
   Text audio header:
    Offset Length Type    Contents
@@ -32,11 +32,16 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.34 $  $Date: 2003/11/03 18:51:32 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.36 $  $Date: 2009/03/23 12:01:01 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow sscanf */
+#endif
+
 #include <string.h>
 
 #include <libtsp.h>

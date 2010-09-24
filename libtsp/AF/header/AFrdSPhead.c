@@ -30,11 +30,16 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.80 $  $Date: 2003/11/03 18:56:14 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.81 $  $Date: 2009/03/09 17:23:26 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow sscanf */
+#endif
+
 #include <setjmp.h>
 #include <string.h>
 
@@ -226,7 +231,7 @@ AF_getFormat (const char Rec[], int Lr, struct AF_dformat *DFormat)
   int ErrCode;
 
   /* Get the coding format (default "pcm") */
-  strcpy (Sval, "pcm");	/* Default value */
+  STcopyMax ("pcm", Sval, 3);  /* Default value */
   if (GET_REC ("sample_coding", Rec, Lr, T_STRING, Sval, OPTIONAL)
       == RET_BADVALUE)
     return 1;
@@ -304,7 +309,7 @@ AF_getNchan (const char Rec[], int Lr, long int *Nchan)
     return 1;
 
   if (*Nchan > 1) {
-    strcpy (Sval, "TRUE");
+    STcopyMax ("TRUE", Sval, 4);
     if (GET_REC ("channels_interleaved", Rec, Lr, T_STRING, Sval, OPTIONAL)
 	== RET_BADVALUE)
       return 1;
@@ -329,8 +334,8 @@ AF_getComment (const char *ID[], const char Rec[], int Lr,
 
   for (i = 0; ID[i] != NULL; ++i) {
     if (GET_REC (ID[i], Rec, Lr, T_STRVAL, Sval, OPTIONAL) == 0) {
-      strcpy (Ident, ID[i]);
-      strcat (Ident, ": ");
+      STcopyMax (ID[i], Ident, sizeof (Ident) - 1);
+      STcatMax (": ", Ident, sizeof (Ident) - 1);
       AFaddAFspRec (Ident, Sval, strlen (Sval), InfoX);
     }
   }

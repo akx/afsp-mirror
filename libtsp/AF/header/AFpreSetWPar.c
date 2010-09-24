@@ -9,9 +9,10 @@ Purpose:
   Create a parameter structure for writing an audio file
 
 Description:
-  This routine creates a parameter structure for writing to an audio file.  The
-  The structure is filled in with default values, values supplied as input, or
-  user supplied options.
+  This routine creates a parameter structure for writing to an audio file.
+  The structure is filled in with default values, values supplied as input,
+  or user supplied options (via for example, AFsetInfo, AFsetNHpar, or
+  AFsetSpeaker)
 
   Fields set from the input values:
     AFw->DFormat.Format
@@ -42,11 +43,16 @@ Parameters:
       Pointer to an audio write structure
  
 Author / revision:
-  P. Kabal  Copyright (C) 2006
-  $Revision: 1.20 $  $Date: 2006/06/06 13:55:37 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.25 $  $Date: 2009/03/23 12:01:55 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow sprintf */
+#endif
+
 #include <assert.h>
 #include <math.h>	/* floor */
 #include <string.h>
@@ -284,16 +290,15 @@ AF_setSpeaker (const unsigned char *SpkrX, int Nchan,
       Nspkr = Nchan;
     if (Nspkr > AF_MAXN_SPKR)
       UTwarn ("AFopnWrite - %s", AFM_XSpkr);
-    else {
-      strncpy ((char *) SpkrConfig, (const char *) SpkrX, Nspkr);
-      SpkrConfig[Nspkr] = '\0';
-    }
+    else
+      STcopyNMax (SpkrX, SpkrConfig, Nspkr, AF_MAXN_SPKR);
   }
 
   return;
 }
 
-#define MAX_SINFO	320
+#define MAX_SINFO	320  /* Maximum size of Sinfo */
+                             /* See AF_stdInfo */
 
 
 static struct AF_infoX
@@ -304,6 +309,7 @@ AF_genInfo (const char *Uinfo, const struct AF_write *AFw)
   int Nc, ns, nu;
   static struct AF_infoX InfoX = {NULL, 0, 0};
 
+  /* Size of the standard info */
   if (Uinfo == NULL || Uinfo[0] == '\n' ||
       (Uinfo[0] == '\\' && Uinfo[1] == 'n'))
     ns = AF_stdInfo (AFw, Sinfo);
@@ -336,9 +342,9 @@ AF_genInfo (const char *Uinfo, const struct AF_write *AFw)
    - Uinfo does not start with '\n'
        Info <= Uinfo
 */
-  strcpy (InfoX.Info, Sinfo);
+  STcopyMax (Sinfo, InfoX.Info, ns);
   if (Uinfo != NULL)
-    strcpy (&InfoX.Info[ns], Uinfo);
+    STcopyMax (Uinfo, &InfoX.Info[ns], nu);
 
 /* Change newlines to nulls */
   InfoX.N = AF_nlNull (InfoX.Info, InfoX.Info);
@@ -359,8 +365,7 @@ AF_genInfo (const char *Uinfo, const struct AF_write *AFw)
    including the terminating null.
 */
 
-#define NSPKR_EXTRA 0
-#define NC_SPKR ((AF_NC_SPKR + 1) * (AF_MAXN_SPKR + NSPKR_EXTRA) - 1)
+#define NC_SPKR_NAMES 40
 
 static int
 AF_stdInfo (const struct AF_write *AFw, char *Sinfo)
@@ -370,38 +375,45 @@ AF_stdInfo (const struct AF_write *AFw, char *Sinfo)
   char *p;
   double Sfreq;
   const unsigned char *SpkrConfig;
-  char SpkrNames[NC_SPKR+1];
+  char SpkrNames[NC_SPKR_NAMES+1];
 
-/* String lengths
+/* Sinfo length (size MAX_SINFO)
+   Each record has a fixed part ("date: ") and a variable part ("...")
+   For all but the first, the record name starts with "\n". 
   Record          Fixed    Variable
   Name            Length   Max       Total
-   Date             6        40       46
-   Program Name    10        40       50
-   Sampling Freq.  14        15       29
-   Number of Bits  19         4       23
-   Loudspeakers    15        76       91
+   Date             6        40       46   (actually 6+23)
+   Program Name    10        40       50   (long names may get truncated)
+   Sampling Freq.  14        15       29   (actually 14+13)
+   Number of Bits  18         5       23   (assuming < 100 bits)
+   Loudspeakers    15        40       55   (max variable is 40)
    null             1                  1
                                      ---
-                                     240
+                                     204
 */
+  /* "date: 1994-01-23 14:59:53 UTC" */
   N = sprintf (Sinfo, "date: %.40s", UTdate(3));
 
+  /* "\nprogram: Name of program" */
   p = UTgetProg ();
   if (*p != '\0')
     N += sprintf (&Sinfo[N], "\nprogram: %.40s", p);
 
+  /* "\nsample_rate: 1.234567E+123" */
   Sfreq = AFw->Sfreq;
   if (Sfreq > 0.0 && Sfreq != floor (Sfreq))
     N += sprintf (&Sinfo[N], "\nsample_rate: %.7g", Sfreq);
 
+  /* "\nbits_per_sample: 24/32" */
   Res = 8 * AF_DL[AFw->DFormat.Format];
   NbS = AFw->DFormat.NbS;
   if (NbS != 0 && NbS != Res)
     N += sprintf (&Sinfo[N], "\nbits_per_sample: %d/%d", NbS, Res);
 
+  /* "\nloudspeakers: FL FU ..." */
   SpkrConfig = AFw->SpkrConfig;
   if (SpkrConfig[0] != AF_X_SPKR) {
-    AFspeakerNames (AFw->Nchan, SpkrConfig, NSPKR_EXTRA, SpkrNames);
+    AFspeakerNames (AFw->Nchan, SpkrConfig, SpkrNames, NC_SPKR_NAMES);
     N += sprintf (&Sinfo[N], "\nloudspeakers: %s", SpkrNames);
   }
 

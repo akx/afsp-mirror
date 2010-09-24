@@ -21,8 +21,8 @@ Parameters:
         1 - Little-endian storage order
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.24 $  $Date: 2003/05/09 03:23:41 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 19:58:18 $
 
 -------------------------------------------------------------------------*/
 
@@ -34,12 +34,12 @@ Author / revision:
 #include <libtsp/UTtypes.h>
 #include <libtsp/UTmsg.h>
 
-#define U4		((int) sizeof (uint4_t))
+#define U4		((int) sizeof (UT_uint4_t))
 
-static union { uint4_t U; unsigned char C[U4]; } u;
+static union { UT_uint4_t U; unsigned char C[U4]; } u;
 static const unsigned char C[4] = { 1, 2, 4, 8 };
-static const uint4_t I4L = 0x08040201;
-static const uint4_t I4B = 0x01020408;
+static const UT_uint4_t I4L = 0x08040201;
+static const UT_uint4_t I4B = 0x01020408;
 
 
 int
@@ -52,7 +52,7 @@ UTbyteOrder (void)
     u.C[0] = C[0];
     u.C[1] = C[1];
     u.C[2] = C[2];
-    u.C[U4-1] = C[3];	/* Implicit check that sizeof (uint4_t) is 4 */
+    u.C[U4-1] = C[3];	/* Implicit check that sizeof (UT_uint4_t) is 4 */
     if (u.U == I4L)
       Hbo = DS_EL;
     else if (u.U == I4B)

@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_LPx2_FIR.cof
 ! See ITU-T G.191 (2000), Software Tools Library (module fir-flat.c)
-! $Id: STL_LPx2_FIR.cof 1.4 2002/06/18 AFsp-v8r2 $
+! $Id: STL_LPx2_FIR.cof 1.4 2002/06/18 AFsp-v9r0 $
 !
 ! High quality linear-phase FIR filter for sample rate conversion,
 ! 2:1 or 1:2.  This filter can be used to convert between 16 kHz

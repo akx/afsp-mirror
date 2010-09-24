@@ -49,11 +49,17 @@ Parameters:
       selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.1 $  $Date: 2005/02/01 01:21:13 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.2 $  $Date: 2009/03/01 21:16:17 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow fopen */
+#endif
+
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/FIpar.h>

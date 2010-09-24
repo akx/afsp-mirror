@@ -19,14 +19,14 @@ Description:
      12     4    char   "FVER" chunk identifier (AIFF-C files only)
      16     4    int    Chunk length
      20     4    int      Format version identifier
-      C     4    char   "COMM" chunk identifier (C is 12 or 24)
+      C     4    char   "COMM" chunk identifier (C is 12 or 24 (AIFF/AIFF-C))
             4    int    Chunk length
             2    int      Number of interleaved channels
     +10     4    int      Number of sample frames
             2    int      Bits per sample
            10    float    Sample frames per second
             4    int      Compression type (AIFF-C files only)
-        ...    char     Compression name (AIFF-C files only)
+          ...    char     Compression name (AIFF-C files only)
     ...    ...   ...    ...
       S     4    char   SSND chunk identifier ("SSND")
      +4     4    int    Chunk length
@@ -44,8 +44,8 @@ Parameters:
       Structure containing file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.45 $  $Date: 2003/11/03 18:47:04 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.48 $  $Date: 2009/03/23 12:00:33 $
 
 -------------------------------------------------------------------------*/
 
@@ -66,6 +66,7 @@ Author / revision:
 
 #define MCOPY(src,dest)		memcpy ((void *) (dest), (void *) (src), \
 					sizeof (dest))
+#define STCOPY(src,dest)        STcopyMax (src, dest, sizeof (dest) - 1)
 #define WRPAD(fp,size,align) \
      AFwriteHead (fp, NULL, 1, (int) (RNDUPV(size, align) - (size)), \
 		  DS_NATIVE);
@@ -132,7 +133,7 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
 
   /* ANNO chunk */
   MCOPY (CKID_ANNOTATION, CkFORM.CkANNO.ckID);
-  CkFORM.CkANNO.ckSize = (uint4_t) (4 + AFw->InfoX.N);
+  CkFORM.CkANNO.ckSize = (UT_uint4_t) (4 + AFw->InfoX.N);
 
   /* SSND chunk */
   MCOPY (CKID_SSND, CkFORM.CkSSND.ckID);
@@ -146,7 +147,7 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
            + 8 + RNDUPV(CkFORM.CkSSND.ckSize, ALIGN);
   if (AFw->InfoX.N > 0)
     size += 8 + RNDUPV(CkFORM.CkANNO.ckSize, ALIGN);
-  CkFORM.ckSize = (uint4_t) size;
+  CkFORM.ckSize = (UT_uint4_t) size;
 
 /* Write out the header */
   AFw->DFormat.Swapb = DS_EB;
@@ -184,7 +185,7 @@ AF_setCOMM (struct AI_CkCOMM *CkCOMM, const struct AF_write *AFw)
   case FD_INT24:
   case FD_INT32:
     MCOPY (CT_NONE, CkCOMM->compressionType);
-    strcpy (CkCOMM->compressionName, CN_NONE);
+    STCOPY (CN_NONE, CkCOMM->compressionName);
     if (RNDUPV(NbS, 8) != Res) {
       UTwarn (AFMF_AIFF_InvNbS, "AFwrAIhead -", NbS, Res);
       NbS = Res;
@@ -198,33 +199,33 @@ AF_setCOMM (struct AI_CkCOMM *CkCOMM, const struct AF_write *AFw)
   */
   case FD_MULAW8:
     MCOPY (CT_ULAW, CkCOMM->compressionType);
-    strcpy (CkCOMM->compressionName, CN_ULAW);
+    STCOPY (CN_ULAW, CkCOMM->compressionName);
     CkCOMM->sampleSize = 16;		/* Uncompressed data size in bits */
     break;
   case FD_ALAW8:
     MCOPY (CT_ALAW, CkCOMM->compressionType);
-    strcpy (CkCOMM->compressionName, CN_ALAW);
+    STCOPY (CN_ALAW, CkCOMM->compressionName);
     CkCOMM->sampleSize = 16;		/* Uncompressed data size in bits */
     break;
   case FD_FLOAT32:
     MCOPY (CT_FLOAT32, CkCOMM->compressionType);
-    strcpy (CkCOMM->compressionName, CN_FLOAT32);
+    STCOPY (CN_FLOAT32, CkCOMM->compressionName);
     CkCOMM->sampleSize = Res;
     break;
   case FD_FLOAT64:
     MCOPY (CT_FLOAT64, CkCOMM->compressionType);
-    strcpy (CkCOMM->compressionName, CN_FLOAT64);
+    STCOPY (CN_FLOAT64, CkCOMM->compressionName);
     CkCOMM->sampleSize = Res;
     break;
   default:
     assert (0);
   }
 
-  CkCOMM->numChannels = (uint2_t) AFw->Nchan;
+  CkCOMM->numChannels = (UT_uint2_t) AFw->Nchan;
   if (AFw->Nframe == AF_NFRAME_UNDEF)
-    CkCOMM->numSampleFrames = (uint4_t) 0;
+    CkCOMM->numSampleFrames = (UT_uint4_t) 0;
   else
-    CkCOMM->numSampleFrames = (uint4_t) AFw->Nframe;
+    CkCOMM->numSampleFrames = (UT_uint4_t) AFw->Nframe;
   /* CkCOMM.sampleSize filled in above */
   UTeIEEE80 (AFw->Sfreq, CkCOMM->sampleRate);
   /* CkCOMM.compressionType filled in above */

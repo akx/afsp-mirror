@@ -25,7 +25,7 @@ COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
 LDFLAGS = -s -lm
 
-LLIBS = $(dist_libdir)/libAO.a $(dist_libdir)/libtsp.a
+LLIBS = $(dist_libdir)/libAO.a $(dist_libdir)/libtsplite.a
 
 .PHONY: mostlyclean clean
 

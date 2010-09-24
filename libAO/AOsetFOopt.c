@@ -16,8 +16,8 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.5 $  $Date: 2003/11/04 12:50:46 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.6 $  $Date: 2009/03/09 18:37:23 $
 
 -------------------------------------------------------------------------*/
 
@@ -44,7 +44,7 @@ AOsetFOopt (const struct AO_FOpar *FO)
   if (FO->SpkrConfig != NULL) {
     N = strlen ((const char *) FO->SpkrConfig);
     AFopt->SpkrConfig = (unsigned char *) UTmalloc (N+1);
-    strcpy ((char *) AFopt->SpkrConfig, (const char *) FO->SpkrConfig);
+    STcopyMax ((const char *) FO->SpkrConfig, (char *) AFopt->SpkrConfig, N);
   }
 
   AFsetInfo (NULL);	/* Reset the info string */

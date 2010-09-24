@@ -8,12 +8,12 @@ Routine:
                       int MaxNc)
 
 Purpose:
-  Decode, check, list loudspeaker spacial positions
+  Decode, check, list loudspeaker spatial positions
 
 Description:
-  This routine sets the default mapping of output channels to speaker
-  positions.  The spacial positions of the loudspeakers are specified as a
-  list of comma and/or white-space separated locations from the list below.
+  These routines decode or generate the mapping of output channels to speaker
+  positions. The spacial positions of the loudspeakers are specified as a list
+  of comma and/or white-space separated locations from the list below.
     "FL"  - Front Left
     "FR"  - Front Right
     "FC"  - Front Center
@@ -33,39 +33,49 @@ Description:
     "TBC" - Top Back Center
     "TBR" - Top Back Right
     "-"   - none
+  Each speaker location is associated with an integer code: "FL" is speaker
+  location code code 1, "FR" is speaker location code 2, and so on.
+
   A speaker position can be associated with only one channel.  Only WAVE files
   store the speaker locations in the file header.  In the case of WAVE files,
-  the subset of spacial positions must appear in the order given above.
+  the subset of spatial positions associated with the channels must appear in
+  the order given above.
 
 Parameters:
   <-  int AFdecSpeaker
       Error flag, zero for no error
    -> const char String[]
-      String containing the list of speaker positions
+      String containing the list comma or whitespace separated list of speaker
+      positions
   <-  unsigned char *SpkrConfig
-      Null-terminated string containing the speaker location codes
+      Null-terminated list of speaker location codes. Code values are integer
+      values starting at 1. SpkrConfig must be of size MaxN+1.
    -> int MaxN
-      Maximum number of speaker locations
+      Maximum number of speaker locations. This value should normally be equal
+      to or larger than the number of channels.
 
   <-  int AFspeakerNames
       Error flag, zero for no error
    -> int Nchan
       Number of channels
    -> const unsigned char *SpkrConfig
-      Null-terminated string containing the speaker location codes
-   -> int Nextra
-      Maximum number of extra (not-specified) speaker positions
+      Null-terminated list of speaker location codes. Code values are integer
+      values starting at 1.
   <-  char *SpkrNames
-      String containing the list of speaker positions
+      String containing the blank-separated list of speaker positions (size
+      MaxNc+1)
+   -> MaxNc
+      Maximum number of characters in SpkrNames (not including a terminating
+      null)
 
   <-  int AFcheckSpeakers
       Error flag, zero for no error
    -> const unsigned char *SpkrConfig
-      Null-terminated string containing the speaker location codes
+      Null-terminatedlist of speaker location codes.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2004
-  $Revision: 1.8 $  $Date: 2004/03/31 13:25:41 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.9 $  $Date: 2009/02/28 23:36:04 $
 
 -------------------------------------------------------------------------*/
 
@@ -171,24 +181,20 @@ AFcheckSpeakers (const unsigned char *SpkrConfig)
 }
 
 /* Speaker configuration names */
-/* Let Nspkr be the number of locations specified in SpkrConfig. The number of
-   of speaker locations returned in SpkrNames is
-     if (Nchan <= Nspkr+Nextra)
-       Ns = Nchan
-     else
-       Ns = Nspkr
-   The "extra" speaker locations are designated "-".
-   SpkrNames must provides space for Ns * AF_NC_SPKR - 1 characters.
+/* The output is a list of blank separated speaker location names. Extra
+   speakers are designated as "-". If the output string is not long enough
+   to contain all of the names, the list is truncated and " ..." is added
+   at the end of the string.
 */
 
 
 int
-AFspeakerNames (int Nchan, const unsigned char *SpkrConfig, int Nextra,
-		char *SpkrNames)
+AFspeakerNames (int Nchan, const unsigned char *SpkrConfig, char *SpkrNames,
+		int MaxNc)
 
 {
   int ErrCode;
-  int i, Nspkr, Ns, nc, n;
+  int i, Nspkr, nc, ncE, ncS, n, nb;
 
   ErrCode = 0;
 
@@ -203,29 +209,38 @@ AFspeakerNames (int Nchan, const unsigned char *SpkrConfig, int Nextra,
     return ErrCode;
 
   Nspkr = strlen ((const char *) SpkrConfig);
-  if (Nchan <= Nspkr + Nextra)
-    Ns = Nchan;
-  else
-    Ns = Nspkr;
-
   SpkrNames[0] = '\0';
-  for (i = 0; i < Ns; ++i) {
+  nc = 0;
+  ncE = 0;             /* Last place in the string for an ellipsis */
+  nb = 0;              /* Insert blank flag */
+  for (i = 0; i < Nchan; ++i) {
 
-    /* Append the speaker name */
-    nc = strlen (SpkrNames);
-    if (nc > 0) {
-      SpkrNames[nc] = ' ';
-      nc = nc + 1;
-    }
-    if (i >= Nspkr)
-      n = AF_SPKR_X;
-    else
+    /* Get the speaker location code */
+    if (i < Nspkr)
       n = SpkrConfig[i];
-    strcpy (&SpkrNames[nc], AF_Spkr_Names[n-1]);
-  }
+    else
+      n = AF_SPKR_X;
 
-  if (ErrCode)
-    SpkrNames[0] = '\0';
+    /* Save the last position in the string for an ellipsis */
+    if (nc + 4 <= MaxNc)
+      ncE = nc;
+
+    ncS = strlen ((const char *) AF_Spkr_Names[n-1]);
+    if (nc + nb + ncS <= MaxNc) {
+      if (nb > 0)
+	SpkrNames[nc] = ' ';
+      nc = nc + nb;
+      STcopyMax (AF_Spkr_Names[n-1], &SpkrNames[nc], MaxNc-nc);
+      nc = nc + ncS;
+      nb = 1;
+    }
+    else {
+      /* Out of space, add " ..." to the end of the list */
+      STcopyMax (" ...", &SpkrNames[nc], MaxNc-ncE);
+
+      break;
+    }
+  }
 
   return ErrCode;
 }

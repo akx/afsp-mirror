@@ -8,8 +8,8 @@ Description:
   Declarations for AU audio file headers
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.27 $  $Date: 2003/05/13 01:48:11 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:15:52 $
 
 ----------------------------------------------------------------------*/
 
@@ -43,15 +43,15 @@ enum {
   AU_ALAW8	= 27	/* A-law 8-bit data */
 };
 
-#define	AU_NOSIZE	(~((uint4_t) 0))	/* Indeterminate data length */
+#define	AU_NOSIZE	(~((UT_uint4_t) 0))  /* Indeterminate data length */
 
 struct AU_head {
   char Magic[4];	/* File magic */
-  uint4_t Lhead;	/* Length of header in bytes */
-  uint4_t Ldata;	/* Length of data portion in bytes */
-  uint4_t Dencod;	/* Encoding type */
-  uint4_t Srate;	/* Sampling rate */
-  uint4_t Nchan;	/* Number of channels */
+  UT_uint4_t Lhead;	/* Length of header in bytes */
+  UT_uint4_t Ldata;	/* Length of data portion in bytes */
+  UT_uint4_t Dencod;	/* Encoding type */
+  UT_uint4_t Srate;	/* Sampling rate */
+  UT_uint4_t Nchan;	/* Number of channels */
   char AFspID[4];	/* AFsp identifier */
 };
 

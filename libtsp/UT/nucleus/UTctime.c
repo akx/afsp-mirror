@@ -35,11 +35,17 @@ Parameters:
       Date / time format code, taking on values from 0 to 3
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.22 $  $Date: 2003/05/09 03:49:05 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.23 $  $Date: 2009/03/01 21:03:35 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow strftime */
+#endif
+
 #include <time.h>	/* strftime definition */
 			/* tzset (Section 8.3.2.1 of Posix) */
 
@@ -65,7 +71,7 @@ UTctime (time_t *timer, int format)
   }
 
 /* Notes:
-   - On some systems, the time zone is verbose.  For insance, on Windows,
+   - On some systems, the time zone is verbose.  For instance, on Windows,
      with the MSVC compiler, the time zone is of the form
      "Eastern Daylight Time".
    - Setting the TZ environment variable will force the time zone names,

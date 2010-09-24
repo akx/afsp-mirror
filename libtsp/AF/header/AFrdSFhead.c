@@ -10,8 +10,7 @@ Purpose:
 Description:
   This routine reads the header for an IRCAM soundfile.  The header information
   is used to set the file data format information in the audio file pointer
-  structure.  A banner identifying the audio file and its parameters is
-  printed.
+  structure.
 
   IRCAM soundfile header:
    Offset Length Type    Contents
@@ -29,8 +28,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.72 $  $Date: 2003/11/03 18:56:00 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.74 $  $Date: 2009/03/23 12:01:27 $
 
 -------------------------------------------------------------------------*/
 
@@ -74,13 +73,13 @@ Author / revision:
 
 struct SF_head {
   char Magic[4];	/* File magic */
-  float4_t sf_srate;	/* Sampling frequency */
-  uint4_t sf_chans;	/* Number of channels */
-  uint4_t sf_packmode;	/* Encoding type */
+  UT_float4_t sf_srate;	/* Sampling frequency */
+  UT_uint4_t sf_chans;	/* Number of channels */
+  UT_uint4_t sf_packmode;	/* Encoding type */
 };
 struct SF_code {
-  uint2_t code;
-  uint2_t bsize;
+  UT_uint2_t code;
+  UT_uint2_t bsize;
 };
 
 /* setjmp / longjmp environment */

@@ -20,16 +20,21 @@ Parameters:
       each call to this routine overlays this storage.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.21 $  $Date: 2003/05/09 03:23:41 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.22 $  $Date: 2009/03/01 21:02:19 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow getenv */
+#endif
+
 #include <stdlib.h>	/* getenv */
 
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
-#include <libtsp/sysOS.h>
 #include <libtsp/UTmsg.h>
 
 #if (SY_POSIX)

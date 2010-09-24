@@ -20,8 +20,6 @@ Description:
   directory name.  This results in a resolved, cleaned up path name.  The
   rightmost components are appended to this to form the full path name.
 
-  Note that ~ characters in the file name are treated as ordinary characters.
-
 Parameters:
   <-  int FLfullName
       Number of characters in the output string
@@ -35,11 +33,16 @@ Parameters:
       path cannot be resolved.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.42 $  $Date: 2003/05/09 01:36:43 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.44 $  $Date: 2009/03/01 21:12:08 $
 
 ----------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#endif
+
 #include <string.h>
 
 #if (SY_OS == SY_OS_UNIX || SY_OS == SY_OS_CYGWIN)
@@ -49,7 +52,6 @@ Author / revision:
 
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
-#include <libtsp/sysOS.h>
 #include <libtsp/FLmsg.h>
 
 #if (SY_POSIX)
@@ -58,15 +60,6 @@ Author / revision:
 #  include <direct.h>
 #endif
 
-#if (SY_OS == SY_OS_UNIX || SY_OS == SY_OS_CYGWIN)
-static void
-FL_mntDir (char Dname[], const char mntPoint[], const char replace[]);
-static int
-FL_sameFile (const char Fname1[], const char Fname2[]);
-#endif
-
-static void
-FL_homeDir (char Dname[]);
 static int
 FL_resDir (char Dname[]);
 static int
@@ -107,96 +100,12 @@ FLfullName (const char Fname[], char Fullname[])
     FLdirName (Dprev, Dname);
   }
 
-/* The user's home directory may be a symbolic link.  Usually the name
-   stored in the environment variable HOME is the preferred way to refer
-   to the home directory.  Here we try to replace the leading file name
-   components by the home directory name.
-*/
-  FL_homeDir (Dname);
-
-/* On systems which use automounted disks, the returned current working
-   directory may contain a /tmp_mnt/ or similar directory component.  Yet
-   the user can refer to the directory without that component.  Here we
-   look for such a component.  If found, we remove it and verify that a
-   chdir to that modified directory name refers to the same directory.
-*/
-#if (SY_OS == SY_OS_UNIX)
-  FL_mntDir (Dname, "/tmp_mnt/", "/");	/* Name must be surrounded by "/" */
-#endif
-
 /* Form the output name */
   n = FLjoinNames (Dname, Bname, Fullname);
 
   return n;
 }
-
-#if (SY_OS == SY_OS_UNIX || SY_OS == SY_OS_CYGWIN)
 
-static void
-FL_mntDir (char Dname[], const char mntPoint[], const char replace[])
-
-{
-  char *p;
-  int n, nct;
-  char Dshort[FILENAME_MAX];
-
-  /* Check if the mount point name appears in the directory name */
-  p = strstr (Dname, mntPoint);
-  if (p != NULL) {
-
-    /* Replace the imbedded mount point name */
-    n = (int) (p - Dname);
-    nct = strlen (mntPoint);
-    STcopyNMax (Dname, Dshort, n, FILENAME_MAX-1);
-    STcatMax (replace, Dshort, FILENAME_MAX-1);
-    STcatMax (&Dname[n+nct], Dshort, FILENAME_MAX-1);
-
-    /* See if the shortened directory name refers to the same place */
-    if (FL_sameFile (Dshort, Dname))
-      STcopyMax (Dshort, Dname, FILENAME_MAX-1);
-  }
-
-  return;
-}
-#endif
-
-#if (SY_FILENAME_SPEC == SY_FNS_UNIX)
-#  define DIR_SEP_STR	"/"
-#elif (SY_FILENAME_SPEC == SY_FNS_WINDOWS)
-#  define DIR_SEP_STR	"\\"
-#else
-#  error "Bad SY_FILENAME_SPEC value"
-#endif
-#define DIR_SEP_CHAR	((DIR_SEP_STR)[0])
-
-
-static void
-FL_homeDir (char Dname[])
-
-{
-  char Dtemp[FILENAME_MAX];
-  char Home[FILENAME_MAX];
-  int n;
-
-  /* Get the "cleaned up" version of the home directory */
-  FLhomeDir ("", Home);
-  if (Home[0] != '~') {
-    STcopyMax (Home, Dtemp, FILENAME_MAX-1);
-    if (FL_resDir (Dtemp) == 0) {
-      n = strlen (Dtemp);
-
-      /* See if Dtemp is a prefix of Dname; if so, substitute Home */
-      if (strncmp (Dname, Dtemp, (size_t) n) == 0) {
-	if (Dname[n] == DIR_SEP_CHAR)
-	  FLjoinNames (Home, &Dname[n+1], Dname);
-	else if (Dname[n] == '\0')
-	  STcopyMax (Home, Dname, FILENAME_MAX-1);
-      }
-    }
-  }
-
-  return;
-}
 
 static int
 FL_resDir (char Dname[])
@@ -252,6 +161,16 @@ FL_saveDir (char Dname[])
   return status;
 }
 
+#if (SY_FILENAME_SPEC == SY_FNS_UNIX)
+#  define DIR_SEP_STR	"/"
+#elif (SY_FILENAME_SPEC == SY_FNS_WINDOWS)
+#  define DIR_SEP_STR	"\\"
+#else
+#  error "Bad SY_FILENAME_SPEC value"
+#endif
+#define DIR_SEP_CHAR	((DIR_SEP_STR)[0])
+
+
 static int
 FL_chDir (const char Dname[])
 
@@ -280,14 +199,4 @@ FL_chDir (const char Dname[])
   }
 
   return status;
-}
-
-static int
-FL_sameFile (const char Fname1[], const char Fname2[])
-
-{
-  struct stat Fstat1, Fstat2;
-
-  return (stat (Fname1, &Fstat1) == 0 && stat (Fname2, &Fstat2) == 0 &&
-	  Fstat1.st_ino == Fstat2.st_ino && Fstat1.st_dev == Fstat2.st_dev);
 }

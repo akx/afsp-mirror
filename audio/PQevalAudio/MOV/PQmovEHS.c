@@ -41,8 +41,8 @@ Parameters:
       Number of PEAQ frames
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.9 $  $Date: 2003/05/13 01:15:12 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.12 $  $Date: 2009/03/23 15:52:04 $
 
 -------------------------------------------------------------------------*/
 
@@ -53,16 +53,13 @@ Author / revision:
 #include "PQevalAudio.h"
 
 #define SQRV(x)		((x) * (x))
-#define KST_MAX		1
 #define NLAG		256
 #define NSUM		256
-#define ND		(KST_MAX + NLAG + NSUM - 1)
+#define ND		(NLAG + NSUM - 1)
 #define SUMSQ(x,N)	VRdDotProd(x,x,N)
 
 static void
 PQ_Corr (const double D0[], const double D1[], double C[], int NL, int M);
-static void
-PQ_Demean (const double x[], double y[], int N);
 static double
 PQ_FindPeak (const double c2[], int N);
 static double
@@ -76,15 +73,14 @@ PQmovEHS (const double xR[], const double xT[], const double *X2[],
 	  const struct Par_EHS *EHS)
 
 {
-  int k, kmax;
+  int k, L;
   double D[ND];
-  double C[KST_MAX + NLAG];
-  double Cm[NLAG];
+  double C[NLAG];
+  double Cw[NLAG];
   double c2[NLAG/2 + 1];
   double EnRef, EnTest;
   double EHSV;
 
-  const int kst = EHS->kst;
   const int NL = EHS->NL;
   const int M = EHS->M;
   const double *Hw = EHS->Hw;
@@ -97,28 +93,28 @@ PQmovEHS (const double xR[], const double xT[], const double *X2[],
   if (EnRef < EHS->EnThr && EnTest < EHS->EnThr)
     return -1.;
 
-  kmax = kst + NL - 1 + M;
-  assert (ND >= kmax && NLAG >= NL && KST_MAX +NLAG >= kst + NL);
+  L = NL + M - 1;
+  assert (ND >= L && NLAG >= NL);
 
   /* Differences of log values */
-  for (k = 0; k < kmax; ++k)
+  for (k = 0; k < L; ++k)
     D[k] = log (X2[1][k] / X2[0][k]);
 
   /* Compute correlation */
-  PQ_Corr (D, D, C, kst+NL, M);
+  PQ_Corr (D, D, C, NL, M);
 
-  /* Normalize the correlations, remove the mean */
-  PQ_NCorr (C, D, C, kst+NL, M);
-  PQ_Demean (&C[kst], Cm, NL);
+  /* Normalize the correlations */
+  PQ_NCorr (C, D, C, NL, M);
 
   /* Window the correlation */
-  VRdMult (Cm, Hw, Cm, NL);
+  VRdMult (C, Hw, Cw, NL);
 
-  /* DFT */
-  SPdRFFT (Cm, NL, 1);
+  /* DFT (scaling factor 1/NL included in window) */
+  SPdRFFT (Cw, NL, 1);		/* in-place computation */
 
   /* Squared magnitude */
-  VRdRFFTMSq (Cm, c2, NL);
+  VRdRFFTMSq (Cw, c2, NL);
+  c2[0] = 0;		/* Remove mean (windowed) correlation */
 
   /* Search for a peak after a valley */
   EHSV = PQ_FindPeak (c2, NL/2+1);
@@ -127,7 +123,6 @@ PQmovEHS (const double xR[], const double xT[], const double *X2[],
 }
 
 /* Average EHS values (negative values flag low energy frames) */
-
 
 double
 PQavgEHS (const struct MOVC_EHS *EHS, int Nchan, int Np)
@@ -143,23 +138,7 @@ PQavgEHS (const struct MOVC_EHS *EHS, int Nchan, int Np)
 
   return EHSB;
 }
-static void
-PQ_Demean (const double x[], double y[], int N)
-
-{
-  int i;
-  double s;
-
-  s = 0;
-  for (i = 0; i < N; ++i)
-    s += x[i];
-  s = s / N;
-
-  for (i = 0; i < N; ++i)
-    y[i] = x[i] - s;
-
-  return;
-}      
+      
 
 /* Correlation calculation */
 
@@ -236,23 +215,29 @@ static double
 PQ_FindPeak (const double c2[], int N)
 
 {
-  int n;
-  double cprev, cmax;
+  int n, Valley;
+  double cprev, EHS, ct;
 
   assert (N >= 2);
 
   cprev = c2[0];
-  cmax = 0;
+  Valley = 0;
+  EHS = 0;
 
   /* Search for a peak after a valley */
   for (n = 1; n < N; ++n) {
-    if (c2[n] > cprev) {	/* Rising from a valley */
-      if (c2[n] > cmax)
-	cmax = c2[n];
+    ct = c2[n];
+    if (Valley) {
+      if (ct > cprev && ct > EHS)	/* Rising */
+	EHS = ct;
     }
+    else if (ct < cprev)		/* Falling into a valley */
+      Valley = 1;
+
+    cprev = ct;
   }
 
-  return cmax;
+  return EHS;
 }
 
 /* Average values, omitting values which are negative */

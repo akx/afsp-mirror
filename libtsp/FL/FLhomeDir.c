@@ -9,18 +9,19 @@ Purpose:
 
 Description:
   This routine returns the path name corresponding to the home directory for a
-  user.  When the User argument is empty, the current user is assumed.  In that
-  case, the translation of the environment variable HOME is used if possible.
-  In other cases, the home directory is taken from the password entry for the
-  user.  If the user is unknown, the home directory string is returned as
-  "~User".
+  user.  When the User argument is empty, the current user is assumed. There
+  are several cases. The search order is: environment variables HOMEDRIVE and
+  HOMEPATH (current user on Windows systems), home directory in the password
+  entry (Posix systems), and finally the environment variable HOME (current
+  user). If the home directory cannot be obtained (for instance, the user is
+  not known) the home directory string is returned as the empty string.
 
 Parameters:
   <-  int FLhomeDir
       Number of characters in the output string
    -> const char User[]
       Input character string specifying the user.  If this string is empty, the
-      current user is used.
+      home directory for the current user is returned.
   <-  char Home[]
       Output string with the home directory.  Except for the case of the root
       directory "/", the directory name does not have a trailing '/' character.
@@ -28,17 +29,22 @@ Parameters:
       terminating null character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.24 $  $Date: 2003/05/09 01:36:44 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.26 $  $Date: 2009/03/01 21:12:47 $
 
 ----------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow getenv */
+#endif
+
 #include <stdlib.h>		/* getenv prototype */
 #include <string.h>
 
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
-#include <libtsp/sysOS.h>
 
 #if (SY_POSIX)
 #  include <pwd.h>	/* struct passwd, getpwnam prototype */
@@ -125,9 +131,8 @@ FLhomeDir (const char User[], char Home[])
   else {
 
 /* Unsuccessful */
-    Home[0] = '~';
-    n = STcopyMax (User, &Home[1], FILENAME_MAX-2);
-    n = n + 1;
+    Home[0] = '\0';
+    n = 0;
   }
 
   return n;

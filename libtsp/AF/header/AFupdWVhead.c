@@ -19,8 +19,8 @@ Parameters:
       Audio file pointer for an audio file opened by AFopnWrite
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.34 $  $Date: 2003/11/03 18:48:31 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.35 $  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
@@ -74,7 +74,7 @@ AFupdWVhead (AFILE *AFp)
 
 {
   long int Nbytes, Ldata;
-  uint4_t val;
+  UT_uint4_t val;
   struct WV_AFSP afsp;
   struct WV_DISP disp;
   struct WV_LIST_INFO info;
@@ -132,7 +132,7 @@ AFupdWVhead (AFILE *AFp)
   }
 
 /* Update the "RIFF" chunk cksize field (at the beginnning of the file) */
-  val = (uint4_t) (Nbytes - 8);
+  val = (UT_uint4_t) (Nbytes - 8);
   if (AFseek (AFp->fp, 4L, NULL))	/* Back at the beginning of the file */
     return 1;
   WHEAD_V (AFp->fp, val, DS_EL);
@@ -143,14 +143,14 @@ AFupdWVhead (AFILE *AFp)
   if (AFp->Start == 58 || AFp->Start == 80) {
     if (AFseek (AFp->fp, AFp->Start - 12, NULL))
       return 1;
-    val = (uint4_t) (AFp->Nsamp / AFp->Nchan);
+    val = (UT_uint4_t) (AFp->Nsamp / AFp->Nchan);
     WHEAD_V (AFp->fp, val, DS_EL);
   }
 
 /* Update the "data" chunk cksize field */
   if (AFseek (AFp->fp, AFp->Start - 4, NULL))
     return 1;
-  val = (uint4_t) Ldata;
+  val = (UT_uint4_t) Ldata;
   WHEAD_V (AFp->fp, val, DS_EL); /* Number of data bytes */
 
   return 0;
@@ -165,9 +165,9 @@ AF_setAFSP (struct WV_AFSP *afsp, const struct AF_info *InfoS)
 {
   MCOPY ("afsp", afsp->ckid);
   if (InfoS->N > 0)
-    afsp->cksize = (uint4_t) (4 + InfoS->N);
+    afsp->cksize = (UT_uint4_t) (4 + InfoS->N);
   else
-    afsp->cksize = (uint4_t) 4;
+    afsp->cksize = (UT_uint4_t) 4;
   MCOPY (FM_AFSP, afsp->AFspID);
   afsp->text = InfoS->Info;
 
@@ -208,10 +208,10 @@ AF_setDISP (struct WV_DISP *disp, const struct AF_info *InfoS)
   MCOPY ("DISP", disp->ckid);
   title = AF_findRec (TitleID, InfoS);
   if (title == NULL)
-    disp->cksize = (uint4_t) 4;
+    disp->cksize = (UT_uint4_t) 4;
   else
-    disp->cksize = (uint4_t) (4 + strlen (title) + 1);
-  disp->type = (uint4_t) (CF_TEXT);
+    disp->cksize = (UT_uint4_t) (4 + strlen (title) + 1);
+  disp->type = (UT_uint4_t) (CF_TEXT);
   disp->text = title;
 
   return;

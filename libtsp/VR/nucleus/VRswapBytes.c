@@ -24,8 +24,8 @@ Parameters:
       Number of values to be byte-swapped
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.21 $  $Date: 2003/05/09 03:33:52 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.22 $  $Date: 2009/03/11 20:00:35 $
 
 -------------------------------------------------------------------------*/
 
@@ -44,12 +44,12 @@ VRswapBytes (const void *BuffI, void *BuffO, int Size, int Nelem)
 {
   const unsigned char *cp;
   unsigned char *sp;
-  const int2_t *B2;
-  int2_t *S2;
-  const int4_t *B4;
-  int4_t *S4;
-  const double8_t *B8;
-  double8_t *S8;
+  const UT_int2_t *B2;
+  UT_int2_t *S2;
+  const UT_int4_t *B4;
+  UT_int4_t *S4;
+  const UT_float8_t *B8;
+  UT_float8_t *S8;
   unsigned char t;
 
   switch (Size) {
@@ -58,8 +58,8 @@ VRswapBytes (const void *BuffI, void *BuffO, int Size, int Nelem)
     break;
 
   case (2):
-    B2 = (const int2_t *) BuffI;
-    S2 = (int2_t *) BuffO;
+    B2 = (const UT_int2_t *) BuffI;
+    S2 = (UT_int2_t *) BuffO;
     while (Nelem-- > 0) {
       cp = (const unsigned char *) B2;
       sp = (unsigned char *) S2;
@@ -70,8 +70,8 @@ VRswapBytes (const void *BuffI, void *BuffO, int Size, int Nelem)
     break;
 
   case (4):
-    B4 = (const int4_t *) BuffI;
-    S4 = (int4_t *) BuffO;
+    B4 = (const UT_int4_t *) BuffI;
+    S4 = (UT_int4_t *) BuffO;
     while (Nelem-- > 0) {
       cp = (const unsigned char *) B4;
       sp = (unsigned char *) S4;
@@ -83,8 +83,8 @@ VRswapBytes (const void *BuffI, void *BuffO, int Size, int Nelem)
     break;
 
   case (8):
-    B8 = (const double8_t *) BuffI;
-    S8 = (double8_t *) BuffO;
+    B8 = (const UT_float8_t *) BuffI;
+    S8 = (UT_float8_t *) BuffO;
     while (Nelem-- > 0) {
       cp = (const unsigned char *) B8;
       sp = (unsigned char *) S8;

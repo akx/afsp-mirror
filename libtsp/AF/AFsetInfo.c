@@ -58,8 +58,8 @@ Parameters:
       String containing the user supplied information
 
 Author / revision:
-  P. Kabal  Copyright (C) 2006
-  $Revision: 1.45 $  $Date: 2006/06/06 13:53:55 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.46 $  $Date: 2009/03/01 22:16:55 $
 
 -------------------------------------------------------------------------*/
 
@@ -104,7 +104,7 @@ AFsetInfo (const char Info[])
       AFopt->Uinfo = (char *) UTrealloc (AFopt->Uinfo, Nt+1);
 
     /* Copy / Append the string */
-    strcpy (&(AFopt->Uinfo[NU]), Info);
+    STcopyMax (Info, &(AFopt->Uinfo[NU]), Ninfo);
   }
 
   return;

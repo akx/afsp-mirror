@@ -30,11 +30,16 @@ Parameters:
       Bandwidth expansion factor
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.18 $  $Date: 2003/11/03 13:10:05 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.19 $  $Date: 2009/03/09 18:51:58 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow fopen, sprintf */
+#endif
+
 #include <libtsp.h>
 #include <libtsp/AFpar.h>
 

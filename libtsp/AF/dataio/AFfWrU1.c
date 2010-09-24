@@ -23,8 +23,8 @@ Parameters:
       Number of samples to be written
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:14:44 $
 
 -------------------------------------------------------------------------*/
 
@@ -36,7 +36,7 @@ Author / revision:
 #define MINV(a, b)	(((a) < (b)) ? (a) : (b))
 #define NBBUF		8192
 
-#define UINT1_OFFSET	((UINT1_MAX+1)/2)
+#define UT_UINT1_OFFSET	((UT_UINT1_MAX+1)/2)
 
 #define FWRITE(buf,size,nv,fp)	(int) fwrite ((const char *) buf, \
 					      (size_t) size, (size_t) nv, fp)
@@ -47,7 +47,7 @@ AFfWrU1 (AFILE *AFp, const float Dbuff[], int Nval)
 
 {
   int is, N, Nw, i;
-  uint1_t Buf[NBBUF/LW];
+  UT_uint1_t Buf[NBBUF/LW];
   double g, Dv;
 
 /* Write data to the audio file */
@@ -56,16 +56,16 @@ AFfWrU1 (AFILE *AFp, const float Dbuff[], int Nval)
   while (is < Nval) {
     N = MINV (NBBUF / LW, Nval - is);
     for (i = 0; i < N; ++i) {
-      Dv = g * Dbuff[i+is] + UINT1_OFFSET + 0.5;
-      if (Dv >= UINT1_MAX + 1) {
+      Dv = g * Dbuff[i+is] + UT_UINT1_OFFSET + 0.5;
+      if (Dv >= UT_UINT1_MAX + 1) {
 	++AFp->Novld;
-	Dv = UINT1_MAX;
+	Dv = UT_UINT1_MAX;
       }
       else if (Dv <= 0) {
 	++AFp->Novld;
 	Dv = 0;
       }
-      Buf[i] = (uint1_t) Dv;
+      Buf[i] = (UT_uint1_t) Dv;
     }
     Nw = FWRITE (Buf, LW, N, AFp->fp);
     is += Nw;

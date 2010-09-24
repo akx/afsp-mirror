@@ -23,8 +23,8 @@ Parameters:
       is a pointer to an empty string.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.12 $  $Date: 2003/05/09 03:20:37 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.14 $  $Date: 2009/03/01 20:59:56 $
 
 -------------------------------------------------------------------------*/
 
@@ -45,7 +45,7 @@ UTsetProg (const char Program[])
   nc = strlen (Program);
   if (nc > 0) {
     Pgm = (char *) UTmalloc (nc + 1);
-    strcpy (Pgm, Program);
+	STcopyMax (Program, Pgm, nc);
   }
   else
     Pgm = NULL;

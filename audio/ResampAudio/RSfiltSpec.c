@@ -18,8 +18,8 @@ Parameters:
       Structure with the decoded filter specifications
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.13 $  $Date: 2003/05/13 01:08:13 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.14 $  $Date: 2009/03/09 18:44:30 $
 
 -------------------------------------------------------------------------*/
 
@@ -82,7 +82,7 @@ RSfiltSpec (const char String[], struct Fspec_T *Fspec)
 	if (nc <= 0)
 	  UThalt ("%s: %s", PROGRAM, RSM_NoCoef);
 	Fspec->FFile = (char *) UTmalloc (nc + 1);
-	strcpy (Fspec->FFile, token);
+	STcopyMax (token, Fspec->FFile, nc);
 	break;
 
       /* write = */
@@ -92,7 +92,7 @@ RSfiltSpec (const char String[], struct Fspec_T *Fspec)
 	if (nc <= 0)
 	  UThalt ("%s: %s", PROGRAM, RSM_NoFName);
 	Fspec->WFile = (char *) UTmalloc (nc + 1);
-	strcpy (Fspec->WFile, token);
+	STcopyMax (token, Fspec->WFile, nc);
 	break;
 
       /* ratio = */

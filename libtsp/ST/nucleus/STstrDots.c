@@ -34,7 +34,7 @@ Description:
   Examples:
       input : "It was the best of times, it was the worst"
                012345678901234567890123456789012345678901
-               0         10       20        30        40 
+               0        10        20        30        40 
         M = 60
       output: "It was the best of times, it was the worst"
         M = 40
@@ -54,17 +54,18 @@ Parameters:
       Input character string
    -> int Maxchar
       Maximum number of characters (not including the trailing null character)
-      for the output string.
+      for the output string (maximum 80)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.5 $  $Date: 2003/05/09 03:06:42 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.7 $  $Date: 2009/03/01 21:04:54 $
 
 -------------------------------------------------------------------------*/
 
 #include <ctype.h>
 #include <string.h>
 
+#include <libtsp.h>
 #include <libtsp/nucleus.h>
 
 #define MINV(a, b)	(((a) < (b)) ? (a) : (b))
@@ -106,8 +107,8 @@ STstrDots (const char Si[], int Maxchar)
 
 /* Copy characters */
   ST_copyNtr (Si, Line, nc);
-  if (nc <= M-3)
-    strcpy (&Line[nc], "...");
+  if (nc + 3 <= M)
+	STcopyMax ("...", &Line[nc], 3);
 
   return Line;
 }

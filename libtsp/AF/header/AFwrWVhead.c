@@ -43,8 +43,8 @@ Parameters:
       Structure containing file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.69 $  $Date: 2003/05/13 01:57:49 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
@@ -83,7 +83,7 @@ static void
 AF_wrRIFF (FILE *fp, const struct WV_CKRIFF *CKRIFF);
 static int
 AF_wrFMT (FILE *fp, const struct WV_CKfmt *CKfmt);
-static uint4_t
+static UT_uint4_t
 AF_encChannelConfig (const unsigned char *SpkrConfig);
 
 
@@ -122,20 +122,20 @@ AFwrWVhead (FILE *fp, struct AF_write *AFw)
   /* fact chunk */
   if (CKRIFF.CKfmt.wFormatTag != WAVE_FORMAT_PCM) {
     MCOPY ("fact", CKRIFF.CKfact.ckID);
-    CKRIFF.CKfact.ckSize = (uint4_t) sizeof (CKRIFF.CKfact.dwSampleLength);
-    CKRIFF.CKfact.dwSampleLength = (uint4_t) 0;
+    CKRIFF.CKfact.ckSize = (UT_uint4_t) sizeof (CKRIFF.CKfact.dwSampleLength);
+    CKRIFF.CKfact.dwSampleLength = (UT_uint4_t) 0;
   }
 
   /* data chunk */
   MCOPY ("data", CKRIFF.CKdata.ckID);
-  CKRIFF.CKdata.ckSize = (uint4_t) Ldata;
+  CKRIFF.CKdata.ckSize = (UT_uint4_t) Ldata;
 
   /* Fill in the RIFF chunk size */
   size = 4 + 8 + RNDUPV(CKRIFF.CKfmt.ckSize, ALIGN) +
              8 + RNDUPV(CKRIFF.CKdata.ckSize, ALIGN);
   if (CKRIFF.CKfmt.wFormatTag != WAVE_FORMAT_PCM)
     size += 8 + RNDUPV(CKRIFF.CKfact.ckSize, ALIGN);
-  CKRIFF.ckSize = (uint4_t) size;
+  CKRIFF.ckSize = (UT_uint4_t) size;
 
 /* Write out the header (error return via longjmp) */
   AFw->DFormat.Swapb = DS_EL;
@@ -155,7 +155,7 @@ AF_setFMT (struct WV_CKfmt *CKfmt, const struct AF_write *AFw)
 
 {
   int Lw, Ext, Res, NbS;
-  uint2_t FormatTag;
+  UT_uint2_t FormatTag;
 
   Lw = AF_DL[AFw->DFormat.Format];
   Res = 8 * Lw;
@@ -197,19 +197,19 @@ AF_setFMT (struct WV_CKfmt *CKfmt, const struct AF_write *AFw)
     + sizeof (CKfmt->nSamplesPerSec) + sizeof (CKfmt->nAvgBytesPerSec)
     + sizeof (CKfmt->nBlockAlign) + sizeof (CKfmt->wBitsPerSample);
 
-  CKfmt->nChannels = (uint2_t) AFw->Nchan;
-  CKfmt->nSamplesPerSec = (uint4_t) (AFw->Sfreq + 0.5);	/* Rounding */
-  CKfmt->nAvgBytesPerSec = (uint4_t) (CKfmt->nSamplesPerSec * AFw->Nchan * Lw);
-  CKfmt->nBlockAlign = (uint2_t) (Lw * AFw->Nchan);
+  CKfmt->nChannels = (UT_uint2_t) AFw->Nchan;
+  CKfmt->nSamplesPerSec = (UT_uint4_t) (AFw->Sfreq + 0.5);	/* Rounding */
+  CKfmt->nAvgBytesPerSec = (UT_uint4_t) (CKfmt->nSamplesPerSec * AFw->Nchan * Lw);
+  CKfmt->nBlockAlign = (UT_uint2_t) (Lw * AFw->Nchan);
 
   if (Ext) {
-    CKfmt->wBitsPerSample = (uint2_t) Res;
+    CKfmt->wBitsPerSample = (UT_uint2_t) Res;
     CKfmt->wFormatTag = WAVE_FORMAT_EXTENSIBLE;
     CKfmt->cbSize = 22;
     if (FormatTag == WAVE_FORMAT_PCM || FormatTag == WAVE_FORMAT_IEEE_FLOAT)
-      CKfmt->wValidBitsPerSample = (uint2_t) NbS;
+      CKfmt->wValidBitsPerSample = (UT_uint2_t) NbS;
     else
-      CKfmt->wValidBitsPerSample = (uint2_t) Res;
+      CKfmt->wValidBitsPerSample = (UT_uint2_t) Res;
     CKfmt->dwChannelMask = AF_encChannelConfig (AFw->SpkrConfig);
     CKfmt->SubFormat.wFormatTag = FormatTag;
     MCOPY (WAVEFORMATEX_TEMPLATE.guidx, CKfmt->SubFormat.guidx);
@@ -220,7 +220,7 @@ AF_setFMT (struct WV_CKfmt *CKfmt, const struct AF_write *AFw)
       UTwarn (AFMF_WV_InvNbS, "AFwrWVhead -", NbS, Res);
       NbS = Res;
     }
-    CKfmt->wBitsPerSample = (uint2_t) NbS;
+    CKfmt->wBitsPerSample = (UT_uint2_t) NbS;
     CKfmt->wFormatTag = FormatTag;
     CKfmt->cbSize = 0;
   }
@@ -235,12 +235,12 @@ AF_setFMT (struct WV_CKfmt *CKfmt, const struct AF_write *AFw)
 /* Encode channel/speaker information */
 
 
-static uint4_t
+static UT_uint4_t
 AF_encChannelConfig (const unsigned char *SpkrConfig)
 
 {
   int i, n, Nspkr;
-  uint4_t ChannelMask;
+  UT_uint4_t ChannelMask;
 
   if (SpkrConfig[0] == AF_X_SPKR || SpkrConfig[0] == '\0')
     Nspkr = 0;

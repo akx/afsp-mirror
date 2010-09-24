@@ -38,11 +38,16 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.70 $  $Date: 2003/11/03 18:54:48 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow sprintf */
+#endif
+
 #include <assert.h>
 #include <ctype.h>
 #include <setjmp.h>
@@ -85,7 +90,7 @@ AFrdEShead (FILE *fp)
   AFILE *AFp;
   int NgI, Nv;
   long int offs;
-  double8_t STime;
+  UT_float8_t STime;
   char Info[ES_MAXINFO];
   struct ES_preamb Fpreamb;
   struct ES_fixhead FheadF;
@@ -246,12 +251,12 @@ AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
 
   /* Fill in a Generic Item structure */
   gItem.code = 13;
-  gItem.ID_len = (uint2_t) (ncIDX / 4);
-  strcpy (gItem.ID, ID);
+  gItem.ID_len = (UT_uint2_t) (ncIDX / 4);
+  STcopyMax (ID, gItem.ID, ES_MAX_gID-1);
   for (k = ncID; k < ncIDX; ++k)
     gItem.ID[k] = '\0';
-  gItem.count = (uint4_t) Nval;
-  gItem.data_code = (uint2_t) Type;
+  gItem.count = (UT_uint4_t) Nval;
+  gItem.data_code = (UT_uint2_t) Type;
 
   /* Form the search string */
   if (UTswapCode (Fbo) == DS_SWAP) {

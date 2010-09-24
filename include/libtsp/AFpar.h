@@ -8,8 +8,8 @@ Description:
   Declarations for the TSP audio file routines.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.80 $  $Date: 2003/11/04 10:35:51 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.81 $  $Date: 2009/02/28 23:45:18 $
 
 ----------------------------------------------------------------------*/
 
@@ -32,7 +32,6 @@ typedef struct AF_filepar AFILE;	/* Audio file parameters */
 */
 
 #define AF_MAXN_SPKR	30	/* Maximum size for speaker position array */
-#define AF_NC_SPKR	3	/* Maximum length of a speaker name */
 
 #define AF_SPKR_FL	1	/* Front left */
 #define AF_SPKR_FR	2	/* Front right */

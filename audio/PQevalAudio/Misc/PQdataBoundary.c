@@ -25,8 +25,8 @@ Parameters:
       Returned sample limits
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.10 $  $Date: 2003/05/13 01:12:05 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.11 $  $Date: 2009/03/23 15:50:12 $
 
 ----------------------------------------------------------------------*/
 
@@ -38,7 +38,7 @@ Author / revision:
 
 #define PQ_L	5
 #define NBUFF	2048
-#define PQ_ATHR	(200. * (PQ_AMAX / 32768.))
+#define PQ_ATHR	200.
 
 #define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
 #define MINV(a, b)	(((a) < (b)) ? (a) : (b))

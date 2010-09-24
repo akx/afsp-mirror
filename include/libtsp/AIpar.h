@@ -8,8 +8,8 @@ Description:
   Declarations for AIFF and AIFF-C sound file headers
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.21 $  $Date: 2003/05/13 01:48:10 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:15:52 $
 
 ----------------------------------------------------------------------*/
 
@@ -78,21 +78,21 @@ Author / revision:
 
 struct AI_CkPreamb {
   char ckID[4];
-  uint4_t ckSize;
+  UT_uint4_t ckSize;
 };
 
 struct AI_CkFVER {
   char ckID[4];
-  uint4_t ckSize;
-  uint4_t timestamp;
+  UT_uint4_t ckSize;
+  UT_uint4_t timestamp;
 };
 
 struct AI_CkCOMM {
   char ckID[4];
-  uint4_t ckSize;
-  uint2_t numChannels;
-  uint4_t numSampleFrames;
-  uint2_t sampleSize;
+  UT_uint4_t ckSize;
+  UT_uint2_t numChannels;
+  UT_uint4_t numSampleFrames;
+  UT_uint2_t sampleSize;
   unsigned char sampleRate[10];
   char compressionType[4];
   char compressionName[CNAME_MAX+1];	/* Null terminated string */
@@ -100,19 +100,19 @@ struct AI_CkCOMM {
 
 struct AI_CkANNO {
   char ckID[4];
-  uint4_t ckSize;
+  UT_uint4_t ckSize;
 };
 
 struct AI_CkSSND {
   char ckID[4];
-  uint4_t ckSize;
-  uint4_t offset;
-  uint4_t blockSize;
+  UT_uint4_t ckSize;
+  UT_uint4_t offset;
+  UT_uint4_t blockSize;
 };
 
 struct AI_CkFORM {
   char ckID[4];
-  uint4_t ckSize;
+  UT_uint4_t ckSize;
   char AIFFID[4];
   struct AI_CkCOMM CkCOMM;
   struct AI_CkFVER CkFVER;

@@ -16,8 +16,8 @@ Parameters:
       Flag, 1 if host uses IEEE float format, 0 otherwise
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.14 $  $Date: 2003/05/09 03:23:41 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 19:58:18 $
 
 -------------------------------------------------------------------------*/
 
@@ -30,8 +30,8 @@ Author / revision:
 */
 
 /* IEEE float value check values */
-static const uint4_t IEEEiv = 0xc3268000;
-static const float4_t IEEEfv = -166.5;
+static const UT_uint4_t IEEEiv = 0xc3268000;
+static const UT_float4_t IEEEfv = -166.5;
 
 
 int
@@ -39,8 +39,8 @@ UTcheckIEEE (void)
 
 {
   union {
-    float4_t fv;
-    uint4_t iv;
+    UT_float4_t fv;
+    UT_uint4_t iv;
   } Floatv;
 
 /* Store a float value and check the bit pattern of the result */

@@ -18,11 +18,16 @@ Parameters:
       File pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.11 $  $Date: 2003/05/09 01:39:26 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.12 $  $Date: 2009/03/01 21:07:11 $
 
 ----------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE  /* Allow Posix names */
+#endif
+
 #include <stdio.h>	/* fileno (Section 8.2.1.1 of Posix) */
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -9,7 +9,7 @@ Purpose:
 
 Description:
   This routine is used to copy min(N, strlen(Si)) characters from the input
-  input string to the output string.  If min(N, strlen(Si) is greater than
+  input string to the output string.  If min(N, strlen(Si)) is greater than
   Maxchar, a string is truncated at that point and a warning message is
   printed.
 
@@ -28,8 +28,8 @@ Parameters:
       character) to be placed in So.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.20 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.21 $  $Date: 2009/03/09 17:49:47 $
 
 -------------------------------------------------------------------------*/
 

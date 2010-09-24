@@ -24,8 +24,8 @@ Parameters:
       Number of samples requested.  Nreq may be zero.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:14:44 $
 
 -------------------------------------------------------------------------*/
 
@@ -37,7 +37,7 @@ Author / revision:
 #define MINV(a, b)	(((a) < (b)) ? (a) : (b))
 #define NBBUF		8192
 
-#define UINT1_OFFSET	((UINT1_MAX+1)/2)
+#define UT_UINT1_OFFSET	((UT_UINT1_MAX+1)/2)
 
 #define FREAD(buf,size,nv,fp)	(int) fread ((char *) buf, (size_t) size, \
 					     (size_t) nv, fp)
@@ -48,7 +48,7 @@ AFfRdU1 (AFILE *AFp, float Dbuff[], int Nreq)
 
 {
   int is, N, i, Nr;
-  uint1_t Buf[NBBUF/LW];
+  UT_uint1_t Buf[NBBUF/LW];
   double g;
 
   for (is = 0; is < Nreq; ) {
@@ -61,7 +61,7 @@ AFfRdU1 (AFILE *AFp, float Dbuff[], int Nreq)
     /* For offset-binary 8-bit data, the zero-point is the value 128 */
     g = AFp->ScaleF;
     for (i = 0; i < Nr; ++i) {
-      Dbuff[is] = (float) (g * (((int) Buf[i]) - UINT1_OFFSET));
+      Dbuff[is] = (float) (g * (((int) Buf[i]) - UT_UINT1_OFFSET));
       ++is;
     }
 

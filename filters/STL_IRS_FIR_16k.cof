@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_IRS_FIR_16k.cof
 ! See ITU-T G.191 (2000), Software Tools Library (module fir-irs.c)
-! $Id: STL_IRS_FIR_16k.cof 1.3 2002/06/18 AFsp-v8r2 $
+! $Id: STL_IRS_FIR_16k.cof 1.3 2002/06/18 AFsp-v9r0 $
 !
 ! IRS (send) filter, ITU-T Recommendation P.48
 !  - Linear phase, 209 taps

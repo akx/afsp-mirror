@@ -20,8 +20,8 @@ Parameters:
       Tables and parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.19 $  $Date: 2003/05/13 01:12:05 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.20 $  $Date: 2009/03/23 15:51:07 $
 
 ----------------------------------------------------------------------*/
 
@@ -50,7 +50,7 @@ PQ_CBmap (const double fl[], const double fu[], int Nc, struct Par_CB *CB);
 static void
 PQ_CB_Tables (int Version, struct Par_CB *CB);
 static void
-PQ_EHS_Tables (int LagStart, struct Par_EHS *EHS);
+PQ_EHS_Tables (struct Par_EHS *EHS);
 static void
 PQ_FFT_Tables (double Lp, struct Par_FFT *FFT);
 static double
@@ -113,7 +113,7 @@ PQgenTables (int Version, const struct PQ_Opt *PQopt, struct PQ_Par *PQpar)
   PQ_NMR_Tables (Nc, &PQpar->NMR);
 
   /* EHS tables */
-  PQ_EHS_Tables (PQopt->EHSLagStart, &PQpar->EHS);
+  PQ_EHS_Tables (&PQpar->EHS);
 
   /* Neural net tables */
   PQ_NNet_Tables (Version, PQopt->ClipMOV, &PQpar->NNet);
@@ -471,29 +471,29 @@ PQ_NMR_Tables (int Nc, struct Par_NMR *NMR)
 
 #define LOG2(x)	(log(x) / log(2))
 #define FMAX	9000.
-#define ENTHR	(8000 * (PQ_AMAX/32768.) * (PQ_AMAX/32768.))
+#define ENTHR	8000.
+#define LTWIN	2*PQ_NL-1
 
 static void
-PQ_EHS_Tables (int LagStart, struct Par_EHS *EHS)
+PQ_EHS_Tables (struct Par_EHS *EHS)
 
 {
   int log2, M, NL;
   double c;
+  double twin[LTWIN];
 
   log2 = (int) ceil (LOG2((FMAX / PQ_FS) * PQ_NF));
   NL = (int) (pow (2., log2 - 1) + 0.5);
   M = NL;
-  assert (LagStart == 0 || LagStart == 1);
 
   EHS->EnThr = ENTHR;
-  EHS->kst = LagStart;
   EHS->NL = NL;
   EHS->M = M;
 
-  /* Scaled Hann window */
-  HANN (EHS->Hw, NL);
+  /* Scaled Hann window (includes DFT scaling factor 1/NL) */
+  HANN (twin, LTWIN);
   c = (1. / NL) * sqrt (8. / 3.);
-  VRdScale (c, EHS->Hw, EHS->Hw, NL);
+  VRdScale (c, &twin[NL-1], EHS->Hw, NL);
 
   return;
 }

@@ -18,8 +18,8 @@ Parameters:
       Audio file pointer for an audio file opened by AFopnWrite
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.27 $  $Date: 2003/05/09 01:21:35 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.28 $  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
@@ -40,9 +40,9 @@ int
 AFupdAIhead (AFILE *AFp)
 
 {
-  uint4_t val;
+  UT_uint4_t val;
   long int Nbytes, Ldata;
-  static const uint1_t Pad = 0;
+  static const UT_uint1_t Pad = 0;
 
 /* Set the long jump environment; on error return a NULL */
   if (setjmp (AFW_JMPENV))
@@ -69,7 +69,7 @@ AFupdAIhead (AFILE *AFp)
     Nbytes += WHEAD_V (AFp->fp, Pad, DS_EB);
 
 /* Update the FORM chunk ckDataSize field */
-  val = (uint4_t) (Nbytes - 8);
+  val = (UT_uint4_t) (Nbytes - 8);
   if (AFseek (AFp->fp, 4L, NULL))
     return 1;
   WHEAD_V (AFp->fp, val, DS_EB);
@@ -78,7 +78,7 @@ AFupdAIhead (AFILE *AFp)
    - AIFF-C: The COMM chunk follows the FVER chunk in the FORM chunk
    - AIFF:   The COMM chunk is the first chunk
 */
-  val = (uint4_t) (AFp->Nsamp / AFp->Nchan);
+  val = (UT_uint4_t) (AFp->Nsamp / AFp->Nchan);
   if (AFp->Ftype == FT_AIFF_C) {
     if (AFseek (AFp->fp, 34L, NULL))
       return 1;
@@ -93,7 +93,7 @@ AFupdAIhead (AFILE *AFp)
 /* Update the SSND chunk ckDataSize field (assume SSND.offset == 0)
    SSND.ckDataSize is 12 bytes before the start of the audio data
  */
-  val = (uint4_t) (Ldata + 8L);
+  val = (UT_uint4_t) (Ldata + 8L);
   if (AFseek (AFp->fp, AFp->Start - 12L, NULL))
     return 1;
   WHEAD_V (AFp->fp, val, DS_EB);

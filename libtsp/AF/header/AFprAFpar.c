@@ -21,11 +21,16 @@ Parameters:
       fpinfo is NULL, no information is printed.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2004
-  $Revision: 1.53 $  $Date: 2004/03/31 13:26:04 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.55 $  $Date: 2009/03/09 16:29:24 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow sprintf */
+#endif
+
 #include <assert.h>
 #include <string.h>
 
@@ -38,8 +43,7 @@ Author / revision:
 #define AF_DATA_LENGTHS
 #include <libtsp/AFpar.h>
 
-#define NSPKR_EXTRA 7
-#define NC_SPKR ((AF_NC_SPKR + 1) * (AF_MAXN_SPKR + NSPKR_EXTRA) - 1)
+#define NC_SPKR_NAMES 40
 
 static const char *
 AF_findRec (const char *Id[], const struct AF_info *InfoS);
@@ -53,7 +57,7 @@ AFprAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo)
   const char *Datetime, *Title;
   char FullName[FILENAME_MAX];
   char FStr[64];
-  char SpkrNames[NC_SPKR+1];
+  char SpkrNames[NC_SPKR_NAMES+1];
   int Res;
   static const char *IDtitle[] = {"title:", "display_name:", "name:",
 				  "user_comment:", NULL};
@@ -113,7 +117,7 @@ AFprAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo)
 	if (AFp->fp != stdin)
 	  Datetime = FLfileDate (AFp->fp, 3);
       }
-      fprintf (fpinfo, "  %.30s\n",Datetime);
+      fprintf (fpinfo, "  %.30s\n", Datetime);
     }
 
     /* ---------------- */
@@ -131,7 +135,7 @@ AFprAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo)
     fprintf (fpinfo, " (%s)", FStr);
 
     /* Speaker configuration */
-    AFspeakerNames (AFp->Nchan, AFp->SpkrConfig, NSPKR_EXTRA, SpkrNames);
+    AFspeakerNames (AFp->Nchan, AFp->SpkrConfig, SpkrNames, NC_SPKR_NAMES);
     if (strlen (SpkrNames) > 0)
       fprintf (fpinfo, " [%s]", SpkrNames);
     fprintf (fpinfo, "\n");

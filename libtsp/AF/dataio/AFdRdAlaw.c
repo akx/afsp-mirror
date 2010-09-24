@@ -23,8 +23,8 @@ Parameters:
       Number of samples requested.  Nreq may be zero.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.3 $  $Date: 2009/03/11 20:14:44 $
 
 -------------------------------------------------------------------------*/
 
@@ -107,7 +107,7 @@ AFdRdAlaw (AFILE *AFp, double Dbuff[], int Nreq)
 
 {
   int is, N, i, Nr;
-  uint1_t Buf[NBBUF/LW];
+  UT_uint1_t Buf[NBBUF/LW];
   double g;
 
   for (is = 0; is < Nreq; ) {

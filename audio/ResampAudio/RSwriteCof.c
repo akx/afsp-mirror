@@ -26,11 +26,16 @@ Parameters:
       Filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.10 $  $Date: 2005/02/01 04:23:42 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.11 $  $Date: 2009/03/09 18:45:02 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow fopen */
+#endif
+
 #include <libtsp.h>
 #include "ResampAudio.h"
 

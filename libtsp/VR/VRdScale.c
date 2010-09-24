@@ -23,8 +23,8 @@ Parameters:
       Number of elements in the arrays (may be zero).
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.3 $  $Date: 2003/05/09 03:33:10 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.4 $  $Date: 2009/03/23 11:59:42 $
 
 -------------------------------------------------------------------------*/
 
@@ -38,7 +38,7 @@ VRdScale (double a, const double x[], double y[], int N)
   int i;
 
   for (i = 0; i < N; ++i)
-    y[i] = (float) a * x[i];
+    y[i] = a * x[i];
 
   return;
 }

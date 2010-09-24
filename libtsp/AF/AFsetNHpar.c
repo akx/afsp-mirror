@@ -75,11 +75,17 @@ Parameters:
       of an environment variable (with a leading $)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.53 $  $Date: 2003/05/09 01:03:46 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.54 $  $Date: 2009/03/01 22:14:35 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow getenv */
+#endif
+
 #include <stdlib.h>	/* getenv prototype */
 #include <string.h>
 

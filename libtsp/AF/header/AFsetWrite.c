@@ -26,8 +26,8 @@ Parameters:
       Structure with data and file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.46 $  $Date: 2003/11/03 18:49:05 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.47 $  $Date: 2009/03/09 17:52:04 $
 
 -------------------------------------------------------------------------*/
 
@@ -99,7 +99,7 @@ AFsetWrite (FILE *fp, int Ftype, const struct AF_write *AFw)
   Nspkr = strlen ((const char *) AFw->SpkrConfig);
   if (Nspkr > 0) {
     AFp->SpkrConfig = (unsigned char *) UTmalloc (Nspkr + 1);
-    strcpy ((char *) AFp->SpkrConfig, (const char *) AFw->SpkrConfig);
+    STcopyMax (AFw->SpkrConfig, AFp->SpkrConfig, Nspkr);
   }
 
   AFp->Start = Start;

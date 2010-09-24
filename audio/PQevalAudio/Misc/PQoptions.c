@@ -22,8 +22,8 @@ Parameters:
       Input file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.9 $  $Date: 2003/05/13 01:12:06 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.10 $  $Date: 2009/03/14 22:38:47 $
 
 ----------------------------------------------------------------------*/
 
@@ -163,7 +163,6 @@ PQ_decOpt (const char String[], struct PQ_Opt *PQopt)
     "data*_bounds",
     "no_data*_bounds",
     "end*_min",
-    "EHS*_lag_start",
     NULL
   };
 
@@ -231,13 +230,6 @@ PQ_decOpt (const char String[], struct PQ_Opt *PQopt)
 	if (STdec1int (token, &PQopt->EndMin) ||
 	    PQopt->EndMin <=0 || PQopt->EndMin > PQ_NF)
 	  ERRSTOP (PQM_BadEndMin, token);
-	break;
-
-      /* EHS_lag_start */
-      case 9:
-	if (STdec1int (token, &PQopt->EHSLagStart) ||
-	    PQopt->EHSLagStart < 0 || PQopt->EHSLagStart > 1)
-	  ERRSTOP (PQM_BadEHSStart, token);
 	break;
       }
     }

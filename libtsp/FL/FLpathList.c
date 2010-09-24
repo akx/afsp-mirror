@@ -22,17 +22,8 @@ Description:
   including the current directory in the list of paths.  The current directory
   can be specified as "." or as an empty specification.
 
-  For Unix sytems this routine performs the additional service of expanding
-  home directory specifications of the form "~" or "~USER" which appear as the
-  first component of the path name in the input name or in one of the paths in
-  the list of paths.  In the case of the input name containing a home directory
-  specification, the resulting expanded name will then have a directory
-  component and no further search using the list of paths will occur.  If
-  the home directory cannot be found (unknown user, for instance), the "~"
-  specification is treated as part of an ordinary filename string.
-
   The path name list is a white-space or colon (semicolon for Windows)
-  separated list of paths.  For example, ":/usr/users/usera/:~userb".  The
+  separated list of paths.  For example, ":/usr/users/usera/:/data".  The
   path names can have an optional trailing / character.  This specification
   includes the current directory as the first element of the list.
 
@@ -56,17 +47,23 @@ Parameters:
       overlay the input string if desired.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.28 $  $Date: 2003/05/09 01:36:44 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.30 $  $Date: 2009/03/01 21:12:37 $
 
 ----------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow getenv */
+#endif
+
 #include <stdlib.h>	/* getenv */
+#include <string.h>	/* strlen */
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include <libtsp.h>
-#include <libtsp/sysOS.h>
 
 #if (SY_FILENAME_SPEC == SY_FNS_UNIX)
 #  define DIR_SEP_STR	"/"
@@ -85,17 +82,15 @@ FLpathList (const char Fi[], const char Dlist[], char Fo[])
 
 {
   struct stat Fstat;
-  char Fexp[FILENAME_MAX];
   char Fdir[FILENAME_MAX];
   char Ftrial[FILENAME_MAX];
   char *p;
   int n, nd;
 
 /* Check if the input name already has any directory specified. */
-  FLexpHome (Fi, Fexp);
-  FLdirName (Fexp, Fdir);
+  FLdirName (Fi, Fdir);
   if (Fdir[0] != '\0') {
-    n = STcopyMax (Fexp, Fo, FILENAME_MAX-1);
+    n = STcopyMax (Fi, Fo, FILENAME_MAX-1);
     return n;
   }
 
@@ -110,21 +105,19 @@ FLpathList (const char Fi[], const char Dlist[], char Fo[])
 
 /* Zero length strings */
   if (*p == '\0') {
-    n = STcopyMax (Fexp, Fo, FILENAME_MAX-1);
+    n = STcopyMax (Fi, Fo, FILENAME_MAX-1);
     return n;
   }
 
 /* Loop over the list of directories */
   while (p != NULL) {
-    p = STfindToken (p, PATH_SEP_STR, "", Ftrial, 1, FILENAME_MAX-1);
-
-    /* Expand the home directory "~User" */
-    nd = FLexpHome (Ftrial, Fdir);
+    p = STfindToken (p, PATH_SEP_STR, "", Fdir, 1, FILENAME_MAX-1);
 
     /* Construct a trial name; supply a / for the directory if needed */
+    nd = strlen (Fdir);
     if (nd > 0 && Fdir[nd-1] != DIR_SEP_CHAR)
       STcatMax (DIR_SEP_STR, Fdir, FILENAME_MAX-1);
-    FLdefName (Fexp, Fdir, Ftrial);
+    FLdefName (Fi, Fdir, Ftrial);
 
 /* Use stat to determine if the file exists (no check to see if it is a regular
    file or not, or whether it is readable). */
@@ -135,6 +128,6 @@ FLpathList (const char Fi[], const char Dlist[], char Fo[])
   }
 
 /* No luck in finding a file, return the input name */
-  n = STcopyMax (Fexp, Fo, FILENAME_MAX-1);
+  n = STcopyMax (Fi, Fo, FILENAME_MAX-1);
   return n;
 }

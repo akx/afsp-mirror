@@ -7,12 +7,12 @@ int AFsetSpeaker (const char String[])
 .SH Purpose
 .in +4n
 .ti -4n
-Set defaults for loudspeaker spacial positions
+Set loudspeaker spatial positions
 .in -4n
 .SH Description
-This routine sets the default mapping of output channels to speaker
-positions.  The spacial positions of the loudspeakers are specified as a
-list of comma and/or white-space separated locations from the list below.
+This routine sets the mapping of output channels to speaker positions.  The
+spatial positions of the loudspeakers are specified as a list of comma and/or
+white-space separated locations from the list below.
 .ft CW
 .nf
 .ne 3
@@ -34,12 +34,13 @@ list of comma and/or white-space separated locations from the list below.
   "TBL" - Top Back Lefty
   "TBC" - Top Back Center
   "TBR" - Top Back Right
-  "-"   - none
+  "-"   - none  (No associated speaker position)
 .fi
 .ft P
 A speaker position can be associated with only one channel.  Only WAVE files
 store the speaker locations in the file header.  In the case of WAVE files,
-the subset of spacial positions must appear in the order given above.
+the subset of spatial positions associated with the channels must appear in
+the order given above.
 .SH Parameters
 .in +4n
 .ti -4n
@@ -53,6 +54,6 @@ String containing the list of speaker positions
 .in -4n
 .SH Author / revision
 P. Kabal
-/ Revision 1.2  2003/05/09
+/ Revision 1.5  2009/03/23
 .SH See Also
 AFopnWrite

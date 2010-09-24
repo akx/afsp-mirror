@@ -45,8 +45,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2004
-  $Revision: 1.90 $  $Date: 2004/03/29 01:49:41 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.92 $  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
@@ -96,7 +96,7 @@ AF_rdRIFF_WAVE (FILE *fp, struct WV_CKRIFF *CKRIFF);
 static void
 AF_UnsFormat (int FormatTag);
 static void
-AF_decChannelConfig (uint4_t ChannelMask, unsigned char *SpkrConfig);
+AF_decChannelConfig (UT_uint4_t ChannelMask, unsigned char *SpkrConfig);
 
 
 AFILE *
@@ -302,7 +302,7 @@ static int
 AF_decFMT (const struct WV_CKfmt *CKfmt, struct AF_read *AFr)
 
 {
-  uint2_t FormatTag;
+  UT_uint2_t FormatTag;
   int NBytesS;
 
 /*
@@ -492,7 +492,7 @@ AF_rdDISP_text (FILE *fp, int Size, struct AF_infoX *InfoX)
 
 {
   int offs;
-  uint4_t DISP_ID;
+  UT_uint4_t DISP_ID;
 
   offs = RHEAD_V (fp, DISP_ID, DS_EL);
   if (DISP_ID == CF_TEXT)
@@ -559,8 +559,8 @@ AF_rdLIST_INFO (FILE *fp, int Size, struct AF_infoX *InfoX)
 
       /* No match, use the INFO ID field as the information record keyword */
       if (i == NIID) {
-	strncpy (key, CkHead.ckID, 4);
-	strcpy (&key[4], ": ");
+	STcopyNMax (CkHead.ckID, key, 4, sizeof (key) - 1);
+	STcatMax (": ", key, sizeof (key) - 1);
 	offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, key, InfoX, ALIGN);
       }
     }
@@ -574,7 +574,7 @@ AF_rdLIST_INFO (FILE *fp, int Size, struct AF_infoX *InfoX)
 
 
 static void
-AF_decChannelConfig (uint4_t ChannelMask, unsigned char *SpkrConfig)
+AF_decChannelConfig (UT_uint4_t ChannelMask, unsigned char *SpkrConfig)
 
 {
   int i, k;

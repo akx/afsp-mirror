@@ -91,11 +91,17 @@ Parameters:
       fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2006
-  $Revision: 1.7 $  $Date: 2006/06/06 13:53:15 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.8 $  $Date: 2009/03/01 22:13:51 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow fopen */
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>		/* EXIT_FAILURE */
 #include <string.h>

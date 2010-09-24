@@ -8,15 +8,15 @@ Description:
   Declarations for WAVE file headers
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.28 $  $Date: 2003/05/13 01:48:11 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:15:52 $
 
 ----------------------------------------------------------------------*/
 
 #ifndef WVpar_h_
 #define WVpar_h_
 
-#include <libtsp/UTtypes.h>		/* typedef for uint2_t, etc */
+#include <libtsp/UTtypes.h>		/* typedef for UT_uint2_t, etc */
 
 /* Format codes purged of many compressed formats */
 #define WAVE_FORMAT_UNKNOWN		(0x0000)
@@ -98,8 +98,8 @@ static const unsigned long int WV_ChannelMap[] =
 #endif
 
 struct WV_GUID {
-  uint2_t wFormatTag;
-  uint1_t guidx[14];
+  UT_uint2_t wFormatTag;
+  UT_uint1_t guidx[14];
 };
 
 #ifdef WAVEFORMATEX_SUBTYPE
@@ -115,45 +115,45 @@ static const struct WV_GUID WAVEFORMATEX_TEMPLATE =
 #endif
 
 /* Text flag used in the DISP chunk */
-#define CF_TEXT		((uint4_t) 1)
+#define CF_TEXT		((UT_uint4_t) 1)
 
 struct WV_CKpreamb {
   char ckID[4];
-  uint4_t ckSize;
+  UT_uint4_t ckSize;
 };
 
 struct WV_CKfmt {
   char ckID[4];
-  uint4_t ckSize;
-  uint2_t wFormatTag;		/* Format type */
-  uint2_t nChannels;		/* Number of channels */
-  uint4_t nSamplesPerSec;	/* Sample rate */
-  uint4_t nAvgBytesPerSec;	/* nBlockAlign * nSamplesPerSec */
-  uint2_t nBlockAlign;		/* Block size (bytes), multiple of nChannels */
+  UT_uint4_t ckSize;
+  UT_uint2_t wFormatTag;		/* Format type */
+  UT_uint2_t nChannels;		/* Number of channels */
+  UT_uint4_t nSamplesPerSec;	/* Sample rate */
+  UT_uint4_t nAvgBytesPerSec;	/* nBlockAlign * nSamplesPerSec */
+  UT_uint2_t nBlockAlign;		/* Block size (bytes), multiple of nChannels */
 /* End of common area */
-  uint2_t wBitsPerSample;	/* Bits/sample: for WAVE_FORMAT_EXTENSIBLE,
+  UT_uint2_t wBitsPerSample;	/* Bits/sample: for WAVE_FORMAT_EXTENSIBLE,
                                    this is the sample container size */
 /* Start of EXTENSIBLE part */
-  uint2_t cbSize;		/* Number of bytes following */
-  uint2_t wValidBitsPerSample;	/* Actual number of bits in each sample */
-  uint4_t dwChannelMask;	/* Channel assignment mask */
+  UT_uint2_t cbSize;		/* Number of bytes following */
+  UT_uint2_t wValidBitsPerSample; /* Actual number of bits in each sample */
+  UT_uint4_t dwChannelMask;	/* Channel assignment mask */
   struct WV_GUID SubFormat;
 };
 
 struct WV_CKfact {
   char ckID[4];
-  uint4_t ckSize;
-  uint4_t dwSampleLength;
+  UT_uint4_t ckSize;
+  UT_uint4_t dwSampleLength;
 };
 
 struct WV_CKdata {
   char ckID[4];
-  uint4_t ckSize;
+  UT_uint4_t ckSize;
 };
 
 struct WV_CKRIFF {
   char ckID[4];
-  uint4_t ckSize;
+  UT_uint4_t ckSize;
   char WAVEID[4];
   struct WV_CKfmt CKfmt;
   struct WV_CKfact CKfact;
@@ -162,14 +162,14 @@ struct WV_CKRIFF {
 
 struct WV_DISP {
   char ckid[4];
-  uint4_t cksize;
-  uint4_t type;
+  UT_uint4_t cksize;
+  UT_uint4_t type;
   const char *text;
 };
 
 struct WV_AFSP {
   char ckid[4];
-  uint4_t cksize;
+  UT_uint4_t cksize;
   char AFspID[4];
   const char *text;
 };
@@ -177,12 +177,12 @@ struct WV_AFSP {
 #define WV_N_LIST_INFO	18	/* Maximum number of LIST/INFO items */
 struct WV_LIST_INFO {
   char ckid[4];
-  uint4_t cksize;
+  UT_uint4_t cksize;
   char listid[4];
   int N;
   struct {
     char ckid[4];
-    uint4_t cksize;
+    UT_uint4_t cksize;
     const char *text;
   } listitem[WV_N_LIST_INFO];
 };

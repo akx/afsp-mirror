@@ -32,8 +32,8 @@ Parameters:
       Structure containing file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.78 $  $Date: 2003/11/03 18:46:21 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
@@ -93,8 +93,8 @@ AFwrAUhead (FILE *fp, struct AF_write *AFw)
   else
     Fhead.Ldata = AFw->Nframe * AFw->Nchan * AF_DL[AFw->DFormat.Format];
   Fhead.Dencod = AF_setDencod (AFw->DFormat.Format);
-  Fhead.Srate = (uint4_t) (AFw->Sfreq + 0.5);	/* Rounding */
-  Fhead.Nchan = (uint4_t) AFw->Nchan;
+  Fhead.Srate = (UT_uint4_t) (AFw->Sfreq + 0.5);	/* Rounding */
+  Fhead.Nchan = (UT_uint4_t) AFw->Nchan;
 
 /* Write out the header */
   AFw->DFormat.Swapb = DS_EB;

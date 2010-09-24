@@ -23,8 +23,8 @@ Parameters:
       Number of samples to be written
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.3 $  $Date: 2009/03/11 20:14:44 $
 
 -------------------------------------------------------------------------*/
 
@@ -115,7 +115,7 @@ static const double Xq[NLEV-1] = {
    17408,  18432,  19456,  20480,  21504,  22528,  23552,  24576,
    25600,  26624,  27648,  28672,  29696,  30720,  31744
 };
-static const uint1_t Yq[NLEV] = {
+static const UT_uint1_t Yq[NLEV] = {
   0x2A, 0x2B, 0x28, 0x29, 0x2E, 0x2F, 0x2C, 0x2D,
   0x22, 0x23, 0x20, 0x21, 0x26, 0x27, 0x24, 0x25,
   0x3A, 0x3B, 0x38, 0x39, 0x3E, 0x3F, 0x3C, 0x3D,
@@ -156,7 +156,7 @@ AFdWrAlaw (AFILE *AFp, const double Dbuff[], int Nval)
 
 {
   int is, N, Nw, i;
-  uint1_t Buf[NBBUF/LW];
+  UT_uint1_t Buf[NBBUF/LW];
   double g, Dv;
 
 /* Write data to the audio file */

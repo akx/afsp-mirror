@@ -1,4 +1,4 @@
-June 2006
+September 2010
 
 Audio File Programs and Routines
   The AFsp package contains audio file utility programs and a library of
@@ -67,11 +67,15 @@ Audio File Formats:
 The AFsp routines are covered by copyright, see the file "Copying" for details
 of the distribution conditions.
 
-AFsp-v8r2.tar.gz
-http://www.TSP.ECE.McGill.CA/MMSP/Documents/
-or ftp://ftp.TSP.ECE.McGill.CA/TSP/AFsp
+AFsp-v9r0.tar.gz
+http://www-MMSP.ECE.McGill.CA/MMSP/Documents/
 
 =============
+Changes in v9r0
+- MSVC files updated for Visual C++ 2008
+- Use #def to avoid warnings with MSVC compiler
+- Use local typedef names to avoid conflicts with standard names
+- Fix for parameter scanning (STdec1val)
 Changes in v8r2
 - User identity in Information fields has been removed
 Changes in v8r1
@@ -149,6 +153,6 @@ Changes in V2R0
 Peter Kabal
 Electrical & Computer Engineering    McGill University
 +1 514 398-7130   +1 514 398-4470 Fax
-kabal@ECE.McGill.CA
+Peter.Kabal@McGill.CA
 
-$Id: README.txt 1.77 2006/06/06 AFsp-v8r2 $
+$Id: README.txt 1.81 2010/09/24 AFsp-v9r0 $

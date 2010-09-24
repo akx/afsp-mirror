@@ -22,11 +22,17 @@ Parameters:
       File name
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.68 $  $Date: 2003/05/09 01:21:35 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.70 $  $Date: 2009/03/09 18:22:32 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow freopen */
+#endif
+
 #include <stdio.h>
 
 #include <libtsp.h>
@@ -35,7 +41,6 @@ Author / revision:
 #include <libtsp/AFheader.h>
 #include <libtsp/AFmsg.h>
 #include <libtsp/AFpar.h>
-#include <libtsp/sysOS.h>
 
 #if (SY_OS != SY_OS_UNIX)
 #  include <io.h>	/* setmode */

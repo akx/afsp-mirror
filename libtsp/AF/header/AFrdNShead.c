@@ -38,11 +38,16 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.7 $  $Date: 2003/11/03 18:55:23 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.9 $  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow sprintf */
+#endif
+
 #include <assert.h>
 #include <setjmp.h>
 #include <string.h>
@@ -64,7 +69,7 @@ Author / revision:
 
 #define NS_HEDR_SIZE	32
 #define NS_LHMIN	(8 + 4 + 8 + NS_HEDR_SIZE + 8)
-#define NS_MAXABS_UNDEF	(UINT2_MAX)
+#define NS_MAXABS_UNDEF	(UT_UINT2_MAX)
 
 /* setjmp / longjmp environment */
 extern jmp_buf AFR_JMPENV;
@@ -79,22 +84,22 @@ AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
 
 struct NS_CkPreamb {
   char ckID[4];
-  uint4_t ckSize;
+  UT_uint4_t ckSize;
 };
 
 struct NS_CkFORM {
   char ckID[8];
-  uint4_t Size;
+  UT_uint4_t Size;
 };
 
 struct NS_CkHEDR {
   char ckID[4];
-  uint4_t ckSize;
+  UT_uint4_t ckSize;
 /* char Date[20]; */
-  uint4_t Srate;
-  uint4_t Nsamp;
-  uint2_t MaxAbsA;
-  uint2_t MaxAbsB;
+  UT_uint4_t Srate;
+  UT_uint4_t Nsamp;
+  UT_uint2_t MaxAbsA;
+  UT_uint2_t MaxAbsB;
 };
 
 static int

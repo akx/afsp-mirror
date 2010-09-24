@@ -18,8 +18,8 @@ Parameters:
       Audio file pointer for an audio file opened by AFopnWrite
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.38 $  $Date: 2003/05/09 01:21:35 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.39 $  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
@@ -40,7 +40,7 @@ int
 AFupdAUhead (AFILE *AFp)
 
 {
-  uint4_t val;
+  UT_uint4_t val;
   long int Ldata;
 
 /* Set the long jump environment; on error return a 1 */
@@ -50,7 +50,7 @@ AFupdAUhead (AFILE *AFp)
   Ldata = AF_DL[AFp->Format] * AFp->Nsamp;
 
 /* Move to the header data length field */
-  val = (uint4_t) Ldata;
+  val = (UT_uint4_t) Ldata;
   if (AFseek (AFp->fp, 8L, NULL))
     return 1;
   WHEAD_V (AFp->fp, val, DS_EB);

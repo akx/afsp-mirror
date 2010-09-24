@@ -19,8 +19,8 @@ Parameters:
       contains the sign bit and the first part of the exponent.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.11 $  $Date: 2003/05/09 03:23:41 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 19:58:18 $
 
 -------------------------------------------------------------------------*/
 
@@ -90,9 +90,9 @@ void
 UTeIEEE80 (double V, unsigned char b[10])
 
 {
-  uint4_t mantH, mantL;
+  UT_uint4_t mantH, mantL;
   int texp;
-  int2_t expc;
+  UT_int2_t expc;
   double VN, dmant, Umant;
 
 /* Get the absolute value of V */
@@ -134,8 +134,8 @@ UTeIEEE80 (double V, unsigned char b[10])
       */
                          /* expc + 32 */
       Umant = ldexp (dmant, texp + EXP_BIAS - 1 + 32);
-      mantH = (uint4_t) Umant;
-      mantL = (uint4_t) ldexp (Umant - floor (Umant), 32);
+      mantH = (UT_uint4_t) Umant;
+      mantL = (UT_uint4_t) ldexp (Umant - floor (Umant), 32);
       expc = EXPC_DENORM;
     }
 
@@ -143,8 +143,8 @@ UTeIEEE80 (double V, unsigned char b[10])
 
       /* Normalized value */
       Umant = ldexp (dmant, 32);
-      mantH = (uint4_t) Umant;
-      mantL = (uint4_t) ldexp (Umant - floor (Umant), 32);
+      mantH = (UT_uint4_t) Umant;
+      mantL = (UT_uint4_t) ldexp (Umant - floor (Umant), 32);
       expc = texp + EXP_BIAS - 1;
     }
   }
@@ -155,7 +155,7 @@ UTeIEEE80 (double V, unsigned char b[10])
    which we cannot interpret.  Here we set the most significant bit of the
    exponent to be non-zero.
 */
-    mantH = (uint4_t) 0x80000000;
+    mantH = (UT_uint4_t) 0x80000000;
     mantL = 0;
     expc = EXPC_NAN;
   }

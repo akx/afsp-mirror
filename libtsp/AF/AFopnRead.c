@@ -119,11 +119,17 @@ Parameters:
       fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.4 $  $Date: 2005/11/16 04:13:45 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.5 $  $Date: 2009/03/01 22:13:33 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#ifdef SY_OS_WINDOWS
+#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow fopen */
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>		/* EXIT_FAILURE */
 #include <string.h>
@@ -133,7 +139,6 @@ Author / revision:
 #include <libtsp/AFheader.h>
 #include <libtsp/AFmsg.h>
 #include <libtsp/AFpar.h>
-#include <libtsp/sysOS.h>
 
 #if (SY_OS != SY_OS_UNIX)
 #  include <io.h>	/* setmode */

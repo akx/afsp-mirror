@@ -34,8 +34,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.52 $  $Date: 2003/11/03 18:54:13 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.53 $  $Date: 2009/03/11 20:08:45 $
 
 -------------------------------------------------------------------------*/
 
@@ -59,7 +59,7 @@ Author / revision:
 #define FM_SPPACK_BE	"\100\303"	/* Magic value in file byte order */
 #define FM_SPPACK_LE	"\303\100"
 
-#define S_SAMPLEDDATA	((uint2_t) 0xFC0E)	/* Sampled data file */
+#define S_SAMPLEDDATA	((UT_uint2_t) 0xFC0E)	/* Sampled data file */
 #define DLMAGIC		4567
 #define BL_MAXINFO	LHEAD
 
@@ -78,21 +78,21 @@ struct SPPACK_head {
 /*  char cs1[80]; */
 /*  char cs2[80]; */
 /*  char cmd[80]; */
-  uint2_t Domain;	/* Domain */
-/*  uint2_t FrameSize; */
-  float4_t Sfreq;	/* Sampling frequency */
-/*  uint2_t unused[2]; */
-  char Magic[2];	/* File magic */
-  uint2_t Dtype;	/* Data type */
-  uint2_t Resolution;	/* Resolution in bits */
-  uint2_t Compand;	/* Companding */
+  UT_uint2_t Domain;		/* Domain */
+/*  UT_uint2_t FrameSize; */
+  UT_float4_t Sfreq;		/* Sampling frequency */
+/*  UT_uint2_t unused[2]; */
+  char Magic[2];		/* File magic */
+  UT_uint2_t Dtype;		/* Data type */
+  UT_uint2_t Resolution;	/* Resolution in bits */
+  UT_uint2_t Compand;		/* Companding */
 /*  char lstr1[80]; */
 /*  char lstr2[80]; */
 /*  char lstr3[80]; */
-  uint2_t dl_magic;	/* DAT-Link magic */
-  uint2_t left;		/* Left channel flag */
-  uint2_t right;	/* Right channel flag */
-  /* uint2_t unused2[2]; */
+  UT_uint2_t dl_magic;		/* DAT-Link magic */
+  UT_uint2_t left;     		/* Left channel flag */
+  UT_uint2_t right;		/* Right channel flag */
+  /* UT_uint2_t unused2[2]; */
 };
 
 /* setjmp / longjmp environment */

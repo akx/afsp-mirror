@@ -25,8 +25,8 @@ Parameters:
       Number of samples to be written
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2009
+  $Date: 2009/03/11 20:14:44 $
 
 -------------------------------------------------------------------------*/
 
@@ -48,7 +48,7 @@ AFdWrF4 (AFILE *AFp, const double Dbuff[], int Nval)
 
 {
   int is, N, Nw, i;
-  float4_t Buf[NBBUF/LW4];
+  UT_float4_t Buf[NBBUF/LW4];
   unsigned char *cp;
   unsigned char t;
   double g;
@@ -59,7 +59,7 @@ AFdWrF4 (AFILE *AFp, const double Dbuff[], int Nval)
   while (is < Nval) {
     N = MINV (NBBUF / LW4, Nval - is);
     for (i = 0; i < N; ++i) {
-      Buf[i] = (float4_t) (g * Dbuff[i+is]);
+      Buf[i] = (UT_float4_t) (g * Dbuff[i+is]);
       if (AFp->Swapb == DS_SWAP) {
 	cp = (unsigned char *) &Buf[i];
 	t = cp[3]; cp[3] = cp[0]; cp[0] = t;
@@ -80,7 +80,7 @@ AFdWrF8 (AFILE *AFp, const double Dbuff[], int Nval)
 
 {
   int is, N, Nw, i;
-  double8_t Buf[NBBUF/LW8];
+  UT_float8_t Buf[NBBUF/LW8];
   unsigned char *cp;
   unsigned char t;
   double g;
@@ -91,7 +91,7 @@ AFdWrF8 (AFILE *AFp, const double Dbuff[], int Nval)
   while (is < Nval) {
     N = MINV (NBBUF / LW8, Nval - is);
     for (i = 0; i < N; ++i) {
-      Buf[i] = (double8_t) (g * Dbuff[i+is]);
+      Buf[i] = (UT_float8_t) (g * Dbuff[i+is]);
       if (AFp->Swapb == DS_SWAP) {
 	cp = (unsigned char *) &Buf[i];
 	t = cp[7]; cp[7] = cp[0]; cp[0] = t;

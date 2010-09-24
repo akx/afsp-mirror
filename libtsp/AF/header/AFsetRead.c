@@ -58,8 +58,8 @@ Parameters:
                              space available
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.46 $  $Date: 2003/11/03 18:50:17 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.47 $  $Date: 2009/03/01 22:15:31 $
 
 -------------------------------------------------------------------------*/
 
@@ -490,8 +490,7 @@ AF_setSpeaker (const unsigned char *SpkrX, int Nchan)
     Nspkr = Nchan;
   if (Nspkr > 0) {
     SpkrConfig = (unsigned char *) UTmalloc (Nspkr + 1);
-    strncpy ((char *) SpkrConfig, (const char *) SpkrX, Nspkr);
-    SpkrConfig[Nspkr] = '\0';
+    STcopyMax (SpkrX, (char *) SpkrConfig, Nspkr);
   }
 
   return SpkrConfig;

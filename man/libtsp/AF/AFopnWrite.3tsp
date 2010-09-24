@@ -135,7 +135,7 @@ fpinfo.
 .in -4n
 .SH Author / revision
 P. Kabal
-/ Revision 1.7  2006/06/06
+/ Revision 1.8  2009/03/01
 .SH See Also
 AFclose,
 AFdWriteData,

@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_LP7k_FIR_48k.cof
 ! See ITU-T G.191 (2005), Software Tools Library (module fir-LP.c)
-! $Id: STL_LP7k_FIR_48k.cof 1.1 2006/03/30 AFsp-v8r2 $
+! $Id: STL_LP7k_FIR_48k.cof 1.1 2006/03/30 AFsp-v9r0 $
 !
 ! Lowpass filter 0-7000 Hz, 48 kHz sampling rate
 !  - MUSHRA anchor filter

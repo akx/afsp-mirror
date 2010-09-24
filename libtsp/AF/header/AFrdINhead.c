@@ -28,8 +28,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.66 $  $Date: 2003/11/03 18:55:08 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.67 $  $Date: 2009/03/11 20:08:23 $
 
 -------------------------------------------------------------------------*/
 
@@ -45,7 +45,7 @@ Author / revision:
 #define SAME_CSTR(str,ref) 	(memcmp (str, ref, sizeof (str)) == 0)
 
 #define LHEAD		512L
-#define IN_NOSIZE       (~((uint4_t) 0))	/* Unspecified data length */
+#define IN_NOSIZE       (~((UT_uint4_t) 0))	/* Unspecified data length */
 
 /* Common sampling frequencies (VAX floating-point values) in file byte order.
    The sampling frequencies recognized are 6500, 20000/3, 8000, 10000, 12000,
@@ -62,9 +62,9 @@ static const double VSfreq[NINRS] = {
 #define NDT		20
 struct IN_head {
   char Sfreq[4];	/* Sampling freq (VAX float) */
-/* int2_t fill; */
-/*  char Datetime[NDT]; */
-  uint4_t Nsamp;	/* No. samples */
+/* UT_int2_t fill; */
+/* char Datetime[NDT]; */
+  UT_uint4_t Nsamp;	/* No. samples */
 };
 #define IN_MAXINFO	LHEAD
 

@@ -1,5 +1,5 @@
 #
-# Makefile libtsp/XX/YY
+# Makefile libtsplite/XX/YY
 #
 
 SHELL = /bin/sh
@@ -12,7 +12,7 @@ dist_includedir = $(dist_dir)/include
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
 
-LIB = $(dist_libdir)/libtsp.a
+LIB = $(dist_libdir)/libtsplite.a
 
 .PHONY: all mostlyclean clean
 

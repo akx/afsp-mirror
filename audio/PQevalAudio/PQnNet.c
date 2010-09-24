@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  double PQnNet (const double MOV[], const struct Par_NNet *NNet)
+  double PQnNet (const double MOV[], const struct Par_NNet *NNet, double *DIp)
 
 Purpose:
   Process the MOV's with a neural network to get the ODG
@@ -18,10 +18,12 @@ Parameters:
       Input model output variables
    -> const struct Par_NNet *NNet
       Neural net parameters
+  <-  double *DIp
+      Distortion index
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.8 $  $Date: 2003/05/13 01:10:26 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.9 $  $Date: 2009/03/12 18:28:32 $
 
 -------------------------------------------------------------------------*/
 
@@ -33,7 +35,7 @@ Author / revision:
 
 
 double
-PQnNet (const double MOV[], const struct Par_NNet *NNet)
+PQnNet (const double MOV[], const struct Par_NNet *NNet, double *DIp)
 
 {
   int i, j, Nclip;
@@ -77,6 +79,7 @@ PQnNet (const double MOV[], const struct Par_NNet *NNet)
       arg += wx[i][j] * MOVs[i];
     DI += wy[j] * SIG (arg);
   }
+  *DIp = DI;
   ODG = bmin + (bmax - bmin) * SIG (DI);
 
   return ODG;

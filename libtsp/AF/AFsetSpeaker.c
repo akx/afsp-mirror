@@ -5,12 +5,12 @@ Routine:
   int AFsetSpeaker (const char String[])
 
 Purpose:
-  Set defaults for loudspeaker spacial positions
+  Set loudspeaker spatial positions
 
 Description:
-  This routine sets the default mapping of output channels to speaker
-  positions.  The spacial positions of the loudspeakers are specified as a
-  list of comma and/or white-space separated locations from the list below.
+  This routine sets the mapping of output channels to speaker positions.  The
+  spatial positions of the loudspeakers are specified as a list of comma and/or
+  white-space separated locations from the list below.
     "FL"  - Front Left
     "FR"  - Front Right
     "FC"  - Front Center
@@ -29,10 +29,11 @@ Description:
     "TBL" - Top Back Lefty
     "TBC" - Top Back Center
     "TBR" - Top Back Right
-    "-"   - none
+    "-"   - none  (No associated speaker position)
   A speaker position can be associated with only one channel.  Only WAVE files
   store the speaker locations in the file header.  In the case of WAVE files,
-  the subset of spacial positions must appear in the order given above.
+  the subset of spatial positions associated with the channels must appear in
+  the order given above.
 
 Parameters:
   <-  int AFsetSpeaker
@@ -41,8 +42,8 @@ Parameters:
       String containing the list of speaker positions
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:03:46 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.5 $  $Date: 2009/03/23 12:02:34 $
 
 -------------------------------------------------------------------------*/
 
@@ -69,7 +70,7 @@ AFsetSpeaker(const char String[])
   AFopt->SpkrConfig = NULL;
   if (! ErrCode && Nspkr > 0) {
     AFopt->SpkrConfig = (unsigned char *) UTmalloc (Nspkr + 1);
-    strcpy ((char *) AFopt->SpkrConfig, (const char *) SpkrConfig);
+    STcopyMax ((const char *) SpkrConfig, (char *) AFopt->SpkrConfig, Nspkr);
   }
 
   return ErrCode;

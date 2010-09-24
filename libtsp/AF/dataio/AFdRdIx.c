@@ -29,8 +29,8 @@ Parameters:
       Number of samples requested.  Nreq may be zero.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2009
+  $Revision: 1.3 $  $Date: 2009/03/11 20:14:44 $
 
 -------------------------------------------------------------------------*/
 
@@ -55,7 +55,7 @@ AFdRdI1 (AFILE *AFp, double Dbuff[], int Nreq)
 
 {
   int is, N, i, Nr;
-  int1_t Buf[NBBUF/LW1];
+  UT_int1_t Buf[NBBUF/LW1];
   double g;
 
   for (is = 0; is < Nreq; ) {
@@ -82,7 +82,7 @@ AFdRdI2 (AFILE *AFp, double Dbuff[], int Nreq)
 
 {
   int is, N, i, Nr;
-  int2_t Buf[NBBUF/LW2];
+  UT_int2_t Buf[NBBUF/LW2];
   unsigned char *cp;
   unsigned char t;
   double g;
@@ -116,7 +116,7 @@ AFdRdI3 (AFILE *AFp, double Dbuff[], int Nreq)
 
 {
   int is, N, i, Nr, Hbo;
-  int4_t Iv;
+  UT_int4_t Iv;
   unsigned char Buf[NBBUF];
   unsigned char *cp;
   unsigned char t;
@@ -164,7 +164,7 @@ AFdRdI4 (AFILE *AFp, double Dbuff[], int Nreq)
 
 {
   int is, N, i, Nr;
-  int4_t Buf[NBBUF/LW4];
+  UT_int4_t Buf[NBBUF/LW4];
   unsigned char *cp;
   unsigned char t;
   double g;
