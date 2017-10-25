@@ -3,7 +3,7 @@
 
 Routine:
   void FIdFiltAP (const double x[], double y[], int Nout, const double h[],
-		  int Ncof)
+                  int Ncof)
 
 Purpose:
   Filter a signal with an all-pole IIR filter
@@ -35,6 +35,7 @@ Description:
   routine.
 
 Parameters:
+  <-  void FIFiltAP
    -> const double x[]
       Input array of data, Nout values
   <-> double y[]
@@ -50,8 +51,8 @@ Parameters:
       Number of filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.1 $  $Date: 2005/02/01 13:20:16 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.3 $  $Date: 2017/06/12 19:52:15 $
 
 -------------------------------------------------------------------------*/
 

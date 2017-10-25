@@ -12,6 +12,7 @@ Description:
   representation for an input double value.
 
 Parameters:
+  <-  void UTeIEEE80
    -> double V
       Input double value
   <-  unsigned char b[10]
@@ -19,21 +20,21 @@ Parameters:
       contains the sign bit and the first part of the exponent.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 19:58:18 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.15 $  $Date: 2017/06/12 19:08:11 $
 
 -------------------------------------------------------------------------*/
 
-#include <math.h>		/* frexp, ldexp, floor */
+#include <math.h>   /* frexp, ldexp, floor */
 
 #include <libtsp/nucleus.h>
 #include <libtsp/UTtypes.h>
 
-#define EXP_BIAS	16383
-#define EXPC_ZERO	0
-#define EXPC_DENORM	0
-#define EXPC_INF	32767
-#define EXPC_NAN	32767
+#define EXP_BIAS  16383
+#define EXPC_ZERO 0
+#define EXPC_DENORM 0
+#define EXPC_INF  32767
+#define EXPC_NAN  32767
 
 /* IEEE 754 double-extended 80-bit format:
    Standard Apple Numerics Environment (SANE) format
@@ -60,7 +61,7 @@ Author / revision:
       IEEE standard deals with a normalized mantissa, 1 <= m < 2.  The value
       can be expressed in either form,
         m = 2 * d,   e = t - 1,
-	VN = m * 2^e = d * 2^t.
+  VN = m * 2^e = d * 2^t.
       The value e determines the exponent to be stored.  The 64-bit integer
       representation of the mantissa can be determined from d,
         M = d * 2^64.
@@ -99,7 +100,7 @@ UTeIEEE80 (double V, unsigned char b[10])
   if (V < 0.0)
     VN = -V;
   else
-    VN = V;	/* NaN goes here */
+    VN = V; /* NaN goes here */
 
   if (VN == 0.0) {
 
@@ -109,7 +110,7 @@ UTeIEEE80 (double V, unsigned char b[10])
     expc = EXPC_ZERO;
   }
 
-  else if (VN > 0.0) {		/* Not NaN */
+  else if (VN > 0.0) {    /* Not NaN */
 
 
     /* Decompose VN as d * 2^t */
@@ -128,9 +129,9 @@ UTeIEEE80 (double V, unsigned char b[10])
     else if (texp < -EXP_BIAS + 1) {
 
       /* Denormalized value, 0 < m < 1 (normally not encountered)
-	 VN = d * 2^t
-	    = [ d * 2^(t-tmin) ] * 2^tmin
-	 where tmin = emin + 1.
+   VN = d * 2^t
+      = [ d * 2^(t-tmin) ] * 2^tmin
+   where tmin = emin + 1.
       */
                          /* expc + 32 */
       Umant = ldexp (dmant, texp + EXP_BIAS - 1 + 32);
@@ -149,7 +150,7 @@ UTeIEEE80 (double V, unsigned char b[10])
     }
   }
 
-  else {			/* NaN */
+  else {      /* NaN */
 
 /* For NaN's, there is machine-dependent information in the mantissa value
    which we cannot interpret.  Here we set the most significant bit of the

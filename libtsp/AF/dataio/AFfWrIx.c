@@ -2,19 +2,21 @@
                              McGill University
 
 Routine:
+  int AFfWrU1 (AFILE *AFp, const float Dbuff[], int Nval)
   int AFfWrI1 (AFILE *AFp, const float Dbuff[], int Nval)
   int AFfWrI2 (AFILE *AFp, const float Dbuff[], int Nval)
   int AFfWrI3 (AFILE *AFp, const float Dbuff[], int Nval)
   int AFfWrI4 (AFILE *AFp, const float Dbuff[], int Nval)
 
 Purpose:
+  Write offset-binary 8-bit integer data to an audio file (float input values)
   Write 8-bit integer data to an audio file (float input values)
   Write 16-bit integer data to an audio file (float input values)
   Write 24-bit integer data to an audio file (float input values)
   Write 32-bit integer data to an audio file (float input values)
 
 Description:
-  This routine writes a specified number of integer samples to an audio file.
+  These routines write a specified number of integer samples to an audio file.
   The input to this routine is a buffer of float values.
 
 Parameters:
@@ -29,60 +31,107 @@ Parameters:
       Number of samples to be written
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 20:14:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.2 $  $Date: 2017/04/24 03:01:44 $
 
 -------------------------------------------------------------------------*/
 
+#include <math.h>
+
+#include <AFpar.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/AFdataio.h>
-#include <libtsp/AFpar.h>
 #include <libtsp/UTtypes.h>
 
-#define LW1		FDL_INT8
-#define LW2		FDL_INT16
-#define LW3		FDL_INT24
-#define LW4		FDL_INT32
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define NBBUF		8192
-#define UT_INT3_MAX	8388607
-#define UT_INT3_MIN	-8388608
-
-#define FWRITE(buf,size,nv,fp)	(int) fwrite ((const char *) buf, \
-					      (size_t) size, (size_t) nv, fp)
+#define LW1   FDL_INT8
+#define LW2   FDL_INT16
+#define LW3   FDL_INT24
+#define LW4   FDL_INT32
 
 
+
+/* Round, clip, return integer value */
+static inline UT_int4_t AF_RndOL (double Dv, double Dmin, double Dmax,
+                                  long int *Novld)
+{
+  Dv = round (Dv);
+  if (Dv > Dmax) {
+    Dv = Dmax;
+    ++*Novld;
+  }
+  else if (Dv < Dmin) {
+    Dv = Dmin;
+    ++*Novld;
+  }
+
+  return ((UT_int4_t) Dv);
+
+}
+
+/* Demote a 4 byte integer to a 3 byte integer
+   Iv - integer (4 bytes) in host byte order
+   Buf - output (3 chars) in host byte order
+   HBO - Host byte order (DS_EL or DS_EB)
+*/
+static inline void
+AF_DemoteB43 (UT_int4_t Iv, unsigned char *Buf, int HBO)
+{
+  unsigned char *cp;
+  cp = (unsigned char *) &Iv;
+
+  if (HBO == DS_EL) {
+    Buf[0] = cp[0];
+    Buf[1] = cp[1];
+    Buf[2] = cp[2];
+  }
+  else {
+    Buf[0] = cp[1];
+    Buf[1] = cp[2];
+    Buf[2] = cp[3];
+  }
+
+  return;
+}
+
+int
+AFfWrU1 (AFILE *AFp, const float Dbuff[], int Nval)
+
+{
+  int is, N, Nw, i;
+  UT_uint1_t Buf[NBBUF/LW1];
+
+/* Write data to the audio file */
+  is = 0;
+  while (is < Nval) {
+    N = MINV (NBBUF / LW1, Nval - is);
+    for (i = 0; i < N; ++i)
+      Buf[i] = AF_RndOL (AFp->ScaleF * Dbuff[i+is] + UT_UINT1_OFFSET,
+                         0, UT_UINT1_MAX, &AFp->Novld);
+
+    Nw = FWRITE (Buf, LW1, N, AFp->fp);
+    is += Nw;
+    if (Nw < N)
+      break;
+  }
+
+  return is;
+}
+
 int
 AFfWrI1 (AFILE *AFp, const float Dbuff[], int Nval)
 
 {
   int is, N, Nw, i;
   UT_int1_t Buf[NBBUF/LW1];
-  double g, Dv;
 
 /* Write data to the audio file */
   is = 0;
-  g = AFp->ScaleF;
   while (is < Nval) {
     N = MINV (NBBUF / LW1, Nval - is);
-    for (i = 0; i < N; ++i) {
-      Dv = g * Dbuff[i+is];
-      if (Dv >= 0.0) {
-	Dv += 0.5;
-	if (Dv >= UT_INT1_MAX + 1) {
-	  ++AFp->Novld;
-	  Dv = UT_INT1_MAX;
-	}
-      }
-      else {
-	Dv += -0.5;
-	if (Dv <= UT_INT1_MIN - 1) {
-	  ++AFp->Novld;
-	  Dv = UT_INT1_MIN;
-	}
-      }
-      Buf[i] = (UT_int1_t) Dv;
-    }
+    for (i = 0; i < N; ++i)
+      Buf[i] = AF_RndOL (AFp->ScaleF * Dbuff[i+is], UT_INT1_MIN, UT_INT1_MAX,
+                         &AFp->Novld);
+
     Nw = FWRITE (Buf, LW1, N, AFp->fp);
     is += Nw;
     if (Nw < N)
@@ -98,36 +147,16 @@ AFfWrI2 (AFILE *AFp, const float Dbuff[], int Nval)
 {
   int is, N, Nw, i;
   UT_int2_t Buf[NBBUF/LW2];
-  double g, Dv;
-  unsigned char *cp;
-  unsigned char t;
 
 /* Write data to the audio file */
   is = 0;
-  g = AFp->ScaleF;
   while (is < Nval) {
     N = MINV (NBBUF / LW2, Nval - is);
     for (i = 0; i < N; ++i) {
-      Dv = g * Dbuff[i+is];
-      if (Dv >= 0.0) {
-	Dv += 0.5;
-	if (Dv >= UT_INT2_MAX + 1) {
-	  ++AFp->Novld;
-	  Dv = UT_INT2_MAX;
-	}
-      }
-      else {
-	Dv += -0.5;
-	if (Dv <= UT_INT2_MIN - 1) {
-	  ++AFp->Novld;
-	  Dv = UT_INT2_MIN;
-	}
-      }
-      Buf[i] = (UT_int2_t) Dv;
-      if (AFp->Swapb == DS_SWAP) {
-	cp = (unsigned char *) &Buf[i];
-	t = cp[1]; cp[1] = cp[0]; cp[0] = t;
-      }
+      Buf[i] = AF_RndOL (AFp->ScaleF * Dbuff[i+is], UT_INT2_MIN, UT_INT2_MAX,
+                         &AFp->Novld);
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP2 (&Buf[i]);
     }
     Nw = FWRITE (Buf, LW2, N, AFp->fp);
     is += Nw;
@@ -142,51 +171,22 @@ int
 AFfWrI3 (AFILE *AFp, const float Dbuff[], int Nval)
 
 {
-  int is, N, Nw, i, j, Hbo;
+  int is, N, Nw, i, Hbo;
   UT_int4_t Iv;
   unsigned char Buf[NBBUF];
-  double g, Dv;
-  unsigned char *cp;
 
 /* Write data to the audio file */
   Hbo = UTbyteOrder ();
-  cp = (unsigned char *) &Iv;
   is = 0;
-  g = AFp->ScaleF;
   while (is < Nval) {
     N = MINV (NBBUF / LW3, Nval - is);
-    for (i = 0, j = is; i < LW3*N; i += LW3, ++j) {
-      Dv = g * Dbuff[j];
-      if (Dv >= 0.0) {
-	Dv += 0.5;
-	if (Dv >= UT_INT3_MAX + 1) {
-	  ++AFp->Novld;
-	  Dv = UT_INT3_MAX;
-	}
-      }
-      else {
-	Dv += -0.5;
-	if (Dv <= UT_INT3_MIN - 1) {
-	  ++AFp->Novld;
-	  Dv = UT_INT3_MIN;
-	}
-      }
-      if (Hbo == DS_EL)
-	Iv = (UT_int4_t) Dv;		/* DS_EL:  X  2  1  0  */
-      else				/*        MSB      LSB */
-	Iv = 256 * ((UT_int4_t) Dv);       /* DS_EB:  0  1  2  X  */
-      if (AFp->Swapb == DS_SWAP) {
-	Buf[i] = cp[2];
-	Buf[i+1] = cp[1];
-	Buf[i+2] = cp[0];
-      }
-      else {
-	Buf[i] = cp[0];
-	Buf[i+1] = cp[1];
-	Buf[i+2] = cp[2];
-      }
+    for (i = 0; i < N; ++i) {
+      Iv = AF_RndOL (AFp->ScaleF * Dbuff[i+is], UT_INT3_MIN, UT_INT3_MAX,
+                     &AFp->Novld);
+      AF_DemoteB43 (Iv, &Buf[i*LW3], Hbo);
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP3 (&Buf[i*LW3]);
     }
-
     Nw = FWRITE (Buf, LW3, N, AFp->fp);
     is += Nw;
     if (Nw < N)
@@ -202,37 +202,16 @@ AFfWrI4 (AFILE *AFp, const float Dbuff[], int Nval)
 {
   int is, N, Nw, i;
   UT_int4_t Buf[NBBUF/LW4];
-  double g, Dv;
-  unsigned char *cp;
-  unsigned char t;
 
 /* Write data to the audio file */
   is = 0;
-  g = AFp->ScaleF;
   while (is < Nval) {
     N = MINV (NBBUF / LW4, Nval - is);
     for (i = 0; i < N; ++i) {
-      Dv = g * Dbuff[i+is];
-      if (Dv >= 0.0) {
-	Dv += 0.5;
-	if (Dv >= (double) UT_INT4_MAX + 1.) {
-	  ++AFp->Novld;
-	  Dv = UT_INT4_MAX;
-	}
-      }
-      else {
-	Dv += -0.5;
-	if (Dv <= (double) (UT_INT4_MIN) - 1.) {
-	  ++AFp->Novld;
-	  Dv = UT_INT4_MIN;
-	}
-      }
-      Buf[i] = (UT_int4_t) Dv;
-      if (AFp->Swapb == DS_SWAP) {
-	cp = (unsigned char *) &Buf[i];
-	t = cp[3]; cp[3] = cp[0]; cp[0] = t;
-	t = cp[2]; cp[2] = cp[1]; cp[1] = t;
-      }
+      Buf[i] = AF_RndOL (AFp->ScaleF * Dbuff[i+is], UT_INT4_MIN, UT_INT4_MAX,
+                         &AFp->Novld);
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP4 (&Buf[i]);
     }
     Nw = FWRITE (Buf, LW4, N, AFp->fp);
     is += Nw;

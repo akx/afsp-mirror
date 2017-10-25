@@ -18,18 +18,18 @@ Parameters:
       Audio file pointer for an audio file opened by AFopnWrite
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.28 $  $Date: 2009/03/11 20:08:23 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.36 $  $Date: 2017/05/15 15:42:38 $
 
 -------------------------------------------------------------------------*/
 
 #include <setjmp.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFheader.h>
-#define AF_DATA_LENGTHS
-#include <libtsp/AFpar.h>
+#include <libtsp/AFmsg.h>
 #include <libtsp/AIpar.h>
 
 /* setjmp / longjmp environment */
@@ -41,12 +41,13 @@ AFupdAIhead (AFILE *AFp)
 
 {
   UT_uint4_t val;
+  int Changed;
   long int Nbytes, Ldata;
   static const UT_uint1_t Pad = 0;
 
 /* Set the long jump environment; on error return a NULL */
   if (setjmp (AFW_JMPENV))
-    return 1;	/* Return from a header write error */
+    return 1; /* Return from a header write error */
 
 /* This routine assumes that the header has the following layout
    offset  contents
@@ -65,38 +66,47 @@ AFupdAIhead (AFILE *AFp)
 */
   Ldata = AF_DL[AFp->Format] * AFp->Nsamp;
   Nbytes = AFp->Start + Ldata;
-  if (Nbytes % 2 != 0)			/* Nbytes includes pad byte */
+  if (Nbytes % 2 != 0)      /* Nbytes includes pad byte */
     Nbytes += WHEAD_V (AFp->fp, Pad, DS_EB);
 
-/* Update the FORM chunk ckDataSize field */
-  val = (UT_uint4_t) (Nbytes - 8);
-  if (AFseek (AFp->fp, 4L, NULL))
-    return 1;
-  WHEAD_V (AFp->fp, val, DS_EB);
+/* Check if the header needs updating */
+  Changed = (AFp->Nframe != AF_NFRAME_UNDEF &&
+             AFp->Nframe != AFp->Nsamp / AFp->Nchan);
+  if (Changed)
+    UTwarn ("AFupdAUhead - %s", AFM_NsampUpd);
 
-/* Update the COMM chunk numSampleFrames field:
-   - AIFF-C: The COMM chunk follows the FVER chunk in the FORM chunk
-   - AIFF:   The COMM chunk is the first chunk
-*/
-  val = (UT_uint4_t) (AFp->Nsamp / AFp->Nchan);
-  if (AFp->Ftype == FT_AIFF_C) {
-    if (AFseek (AFp->fp, 34L, NULL))
-      return 1;
-  }
-  else {
-    if (AFseek (AFp->fp, 22L, NULL))
-      return 1;
-  }
-  WHEAD_V (AFp->fp, val, DS_EB);
-   
+/* Update the header fields */
+  if (AFp->Nframe == AF_NFRAME_UNDEF || Changed) {
 
-/* Update the SSND chunk ckDataSize field (assume SSND.offset == 0)
-   SSND.ckDataSize is 12 bytes before the start of the audio data
- */
-  val = (UT_uint4_t) (Ldata + 8L);
-  if (AFseek (AFp->fp, AFp->Start - 12L, NULL))
-    return 1;
-  WHEAD_V (AFp->fp, val, DS_EB);
+    /* Update the FORM chunk ckSize field */
+    val = (UT_uint4_t) (Nbytes - 8);
+    if (AFseek (AFp->fp, 4L, NULL))
+      return 1;
+    WHEAD_V (AFp->fp, val, DS_EB);
+
+    /* Update the COMM chunk numSampleFrames field:
+      - AIFF-C: The COMM chunk follows the FVER chunk in the FORM chunk
+      - AIFF:   The COMM chunk is the first chunk
+    */
+    val = (UT_uint4_t) (AFp->Nsamp / AFp->Nchan);
+    if (AFp->Ftype == FT_AIFF_C) {
+      if (AFseek (AFp->fp, 34L, NULL))
+        return 1;
+    }
+    else {
+      if (AFseek (AFp->fp, 22L, NULL))
+        return 1;
+    }
+    WHEAD_V (AFp->fp, val, DS_EB);
+
+    /* Update the SSND chunk ckSize field (assume SSND.offset == 0)
+       SSND.ckSize is 12 bytes before the start of the audio data
+    */
+    val = (UT_uint4_t) (Ldata + 8L);
+    if (AFseek (AFp->fp, AFp->Start - 12L, NULL))
+      return 1;
+    WHEAD_V (AFp->fp, val, DS_EB);
+  }
 
   return 0;
 }

@@ -9,9 +9,9 @@ Purpose:
   Decode keywords and return parameter values
 
 Description:
-  This routine decodes a keyword and returns the associated parameter value
-  from a line of text.  Each parameter specification line contains information
-  of the following form.
+  This routine decodes a keyword and returns the associated parameter value from
+  a line of text.  Each parameter specification line contains information of the
+  following form.
     <keyword> <sep> <value>
   The value string is separated from the keyword by a character from a set of
   delimiter characters.  The allowable keywords are specified in a keyword
@@ -19,12 +19,12 @@ Description:
   value associated with the keyword as a string.
 
   Whitespace before and after the keyword and the value is ignored. The entire
-  value may be optionally enclosed in quotes.  The quotes are removed before
-  the value is returned.
+  value may be optionally enclosed in quotes.  The quotes are removed before the
+  value is returned.
 
   The format of the keyword table entries is described in the documentation for
-  routine STkeyMatch.  This routine prints a warning message if the keyword
-  does not match an entry in the keyword table.
+  routine STkeyMatch.  This routine prints a warning message if the keyword does
+  not match an entry in the keyword table.
 
 Parameters:
   <-  int STkeyXpar
@@ -39,13 +39,12 @@ Parameters:
    -> const char Delims[]
       Character string specifying delimiter characters
    -> const char Quotes[]
-      Character string specifying pairs of quote characters (the left and
-      right quote characters).  In the part of the input string between a
-      matched pair of quote characters, any other characters, including quote
-      characters other than from the active pair, are treated as ordinary
-      characters.  Up to 5 pairs of quote characters can be specified.  A zero
-      length string indicates that quote characters should not to be
-      recognized.
+      Character string specifying pairs of quote characters (the left and right
+      quote characters).  In the part of the input string between a matched pair
+      of quote characters, any other characters, including quote characters
+      other than from the active pair, are treated as ordinary characters.  Up
+      to 5 pairs of quote characters can be specified.  A zero length string
+      indicates that quote characters should not to be recognized.
    -> const char *KeyTable[]
       Pointer array with pointers to the keyword strings.  The end of the
       keyword table is signalled with a NULL pointer.  Note that with ANSI C,
@@ -57,8 +56,8 @@ Parameters:
       string can be the same string as Line.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.16 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.19 $  $Date: 2017/05/24 16:54:32 $
 
 -------------------------------------------------------------------------*/
 
@@ -67,13 +66,13 @@ Author / revision:
 #include <libtsp.h>
 #include <libtsp/STmsg.h>
 
-#define NCBUF		512
-#define WS_STRIP	1
+#define NCBUF   512
+#define WS_STRIP  1
 
 
 int
 STkeyXpar (const char Line[], const char Delims[], const char Quotes[],
-	   const char *Keytable[], char Par[])
+     const char *Keytable[], char Par[])
 
 {
   char cbuf[NCBUF+1];
@@ -83,7 +82,7 @@ STkeyXpar (const char Line[], const char Delims[], const char Quotes[],
   int ind;
 
 /* Set up the token buffer */
-  nc = strlen (Line);
+  nc = (int) strlen (Line);
   if (nc <= NCBUF)
     token = cbuf;
   else

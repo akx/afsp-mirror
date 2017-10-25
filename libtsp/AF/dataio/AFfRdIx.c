@@ -2,19 +2,21 @@
                              McGill University
 
 Routine:
+  int AFfRdU1 (AFILE *AFp, float Dbuff[], int Nreq)
   int AFfRdI1 (AFILE *AFp, float Dbuff[], int Nreq)
   int AFfRdI2 (AFILE *AFp, float Dbuff[], int Nreq)
   int AFfRdI3 (AFILE *AFp, float Dbuff[], int Nreq)
   int AFfRdI4 (AFILE *AFp, float Dbuff[], int Nreq)
 
 Purpose:
+  Read offset-binary 8-bit integer data from an audio file (return floats)
   Read 8-bit integer data from an audio file (return float values)
   Read 16-bit integer data from an audio file (return float values)
   Read 24-bit integer data from an audio file (return float values)
   Read 32-bit integer data from an audio file (return float values)
 
 Description:
-  This routine reads a specified number of integer samples from an audio file.
+  These routines read a specified number of integer samples from an audio file.
   The data in the file is converted to float format on output.
 
 Parameters:
@@ -29,34 +31,50 @@ Parameters:
       Number of samples requested.  Nreq may be zero.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.3 $  $Date: 2009/03/11 20:14:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.2 $  $Date: 2017/05/24 16:08:42 $
 
 -------------------------------------------------------------------------*/
 
+#include <AFpar.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/AFdataio.h>
-#include <libtsp/AFpar.h>
 #include <libtsp/UTtypes.h>
 
-#define LW1		FDL_INT8
-#define LW2		FDL_INT16
-#define LW3		FDL_INT24
-#define LW4		FDL_INT32
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define NBBUF		8192
-
-#define FREAD(buf,size,nv,fp)	(int) fread ((char *) buf, (size_t) size, \
-					     (size_t) nv, fp)
+#define LW1   FDL_INT8
+#define LW2   FDL_INT16
+#define LW3   FDL_INT24
+#define LW4   FDL_INT32
 
 
+/* Promote a 3 byte integer to a 4 byte integer
+   Buf - (3 chars) in host byte order
+   HBO - Host byte order (DS_EL or DS_EB)
+*/
+static inline UT_int4_t
+AF_PromoteB34 (unsigned char *Buf, int HBO)
+{
+  UT_int4_t Iv;
+  unsigned char *cp;
+
+  cp = (unsigned char *) &Iv;
+  if (HBO == DS_EL) {
+    cp[0] = 0;      cp[1] = Buf[0];
+    cp[2] = Buf[1]; cp[3] = Buf[2];  /* Most significant end */
+  }
+  else {
+    cp[0] = Buf[0]; cp[1] = Buf[1];  /* Most significant end */
+    cp[2] = Buf[2]; cp[3] = 0;
+  }
+  return (Iv/256);   /* Shift, extending the sign */
+};
+
 int
-AFfRdI1 (AFILE *AFp, float Dbuff[], int Nreq)
+AFfRdU1 (AFILE *AFp, float Dbuff[], int Nreq)
 
 {
   int is, N, i, Nr;
-  UT_int1_t Buf[NBBUF/LW1];
-  double g;
+  UT_uint1_t Buf[NBBUF/LW1];
 
   for (is = 0; is < Nreq; ) {
 
@@ -64,12 +82,34 @@ AFfRdI1 (AFILE *AFp, float Dbuff[], int Nreq)
     N = MINV (NBBUF / LW1, Nreq - is);
     Nr = FREAD (Buf, LW1, N, AFp->fp);
 
-    /* Convert to float */
-    g = AFp->ScaleF;
-    for (i = 0; i < Nr; ++i) {
-      Dbuff[is] = (float) (g * Buf[i]);
-      ++is;
-    }
+    /* Convert and scale */
+    /* For offset-binary 8-bit data, the zero-point is the value 128 */
+    for (i = 0; i < Nr; ++i, ++is)
+      Dbuff[is] = (float) (AFp->ScaleF * ((int) Buf[i] - UT_UINT1_OFFSET));
+
+    if (Nr < N)
+      break;
+  }
+
+  return is;
+}
+
+int
+AFfRdI1 (AFILE *AFp, float Dbuff[], int Nreq)
+
+{
+  int is, N, i, Nr;
+  UT_int1_t Buf[NBBUF/LW1];
+
+  for (is = 0; is < Nreq; ) {
+
+    /* Read data from the audio file */
+    N = MINV (NBBUF / LW1, Nreq - is);
+    Nr = FREAD (Buf, LW1, N, AFp->fp);
+
+    /* Scale */
+    for (i = 0; i < Nr; ++i, ++is)
+      Dbuff[is] = (float) (AFp->ScaleF * Buf[i]);
 
     if (Nr < N)
       break;
@@ -84,9 +124,6 @@ AFfRdI2 (AFILE *AFp, float Dbuff[], int Nreq)
 {
   int is, N, i, Nr;
   UT_int2_t Buf[NBBUF/LW2];
-  unsigned char *cp;
-  unsigned char t;
-  double g;
 
   for (is = 0; is < Nreq; ) {
 
@@ -94,15 +131,11 @@ AFfRdI2 (AFILE *AFp, float Dbuff[], int Nreq)
     N = MINV (NBBUF / LW2, Nreq - is);
     Nr = FREAD (Buf, LW2, N, AFp->fp);
 
-    /* Byte swap and convert to float */
-    g = AFp->ScaleF;
-    for (i = 0; i < Nr; ++i) {
-      if (AFp->Swapb == DS_SWAP) {
-	cp = (unsigned char *) &Buf[i];
-	t = cp[1]; cp[1] = cp[0]; cp[0] = t;
-      }
-      Dbuff[is] = (float) (g * Buf[i]);
-      ++is;
+    /* Byte swap and scale */
+    for (i = 0; i < Nr; ++i, ++is) {
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP2 (&Buf[i]);
+      Dbuff[is] = (float) (AFp->ScaleF * Buf[i]);
     }
 
     if (Nr < N)
@@ -117,40 +150,20 @@ AFfRdI3 (AFILE *AFp, float Dbuff[], int Nreq)
 
 {
   int is, N, i, Nr, Hbo;
-  UT_int4_t Iv;
   unsigned char Buf[NBBUF];
-  unsigned char *cp;
-  unsigned char t;
-  double g;
 
   Hbo = UTbyteOrder ();
-  cp = (unsigned char *) &Iv;
   for (is = 0; is < Nreq; ) {
 
     /* Read data from the audio file */
     N = MINV (NBBUF/LW3, Nreq - is);
     Nr = FREAD (Buf, LW3, N, AFp->fp);
 
-    /* Byte swap and convert to float */
-    g = AFp->ScaleF;
-    for (i = 0; i < LW3*Nr; i += LW3) {
-      if (AFp->Swapb == DS_SWAP) {
-	t = Buf[i+2]; Buf[i+2] = Buf[i]; Buf[i] = t;
-      }
-      if (Hbo == DS_EL) {
-	cp[0] = 0;
-	cp[1] = Buf[i];
-	cp[2] = Buf[i+1];
-	cp[3] = Buf[i+2];	/* Most significant byte */
-      }
-      else {
-	cp[0] = Buf[i];		/* Most significant byte */
-	cp[1] = Buf[i+1];
-	cp[2] = Buf[i+2];
-	cp[3] = 0;
-      }
-      Dbuff[is] = (float) (g * (Iv / 256));
-      ++is;
+    /* Byte swap and scale */
+    for (i = 0; i < Nr; ++i, ++is) {
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP3 (&Buf[i*LW3]);
+      Dbuff[is] = (float) (AFp->ScaleF * AF_PromoteB34 (&Buf[i*LW3], Hbo));
     }
 
     if (Nr < N)
@@ -166,9 +179,6 @@ AFfRdI4 (AFILE *AFp, float Dbuff[], int Nreq)
 {
   int is, N, i, Nr;
   UT_int4_t Buf[NBBUF/LW4];
-  unsigned char *cp;
-  unsigned char t;
-  double g;
 
   for (is = 0; is < Nreq; ) {
 
@@ -176,16 +186,11 @@ AFfRdI4 (AFILE *AFp, float Dbuff[], int Nreq)
     N = MINV (NBBUF / LW4, Nreq - is);
     Nr = FREAD (Buf, LW4, N, AFp->fp);
 
-    /* Byte swap and convert to float */
-    g = AFp->ScaleF;
-    for (i = 0; i < Nr; ++i) {
-      if (AFp->Swapb == DS_SWAP) {
-	cp = (unsigned char *) &Buf[i];
-	t = cp[3]; cp[3] = cp[0]; cp[0] = t;
-	t = cp[2]; cp[2] = cp[1]; cp[1] = t;
-      }
-      Dbuff[is] = (float) (g * Buf[i]);
-      ++is;
+    /* Byte swap and scale */
+    for (i = 0; i < Nr; ++i, ++is) {
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP4 (&Buf[i]);
+      Dbuff[is] = (float) (AFp->ScaleF * Buf[i]);
     }
 
     if (Nr < N)

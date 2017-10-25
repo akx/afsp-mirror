@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  int UTswapCode (int Dbo)
+  enum UT_DS_T UTswapCode (enum UT_DS_T Dbo)
 
 Purpose:
   Determine a swap code for decoding data
@@ -13,22 +13,22 @@ Description:
   host byte order.
 
 Parameters:
-  <-  int UTswapCode
+  <-  enum UT_DS_T UTswapCode
       Swap code, DS_NATIVE or DS_SWAP
-   -> int Dbo
+   -> enum UT_DS_T Dbo
       Data byte swap code.
       DS_EB     - Data is in big-endian byte order.  The output swap code
                   will be DS_SWAP if the current host uses little-endian
-		  byte order.
+                  byte order.
       DS_EL     - Data is in little-endian byte order data.  The output swap
                   code will be DS_SWAP if the current host uses big-endian
-		  byte order.
+                  byte order.
       DS_NATIVE - Data is in native byte order
       DS_SWAP   - Data is byte-swapped
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.5 $  $Date: 2003/05/09 03:23:41 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.8 $  $Date: 2017/03/28 00:13:00 $
 
 -------------------------------------------------------------------------*/
 
@@ -38,16 +38,16 @@ Author / revision:
 #include <libtsp/UTmsg.h>
 
 
-int
-UTswapCode (int Dbo)
+enum UT_DS_T
+UTswapCode (enum UT_DS_T Dbo)
 
 {
-  static int Hbo = DS_UNDEF;
+  static enum UT_DS_T Hbo = DS_UNDEF;
 
-  switch (Dbo) { 
+  switch (Dbo) {
   case DS_EB:
   case DS_EL:
-    if (Hbo == DS_UNDEF)	/* Cache the host byte order */
+    if (Hbo == DS_UNDEF)  /* Cache the host byte order */
       Hbo = UTbyteOrder ();
     if (Hbo == Dbo)
       Dbo = DS_NATIVE;

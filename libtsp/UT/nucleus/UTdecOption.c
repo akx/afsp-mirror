@@ -13,7 +13,7 @@ Description:
   characters need no longer match.
 
   The option keyword is a string with an optional asterisk ('*') which is used
-  to indicate the minimum number of characters needed for a match.  A second 
+  to indicate the minimum number of characters needed for a match.  A second
   asterisk can be used to indicate that characters after this point need not
   match.  A trailing '#' indicates that an argument follows the keyword.  A
   trailing '=' indicates that the argument is separated from the keyword by a
@@ -27,7 +27,7 @@ Description:
         with an argument value of "33".
     "a*bc=" - Variable length keyword followed by an argument separated by a
         '=' character.  The string "ab=33" matches with an argument value of
-	"33".
+  "33".
 
 Parameters:
   <-  int *UTdecOption
@@ -46,8 +46,8 @@ Parameters:
       missing, this pointer will be NULL.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.23 $  $Date: 2003/05/09 03:23:41 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.26 $  $Date: 2017/05/24 16:56:19 $
 
 -------------------------------------------------------------------------*/
 
@@ -55,16 +55,16 @@ Author / revision:
 
 #include <libtsp/nucleus.h>
 
-#define NOSTAR	0
-#define STAR	1
+#define NOSTAR  0
+#define STAR    1
 
-#define NOARG	0
-#define HASH	1
-#define EQUAL	2
+#define NOARG 0
+#define HASH  1
+#define EQUAL 2
 
-#define NOMATCH	0	/* No match */
-#define MATCH	1	/* Match, argument present or not needed */
-#define MVAL	-2	/* Match, argument missing */
+#define NOMATCH 0 /* No match */
+#define MATCH   1 /* Match, argument present or not needed */
+#define MVAL   -2 /* Match, argument missing */
 
 
 int
@@ -82,7 +82,7 @@ UTdecOption (const char String[], const char Option[], const char **Arg)
      EQUAL - Argument follows an equal sign
    kend is the character past the last one of interest for matching
 */
-  lenk = strlen (Option);
+  lenk = (int) strlen (Option);
   kend = &Option[lenk];
   argt = NOARG;
   if (lenk > 0) {
@@ -101,23 +101,23 @@ UTdecOption (const char String[], const char Option[], const char **Arg)
   for (kt = Option, s = String; kt < kend && *s != '\0'; ++kt) {
     if (*kt == '*') {
       if (state == NOSTAR)
-	state = STAR;
+        state = STAR;
       else {
-	*Arg = NULL;		/* Second asterisk: ignore remaining	*/
-	if (argt != NOARG)	/* characters in the string; these are	*/
-	  return MVAL;		/* not considered to be part of an	*/
-	else			/* argument string.			*/
-	  return MATCH;
+        *Arg = NULL;        /* Second asterisk: ignore remaining   */
+        if (argt != NOARG)  /* characters in the string; these are */
+          return MVAL;      /* not considered to be part of an     */
+        else                /* argument string.                    */
+          return MATCH;
       }
     }
     else if (*s != *kt) {
       if (*s == '=' && state == STAR && argt == EQUAL) {
-	*Arg = s+1;		/* Characters differ: this is normally	*/
-	return MATCH;		/* a no-match condition, except if the	*/
-      }				/* string contains an '=', the minimum	*/
-      else {			/* number of characters has been	*/
-	*Arg = NULL;		/* matched, and an argument of type	*/
-	return NOMATCH;		/* EQUAL is expected.			*/
+        *Arg = s+1;     /* Characters differ: this is normally  */
+        return MATCH;   /* a no-match condition, except if the  */
+      }                 /* string contains an '=', the minimum  */
+      else {            /* number of characters has been        */
+        *Arg = NULL;    /* matched, and an argument of type     */
+        return NOMATCH; /* EQUAL is expected                    */
       }
     }
     else
@@ -138,31 +138,31 @@ UTdecOption (const char String[], const char Option[], const char **Arg)
 
   /* A match will occur only if the minimum number of character has been
      matched (state == STAR).
-   1. The string has been exhausted (*s == '\0')
-   2. String not finished (*s != '\0')
+     1. The string has been exhausted (*s == '\0')
+     2. String not finished (*s != '\0')
       (a) Argument expected
       (b) No argument expected (NOMATCH)
   */
   if (state == STAR) {
-    if (*s == '\0') {		/* case 1 */
+    if (*s == '\0') {   /* case 1 */
       *Arg = NULL;
       if (argt != NOARG)
-	return MVAL;
+        return MVAL;
       else
-	return MATCH;
+        return MATCH;
     }
-    else {			/* case 2 */
+    else {      /* case 2 */
       if (argt == HASH) {
-	*Arg = s;
-	return MATCH;
+        *Arg = s;
+        return MATCH;
       }
       else if (argt == EQUAL && *s == '=') {
-	*Arg = s+1;
-	return MATCH;
+        *Arg = s+1;
+        return MATCH;
       }
     }
   }
-  
+
   *Arg = NULL;
   return NOMATCH;
 }

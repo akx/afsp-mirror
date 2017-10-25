@@ -19,17 +19,17 @@ Parameters:
       before any other user supplied scale factors are applied.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.17 $  $Date: 2003/05/18 14:51:40 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.18 $  $Date: 2015/04/10 12:40:46 $
 
 -----------------------------------------------------------------------*/
 
-#include <float.h>	/* DBL_MAX */
-#include <math.h>	/* log10 */
+#include <float.h>  /* DBL_MAX */
+#include <math.h> /* log10 */
 
 #include "CompAudio.h"
 
-#define DB(x)		(10.0 * log10 (x))
+#define DB(x)   (10.0 * log10 (x))
 
 
 void
@@ -59,10 +59,10 @@ CAprcorr (const struct Stats_T *Stats, const double ScaleF[2])
   if (ScaleF[0] == ScaleF[1]) {
     if (Stats->Nrun == 1)
       printf (CAMF_DiffAP1, Stats->Diffmax / ScaleF[0], 100. * Stats->Diffmax,
-	      Stats->Ndiff);
+              Stats->Ndiff);
     else
       printf (CAMF_DiffAP2, Stats->Diffmax / ScaleF[0], 100. * Stats->Diffmax,
-	      Stats->Ndiff, Stats->Nrun);
+              Stats->Ndiff, Stats->Nrun);
   }
   else {
     if (Stats->Nrun == 1)

@@ -50,19 +50,18 @@ Parameters:
       formulation above, equal to N-1 to get the full window)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.12 $  $Date: 2005/02/01 04:20:01 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.13 $  $Date: 2015/04/10 12:46:11 $
 
 -------------------------------------------------------------------------*/
 
-#include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include "ResampAudio.h"
 
 
 void
 RSKaiserLPF (double h[], int N, double Fc, double alpha, double Gain,
-	     double Woffs, double Wspan)
+             double Woffs, double Wspan)
 
 {
   int i, k;

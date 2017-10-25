@@ -10,7 +10,7 @@ Purpose:
 Description:
   This routine decodes an option for input audio files.  The routine AOinitOpt
   must be called first to initialize the option arguments.  If this routine
-  fails to find an input audio file option, the argument pointer is reset to 
+  fails to find an input audio file option, the argument pointer is reset to
   allow another routine to try to decode the option.
 
   Options recognized:
@@ -28,21 +28,20 @@ Parameters:
       Input file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.11 $  $Date: 2003/05/12 23:51:12 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.15 $  $Date: 2017/04/13 15:00:51 $
 
 ----------------------------------------------------------------------*/
 
-#include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include <AO.h>
 
-#define ROUTINE		"AOdecFI"
-#define PGM		((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
-#define ERRSTOP(text,par)	UThalt ("%s: %s: \"%s\"", PGM, text, par)
+#define ROUTINE           "AOdecFI"
+#define PGM               ((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
+#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PGM, text, par)
 
-#define RET_ERROR	-2
-#define RET_END		-1
+#define RET_ERROR -2
+#define RET_END   -1
 
 static const char *OTFI[] = {
   "-t#", "--t*ype=",
@@ -65,14 +64,11 @@ AOdecFI (struct AO_FIpar *FI)
   int n, Sindex;
   double Nv, Dv;
   struct AO_CmdArg *Carg;
-  struct AF_opt *AFopt;
   long int D[2] = {0, AO_LIM_UNDEF};
-
-  AFopt = AFoptions ();
 
   /* Get the argument pointers */
   Carg = AOArgs ();
-  
+
   if (Carg->EndOptions)
     return 0;
 
@@ -91,13 +87,13 @@ AOdecFI (struct AO_FIpar *FI)
     /* Type of input file */
     if (AFsetFileType (OptArg))
       ERRSTOP (AOM_BadFType, OptArg);
-    FI->Ftype = AFopt->FtypeI;
+    FI->Ftype = AFopt.FtypeI;
     break;
   case 3:
   case 4:
     /* Limits specification */
     if (AO_decLrange (OptArg, D, FI->Lim)
-	|| (FI->Lim[1] != AO_LIM_UNDEF && FI->Lim[0] > FI->Lim[1]))
+        || (FI->Lim[1] != AO_LIM_UNDEF && FI->Lim[0] > FI->Lim[1]))
       ERRSTOP (AOM_BadLimits, OptArg);
     break;
   case 5:
@@ -109,13 +105,13 @@ AOdecFI (struct AO_FIpar *FI)
     break;
   case 7:
   case 8:
-    /* Headerless input parameters */
-    if (AFsetNHpar (OptArg))
-      ERRSTOP (AOM_BadNHPar, OptArg);
-    FI->NHpar = AFopt->NHpar;
+    /* Input file parameters */
+    if (AFsetInputPar (OptArg))
+      ERRSTOP (AOM_BadInputPar, OptArg);
+    FI->InputPar = AFopt.InputPar;
     break;
   default:
-    Carg->Index = Sindex;		/* Reset the index */
+    Carg->Index = Sindex;   /* Reset the index */
     n = 0;
     break;
   }
@@ -124,15 +120,17 @@ AOdecFI (struct AO_FIpar *FI)
 }
 
 /* Decode a range value, with default values
-   "123:345"	returns (123, 345)
-   "123:"	returns (123, D[1])
-   ":345"	returns (D[0], 345)
-   "123"	returns (D[0], D[0] + 123 - 1)
+   "123:345"  returns (123, 345)
+   "123:" returns (123, D[1])
+   ":345" returns (D[0], 345)
+   "123"  returns (D[0], D[0] + 123 - 1)
 */
-#define DP_EMPTY		0
-#define DP_LVAL			1
-#define DP_DELIM		2
-#define DP_RVAL			4	
+enum {
+  DP_EMPTY = 0,
+  DP_LVAL   = 1,
+  DP_DELIM = 2,
+  DP_RVAL  = 4
+};
 
 
 static int

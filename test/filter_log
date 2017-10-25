@@ -13,20 +13,14 @@
 # Editing:
 # - Remove the file paths up to a "/test/" component
 # - Remove the file paths up to a "/audiofiles/" component
-# - Remove dates of the form "1996-03-18".
-# - Remove dates of the form "1996-03-18 12:34:59".
-# - Remove dates of the form "May  3 12:34:59 1997"
-# - For all except the last form, the date string must be surrounded by
-#   blanks.
-# - Dates in the 1970's and 1980's are not modified (such dates should not
-#   occur in temporary files).
+# - Same as above with Windows file separators
+# - Remove dates of the form "2015-03-18 12:34:59"   for 2010 - 2099
+# - Earlier dates are not modified (such dates should not occur in temporary
+#   files).
 sed 's| /.*/test/| --path--/test/|;
-     s| .:\\.*\\test\\| --path--/test/|;
-     s| /.*/audiofiles/| --path--/audiofiles/|;
-     s| .:\\.*\\audiofiles\\| --path--/audiofiles/|;
-	s| [12][90][^78][0-9][-/][ 0-1][0-9][-/][ 0-3][0-9] | YYYY-MM-dd |;
-	s| [ 0-2][0-9]:[ 0-5][0-9]:[ 0-5][0-9] | hh:mm:ss |;
-	s| [A-Z][a-z][a-z] [ 0-3][0-9] hh:mm:ss | MMM dd hh:mm:ss |;
-	s| MMM dd hh:mm:ss [12][90][^78][0-9]| MMM dd hh:mm:ss YYYY|'
+     s| [^ ]*\\test\\| --path--/test/|;
+     s| [^ ]*/audiofiles/| --path--/audiofiles/|;
+     s| [^ ]*\\audiofiles\\| --path--/audiofiles/|;
+s| 20[1-9][0-9][-/][ 0-1][0-9][-/][ 0-3][0-9] [ 0-2][0-9]:[ 0-5][0-9]:[ 0-5][0-9]| YYYY-MM-dd hh:mm:ss|'
 
-# $Id: filter_log 1.11 2001/03/28 AFsp-v9r0 $
+# $Id: filter_log 1.13 2017/06/09 AFsp-v10r1a $

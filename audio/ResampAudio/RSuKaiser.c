@@ -41,8 +41,8 @@ Parameters:
 
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.6 $  $Date: 2003/05/13 01:09:07 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.7 $  $Date: 2015/04/10 12:46:11 $
 
 -------------------------------------------------------------------------*/
 
@@ -50,10 +50,10 @@ Author / revision:
 
 #include "ResampAudio.h"
 
-#define K1	0.5842
-#define K2	0.07886
-#define K3	0.1102
-#define EPS	1E-6
+#define K1  0.5842
+#define K2  0.07886
+#define K3  0.1102
+#define EPS 1E-6
 
 /* Empirical formulas for alpha, attenuation (dB), and window width */
 
@@ -94,9 +94,9 @@ RSKalphaXatt (double alpha)
     for (i = 0; i <15; ++i) {
       atten = 0.5 * (attenL + attenU);
       if (alpha > RSKattenXalpha (atten))
-	attenL = atten;
+        attenL = atten;
       else
-	attenU = atten;
+        attenU = atten;
     }
     atten = 0.5 * (attenL + attenU);
   }

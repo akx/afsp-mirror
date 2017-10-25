@@ -11,6 +11,7 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libtsplite.a
 
@@ -26,7 +27,6 @@ $(LIB): \
 	$(LIB)(FLfileSize.o) \
 	$(LIB)(FLjoinNames.o) \
 	$(LIB)(FLseekable.o) \
-	$(LIB)(FLterm.o) \
 	#
 	ranlib $(LIB)
 

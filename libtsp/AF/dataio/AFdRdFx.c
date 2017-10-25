@@ -10,7 +10,7 @@ Purpose:
   Read 64-bit float data from an audio file (return double values)
 
 Description:
-  This routine reads a specified number of float samples from an audio file.
+  These routines read a specified number of float samples from an audio file.
   The data in the file is converted to double format on output.
 
 Parameters:
@@ -25,22 +25,17 @@ Parameters:
       Number of samples requested.  Nreq may be zero.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 20:14:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.11 $  $Date: 2017/04/24 03:00:46 $
 
 -------------------------------------------------------------------------*/
 
+#include <AFpar.h>
 #include <libtsp/AFdataio.h>
-#include <libtsp/AFpar.h>
 #include <libtsp/UTtypes.h>
 
-#define LW4		FDL_FLOAT32
-#define LW8		FDL_FLOAT64
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define NBBUF		8192
-
-#define FREAD(buf,size,nv,fp)	(int) fread ((char *) buf, (size_t) size, \
-					     (size_t) nv, fp)
+#define LW4   FDL_FLOAT32
+#define LW8   FDL_FLOAT64
 
 
 int
@@ -49,9 +44,6 @@ AFdRdF4 (AFILE *AFp, double Dbuff[], int Nreq)
 {
   int is, N, i, Nr;
   UT_float4_t Buf[NBBUF/LW4];
-  double g;
-  unsigned char *cp;
-  unsigned char t;
 
   for (is = 0; is < Nreq; ) {
 
@@ -59,16 +51,11 @@ AFdRdF4 (AFILE *AFp, double Dbuff[], int Nreq)
     N = MINV (NBBUF / LW4, Nreq - is);
     Nr = FREAD (Buf, LW4, N, AFp->fp);
 
-    /* Byte swap and convert to float */
-    g = AFp->ScaleF;
-    for (i = 0; i < Nr; ++i) {
-      if (AFp->Swapb == DS_SWAP) {
-	cp = (unsigned char *) &Buf[i];
-	t = cp[3]; cp[3] = cp[0]; cp[0] = t;
-	t = cp[2]; cp[2] = cp[1]; cp[1] = t;
-      }
-      Dbuff[is] = g * Buf[i];
-      ++is;
+    /* Byte swap and scale */
+    for (i = 0; i < Nr; ++i, ++is) {
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP4 (&Buf[i]);
+      Dbuff[is] = AFp->ScaleF * Buf[i];
     }
 
     if (Nr < N)
@@ -84,9 +71,6 @@ AFdRdF8 (AFILE *AFp, double Dbuff[], int Nreq)
 {
   int is, N, i, Nr;
   UT_float8_t Buf[NBBUF/LW8];
-  double g;
-  unsigned char *cp;
-  unsigned char t;
 
   for (is = 0; is < Nreq; ) {
 
@@ -94,18 +78,11 @@ AFdRdF8 (AFILE *AFp, double Dbuff[], int Nreq)
     N = MINV (NBBUF / LW8, Nreq - is);
     Nr = FREAD (Buf, LW8, N, AFp->fp);
 
-    /* Byte swap and convert to float */
-    g = AFp->ScaleF;
-    for (i = 0; i < Nr; ++i) {
-      if (AFp->Swapb == DS_SWAP) {
-	cp = (unsigned char *) &Buf[i];
-	t = cp[7]; cp[7] = cp[0]; cp[0] = t;
-	t = cp[6]; cp[6] = cp[1]; cp[1] = t;
-	t = cp[5]; cp[5] = cp[2]; cp[2] = t;
-	t = cp[4]; cp[4] = cp[3]; cp[3] = t;
-      }
-      Dbuff[is] = g * Buf[i];
-      ++is;
+    /* Byte swap and scale */
+    for (i = 0; i < Nr; ++i, ++is) {
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP8 (&Buf[i]);
+      Dbuff[is] = AFp->ScaleF * Buf[i];
     }
     if (Nr < N)
       break;

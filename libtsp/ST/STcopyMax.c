@@ -15,7 +15,7 @@ Description:
   including the null character), a string truncated warning message is printed.
 
 Parameters:
- <-   int STcopyMax
+  <-  int STcopyMax
       Number of characters in the output string
    -> const char Si[]
       Input character string
@@ -29,15 +29,15 @@ Parameters:
       to be placed in So.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.17 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.19 $  $Date: 2017/05/05 00:10:49 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp.h>
 #include <libtsp/STmsg.h>
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
 
 int

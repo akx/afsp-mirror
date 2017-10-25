@@ -38,23 +38,22 @@ Parameters:
       information about the filter is printed on the stream selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.15 $  $Date: 2003/05/13 01:09:07 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.16 $  $Date: 2015/04/10 12:46:11 $
 
 -------------------------------------------------------------------------*/
 
 #include <assert.h>
-#include <float.h>	/* DBL_EPSILON */
+#include <float.h>  /* DBL_EPSILON */
 
-#include <libtsp.h>
 #include "ResampAudio.h"
 
-#define ABSV(x)		(((x) < 0) ? -(x) : (x))
+#define ABSV(x)   (((x) < 0) ? -(x) : (x))
 
 
 void
 RSratio (double Sratio, int Ir, long int *Ns, double *Ds, long int NsMax,
-	 long int DsMax, FILE *fpinfo)
+         long int DsMax, FILE *fpinfo)
 
 {
   long int Lgcd, LNs, LDs, M;

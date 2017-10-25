@@ -30,124 +30,179 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.81 $  $Date: 2009/03/09 17:23:26 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.102 $  $Date: 2017/07/03 12:20:21 $
 
 -------------------------------------------------------------------------*/
 
-#include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
-#  define _CRT_SECURE_NO_WARNINGS     /* Allow sscanf */
-#endif
-
+#include <assert.h>
 #include <setjmp.h>
-#include <string.h>
+#include <stdlib.h>         /* strtod */
+#include <string.h>         /* memchr */
 
 #include <libtsp.h>
+#include <AFpar.h>
+#include <libtsp/nucleus.h>
 #include <libtsp/AFheader.h>
+#include <libtsp/AFinfo.h>
 #include <libtsp/AFmsg.h>
-#include <libtsp/AFpar.h>
-
-#define SAME_CSTR(str,ref) 	(memcmp (str, ref, sizeof (str)) == 0)
-#define GET_REC(Ident,Rec,Lr,Type,vp,Errcont) \
-	AF_getSPrec (Ident, Type, (void *) vp, Rec, Lr, Errcont)
 
 /* NIST SPHERE file identifier as a character string */
-#define SP_ident	"NIST_1A\n"
-#define SP_identX	"NIST_1A\r\n"	/* Damaged by text file conversion */
-#define SP_hsize	"   1024\n"
+#define SPH_ident  "NIST_1A\n"
+#define SPH_hsize  "   1024\n"
+#define SPH_hend   "end_head\n"
 
-#define LHEAD		1024
-#define SP_LI		((sizeof (SP_ident)) - 1)
-#define SP_LH		((sizeof (SP_hsize)) - 1)
-#define SP_LR		(LHEAD - SP_LI - SP_LH)
+#define LHEAD   1024
+#define SPH_LI   ((sizeof (SPH_ident)) - 1)
+#define SPH_LH   ((sizeof (SPH_hsize)) - 1)
+#define SPH_LE   ((sizeof (SPH_hend)) - 1)
 
-#define T_INTEGER	0
-#define T_REAL		1
-#define T_STRING	2
-#define T_STRVAL	3
-#define T_POINTER		4
+#define SPH_TYPE_INVALID  0
+#define SPH_TYPE_INTEGER  1
+#define SPH_TYPE_REAL     2
+#define SPH_TYPE_STRING   3
 
-#define MAXRECORD	1024
-#define MAXIDENT	80
+/*
+NIST_1A Format Specification, 1024 byte ASCII header:
+NIST_1A\n
+   1024\n
 
-#define ERR_NOMSG	0
-#define ERR_MSG		1
+The first line specifies the header type and the second line specifies the
+header length.  Each of these lines are 8 bytes long.
 
-#define RET_NOMATCH	1
-#define RET_BADVALUE	2
+The remaining object-oriented variable portion is composed of
+object-type-value "triple" lines which have the following format:
 
-#define REQUIRED	(ERR_MSG)
-#define OPTIONAL	(ERR_NOMSG)
+<LINE> --> <TRIPLE>\n |
+           <COMMENT>\n |
+           <TRIPLE><COMMENT>\n
 
-#define SP_MAXINFO	LHEAD
+  <TRIPLE> --> <OBJECT><space><TYPE><space><VALUE><OPT-SPACES>
 
-struct SP_head {
-  char ident[SP_LI];
-  char hsize[SP_LH];
-  char rec[SP_LR];
-};
+    <OBJECT> --> <PRIMARY-SUBOBJECT> |
+                 <PRIMARY-SUBOBJECT><SECONDARY-SUBOBJECT>
 
-/* ID's */
-/* A list of ID's is in stdfield.c in the SPHERE 2.6a distribution,
-     ftp://jaguar.ncsl.nist.gov.
-   Some of ID's are used as comments; others are used to decode the data
-   format. In addition, there are ID's which appear in files but are
-   not in the standard list.
+    <PRIMARY-SUBOBJECT> --> <ALPHA> | <ALPHA><ALPHA-NUM-STRING>
+    <SECONDARY-SUBOBJECT> --> _<ALPHA-NUM-STRING> |
+                              _<ALPHA-NUM-STRING><SECONDARY-SUBOBJECT>
+
+    <TYPE> --> -<INTEGER-FLAG> | -<REAL-FLAG> | -<STRING-FLAG>
+
+      <INTEGER-FLAG> --> i
+      <REAL-FLAG> --> r
+      <STRING-FLAG> --> s<DIGIT-STRING>
+
+    <VALUE> --> <INTEGER> | <REAL> | <STRING>  (depending on object type)
+
+      <INTEGER> --> <SIGN><DIGIT-STRING>
+      <REAL> --> <SIGN><DIGIT-STRING>.<DIGIT-STRING>
+
+    <OPT-SPACES> --> <SPACES> | NULL
+
+  <COMMENT> --> ;<STRING>  (excluding embedded new-lines)
+
+<ALPHA-NUM-STRING> --> <ALPHA-NUM> | <ALPHA-NUM><ALPHA-NUM-STRING>
+<ALPHA-NUM> --> <DIGIT> | <ALPHA>
+<ALPHA> --> a | ... | z | A | ... | Z
+<DIGIT-STRING> --> <DIGIT> | <DIGIT><DIGIT-STRING>
+<DIGIT> --> 0 | ... | 9
+<SIGN> --> + | - | NULL
+<SPACES> --> <space> | <SPACES><space>
+<STRING> -->  <CHARACTER> | <CHARACTER><STRING>
+<CHARACTER> --> char(0) | char(1) | ... | char(255)
+
+The following fields are required for proper SPHERE I/O handling.
+
+  Field_name         Field_type
+  ----------         ----------
+  sample_count           -i      (number of samples per channel)
+  sample_n_bytes         -i
+  channel_count          -i
+
+The following fields are optional:
+
+  Field_name         Field_type
+  ----------         ----------
+  sample_checksum        -i
+  sample_coding          -s       (If missing, defaults to 'pcm')
+  sample_byte_format     -s       (If missing, defaults to the Host's
+                                   natural byte format.)
+The following fields are conditionally required:
+
+  Field_name         Field_type   Required if:
+  ----------         ----------   ------------
+  sample_rate            -i       (the 'sample_coding' field is missing,
+                                   or contains 'pcm' or 'ulaw')
+
+Possible values for these fields are:
+
+  sample_count -> 1 .. MAXINT
+  sample_n_bytes -> 1 | 2
+  channel_count -> 1 .. 32
+  sample_byte_format -> 01 | 10 | 1 (also obsolete 'shortpack-v0')
+  sample_checksum -> 0 .. 32767
+  sample_rate -> 1 .. MAXINT
+  sample_coding -> pcm | ulaw | pcm,embedded-shorten-vX.X |
+                   ulaw,embedded-shorten-vX.X |
+                   pcm,embedded-wavpack-X.X |
+                   ulaw,embedded-wavpack-X.X |
+                   pcm,embedded-shortpack-X.X
+
+The single object "end_head" marks the end of the active header and the
+remaining unused header space is undefined. A sample header is included
+below.
+
+Example SPHERE header from the TIMIT corpus (NIST Speech Disc 1-1.1):
+NIST_1A
+   1024
+database_id -s5 TIMIT
+database_version -s3 1.0
+utterance_id -s8 aks0_sa1
+channel_count -i 1
+sample_count -i 63488
+sample_rate -i 16000
+sample_min -i -6967
+sample_max -i 7710
+sample_n_bytes -i 2
+sample_byte_format -s2 01
+sample_sig_bits -i 16
+end_head
+
 */
-static const char *CommentID[] = {
-  /* Standard comments */
-  "database_id",
-  "database_version",
-  "utterance_id",
-  "sample_min",
-  "sample_max",
-  /* Additional comments */
-  "conversation_id",
-  "microphone",
-  "prompt_id",
-  "recording_date",
-  "recording_environment",
-  "recording_site",
-  "recording_time",
-  "sample_checksum",
-  "speaker_sentence_number",
-  "speaker_session_number",
-  "speaker_utterance_number",
-  "speaker_id",
-  "speaker_id_a",
-  "speaker_id_b",
-  "speaking_mode",
-  "utterance_id",
-  NULL
-};
+/* To decode the NIST SPHERE header information, this routine first squirrels
+   away all of the information as information records in the audio file
+   parameter structure.  The OBJECT becomes the information record identifier,
+   after adding a terminating ':'.  For real and integer VALUE's, the text is
+   placed in the record text.  String VALUE's can in theory contain any of the
+   256 possible characters.  The limitations of the text record format means
+   some modifications occur.  For instance NUL characters are changed to
+   line-feed characters.  Also trailing white-space is eliminated in the record
+   text.
 
-/* Data format identifiers
-  "channel_count"	required
-  "sample_count"	required
-  "sample_rate"		required
-  "sample_n_bytes"	required
-  "sample_byte_format"
-  "sample_sig_bits"
+  The records that describe the data format are extracted and used to set the
+  file data format parameters.
 */
 
 /* setjmp / longjmp environment */
 extern jmp_buf AFR_JMPENV;
 
-AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
+/* Local function prototypes */
+static int
+SPH_checkID (const char Header[]);
+static int
+SPH_dataFormat (FILE *fp, struct AF_read *AFr);
+static char *
+SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo);
+static int
+SPH_decType (char *p_typ, int Ltyp, int *Lval);
+static int
+SPH_EoH (char *p_st, char *p_NL);
+static char *
+SPH_findNL (char *p_st, char *p_last);
+static char *
+SPH_findSP (char *p_st, char *p_last);
 
-static int
-AF_getFormat (const char Rec[], int Lr, struct AF_dformat *DFormat);
-static int
-AF_getNchan (const char Rec[], int Lr, long int *Nchan);
-static int
-AF_getComment (const char *ID[], const char Rec[], int Lr,
-	       struct AF_infoX *InfoX);
-static const char *
-AF_sepSPrec (const char name[], const char head[], int Lr);
-static int
-AF_getSPrec (const char Ident[], int Type, void *data,
-	     const char Rec[], int Lr, int Erropt);
+AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 
 AFILE *
@@ -155,60 +210,85 @@ AFrdSPhead (FILE *fp)
 
 {
   AFILE *AFp;
-  long int Srate;
-  int Lr;
-  char *p;
-  char Info[SP_MAXINFO];
-  struct SP_head Fhead;
   struct AF_read AFr;
+  char Header[LHEAD];
+  char Info[LHEAD];
+  long int poffs, offs;
+  char *p_st, *p_last, *p_NL;
+  int EoH, hEoF, hend;
 
 /* Set the long jump environment; on error return a NULL */
   if (setjmp (AFR_JMPENV))
-    return NULL;	/* Return from a header read error */
+    return NULL;  /* Return from a header read error */
 
-/* Defaults and inital values */
+/* Defaults and initial values */
   AFr = AFr_default;
-  AFr.InfoX.Info = Info;
-  AFr.InfoX.Nmax = SP_MAXINFO;
+  AFr.RInfo.Info = Info;
+  AFr.RInfo.N = 0;
+  AFr.RInfo.Nmax = LHEAD;
 
-/* Read in the header */
-  RHEAD_S (fp, Fhead.ident);
-  RHEAD_S (fp, Fhead.hsize);
-  RHEAD_S (fp, Fhead.rec);
+/* Read the header ID strings */
+  poffs = 0;
+  offs  = RHEAD_SN (fp, &Header[0], SPH_LI);
+  offs += RHEAD_SN (fp, &Header[SPH_LI], SPH_LH);
+  AFsetChunkLim ("NIST", poffs, offs, &AFr.ChunkInfo);
+  poffs = offs;
 
-/* Check the file identifier */
-  if (! SAME_CSTR (Fhead.ident, SP_ident)) {
-    if (SAME_CSTR (Fhead.ident, SP_identX))
-      UTwarn ("AFrdSPhead - %s", AFM_SP_Damaged);
-    else
-      UTwarn ("AFrdSPhead - %s", AFM_SP_BadId);
+/* Check the file identifier / header length */
+  if (SPH_checkID (Header))
+    return NULL;
+
+/* Read the rest of the header */
+  offs += RHEAD_SN (fp, &Header[SPH_LI + SPH_LH], LHEAD - offs);
+  assert (offs == LHEAD);
+
+/* Pick off information records in the header */
+  p_st = &Header[SPH_LI + SPH_LH];
+  p_last = &Header[LHEAD-1];
+  EoH = 0;
+  while (p_st <= p_last) {
+
+    /* Find the next NL */
+    p_NL = SPH_findNL (p_st, p_last);
+    if (p_NL == NULL)
+      break;
+
+    /* Skip over empty lines or full line comments */
+    if (p_NL == p_st || *p_st == ';') {
+      p_st = p_NL + 1;
+      continue;
+    }
+
+    /* Look for an end of header line */
+    EoH = SPH_EoH (p_st, p_NL);
+    if (EoH)
+      break;
+
+    /* Decode Triple, store as an Info Record */
+    p_NL = SPH_decTriple (p_st, p_last, &AFr.RInfo);
+    if (p_NL == NULL)
+      break;
+
+    p_st = p_NL + 1;                /* Skip over NL */
+  }
+
+  if (! EoH) {
+    UTwarn ("AFrdSPhead - %s", AFM_SP_BadHead);
     return NULL;
   }
-  if (! SAME_CSTR (Fhead.hsize, SP_hsize)) {
-    UTwarn ("AFrdSPhead - %s: \"%s\"", AFM_SP_BadHLen, Fhead.hsize);
-    return NULL;
-  }
-  if (GET_REC ("end_head", Fhead.rec, SP_LR, T_POINTER, &p, REQUIRED))
-    return NULL;
-  Lr = p - Fhead.rec + 1;
 
-/* Nsamp, Sfreq and Nchan */
-  if (GET_REC ("sample_count", Fhead.rec, Lr, T_INTEGER, &AFr.NData.Nsamp,
-	       REQUIRED))
-    return NULL;
-  if (GET_REC ("sample_rate", Fhead.rec, Lr, T_INTEGER, &Srate, REQUIRED))
-    return NULL;
-  AFr.Sfreq = (double) Srate;
-  if (AF_getNchan (Fhead.rec, Lr, &AFr.NData.Nchan))
-    return NULL;
+/* Mark the header chunks */
+  hEoF = (int) (p_st - &Header[0]);   /* Offset into Header */
+  AFsetChunkLim ("fmt ", poffs, hEoF, &AFr.ChunkInfo);
+  p_st = p_NL + 1;                    /* Skip over NL */
+  hend = (int) (p_st - &Header[0]);
+  AFsetChunkLim ("EoH ", hEoF, hend, &AFr.ChunkInfo);
+  AFsetChunkLim ("skip", hend, offs, &AFr.ChunkInfo);
 
-/* Sample format */
-  if (AF_getFormat (Fhead.rec, Lr, &AFr.DFormat))
+/* Decode the data format, Fill in AFr data specs */
+  if (SPH_dataFormat (fp, &AFr))
     return NULL;
-
-/* Comment fields */
-  if (AF_getComment (CommentID, Fhead.rec, Lr, &AFr.InfoX))
-    return NULL;
+  AFsetChunkLim ("data", offs, offs + AFr.NData.Ldata, &AFr.ChunkInfo);
 
 /* Set the parameters for file access */
   AFp = AFsetRead (fp, FT_SPHERE, &AFr, AF_NOFIX);
@@ -216,328 +296,281 @@ AFrdSPhead (FILE *fp)
   return AFp;
 }
 
-/* Decode and check the coding format 
-   Return 0, success
-          1, error
+/* NIST SPHERE
+   Specs Require:
+     PCM and mu-law:    Nchan, Nframe, NbS, Sfreq
+   Specs Optional:
+     SwapCode, defaulting to native
+     sample_format, defaulting to PCM
+  Notes:
+   1. Only 1-byte mu-law and 2 byte PCM (uncompressed) formats are supported.
+   2. Having a swap code default of "native" for multi-byte data is not
+      reasonable.  This routine enforces specification of the byte order for
+      PCM data.
+   3. Both "ulaw" and "mu-law" are accepted.  The "pculaw" code appears in some
+      SPHERE files.  It is a bit reversed version of mu-law.
+   4. Some multi-channel NIST SPHERE files have "channels_interleaved -s4 TRUE".
+      The AFsp routines do not support a non-interleaved multi-channel input.
+   5. Some NIST SPHERE files use the sample_format record to specify the
+      compression type.  This record is normally used to specify the byte order.
+   6. Some NIST files (switchboard data base, for instance) have a sample_count
+      which is the total number of samples, not the samples/channel as specified
+      in the NIST SPHERE documentation.  Here we check for a sample_count which
+      is too large for the file size and fix it.
 */
 
+static const char *RecIDSC[] = {"sample_coding:", NULL};
+static const char *RecIDSF[] = {"sample_byte_format:", NULL};
+static const char *RecIDCI[] = {"channels_interleaved:", NULL};
 
 static int
-AF_getFormat (const char Rec[], int Lr, struct AF_dformat *DFormat)
-
+SPH_dataFormat (FILE *fp, struct AF_read *AFr)
 {
-  char Sval[MAXRECORD+1];
-  long int Lw, NbS;
-  int ErrCode;
+ int DF;
+ enum UT_DS_T SwapCode;
+ const char *p;
+ int Lw;
+ long int Nchan, Nframe;
+ double Sfreq;
 
-  /* Get the coding format (default "pcm") */
-  STcopyMax ("pcm", Sval, 3);  /* Default value */
-  if (GET_REC ("sample_coding", Rec, Lr, T_STRING, Sval, OPTIONAL)
-      == RET_BADVALUE)
-    return 1;
-
-  if (GET_REC ("sample_n_bytes", Rec, Lr, T_INTEGER, &Lw, REQUIRED))
-    return 1;
-
-  NbS = 0;
-  if (GET_REC ("sample_sig_bits", Rec, Lr, T_INTEGER, &NbS, OPTIONAL)
-      == RET_BADVALUE)
-    return 1;
-  DFormat->NbS = (int) NbS;
-
-  /* Check the data format fields */
-  if (strcmp (Sval, "pcm") == 0) {
-
-    /* PCM */
-    DFormat->Format = FD_INT16;
-
-    if (Lw != 2) {
-      UTwarn ("AFrdSPhead - %s: \"%ld\"", AFM_SP_UnsPCM, Lw);
-      return 1;
-    }
-
-    DFormat->Swapb = DS_NATIVE;
-    ErrCode = GET_REC ("sample_byte_format", Rec, Lr, T_STRING, Sval,
-		       OPTIONAL);
-    if (ErrCode == RET_BADVALUE)
-      return 1;
-    else if (ErrCode == 0) {
-      if (strcmp (Sval, "10") == 0)
-	DFormat->Swapb = DS_EB;
-      else if (strcmp (Sval, "01") == 0)
-	DFormat->Swapb = DS_EL;
-      else {
-	UTwarn ("AFrdSPhead - %s: \"%.20s\"", AFM_SP_UnsByte, Sval);
-	return 1;
-      }
-    }
-
-  }
-
-  else if (strcmp (Sval, "ulaw") == 0 || strcmp (Sval, "mu-law") == 0) {
-
-    /* Mu-law */
-    DFormat->Format = FD_MULAW8;
-    DFormat->Swapb = DS_NATIVE;
-    if (Lw != 1) {
-      UTwarn ("AFrdSPhead - %s: \"%d\"", AFM_SP_UnsMulaw, Lw);
-      return 1;
-    }
-  }
-
+/* Decode the sample format */
+/* Special case: "shortpack-v0" appears in "sample_format" */
+  DF = 1;       /* PCM as default */
+  p = AFgetInfoRec (RecIDSF, &AFr->RInfo);
+  if (p != NULL && strcmp (p, "shortpack-v0") == 0)
+    DF = 0;   /* Not supported */
   else {
-    UTwarn ("AFrdSPhead - %s: \"%s\"", AFM_SP_UnsData, Sval);
+    p = AFgetInfoRec (RecIDSC, &AFr->RInfo);
+    if (p != NULL) {
+      if (strcmp("pcm", p) == 0)
+        DF = 1;
+      else if (strcmp ("ulaw", p) == 0 || strcmp ("mu-law", p) == 0)
+        DF = 2;   /* mu-law */
+      else if (strcmp ("pculaw", p) == 0)
+        DF = 3;   /* bit-reversed mu-law */
+      else
+        DF = 0;
+    }
+  }
+  if (DF == 0) {      /* p is not NULL */
+    UTwarn ("AFrdSPhead - %s: \"%s\"", AFM_SP_UnsData, p);
     return 1;
   }
 
-  return 0;
-}
-
-/* Get and check the number of channels
-   Return 0, success
-          1, error
-*/
+/* Required for PCM and/or mu-law */
+  SwapCode = AFgetInfoSwap (&AFr->RInfo);
+  Lw     = AFgetInfoBytes (&AFr->RInfo);
+  Nchan  = AFgetInfoChan  (&AFr->RInfo);
+  Sfreq  = AFgetInfoSfreq (&AFr->RInfo);
+  Nframe = AFgetInfoFrame (&AFr->RInfo);
 
-
-static int
-AF_getNchan (const char Rec[], int Lr, long int *Nchan)
-
-{
-  char Sval[MAXRECORD+1];
-
-  if (GET_REC ("channel_count", Rec, Lr, T_INTEGER, Nchan, REQUIRED))
+  if (Nchan == 0 || Nframe == AF_NFRAME_UNDEF ||
+      Sfreq == AF_SFREQ_UNDEF  || (DF == 1 && (SwapCode == DS_UNDEF || Lw == 0))) {
+    UTwarn ("AFrdSPhead - %s", AFM_SP_IncFmt);
     return 1;
+  }
 
-  if (*Nchan > 1) {
-    STcopyMax ("TRUE", Sval, 4);
-    if (GET_REC ("channels_interleaved", Rec, Lr, T_STRING, Sval, OPTIONAL)
-	== RET_BADVALUE)
-      return 1;
-    if (strcmp (Sval, "TRUE") != 0)
+  if (DF == 1 && Lw != 2) {
+    UTwarn ("AFrdSPhead - %s", AFM_SP_UnsPCM);
+    return 1;
+  }
+  if ((DF == 2 || DF == 3) && Lw > 1) {      /* Allow Lw == 0 */
+    UTwarn ("AFrdSPhead - %s", AFM_SP_UnsMulaw);
+    return 1;
+  }
+
+  /* Check for "channels_interleaved" */
+  if (Nchan > 1) {
+    p = AFgetInfoRec (RecIDCI, &AFr->RInfo);
+    if (p != NULL && strcmp (p, "TRUE") != 0)
       UTwarn ("AFrdSPhead - %s", AFM_SP_NoInter);
   }
 
-  return 0;
-}
-
-/* Put comment strings into the AFsp information structure */
+  /* sample_count should return samples/channel, but in some cases is too large
+     by a factor of Nchan */
+  if (Nchan > 1 && FLseekable (fp) &&
+      Lw * Nframe * Nchan + LHEAD > FLfileSize (fp) && Nframe % Nchan == 0)
+    Nframe = Nframe / Nchan;
 
-
-static int
-AF_getComment (const char *ID[], const char Rec[], int Lr,
-	       struct AF_infoX *InfoX)
-
-{
-  char Sval[MAXRECORD+1];
-  char Ident[MAXIDENT+3];
-  int i;
-
-  for (i = 0; ID[i] != NULL; ++i) {
-    if (GET_REC (ID[i], Rec, Lr, T_STRVAL, Sval, OPTIONAL) == 0) {
-      STcopyMax (ID[i], Ident, sizeof (Ident) - 1);
-      STcatMax (": ", Ident, sizeof (Ident) - 1);
-      AFaddAFspRec (Ident, Sval, strlen (Sval), InfoX);
-    }
+  /* Fill in the AFr data specs */
+  if (DF == 1)
+    AFr->DFormat.Format = FD_INT16;
+  else if (DF == 2) {
+    AFr->DFormat.Format = FD_MULAW8;
+    Lw = 1;
+    SwapCode = DS_NATIVE;
   }
-
-  return 0;
-}
-
-/*-------------- Telecommunications & Signal Processing Lab ---------------
-                             McGill University
-
-Routine:
-  int AF_getSPrec (const char Ident[], int Type, void *data,
-                   const char Rec[], int Lr, int Erropt)
-
-Purpose:
-  Find a named record in a NIST SPHERE audio file header
-
-Description:
-  This routine searches through records in the header of an NIST SPHERE audio
-  file looking for a record with a given name field.  The data value for that
-  record is returned.  The data value is an integer value, a double value or a
-  string.  For strings, the returned string is null terminated.  This routine
-  should only be used for retrieving strings which are known not to contain
-  imbedded null characters or imbedded newline characters.  Except for these
-  limitations, this routine returns values from correctly formed records.  It
-  does not attempt to verify full syntactic correctness of records.
-
-Parameters:
-  <-  int AF_getSPrec
-      Returned error status,
-        0 for no error,
-        1 for no keyword match,
-        2 for decoding error
-   -> const char Ident[]
-      Record name to be matched
-   -> int Type
-      Data type,
-       - T_INTEGER for long integer
-       - T_REAL for double
-       - T_STRING for string
-       - T_STRVAL for string (undecoded integer or double, or string)
-       - T_POINTER for a pointer (const char *) to the start of the Ident
-         string in the header text
-  <-  void *data
-      Pointer to where the data is to be written.
-        - T_INTEGER: data is a pointer to a long int value.
-	- T_REAL:    data is a pointer to a double value.
-	- T_STRING:  data is a pointer to a character string with room for
-	             Lh+1 characters.
-        - T_STRVAL:  data is a pointer to a character string with room for
-	             Lh+1 characters
-        - T_POINTER: data is pointer to a pointer to const char.
-      Nothing is stored if an error is detected.
-   -> const char Rec[]
-      Header text with the header records (Lh characters)
-   -> int Lh
-      Number of characters in the header text
-   -> int Erropt
-      Error option flag.  This parameter controls how this routine
-      reacts if a matching name is not found.
-        0  No match: no error message
-        1  No match: error message
-
--------------------------------------------------------------------------*/
-
-static int
-AF_getSPrec (const char Ident[], int Type, void *data,
-	     const char Rec[], int Lr, int Erropt)
-
-{
-  const char *p, *dataf, *valuef;
-  int Dtype, Nd, Ns, Nsmax;
-  long int Iv;
-  double Dv;
-
-/* Search for a matching record */
-  p = AF_sepSPrec (Ident, Rec, Lr);
-  if (p == NULL) {
-    if (Erropt == ERR_MSG)
-      UTwarn (AFMF_SP_NoMatch, "AFrdSPhead -", Ident);
-    return RET_NOMATCH;
-  }
-
-  /* Fill in a pointer to the Ident string */
-  if (Type == T_POINTER) {
-    *((const char **) data) = p;
-    return 0;
-  }
-    
-/* Find the end of the type field */
-  dataf = p;
-  Nsmax = Lr - (dataf - Rec);
-  p = (const char *) memchr (dataf, ' ', Nsmax);
-  if (p != NULL)
-    valuef = p + 1;
-  else
-    valuef = &Rec[Lr];
-  Nd = valuef - dataf - 1;
-  Nsmax = Lr - (valuef - Rec);
-
-/* Decode the type field */
-  if (Nd == 2 && strncmp (dataf, "-i", 2) == 0)
-    Dtype = T_INTEGER;
-  else if (Nd == 2 && strncmp (dataf, "-r", 2) == 0)
-    Dtype = T_REAL;
-  else if (Nd > 2 && strncmp (dataf, "-s", 2) == 0)
-    Dtype = T_STRING;
   else {
-    UTwarn (AFMF_SP_BadField, "AFrdSPhead -", Ident);
-    return RET_BADVALUE;
+    AFr->DFormat.Format = FD_MULAWR8;
+    Lw = 1;
+    SwapCode = DS_NATIVE;
+  }
+  AFr->DFormat.Swapb = SwapCode;
+
+  AFr->NData.Ldata = Lw * Nframe * Nchan;
+  AFr->NData.Nsamp = Nframe * Nchan;
+  AFr->NData.Nchan = Nchan;
+  AFr->Sfreq = Sfreq;
+
+  return 0;
+}
+
+
+/* Check the header ID / length */
+
+
+static int
+SPH_checkID (const char Header[])
+{
+  if (memcmp (Header, SPH_ident, SPH_LI) != 0 ||
+      memcmp (&Header[SPH_LI], SPH_hsize, SPH_LH) != 0) {
+    UTwarn ("AFrdSPhead - %s", AFM_SP_BadId);
+    return 1;
   }
 
-/* Check for a type match */
-  if (Type == T_STRVAL && Dtype == T_STRING)
-    Type = T_STRING;
-  if (Type != T_STRVAL && Dtype != Type) {
-    UTwarn (AFMF_SP_BadField, "AFrdSPhead -", Ident);
-    return RET_BADVALUE;
-  }
-
-/* Decode values */
-  if (Type == T_INTEGER) {
-    if (sscanf (valuef, "%ld", &Iv) == 1) {
-      *((long int *) data) = Iv;
-      return 0;
-    }
-  }
-  else if (Type == T_REAL) {
-    if (sscanf (valuef, "%lg", &Dv) == 1) {
-      *((double *) data) = Dv;
-      return 0;
-    }
-  }
-  else if (Type == T_STRING) {
-    if (sscanf (&dataf[2], "%d", &Ns) == 1) {
-      STcopyNMax (valuef, (char *) data, Ns, Nsmax);
-      return 0;
-    }
-  }
-  else if (Type == T_STRVAL) {
-    p = (const char *) memchr (valuef, '\n', Nsmax);
-    if (p != NULL) {
-      Ns = p - valuef;
-      STcopyNMax (valuef, (char *) data, Ns, Nsmax);
-    }
-    return 0;
-  }
-
-/* Error messages */
-  UTwarn (AFMF_SP_BadField, "AFrdSPhead -", Ident);
-  return RET_BADVALUE;
+  return 0;
 }
 
-/*
-  This routine searches through records in the header of an NIST SPHERE audio
-  file, looking for a record with a given name field.  For the purpose of this
-  routine, a name is the leading part of a record, separated from the type and
-  value fields by a blank.  This routine returns a pointer to the beginning of
-  the type field.
+/* Check for end of header */
 
-  In the syntax for NIST SPHERE headers, a newline character marks the end of
-  a record.  But the header syntax also allows for any character, including
-  a newline character, to appear within a string value.  To avoid parsing
-  each record to find the end of record, this routine looks for the name at
-  the beginning of data and following each newline.  This requires that a
-  newline character imbedded in a string value must not be followed by a
-  sequence of characters which would be mistaken for the name field at the
-  beginning of a record.
-*/
 
-/* If Ident record is found, this routine returns a pointer to the start
-   of the data type field. If the Ident record is not found, the return
-   value is NULL.
-*/
+static int
+SPH_EoH (char *p_st, char *p_NL)
+{
+  int nc;
 
-static const char *
-AF_sepSPrec (const char Ident[], const char Rec[], int Lr)
+  nc = (int) (p_NL - p_st + 1);
+  if (nc == SPH_LE && memcmp (SPH_hend, p_st, nc) == 0)
+    return 1;
+
+  return 0;
+}
+
+/* Find the next NL in the header string */
+
+
+static char *
+SPH_findNL (char *p_st, char *p_last)
 
 {
-  const char *p;
-  int Nleft, Ni;
+  char *p_NL;
 
-  Ni = strlen (Ident);
-  p = Rec;
-  Nleft = Lr;
-  while (Nleft >= Ni + 1) {
+  p_NL = memchr (p_st, '\n', (int) (p_last - p_st + 1));
 
-    /* Try a match to ident + space/newline */
-    if (memcmp (p, Ident, Ni) == 0 && (p[Ni] == ' ' || p[Ni] == '\n')) {
-      p += Ni + 1;
-      return (p);
-    }
+  return p_NL;
+}
+
+/* Decode a TRIPLE */
+/* Returns a possibly updated NL location */
+/* Modifies the header, inserting '\0' and ':' to create substrings */
 
-    /* Find the next putative record terminator */
-    Nleft = Lr - (p - Rec);
-    p = (const char *) memchr (p, '\n', Nleft);
-    if (p == NULL)
-      return (NULL);
+static char *
+SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo)
 
-    ++p; 	/* Skip past the newline */
-    Nleft = Lr - (p - Rec);
+{
+  char *p_SP, *p_NL;
+  char *p_obj, *p_typ, *p_sc;
+  int Lobj, Ltyp, Type, Lval;
+
+  /* Find the next NL (again) */
+  p_NL = SPH_findNL (p_st, p_last);
+  if (p_NL == NULL)
+    return NULL;
+
+  /* Find the first space */
+  p_SP = SPH_findSP (p_st, p_NL);
+  if (p_SP == NULL)
+    return NULL;
+
+  /* Isolate the OBJECT */
+  p_obj = p_st;
+  Lobj = (int) (p_SP - p_st);
+  if (Lobj <= 0)
+    return NULL;
+  p_st = p_SP + 1;
+
+  /* Find the next space */
+  p_SP = SPH_findSP (p_st, p_NL);
+  if (p_SP == NULL)
+    return NULL;
+
+  /* Isolate the TYPE code */
+  p_typ = p_st;
+  Ltyp = (int) (p_SP - p_st);
+  if (Ltyp < 2)
+    return NULL;
+  *p_SP = '\0';     /* Terminate the type string */
+  p_st = p_SP + 1;
+
+  /* Decode the type code, Lval is zero, except for string values */
+  Type = SPH_decType (p_typ, Ltyp, &Lval);
+  if (Type == SPH_TYPE_INVALID)
+    return NULL;
+
+  /* Find a trailing comment on integer/real values */
+  if (Type != SPH_TYPE_STRING) {
+    Lval = (int) (p_NL - p_st);
+    p_sc = memchr (p_st, ';', Lval);
+    if (p_sc != NULL)
+      Lval = (int) (p_sc - p_st);     /* AFaddInfoRec trims white-space */
   }
 
-  return (NULL);
+  /* Handle the case of a string value which overlaps the new-line */
+  while (p_st + Lval > p_NL) {
+    p_NL = SPH_findNL (p_NL + 1, p_last);
+    if (p_NL == NULL)
+      return NULL;
+  }
+
+  /* Create the info record identifier string (modifies Header) */
+  *(p_obj + Lobj) = ':';          /* Overwrites ' ' */
+  *(p_obj + Lobj + 1) = '\0';     /* Overwrites '-' */
+
+  /* Add an information record */
+  AFaddInfoRec (p_obj, p_st, Lval, AFInfo);
+
+  return p_NL;
+}
+
+/* Find the next blank in the header string */
+
+
+static char *
+SPH_findSP (char *p_st, char *p_last)
+
+{
+  char *p_SP;
+  p_SP = memchr (p_st, ' ', (int) (p_last - p_st + 1));
+
+  return p_SP;
+}
+
+/* Decode TYPE */
+/* The input string is NUL terminated of length Ltyp (not including the NUL
+   terminator.
+*/
+
+
+static int
+SPH_decType (char *p_typ, int Ltyp, int *Lval)
+
+{
+  int Type, Lv;
+  char *p_sl, *p;
+
+  Type = SPH_TYPE_INVALID;
+  Lv = 0;
+  if (Ltyp == 2 && memcmp ("-i", p_typ, 2) == 0)
+    Type = SPH_TYPE_INTEGER;
+  else if (Ltyp == 2 && memcmp ("-r", p_typ, 2) == 0)
+    Type = SPH_TYPE_REAL;
+  else if (Ltyp > 2 && memcmp ("-s", p_typ, 2) == 0) {
+    p_sl = p_typ + 2;
+    Lv = (int) strtol (p_sl, &p, 10);
+    if (*p == '\0' && Lv > 0)   /* Check for successful conversion */
+      Type = SPH_TYPE_STRING;
+  }
+
+  *Lval = Lv;
+  return Type;
 }

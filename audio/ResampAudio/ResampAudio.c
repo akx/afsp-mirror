@@ -15,18 +15,18 @@ Description:
   settings give a high quality sample rate conversion.
 
 Theory of Operation:
-  The process used for interpolation depends on the ratio of the output
-  sampling rate to the input sampling rate.
-   1: If the output sampling rate over the input sampling rate is expressible
-      as a ratio of small integers, the sample rate change process is done
-      using a conventional interpolation filter designed for the interpolation
-      factor (numerator of the sampling rate ratio) followed by subsampling by
-      the subsampling factor (denominator of the sampling rate ratio).
-   2: For the general case, an interpolating filter is designed using an
-      interpolation factor of 24.  For each output sample, the interpolating
-      filter is used to create two samples that bracket the desired sampling
-      point.  Linear interpolation is used between these values to generate the
-      output value.
+  The process used for interpolation depends on the ratio of the output sampling
+  rate to the input sampling rate.
+   1: The output/input sampling rate is a ratio of small integers.
+      The sample rate change process is done using a conventional interpolation
+      filter designed for the interpolation factor (numerator of the sampling
+      rate ratio) followed by subsampling by the subsampling factor (denominator
+      of the sampling rate ratio).
+   2: General case.
+      An interpolating filter is designed using an interpolation factor of 24.
+      For each output sample, the interpolating filter is used to create two
+      samples that bracket the desired sampling point.  Linear interpolation is
+      used between these values to generate the output value.
 
   The default interpolation filter is a linear phase FIR filter designed by
   applying a Kaiser window to an ideal lowpass filter response.  The filter is
@@ -36,9 +36,9 @@ Theory of Operation:
   decreasing ripple and increasing attenuation (larger alpha) come at the
   expense of a wider transition width.
 
-  The cutoff of the default interpolation filter depends on the input and
-  output sampling rates.  Let fsi be the sampling rate of the input signal and
-  fso be the sampling rate of the output signal.
+  The cutoff of the default interpolation filter depends on the input and output
+  sampling rates.  Let fsi be the sampling rate of the input signal and fso be
+  the sampling rate of the output signal.
    1: fso > fsi.  The cutoff of the interpolation filter is set to fsi/2.
    2: fso < fsi.  The cutoff of the interpolation filter is set to fso/2.
 
@@ -82,10 +82,10 @@ Theory of Operation:
   M = 34, giving N = 681 coefficients.
 
   If we designate the interpolation factor for the interpolation filter as Ir,
-  about 1/Ir of the coefficients are used to calculate each output sample.  The
-  number of coefficients needed for a given value of alpha and given transition
-  width is proportional to Ir.  Increasing Ir improves the accuracy of
-  the linear interpolation step and increases the total number of filter
+  about 1/Ir of the coefficients are used to calculate each output sample.
+  The number of coefficients needed for a given value of alpha and given
+  transition width is proportional to Ir.  Increasing Ir improves the accuracy
+  of the linear interpolation step and increases the total number of filter
   coefficients, but does not increase the computation effort time for the
   filtering operation.
 
@@ -136,15 +136,15 @@ Theory of Operation:
   first output sample relative to the input samples.  The default is that the
   first output sample coincides with the first input sample.  The number of
   samples in the output file can also be specified.  The default is to make the
-  time  corresponding to the end of the output (rounded to the nearest sample)
+  time corresponding to the end of the output (rounded to the nearest sample)
   be the same as the time corresponding to the end of the input.
 
 Options:
-  Input file name: AFileI:
+  Input file name, AFileI:
       The environment variable AUDIOPATH specifies a list of directories to be
       searched for the input audio file.  Specifying "-" as the input file
       indicates that input is from standard input.
-  Output file name: AFileO:
+  Output file name, AFileO:
       The second file name is the output file.  Specifying "-" as the output
       file name indicates that output is to be written to standard output.  If
       the output file type is not explicitly given (-F option), the extension
@@ -154,7 +154,7 @@ Options:
         ".aif"  - AIFF sound file
         ".afc"  - AIFF-C sound file
         ".raw"  - Headerless file (native byte order)
-        ".txt"  - Headerless file (text data)
+        ".txt"  - Text audio file (with header)
   -s SFREQ, --srate=SFREQ
       Sampling frequency for the output file.
   -i SRATIO, --interpolate=SRATIO
@@ -191,8 +191,8 @@ Options:
                             ratio.  The default cutoff frequency is determined
                             from the input and output sampling rates.  For an
                             increase in sampling rate, it is set to 0.5.  For
-			    a decrease in sampling rate it is set to
-			    0.5*fso/fsi.
+                            a decrease in sampling rate it is set to
+                            0.5*fso/fsi.
          atten=A            Filter stopband attenuation in dB.  The attenuation
                             must be at least 21 dB.  The default is 80.  The
                             attenuation is an alternate way to specify the
@@ -221,40 +221,33 @@ Options:
                             coefficients are written to the named file.
   -n NSAMPLE, --number_samples=NSAMPLE
       Number of samples (per channel) for the output file.
-  -t FTYPE, --type=FTYPE
-      Input audio file type.  In the default automatic mode, the input file
-      type is determined from the file header.  For input from a non-random
-      access file (e.g. a pipe), the input file type can be explicitly
-      specified to avoid the lookahead used to read the file header.  See the
-      description of the environment variable AF_FILETYPE below for a list of
-      file types.
-  -P PARMS, --parameters=PARMS
-      Parameters to be used for headerless input files.  See the description
-      of the environment variable AF_NOHEADER below for the format of the
-      parameter specification.
   -g GAIN, --gain=GAIN
       A gain factor applied to the data from the input files.  This gain
       applies to all channels in a file.  The gain value can be given as a
       real number (e.g., "0.003") or as a ratio (e.g., "1/256"). This option
       may be given more than once.  Each invocation applies to the input files
       that follow the option.
-  -F FTYPE, --file_type=FTYPE
-      Output file type.  If this option is not specified, the file type is
+  -F FTYPE, --file-type=FTYPE
+      OUTPUT file type.  If this option is not specified, the file type is
       determined by the output file name extension.
         "AU" or "au"             - AU audio file
-        "WAVE" or "wave"         - WAVE file
-        "WAVE-NOEX" or "wave-noex" - WAVE file (no extensible data)
-        "AIFF-C" "aiff-c"        - AIFF-C sound file
+        "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
+                                   file extensible format is automatically
+                                   determined.
+        "WAVE-EX" or "wave-ex"   - WAVE file. Use the WAVE file extensible
+                                   format.
+        "WAVE-NOEX" or "wave-noex" - WAVE file; do not use the WAVE file
+                                   extensible format
+        "AIFF-C" or "aiff-c"     - AIFF-C sound file
+        "AIFF-C/sowt" or "aiff-c/sowt" - AIFF-C (byte-swapped data)
         "AIFF" or "aiff"         - AIFF sound file
-        "noheader" or "noheader_native" - Headerless file (native byte
-                                   order)
-        "noheader_swap"          - Headerless file (byte swapped)
-        "noheader_big-endian"    - Headerless file (big-endian byte
-                                   order)
-        "noheader_little-endian" - Headerless file (little-endian byte
-                                   order)
-  -D DFORMAT, --data_format=DFORMAT
-      Data format for the output file.
+        "noheader" or "noheader-native" - Headerless file (native byte order)
+        "noheader-swap"          - Headerless file (byte swapped)
+        "noheader-big-endian"    - Headerless file (big-endian byte order)
+        "noheader-little-endian" - Headerless file (little-endian byte order)
+        "text-audio"             - Text audio file (with header)
+  -D DFORMAT, --data-format=DFORMAT
+      Data format for the OUTPUT file.
         "mu-law8"   - 8-bit mu-law data
         "A-law8"    - 8-bit A-law data
         "unsigned8" - offset-binary 8-bit integer data
@@ -262,74 +255,33 @@ Options:
         "integer16" - two's-complement 16-bit integer data
         "integer24" - two's-complement 24-bit integer data
         "integer32" - two's-complement 32-bit integer data
-        "float32"   - 32-bit floating-point data
-        "float64"   - 64-bit floating-point data
-        "text"      - text data
-      The data formats available depend on the output file type.
-      AU audio files:
-        mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
-      WAVE files:
-        mu-law, A-law, offset-binary 8-bit integer, 16/24/32-bit integer,
-        32/64-bit float
-      AIFF-C sound files:
-        mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
-      AIFF sound files:
-        8/16/24/32-bit integer
-      Headerless files:
-        all data formats
-  -S SPEAKER, --speaker=SPEAKER
-      Mapping of the output channel to a speaker position.  The spacial
-      position of the loudspeakers is one of the following.
-        "FL"  - Front Left
-        "FR"  - Front Right
-        "FC"  - Front Center
-        "LF"  - Low Frequency
-        "BL"  - Back Left
-        "BR"  - Back Right
-        "FLC" - Front Left of Center
-        "FRC" - Front Right of Center
-        "BC"  - Back Center
-        "SL"  - Side Left
-        "SR"  - Side Right
-        "TC"  - Top Center
-        "TFL" - Top Front Left
-        "TFC" - Top Front Center
-        "TFR" - Top Front Right
-        "TBL" - Top Back Lefty
-        "TBC" - Top Back Center
-        "TBR" - Top Back Right
-        "-"   - none
+        "float32"   - 32-bit IEEE floating-point data
+        "float64"   - 64-bit IEEE floating-point data
+        "text16"    - text data, scaled the same as 16-bit integer data
+        "text"      - text data, scaled the same as float/double data
   -I INFO, --info=INFO
-      Audio file information string for the output file.
+      Audio file information record for the OUTPUT file.
   -h, --help
       Print a list of options and exit.
   -v, --version
       Print the version number and exit.
 
-  By default, the output file contains a standard audio file information
-  string.
-    Standard Audio File Information:
-       date: 2001-01-25 19:19:39 UTC    date
-       program: ResampAudio             program name
-  This information can be changed with the header information string which is
-  specified as one of the command line options.  Structured information records
-  should adhere to the above format with a named field terminated by a colon,
-  followed by numeric data or text.  Comments can follow as unstructured
-  information.
-    Record delimiter: Newline character or the two character escape
-        sequence "\" + "n".
-    Line delimiter: Within records, lines are delimiteded by a carriage
-        control character, the two character escape sequence "\" + "r",
-        or the two character sequence "\" + newline.
-  If the information string starts with a record delimiter, the header
-  information string is appended to the standard header information.  If not,
-  the user supplied header information string appears alone.
+  See routine CopyAudio for a description of other parameters.
+  -t FTYPE, --type=FTYPE
+      Input file type and environment variable AF_FILETYPE
+  -P PARMS, --parameters=PARMS
+      Input file parameters and environment variable AF_INPUTPAR
+  -D DFORMAT, --data-format=DFORMAT
+      More details on allowed data formats for the output file
+  -I INFO, --info-INFO
+      Details on usage and default information records
+  -S SPEAKERS, --speakers=SPEAKERS
+      Loudspeaker configuration
 
 Examples:
    1: File copy.  Copy audio file abc.au to new.au.
         ResampAudio -i 1 abc.au new.au
-   2: Delay the input signal.  The output samples are delayed by 1/8 sample
-      from the input samples.
+   2: Delay the input signal.  The output samples are delayed by 1/8 sample.
         ResampAudio -i 1 -a -1/8 abc.au new.au
    3: Change the sampling rate to 8001 Hz.
         ResampAudio -s 8001 abc.au new.au
@@ -337,80 +289,18 @@ Examples:
         ResampAudio -i 6 abc.au new.au
 
 Environment variables:
-  AF_FILETYPE:
-  This environment variable defines the input audio file type.  In the default
-  mode, the input file type is determined from the file header.
-    "auto"       - determine the input file type from the file header
-    "AU" or "au" - AU audio file
-    "WAVE" or "wave" - WAVE file
-    "AIFF" or "aiff" - AIFF or AIFF-C sound file
-    "noheader"   - headerless (non-standard or no header) audio file
-    "SPHERE"     - NIST SPHERE audio file
-    "ESPS"       - ESPS sampled data feature file
-    "IRCAM"      - IRCAM soundfile
-    "SPPACK"     - SPPACK file
-    "INRS"       - INRS-Telecom audio file
-    "SPW"        - Comdisco SPW Signal file
-    "CSL" or "NSP" - CSL NSP file
-    "text"       - Text audio file
-
-  AF_NOHEADER:
-  This environment variable defines the data format for headerless or
-  non-standard input audio files.  The string consists of a list of parameters
-  separated by commas.  The form of the list is
-    "Format, Start, Sfreq, Swapb, Nchan, ScaleF"
-  Format: File data format
-       "undefined" - Headerless files will be rejected
-       "mu-law8"   - 8-bit mu-law data
-       "A-law8"    - 8-bit A-law data
-       "unsigned8" - offset-binary 8-bit integer data
-       "integer8"  - two's-complement 8-bit integer data
-       "integer16" - two's-complement 16-bit integer data
-       "integer24" - two's-complement 24-bit integer data
-       "integer32" - two's-complement 32-bit integer data
-       "float32"   - 32-bit floating-point data
-       "float64"   - 64-bit floating-point data
-       "text"      - text data
-  Start: byte offset to the start of data (integer value)
-  Sfreq: sampling frequency in Hz (floating point number)
-  Swapb: Data byte swap parameter
-       "native"        - no byte swapping
-       "little-endian" - file data is in little-endian byte order
-       "big-endian"    - file data is in big-endian byte order
-       "swap"          - swap the data bytes as the data is read
-  Nchan: number of channels
-    The data consists of interleaved samples from Nchan channels
-  ScaleF: Scale factor
-       "default" - Scale factor chosen appropriate to the type of data. The
-          scaling factors shown below are applied to the data in the file.
-          8-bit mu-law:    1/32768
-          8-bit A-law:     1/32768
-          8-bit integer:   128/32768
-          16-bit integer:  1/32768
-          24-bit integer:  1/(256*32768)
-          32-bit integer:  1/(65536*32768)
-          float data:      1
-       "<number or ratio>" - Specify the scale factor to be applied to
-          the data from the file.
-  The default values for the audio file parameters correspond to the following
-  string.
-    "undefined, 0, 8000., native, 1, default"
-
   AUDIOPATH:
   This environment variable specifies a list of directories to be searched when
   opening the input audio files.  Directories in the list are separated by
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v5r1  2005-01-31  Copyright (C) 2006
+  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
 -------------------------------------------------------------------------*/
 
-#include <stdlib.h>	/* EXIT_SUCCESS */
+#include <stdlib.h> /* EXIT_SUCCESS */
 #include <string.h>
 
-#include <libtsp.h>
-#include <libtsp/AFheader.h>
-#include <libtsp/AFpar.h>
 #include <libtsp/FIpar.h>
 #include "ResampAudio.h"
 #include <AO.h>
@@ -422,7 +312,6 @@ main (int argc, const char *argv[])
 {
   struct RS_FIpar FI;
   struct RS_FOpar FO;
-  int Ftype, Dformat;
   long int Nsamp, Nchan, NframeI;
   AFILE *AFpI, *AFpO;
   FILE *fpinfo;
@@ -443,7 +332,7 @@ main (int argc, const char *argv[])
   AOsetFIopt (&FI, 0, 0);
   FLpathList (FI.Fname, AFPATH_ENV, FI.Fname);
   AFpI = AFopnRead (FI.Fname, &Nsamp, &Nchan, &SfreqI, fpinfo);
-  AFpI->ScaleF *= FI.Gain;	/* Gain absorbed into scaling factor */
+  AFpI->ScaleF *= FI.Gain;  /* Gain absorbed into scaling factor */
 
 /* Get the interpolating filter coefficients */
   if (Sratio > 0.0)
@@ -457,21 +346,27 @@ main (int argc, const char *argv[])
   UTfree (Fspec.FFile);
   UTfree (Fspec.WFile);
 
+/* Default number of output samples, filter time offset */
+  NframeI = AOnFrame (&AFpI, &FI, 1, AF_NFRAME_UNDEF);
+  if (FO.Nframe == AF_NFRAME_UNDEF) /* Rounding */
+    FO.Nframe = (long int) (((NframeI - 1L) - Soffs) * Sratio + 1.5);
+  toffs = Soffs + FDel;     /* Time alignment, h[0] <-> toffs */
+
 /* Open the output audio file */
   if (FO.SpkrConfig == NULL)
     FO.SpkrConfig = AFpI->SpkrConfig;
-  Ftype = AOsetFtype (&FO);
-  Dformat = AOsetDformat (&FO, &AFpI, 1);
+  AOsetDFormat (&FO, &AFpI, 1);
   AOsetFOopt (&FO);
   if (strcmp (FO.Fname, "-") != 0)
     FLbackup (FO.Fname);
-  AFpO = AFopnWrite (FO.Fname, Ftype, Dformat, Nchan, FO.Sfreq, fpinfo);
+  AFpO = AFopnWrite (FO.Fname, FO.FtypeW, FO.DFormat.Format, Nchan, FO.Sfreq,
+                     fpinfo);
 
 /* Default number of output samples, filter time offset */
   NframeI = AOnFrame (&AFpI, &FI, 1, AF_NFRAME_UNDEF);
   if (FO.Nframe == AF_NFRAME_UNDEF) /* Rounding */
     FO.Nframe = (long int) (((NframeI - 1L) - Soffs) * Sratio + 1.5);
-  toffs = Soffs + FDel;			/* Time alignment, h[0] <-> toffs */
+  toffs = Soffs + FDel;     /* Time alignment, h[0] <-> toffs */
 
 /* Sample interpolation */
   RSresamp (AFpI, AFpO, Sratio, FO.Nframe, toffs, &PF, fpinfo);

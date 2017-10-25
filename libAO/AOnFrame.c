@@ -9,8 +9,8 @@ Purpose:
   Find the number of sample frames
 
 Description:
-  This routine determines the frame limits for a set of input files.  The
-  frame limits can be determined in a number of ways.
+  This routine determines the frame limits for a set of input files.  The frame
+  limits can be determined in a number of ways.
     Nframe - Number of output frames.  If the number of frames is
       AF_NFRAME_UNDEF, this value is undefined.
     FI[i].Lim  - Frame limits for each input file.  The limits consist of two
@@ -19,11 +19,27 @@ Description:
     AFp[i]->Nsamp - Number of samples in the input file.  If this value is
       AF_NSAMP_UNDEF, this value is undefined.
 
+  The number of frames as determined by this routine can be used to choose a
+  common set of frame limits for each file as the maximum for the individual
+  files.  Such a setting takes advantage of the zeros that are automatically
+  added before and and after the file data to make the data from each file the
+  same size.  This is appropriate if the files are to be combined or compared
+  sample-by-sample.
+
   1: If the number of sample frames (Nframe) is specified, this value is used.
-  2: If the frame limits are specified, the number of frames is determined
-     from the maximum number of frames specified for any one file.
-  3: The number of frames is determined from the maximum of the number of
-     frames in the input files.
+     This value is given before opening the file and passed to AFopnWrite
+     through the options parameter structure AFopt.
+  2: If Step 1 does not give the number of sample frames, examine the sample
+     limits.  If upper and lower frame limits are specified for any of the input
+     files, the number of frames is determined as the maximum of the number of
+     frames.  Note that the first limit determines where the samples from each
+     file start.  The setting of the upper limit is necessary to determine the
+     number of sample frames for that file.
+  3: If Step 2 does not give the number of sample frames, find the number of
+     frames for each file.  For most types of input files the total number of
+     samples is given or can be determined.  Taking into account the first
+     limit of each file, the maximum of number of frames for the files can be
+     determined.
 
 Parameters:
   <-  long int AOnFrame
@@ -38,19 +54,18 @@ Parameters:
       Number of frames.  If this value is AF_NFRAME_UNDEF, it is not used.
  
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.9 $  $Date: 2003/05/09 12:32:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.13 $  $Date: 2017/04/26 16:38:50 $
 
 -------------------------------------------------------------------------*/
 
-#include <libtsp.h>
 #include <AO.h>
 
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define ICEILV(n, m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
+#define MAXV(a, b)    (((a) > (b)) ? (a) : (b))
+#define ICEILV(n, m)  (((n) + ((m) - 1)) / (m)) /* int n,m >= 0 */
 
-#define ROUTINE		"AOnFrame"
-#define PGM		((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
+#define ROUTINE   "AOnFrame"
+#define PGM       ((UTgetProg())[0] == '\0' ? ROUTINE : UTgetProg())
 
 static long int
 AO_NframeAF (AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles);
@@ -60,7 +75,7 @@ AO_NframeFI (const struct AO_FIpar FI[], int Nifiles);
 
 long int
 AOnFrame (AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
-	  long int Nframe)
+    long int Nframe)
 
 {
   long int NframeT;
@@ -88,9 +103,9 @@ AO_NframeFI (const struct AO_FIpar FI[], int Nifiles)
   long int Nframe, Nfri;
 
 /*
-  - Nfri - number of frames for file i
+  - Nfri   - number of frames for file i
   - Nframe - max number of frames
-  - DiffN - true if Nframe and Nfri differ
+  - DiffN  - true if Nframe and Nfri differ
 */
   DiffN = 0;
   NotAllLim = 0;
@@ -103,9 +118,9 @@ AO_NframeFI (const struct AO_FIpar FI[], int Nifiles)
 
     if (i > 0 && Nframe != Nfri) {
       if (Nframe == AF_NFRAME_UNDEF || Nfri == AF_NFRAME_UNDEF)
-	NotAllLim = 1;
+        NotAllLim = 1;
       else
-	DiffN = 1;
+        DiffN = 1;
     }
 
     if (Nframe == AF_NFRAME_UNDEF)

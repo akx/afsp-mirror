@@ -16,23 +16,28 @@ Description:
   of zero-valued samples is returned.  The file must have been opened using
   routine AFopnRead.
 
-  The following program fragment illustrates the use of this routine to read
-  overlapping frames of data.  For the simpler case of sequential access to the
-  data without overlap, the variable Lmem should be set to zero.
+  This routine returns float data.  This format gives 24 bits of precision.  A
+  loss of precision is possible if the input file contains double or 32-bit
+  integer data.
 
-    AFp = AFopnRead (...);
-    ...
-    Lmem =...
-    Lframe =...
-    Nadv = Lframe-Lmem;
-    offs = -Lmem;
-    while (1) {
-      Nout = AFfReadData (AFp, offs, Dbuff, Lframe);
-      offs = offs+Nadv;
-      if (Nout == 0)
-        break;
-      ...
-    }
+  The following program fragment illustrates the use of this routine to read
+  overlapping blocks of data.  For the simpler case of sequential access to the
+  data without overlap, the variable Lmem should be set to zero.
+      float Dbuff[320]'
+       ...
+      AFp = AFopnRead (...);
+       ...
+      Lmem = 80;
+      Lblock = 320;
+      Nadv = Lblock - Lmem;
+      offs = -Lmem;
+      while (1) {
+        Nout = AFfReadData (AFp, offs, Dbuff, Lblock);
+        offs = offs + Nadv;
+        if (Nout <= 0)
+          break;
+         ...
+      }
 
   On encountering an error, the default behaviour is to print an error message
   and halt execution.
@@ -52,40 +57,42 @@ Parameters:
       appropriate number of zeros will be returned.  These zeros before the
       beginning of the data are counted as part of the count returned in Nout.
   <-  float Dbuff[]
-      Array of floats to receive the Nreq samples
+      Array of floats to receive Nreq samples.  The data is organized as
+      sequential frames of samples, where each frame contains samples for each
+      of the channels.
    -> int Nreq
       Number of samples requested.  Nreq may be zero.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:03:46 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.13 $  $Date: 2017/06/26 23:57:04 $
 
 -------------------------------------------------------------------------*/
 
 #include <assert.h>
-#include <stdlib.h>		/* EXIT_FAILURE */
+#include <stdlib.h>   /* EXIT_FAILURE */
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFmsg.h>
-#define AF_DATA_LENGTHS
-#include <libtsp/AFpar.h>
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
 /* Reading routines */
 static int
-(*AF_Read[NFD])(AFILE *AFp, float Dbuff[], int Nreq) =
-  { NULL,	AFfRdMulaw,	AFfRdAlaw,	AFfRdU1,	AFfRdI1,
-    AFfRdI2,	AFfRdI3,	AFfRdI4,	AFfRdF4,	AFfRdF8,
-    AFfRdTA };
+(*AF_Read[AF_NFD])(AFILE *AFp, float Dbuff[], int Nreq) =
+                   {NULL,     AFfRdAlaw, AFfRdMulaw, AFfRdMulawR,
+                    AFfRdU1,  AFfRdI1,   AFfRdI2,    AFfRdI3,
+                    AFfRdI4,  AFfRdF4,   AFfRdF8,    AFfRdTA,
+                    AFfRdTA};
 
 /*
   The option flag ErrorHalt affects error handling.
   If ErrorHalt is clear, execution continues after an error
-   - Fewer than requested elements are returned.  To distinguish between an
-     error and and end-of-file, AFp->Error must be examined.
+   - If fewer than the requested number of elements are returned.  To
+     distinguish between an error and and end-of-file, AFp->Error must be
+     examined.
    - An unexpected end-of-file is an error
    - AFp->Error must be zero on input to this routine
 */
@@ -95,19 +102,23 @@ int
 AFfReadData (AFILE *AFp, long int offs, float Dbuff[], int Nreq)
 
 {
-  int i, Nb, Nv, Nr, Nout;
+  int i, Nv, Nr, Nout;
 
 /* Check the operation  */
   assert (AFp->Op == FO_RO);
   assert (! AFp->Error);
+  assert (AF_Read[AF_NFD-1] != NULL);
+  assert (AFp->Format > 0 && AFp->Format < AF_NFD);
 
 /* Fill in zeros at the beginning of data */
-  Nb = (int) MAXV (0, MINV (-offs, Nreq));
-  for (i = 0; i < Nb; ++i) {
-    Dbuff[i] = 0.0F;
-    ++offs;
+  if (offs < 0) {
+    Nout = MINV (-offs, Nreq);
+    for (i = 0; i < Nout; ++i)
+      Dbuff[i] = 0;
+    offs += Nout;
   }
-  Nout = Nb;
+  else
+    Nout = 0;
 
 /* Position the file */
   AFp->Error = AFposition (AFp, offs);
@@ -134,36 +145,38 @@ AFfReadData (AFILE *AFp, long int offs, float Dbuff[], int Nreq)
 /* Transfer data from the file */
   if (AFp->Nsamp == AF_NSAMP_UNDEF)
     Nv = Nreq - Nout;
+  else if (offs < 0)
+    Nv = 0;
   else
-    Nv = (int) MINV (Nreq - Nout, AFp->Nsamp - offs);
+    Nv = (int) MINV (Nreq - Nout, AFp->Nsamp - offs);     /* offs >= 0 */
 
   if (! AFp->Error && Nv > 0) {
-    Nr = (*AF_Read[AFp->Format]) (AFp, &Dbuff[Nb], Nv);
+    Nr = (*AF_Read[AFp->Format]) (AFp, &Dbuff[Nout], Nv);
     Nout += Nr;
     AFp->Isamp += Nr;
 
 /* Check for errors */
     if (Nr < Nv) {
       if (ferror (AFp->fp)) {
-	UTsysMsg ("AFfReadData - %s %ld", AFM_ReadErrOffs, AFp->Isamp);
-	AFp->Error = AF_IOERR;
+        UTsysMsg ("AFfReadData - %s %ld", AFM_ReadErrOffs, AFp->Isamp);
+        AFp->Error = AF_IOERR;
       }
       else if (AFp->Error)
-	UTwarn ("AFfReadData - %s %ld", AFM_ReadErrOffs, AFp->Isamp);
+        UTwarn ("AFfReadData - %s %ld", AFM_ReadErrOffs, AFp->Isamp);
       else if (AFp->Nsamp != AF_NSAMP_UNDEF) {
-	UTwarn ("AFfReadData - %s %ld", AFM_UEoFOffs, AFp->Isamp);
-	AFp->Error = AF_UEOF;
+        UTwarn ("AFfReadData - %s %ld", AFM_UEoFOffs, AFp->Isamp);
+        AFp->Error = AF_UEOF;
       }
       else
-	AFp->Nsamp = AFp->Isamp;
+        AFp->Nsamp = AFp->Isamp;
     }
   }
 
 /* Zeros at the end of the file */
   for (i = Nout; i < Nreq; ++i)
-    Dbuff[i] = 0.0F;
+    Dbuff[i] = 0;
 
-  if (AFp->Error && (AFoptions ())->ErrorHalt)
+  if (AFp->Error && AFopt.ErrorHalt)
     exit (EXIT_FAILURE);
 
   return Nout;

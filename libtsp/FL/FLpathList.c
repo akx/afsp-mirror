@@ -47,34 +47,34 @@ Parameters:
       overlay the input string if desired.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.30 $  $Date: 2009/03/01 21:12:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.33 $  $Date: 2017/06/09 11:07:11 $
 
 ----------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
 #  define _CRT_SECURE_NO_WARNINGS     /* Allow getenv */
 #endif
 
-#include <stdlib.h>	/* getenv */
-#include <string.h>	/* strlen */
+#include <stdlib.h> /* getenv */
+#include <string.h> /* strlen */
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include <libtsp.h>
 
 #if (SY_FILENAME_SPEC == SY_FNS_UNIX)
-#  define DIR_SEP_STR	"/"
-#  define PATH_SEP_STR	":"
+#  define DIR_SEP_STR "/"
+#  define PATH_SEP_STR  ":"
 #elif (SY_FILENAME_SPEC == SY_FNS_WINDOWS)
-#  define DIR_SEP_STR	"\\"
-#  define PATH_SEP_STR	";"
+#  define DIR_SEP_STR "\\"
+#  define PATH_SEP_STR  ";"
 #else
 #  error "Bad SY_FILENAME_SPEC value"
 #endif
-#define DIR_SEP_CHAR	((DIR_SEP_STR)[0])
+#define DIR_SEP_CHAR  ((DIR_SEP_STR)[0])
 
 
 int
@@ -114,7 +114,7 @@ FLpathList (const char Fi[], const char Dlist[], char Fo[])
     p = STfindToken (p, PATH_SEP_STR, "", Fdir, 1, FILENAME_MAX-1);
 
     /* Construct a trial name; supply a / for the directory if needed */
-    nd = strlen (Fdir);
+    nd = (int) strlen (Fdir);
     if (nd > 0 && Fdir[nd-1] != DIR_SEP_CHAR)
       STcatMax (DIR_SEP_STR, Fdir, FILENAME_MAX-1);
     FLdefName (Fi, Fdir, Ftrial);

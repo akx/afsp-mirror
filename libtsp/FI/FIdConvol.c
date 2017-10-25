@@ -3,7 +3,7 @@
 
 Routine:
   void FIdConvol (const double x[], double y[], int Nout, const double h[],
-		  int Ncof)
+                  int Ncof)
 
 Purpose:
   Filter a signal with an FIR filter
@@ -25,6 +25,7 @@ Description:
   FIconvol.
 
 Parameters:
+  <-  void FIdConvol
    -> const double x[]
       Input array of data.  Let lmem=Ncof-1.  The first output point point is
       calculated as follows
@@ -41,8 +42,8 @@ Parameters:
       Number of filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.1 $  $Date: 2005/02/01 13:19:35 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.3 $  $Date: 2017/06/12 19:52:15 $
 
 -------------------------------------------------------------------------*/
 

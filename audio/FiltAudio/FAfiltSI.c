@@ -34,24 +34,24 @@ Parameters:
       Data offset into the rate-increased data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.20 $  $Date: 2005/02/01 13:25:03 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.21 $  $Date: 2017/03/28 00:29:40 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp.h>
 #include "FiltAudio.h"
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define ICEILV(n, m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
+#define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
+#define ICEILV(n, m)  (((n) + ((m) - 1)) / (m)) /* int n,m >= 0 */
 
-#define NBUF	5120
+#define NBUF  5120
 
 
 void
 FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-	  int Ncof, int Nsub, int Ir, long int moffs)
+    int Ncof, int Nsub, int Ir, long int moffs)
 
 {
   double Fbuf[NBUF];
@@ -75,7 +75,7 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
        - m is an offset into di(.), referring to sample di(m).
        - l is an offset into d(), referring to sample d(l).
        - m and l are related by m=l*Ir+mr  where l=floor(m/Ir), mr=m-Ir*l,
-	 0 <= mr < Ir.
+   0 <= mr < Ir.
    - Each output point is formed as the dot product of the filter vector
      {h[0],...,h[Ncof-1]} with the data elements {di(m),...,di(m-Ncof+1)}.
      Because of the zeros in di(.), the dot product can use the vectors
@@ -142,8 +142,8 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
   IR = Ir;
   NCOF = Ncof;
 
-  lmem = (NCOF - 1) / IR;		/* floor */
-  Nxmax = (NSUB * (NBUF - lmem)) / (NSUB + IR);	/* floor if Nxmax > 0 */
+  lmem = (NCOF - 1) / IR;   /* floor */
+  Nxmax = (NSUB * (NBUF - lmem)) / (NSUB + IR); /* floor if Nxmax > 0 */
   if (Nxmax <= 0)
     UThalt ("FAfiltSI: No. coeff. and/or interp. ratio too large");
   x = Fbuf;
@@ -155,7 +155,7 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
 /* Initialization
    The data buffer is x[.] with x[l'+lmem] = x(j,l') = d(loffs+j*Nx+l')
  */
-  loffs = moffs / IR;			/* floor */
+  loffs = moffs / IR;     /* floor */
   mp = moffs - IR * loffs;
   if (mp < 0) {
     loffs = loffs - 1;
@@ -171,7 +171,7 @@ FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
   while (k < NsampO) {
 
 /* Set up the filter memory */
-    lp = mp / IR;			/* floor */
+    lp = mp / IR;     /* floor */
     mr = mp - IR * lp;
 
 /* Read the input data into the input buffer */

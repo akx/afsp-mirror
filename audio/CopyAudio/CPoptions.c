@@ -4,7 +4,7 @@
 Routine:
   void CPoptions (int argc, const char *argv[], int *Mode,
                   struct CP_FIpar FI[MAXIFILE], int *Nifiles,
-		  struct CP_FOpar *FO)
+                  struct CP_FOpar *FO)
 
 Purpose:
   Decode options for CopyAudio
@@ -29,13 +29,11 @@ Parameters:
       Channel gain matrix
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.78 $  $Date: 2003/05/13 01:33:07 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.83 $  $Date: 2017/09/15 00:37:53 $
 
 ----------------------------------------------------------------------*/
 
-#include <libtsp.h>
-#include <AO.h>
 #include "CopyAudio.h"
 
 /* Option table */
@@ -57,46 +55,54 @@ static const char *OptTable[] = {
   NULL
 };
 
-static const char Ch[MAXNO+1] = "ABCDEFGHIJKL";
+static const char Ch[MAXNCO+1] = "ABCDEFGHIJKL";
 
 
 void
 CPoptions (int argc, const char *argv[], int *Mode,
-	   struct CP_FIpar FI[MAXIFILE], int *Nifiles, struct CP_FOpar *FO,
-	   struct CP_Chgain *Chgain)
+           struct CP_FIpar FI[MAXIFILE], int *Nifiles, struct CP_FOpar *FO,
+           struct CP_Chgain *Chgain)
 
 {
   const char *OptArg;
   struct CP_FIpar FIx;
   int nF, i, n, mode, FIParSet;
-  int Chset[MAXNO];
+  int Chset[MAXNCO];
 
 /* Defaults */
   mode = M_COMB;
 
 /* Input file defaults */
   FIParSet = 0;
-  FIpar_INIT (&FIx);
+  FIpar_INIT (&FIx);      /* Temp input file parameter structure */
 
 /* Output file defaults */
   FOpar_INIT (FO);
 
 /* Initialize the channel gain structure */
-  Chgain_INIT (Chgain);
-  VRiZero (Chset, MAXNO);
+/* If the number of output channels in Chgain is zero, it is assumed that the
+   number of output channels are mapped one-to-one to the input channels */
+  Chgain_INIT (Chgain); /* Channels gains and offsets set to zero */
+  VRiZero (Chset, MAXNCO);
 
 /* Initialization */
   UTsetProg (PROGRAM);
   nF = 0;
 
 /* Decode options */
+/* For each argument try the following:
+   - decode an input file option
+   - if not successful, decode an output file option
+   - if not successful, decode a help option
+   - if not successful, decode a file name or a program option
+*/
   AOinitOpt (argc, argv);
   while (1) {
 
     /* Decode input file options */
     n = AOdecFI (&FIx);
     if (n >= 1) {
-      FIParSet = nF;
+      FIParSet = nF;    /* Flag, found input parameters FI[nF] */
       continue;
     }
     /* Decode output file options */
@@ -120,13 +126,18 @@ CPoptions (int argc, const char *argv[], int *Mode,
       break;
     case 0:
       /* Filename argument */
+      /* Filename tentatively assigned to both the output file and to input file
+         nF-1.
+         - The last file name will be the output file name
+         - The other file names will be input file names (0 to nF-2)
+       */
       ++nF;
-      if (nF > MAXFILE)
-	UThalt ("%s: %s", PROGRAM, CPM_XFName);
+      if (nF > MAXIFILE+1)
+        UThalt ("%s: %s", PROGRAM, CPM_XFName);
       STcopyMax (OptArg, FO->Fname, FILENAME_MAX-1);
       STcopyMax (OptArg, FIx.Fname, FILENAME_MAX-1);
       if (nF <= MAXIFILE)
-	FI[nF-1] = FIx;
+        FI[nF-1] = FIx;     /* Save input parameters */
       break;
     case 1:
     case 2:
@@ -142,7 +153,7 @@ CPoptions (int argc, const char *argv[], int *Mode,
       /* Channel gain expressions */
       i = (n - 5) / 2;
       CPdecChan (OptArg, i, Chgain);
-      Chset[i] = 1;
+      Chset[i] = 1;     /* Flag, gain set for output channel i */
       break;
     }
   }
@@ -150,11 +161,11 @@ CPoptions (int argc, const char *argv[], int *Mode,
 /* Checks */
   if (nF < 2)
     UThalt ("%s: %s", PROGRAM, CPM_MFName);
-  for (i = 0; i < Chgain->NO; ++i) {
+  for (i = 0; i < Chgain->NCO; ++i) {  /* Check all output channel gains */
     if (Chset[i] == 0)
       UThalt ("%s: %s %c", PROGRAM, CPM_NoChanSpec, Ch[i]);
   }
-  if (FIParSet >= nF - 1)
+  if (FIParSet >= nF - 1)     /* Input parameters set after last input file */
     UThalt ("%s: %s", PROGRAM, CPM_LateFPar);
 
   /* Check for too many stdin specs */

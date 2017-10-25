@@ -22,7 +22,7 @@ Description:
   file.  On reaching the end-of-file, the number of samples read will be
   smaller than the number requested.  The buffer is however padded with zeros
   to its full length.
-  
+
 Parameters:
   <-  int RSrefresh
       Number of new samples read from the file
@@ -36,15 +36,14 @@ Parameters:
       Buffer length
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.6 $  $Date: 2005/02/01 04:22:28 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.8 $  $Date: 2017/03/28 00:32:37 $
 
 -------------------------------------------------------------------------*/
 
-#include <libtsp.h>
 #include "ResampAudio.h"
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
 
 int
@@ -79,4 +78,4 @@ RSrefresh (AFILE *AFpI, long int offs, double x[], int Nx)
   lnx = offs + Nx;
 
   return Nout;
-}  
+}

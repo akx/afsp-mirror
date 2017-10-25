@@ -11,8 +11,8 @@ Description:
   This routine decodes a help or version option.  The routine AOinitOpt must be
   called first to initialize the option arguments.  If this routine fails to
   find an input audio file option, the argument pointer is reset to allow
-  another routine to try to decode the option.  For the help or version
-  options, a message is printed and execution is halted.
+  another routine to try to decode the option.  For the help or version options,
+  a message is printed and execution is halted.
 
 Parameters:
   <-  int AOdecHelp
@@ -26,8 +26,8 @@ Parameters:
       a "%s" for substitution of the program name.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.5 $  $Date: 2003/05/09 12:32:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.7 $  $Date: 2017/03/28 00:23:59 $
 
 ----------------------------------------------------------------------*/
 
@@ -36,12 +36,12 @@ Author / revision:
 #include <libtsp.h>
 #include <AObase.h>
 
-#define ROUTINE		"AOdecHelp"
-#define PGM		((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
-#define ERRSTOP(text,par)	UThalt ("%s: %s: \"%s\"", PGM, text, par)
+#define ROUTINE          "AOdecHelp"
+#define PGM              ((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
+#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PGM, text, par)
 
-#define RET_ERROR	-2
-#define RET_END		-1
+#define RET_ERROR -2
+#define RET_END   -1
 
 static const char *OThelp[] = {
   "-h",  "--h*elp",
@@ -90,7 +90,7 @@ AOdecHelp (const char Version[], const char Usage[])
     Carg->EndOptions = 1;
     break;
   default:
-    Carg->Index = Sindex;		/* Reset the index */
+    Carg->Index = Sindex;   /* Reset the index */
     n = 0;
     break;
   }

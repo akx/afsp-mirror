@@ -23,14 +23,14 @@ Parameters:
       Input value
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.3 $  $Date: 2003/05/09 01:41:29 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.4 $  $Date: 2017/03/28 00:19:15 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp.h>
 
-#define EPS	1E-16
+#define EPS 1E-16
 
 /*
   This routine uses a series expansion

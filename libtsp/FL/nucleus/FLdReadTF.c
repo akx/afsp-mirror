@@ -32,8 +32,8 @@ Parameters:
       Array of output values
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.1 $  $Date: 2005/02/01 02:32:07 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.2 $  $Date: 2015/04/01 15:48:47 $
 
 -------------------------------------------------------------------------*/
 
@@ -66,13 +66,13 @@ FLdReadTF (FILE *fp, int MaxNval, int cc, double x[])
     /* Process comments */
     c = strchr (line, cc);
     if (c != NULL)
-      *c = '\0';		/* Force an end-of-line at the comment */
+      *c = '\0';    /* Force an end-of-line at the comment */
 
     /* Decode data records */
     Nvr = MaxNval - N;
     if (Nvr > 0) {
       if (STdecNdouble (line, 0, Nvr, &x[N], &Nv))
-	UThalt ("FLdReadTF: %s %d", FLM_DataErr, lineno);
+        UThalt ("FLdReadTF: %s %d", FLM_DataErr, lineno);
       N = N + Nv;
     }
     else if (*(STtrimIws (line)) != '\0')

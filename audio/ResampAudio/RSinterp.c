@@ -35,17 +35,16 @@ Parameters:
       Structure with the filter coefficients in a polyphase form
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.12 $  $Date: 2005/02/01 04:18:47 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.13 $  $Date: 2015/04/10 12:46:11 $
 
 -------------------------------------------------------------------------*/
 
 #include <assert.h>
 
-#include <libtsp.h>
 #include "ResampAudio.h"
 
-#define EPS	1E-10
+#define EPS 1E-10
 
 static double
 RS_conv (const double *xp, const double h[], int Nc);
@@ -53,7 +52,7 @@ RS_conv (const double *xp, const double h[], int Nc);
 
 void
 RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
-	  const struct Tval_T *T, const struct Fpoly_T *PF)
+          const struct Tval_T *T, const struct Fpoly_T *PF)
 
 {
   double yl, yh;
@@ -75,14 +74,14 @@ RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
 
   for (i = 0; i < Ny; ++i) {
 
-    tir = (To.dm + To.dmr) / To.M;	/* Fractional sample */
+    tir = (To.dm + To.dmr) / To.M;  /* Fractional sample */
 
     /* Express tir = (mr + p) / Ir, where mr is an integer, 0 <= mr < Ir */
     mr = (int) (Ir * tir);
     p =  Ir * tir - mr;
 
     n = To.n;
-    assert (n < Nxm);		/* Invalid time position */
+    assert (n < Nxm);   /* Invalid time position */
 
 /*
   The polyphase filter has an extra subfilter, subfilter Ir.  If the lower
@@ -141,8 +140,8 @@ Parameters:
       Number of filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.12 $  $Date: 2005/02/01 04:18:47 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.13 $  $Date: 2015/04/10 12:46:11 $
 
 -------------------------------------------------------------------------*/
 

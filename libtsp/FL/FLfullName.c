@@ -33,13 +33,13 @@ Parameters:
       path cannot be resolved.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.44 $  $Date: 2009/03/01 21:12:08 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.48 $  $Date: 2017/06/09 14:04:22 $
 
 ----------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
 #endif
 
@@ -55,7 +55,7 @@ Author / revision:
 #include <libtsp/FLmsg.h>
 
 #if (SY_POSIX)
-#  include <unistd.h>	/* chdir and getcwd */
+#  include <unistd.h> /* chdir and getcwd */
 #else
 #  include <direct.h>
 #endif
@@ -82,7 +82,7 @@ FLfullName (const char Fname[], char Fullname[])
    Try to "resolve" the path name by doing a chdir to the directory and then
    getting the resulting path name with a getcwd.  In this way, we follow
    symbolic links.  The resulting directory string from getcwd hopefully has
-   been cleaned up of things like imbedded "./" and "../" strings.
+   been cleaned up of things like embedded "./" and "../" strings.
 
    If the directory is not readable (or does not exist), an error results.  In
    that case, peel off one level of directory and try again.  This should
@@ -124,7 +124,7 @@ FL_resDir (char Dname[])
     if (FL_saveDir (Dsave) != 0)
       return status;
     if (FL_chDir (Dname))
-      return status;	/* Assume that the directory did not change */
+      return status;  /* Assume that the directory did not change */
   }
 
 /* Get the "cleaned up" directory name */
@@ -162,13 +162,13 @@ FL_saveDir (char Dname[])
 }
 
 #if (SY_FILENAME_SPEC == SY_FNS_UNIX)
-#  define DIR_SEP_STR	"/"
+#  define DIR_SEP_STR "/"
 #elif (SY_FILENAME_SPEC == SY_FNS_WINDOWS)
-#  define DIR_SEP_STR	"\\"
+#  define DIR_SEP_STR "\\"
 #else
 #  error "Bad SY_FILENAME_SPEC value"
 #endif
-#define DIR_SEP_CHAR	((DIR_SEP_STR)[0])
+#define DIR_SEP_CHAR  ((DIR_SEP_STR)[0])
 
 
 static int
@@ -185,9 +185,9 @@ FL_chDir (const char Dname[])
 */
 
   if (Dname[0] == '\0')
-    status = 0;		/* Current directory */
+    status = 0;   /* Current directory */
   else {
-    n = strlen (Dname);
+    n = (int) strlen (Dname);
     if (Dname[n] != DIR_SEP_CHAR) {
       n = STcopyNMax (Dname, Dtemp, n, FILENAME_MAX-1);
       Dtemp[n] = DIR_SEP_CHAR;

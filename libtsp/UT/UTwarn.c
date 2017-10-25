@@ -13,6 +13,7 @@ Description:
     UTwarn ("XXProc - Output data clipped (%d values(s))", N);
 
 Parameters:
+  <-  void UTwarn
    -> const char Warnmsg[]
       Character string to be printed.  This string can contain optional
       formatting codes.  The arguments corresponding to the formatting codes
@@ -25,12 +26,12 @@ Parameters:
       vprintf.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.22 $  $Date: 2003/05/09 03:20:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.24 $  $Date: 2017/05/05 00:22:24 $
 
 -------------------------------------------------------------------------*/
 
-#include <stdarg.h>		/* ANSI C variable-length argument list */
+#include <stdarg.h>   /* ANSI C variable-length argument list */
 
 #include <libtsp.h>
 

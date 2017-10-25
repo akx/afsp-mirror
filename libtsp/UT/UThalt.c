@@ -14,6 +14,7 @@ Description:
     UThalt ("%s: Invalid option", PROGRAM);
 
 Parameters:
+  <-  void UThalt
    -> const char Errmsg[]
       Character string to be printed.  This string can contain optional
       formatting codes.  The arguments corresponding to the formatting codes
@@ -26,13 +27,13 @@ Parameters:
       vprintf.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.22 $  $Date: 2003/05/09 03:20:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.24 $  $Date: 2017/05/05 00:21:52 $
 
 -------------------------------------------------------------------------*/
 
 #include <stdarg.h>
-#include <stdlib.h>	/* EXIT_FAILURE */
+#include <stdlib.h> /* EXIT_FAILURE */
 
 #include <libtsp.h>
 

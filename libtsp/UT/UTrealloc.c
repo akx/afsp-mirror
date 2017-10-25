@@ -32,12 +32,12 @@ Parameters:
       If size is less than or equal to zero, a NULL pointer is returned.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.11 $  $Date: 2003/05/09 03:20:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.12 $  $Date: 2017/03/28 00:13:34 $
 
 -------------------------------------------------------------------------*/
 
-#include <stdlib.h>		/* malloc */
+#include <stdlib.h>   /* malloc */
 
 #include <libtsp.h>
 
@@ -53,12 +53,12 @@ UTrealloc (void *ptr, int size)
     p = NULL;
   }
   else if (ptr == NULL) {
-    p = malloc ((size_t) size);	/* For non-ANSI versions of realloc */
+    p = malloc ((size_t) size); /* For non-ANSI versions of realloc */
     if (p == NULL)
       UTerror ("UTrealloc: Error return from malloc");
   }
   else {
-    p = realloc ((char *) ptr, (size_t) size);	/* Sun CC needs cast */
+    p = realloc ((char *) ptr, (size_t) size);  /* Sun CC needs cast */
     if (p == NULL)
       UTerror ("UTrealloc: Error return from realloc");
   }

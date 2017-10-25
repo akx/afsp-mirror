@@ -1,0 +1,308 @@
+<html>
+<head>
+<style>
+  body { font-family: Verdana, Arial, Helvetica, sans-serif;
+         font-size: 12px; background-color: #FFFFD7; }
+  h1   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #6699CC;
+         font-size:160%; font-weight:bold; margin: 0px 0px 8px 0px; }
+  h2   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #5588BB;
+         font-size:130%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  h3   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #4477AA;
+         font-size:120%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  pre  { color: #0000A0; }
+</style>
+<title>AFsp - FiltAudio</title>
+</head>
+<body>
+<h2>FiltAudio</h2>
+<hr>
+<h3>Routine:</h3>
+<p>
+FiltAudio [options] -f FilterFile AFileI AFileO
+</p>
+<h3>Purpose:</h3>
+<p>
+Filter data from an audio file
+</p>
+<h3>Description:</h3>
+<p>
+This program takes an audio file and a filter coefficient file as input and
+produces a filtered output audio file.  Subsampling and interpolation factors
+can be optionally specified.  This program supports three types of filters,
+FIR, all-pole, and general IIR.  Filters are specified in filter files.
+</p>
+<dl>
+<dt>Filter Files:</dt>
+</dl>
+<p>
+The first record of a filter file indicates the type of filter.
+</p>
+<pre>
+  !FIR  - FIR filter, direct form
+  !IIR  - IIR filter, cascade of biquad sections
+  !ALL  - All-pole filter, direct form
+</pre>
+<p>
+Subsequent records contain text lines with filter coefficients.  Comment
+records ('!' in the first position of the record) can be interspersed amongst
+the data.  Data records are free form, with data values separated by
+white-space (blanks, tabs and newlines).  Commas can also be used to separate
+data values, but only within records, i.e. a comma should not appear at the
+end of a record.
+</p>
+<p>
+FIR filters are specified by the direct-form coefficients h[i],
+</p>
+<pre>
+         N-1       -i
+  H(z) = SUM h[i] z    .
+         i=0
+</pre>
+<p>
+IIR filters are implemented as the cascade of biquadratic filter sections,
+where each section has a z-transform,
+</p>
+<pre>
+           h(i,0)*z^2 + h(i,1)*z + h(i,2)
+  H(i,z) = ------------------------------ .
+              z^2 + h(i,3)*z + h(i,4)
+</pre>
+<p>
+All-pole filters are specified by direct-form feedback coefficients,
+</p>
+<pre>
+          1                    N-1       -i
+  H(z) = ----  ,  where C(z) = SUM h[i] z    .
+         C(z)                  i=0
+</pre>
+<p>
+For FIR filters, a sample rate change can be affected with interpolation
+and subsampling.  For IIR and all-pole filters, the output can be subsampled.
+Let Ir and Nsub be the interpolation and subsampling factors, respectively.
+Conceptually, the rate change is accomplished as follows.
+</p>
+<dl>
+<dt> 1: Ir-1 zeros are inserted between adjacent samples of the frequency shifted</dt>
+<dd>
+input to increase the sampling rate by a factor of Ir.
+</dd>
+<dt> 2: The increased rate signal is filtered.</dt>
+<dt> 3: The result of the filtering is subsampled by a factor of Nsub to form the</dt>
+<dd>
+output signal.
+</dd>
+</dl>
+<p>
+The initial filter alignment and the number of output samples can be
+specified with options.  The filter alignment specifies the position of the
+filter relative to the input data for calculating the first output sample.
+For FIR filters, this alignment is relative to the increased rate input
+sequence.  Specifically, let the number of samples in the input file be Nin.
+The input can be considered to be an array x(0),...,x(Nin-1).  The increased
+rate sequence is xi(.), with xi(k*Ir)=x(k).  The first output sample is
+calculated with the beginning of the impulse response of the filter aligned
+with xi(idoffs).  The array xi(.) can be considered to be of length Nin*Ir;
+the first non-zero sample is xi(0)=x(0), the last non-zero sample is
+xi((Nin-1)*Ir).  Conceptually, the impulse impulse response is moved in
+steps of Nsub to create the output samples.
+</p>
+<p>
+The intent is that the output samples are the subset of the values the would
+be obtained if the infinite length sequence formed by padding out the input
+data on either end with zeros were to be filtered.  To this end, the filter
+calculations need warm-up points, particularly for the case that the initial
+filter alignment is not at the beginning of the input data.  For FIR filters,
+this is taken into account by reading previous input values into the filter
+memory.  For IIR and all-pole filters, previous outputs are also needed as
+warm-up points.  If the initial alignment is near the beginning of the data,
+the IIR filter is run from the beginning of the data to generate the warm-up
+points.  For larger alignment offsets, the IIR filter is backed up for a
+maximum of 1000 samples to provide the warm-up points.
+</p>
+<p>
+If the initial filter alignment is not explicitly specified, it is chosen to
+be zero, except for symmetric or anti-symmetric FIR filters.  In those cases
+the default alignment is Ncof/2-1 for even length filters and (Ncof-1)/2 for
+odd length filters.  If the number of output samples is not explicitly set,
+it is chosen to be Ir*Nin/Nsub.  For the case of Ir=1 and Nsub=1, this
+results in the same number of output samples as input samples.  If the
+initial filter alignment, offs, is explicitly specified, the number of output
+samples is chosen to be (Ir*Nin-offs)/Nsub.  This value can be overridden by
+explicitly setting the number of output samples.
+</p>
+<h3>Options:</h3>
+<dl>
+<dt>Input file name, AFileI:</dt>
+<dd>
+The environment variable AUDIOPATH specifies a list of directories to be
+searched for the input audio file.  Specifying "-" as the input file
+indicates that input is from standard input.
+</dd>
+<dt>Output file name, AFileO:</dt>
+<dd>
+The second file name is the output file.  Specifying "-" as the output
+file name indicates that output is to be written to standard output.  If
+the output file type is not explicitly given (-F option), the extension
+of the output file name is used to determine the file type.
+</dd>
+<dd>
+<pre>
+  ".au"   - AU audio file
+  ".wav"  - WAVE file
+  ".aif"  - AIFF sound file
+  ".afc"  - AIFF-C sound file
+  ".raw"  - Headerless file (native byte order)
+  ".txt"  - Text audio file (with header)
+</pre>
+</dd>
+<dt>-f FILTFILE, --filter_file=FILTFILE</dt>
+<dd>
+Text file containing filter coefficients.  The header of the file indicates
+the type of filter as described above.
+</dd>
+<dt>-i IR/NSUB, --interpolate=IR/NSUB</dt>
+<dd>
+Filter interpolation ratio, default 1.  The interpolation and subsampling
+factors are specified as a fraction Ir/Nsub.  Interpolation can only be
+used with FIR filters.
+</dd>
+<dt>-a OFFS, --alignment=OFFS</dt>
+<dd>
+Alignment of data relative to the filter.  The first output sample is
+calculated with the beginning of the filter response aligned with the
+specified sample of the interpolated data sequence.
+</dd>
+<dt>-g GAIN, --gain=GAIN</dt>
+<dd>
+A gain factor applied to the data from the INPUT file.  This gain applies
+to all channels in a file.  The gain value can be given as a real number
+(e.g., "0.003") or as a ratio (e.g., "1/256").
+</dd>
+<dt>-n NSAMPLE, --number_samples=NSAMPLE</dt>
+<dd>
+Number of samples (per channel) for the OUTPUT file.  If not specified,
+the number of samples is determined automatically.
+</dd>
+<dt>-F FTYPE, --file-type=FTYPE</dt>
+<dd>
+OUTPUT file type.  If this option is not specified, the file type is
+determined by the output file name extension.
+</dd>
+<dd>
+<pre>
+  "AU" or "au"             - AU audio file
+  "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
+                             file extensible format is automatically
+                             determined.
+  "WAVE-EX" or "wave-ex"   - WAVE file. Use the WAVE file extensible
+                             format.
+  "WAVE-NOEX" or "wave-noex" - WAVE file; do not use the WAVE file
+                             extensible format
+  "AIFF-C" or "aiff-c"     - AIFF-C sound file
+  "AIFF-C/sowt" or "aiff-c/sowt" - AIFF-C (byte-swapped data)
+  "AIFF" or "aiff"         - AIFF sound file
+  "noheader" or "noheader-native" - Headerless file (native byte order)
+  "noheader-swap"          - Headerless file (byte swapped)
+  "noheader-big-endian"    - Headerless file (big-endian byte order)
+  "noheader-little-endian" - Headerless file (little-endian byte order)
+  "text-audio"             - Text audio file (with header)
+</pre>
+</dd>
+<dt>-D DFORMAT, --data-format=DFORMAT</dt>
+<dd>
+Data format for the OUTPUT file.
+</dd>
+<dd>
+<pre>
+  "mu-law8"   - 8-bit mu-law data
+  "A-law8"    - 8-bit A-law data
+  "unsigned8" - offset-binary 8-bit integer data
+  "integer8"  - two's-complement 8-bit integer data
+  "integer16" - two's-complement 16-bit integer data
+  "integer24" - two's-complement 24-bit integer data
+  "integer32" - two's-complement 32-bit integer data
+  "float32"   - 32-bit IEEE floating-point data
+  "float64"   - 64-bit IEEE floating-point data
+  "text16"    - text data, scaled the same as 16-bit integer data
+  "text"      - text data, scaled the same as float/double data
+</pre>
+</dd>
+<dd>
+The data formats available depend on the output file type.
+</dd>
+<dd>
+<pre>
+  AU audio files:
+    mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
+  WAVE files:
+    mu-law, A-law, offset-binary 8-bit, 16/24/32-bit integer,
+    32/64-bit float
+  AIFF-C sound files:
+    mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
+  AIFF and AIFF-C/sowt sound files:
+    8/16/24/32-bit integer
+  Headerless files:
+    all data formats
+  Text audio files:
+    tex16, text
+</pre>
+</dd>
+<dt>-I INFO, --info=INFO</dt>
+<dd>
+Add an information record to the OUTPUT audio file.
+</dd>
+<dt>-h, --help</dt>
+<dd>
+Print a list of options and exit.
+</dd>
+<dt>-v, --version</dt>
+<dd>
+Print the version number and exit.
+</dd>
+</dl>
+<p>
+See routine CopyAudio for a description of other parameters.
+</p>
+<dl>
+<dt>-t FTYPE, --type=FTYPE</dt>
+<dd>
+Input file type and environment variable AF_FILETYPE
+</dd>
+<dt>-P PARMS, --parameters=PARMS</dt>
+<dd>
+Input file parameters and environment variable AF_INPUTPAR
+</dd>
+<dt>-D DFORMAT, --data-format=DFORMAT</dt>
+<dd>
+More details on allowed data formats for the output file
+</dd>
+<dt>-I INFO, --info-INFO</dt>
+<dd>
+Details on usage and default information records
+</dd>
+<dt>-S SPEAKERS, --speakers=SPEAKERS</dt>
+<dd>
+Loudspeaker configuration
+</dd>
+</dl>
+<h3>Environment variables:</h3>
+<dl>
+<dt>AUDIOPATH:</dt>
+<dd>
+This environment variable specifies a list of directories to be searched
+when opening the input audio files.  Directories in the list are separated
+by colons (semicolons for Windows).
+</dd>
+</dl>
+<h3>Author / version:</h3>
+<p>
+P. Kabal / v10r1  2017-10-18
+</p>
+<h3>See Also</h3>
+<a href="CopyAudio.html">CopyAudio</a>,
+<a href="ResampAudio.html">ResampAudio</a>
+<p></p>
+<hr>
+Main Index <a href="AFsp.html">AFsp</a>
+</body>
+</html>

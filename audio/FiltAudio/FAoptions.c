@@ -24,8 +24,8 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.48 $  $Date: 2003/05/13 01:25:28 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.50 $  $Date: 2017/05/26 17:07:31 $
 
 ----------------------------------------------------------------------*/
 
@@ -35,7 +35,7 @@ Author / revision:
 #include <AO.h>
 #include "FiltAudio.h"
 
-#define ERRSTOP(text,par)	UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
+#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
 
 /* Option table */
 static const char *OptTable[] = {
@@ -48,7 +48,7 @@ static const char *OptTable[] = {
 
 void
 FAoptions (int argc, const char *argv[], struct FA_FIpar *FI,
-	   struct FA_FFpar *FF, struct FA_FOpar *FO)
+     struct FA_FFpar *FF, struct FA_FOpar *FO)
 
 {
   const char *OptArg;
@@ -100,11 +100,11 @@ FAoptions (int argc, const char *argv[], struct FA_FIpar *FI,
       /* Filename argument */
       ++nF;
       if (nF == 1)
-	STcopyMax (OptArg, FI->Fname, FILENAME_MAX-1);
+        STcopyMax (OptArg, FI->Fname, FILENAME_MAX-1);
       else if (nF == 2)
-	STcopyMax (OptArg, FO->Fname, FILENAME_MAX-1);
+        STcopyMax (OptArg, FO->Fname, FILENAME_MAX-1);
       else
-	UThalt ("%s: %s", PROGRAM, FAM_XFName);
+        UThalt ("%s: %s", PROGRAM, FAM_XFName);
       break;
     case 1:
     case 2:
@@ -115,14 +115,14 @@ FAoptions (int argc, const char *argv[], struct FA_FIpar *FI,
     case 4:
       /* Sampling rate ratio */
       if (STdecIfrac (OptArg, &(FF->Ir), &(FF->Nsub)) ||
-	  FF->Ir <= 0 || FF->Nsub <= 0)
-	ERRSTOP (FAM_BadRatio, OptArg);
+        FF->Ir <= 0 || FF->Nsub <= 0)
+  ERRSTOP (FAM_BadRatio, OptArg);
       break;
     case 5:
     case 6:
       /* Alignment */
       if (STdec1long (OptArg, &FF->Doffs))
-	ERRSTOP (FAM_BadAlign, OptArg);
+        ERRSTOP (FAM_BadAlign, OptArg);
       break;
     default:
       assert (0);

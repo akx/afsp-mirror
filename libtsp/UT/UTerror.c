@@ -17,16 +17,17 @@ Description:
   The system error message is printed using perror.  The preamble to the system
   error message is either the name of this routine or the string supplied to
   UTsetProg.  An example of the use of this routine is as follows.
-    UTsetProg ("XXProg");
-    ...
-    fp = fopen (Fname, ...);
-    if (fp == NULL)
-      UTerror ("XXProc: Cannot open file \"%s\"", Fname);
-  If fopen fails, a typical output to stderr would be: 
-    XXProc: Cannot open file "abc"
-    XXProg: No such file or directory
+      UTsetProg ("XXProg");
+        ...
+      fp = fopen (Fname, ...);
+      if (fp == NULL)
+        UTerror ("XXProc: Cannot open file \"%s\"", Fname);
+  If fopen fails, a typical output to stderr would be,
+      XXProc: Cannot open file "abc"
+      XXProg: No such file or directory
 
 Parameters:
+  <-  void UTerror
    -> const char Errmsg[]
       Character string to be printed.  This string can contain optional
       formatting codes.  The arguments corresponding to the formatting codes
@@ -39,8 +40,8 @@ Parameters:
       vprintf.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.27 $  $Date: 2003/05/09 03:20:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.30 $  $Date: 2017/06/09 12:56:13 $
 
 -------------------------------------------------------------------------*/
 

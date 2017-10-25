@@ -19,12 +19,12 @@ Parameters:
       Input value
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.7 $  $Date: 2003/05/09 02:29:38 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.8 $  $Date: 2017/03/28 00:15:55 $
 
 -------------------------------------------------------------------------*/
 
-#include <math.h>	/* floor and ceil */
+#include <math.h> /* floor and ceil */
 
 #include <libtsp.h>
 

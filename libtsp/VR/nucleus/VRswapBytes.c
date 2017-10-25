@@ -13,8 +13,9 @@ Description:
   in each word.
 
 Parameters:
+  <-  void VRswapBytes
    -> const void *BuffI
-      Array of values, each element having wordsize Size bytes
+      Array of values, each element having word size Size bytes
   <-  void *BuffO
       Output array of byte swapped values.  The output buffer can occupy the
       same memory as the input buffer.
@@ -24,8 +25,8 @@ Parameters:
       Number of values to be byte-swapped
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.22 $  $Date: 2009/03/11 20:00:35 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.24 $  $Date: 2017/06/12 18:58:51 $
 
 -------------------------------------------------------------------------*/
 

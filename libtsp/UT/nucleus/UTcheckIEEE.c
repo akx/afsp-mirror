@@ -16,8 +16,8 @@ Parameters:
       Flag, 1 if host uses IEEE float format, 0 otherwise
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 19:58:18 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.16 $  $Date: 2017/04/24 03:07:24 $
 
 -------------------------------------------------------------------------*/
 

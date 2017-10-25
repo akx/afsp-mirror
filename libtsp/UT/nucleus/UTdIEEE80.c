@@ -19,27 +19,27 @@ Parameters:
       contains the sign bit and the first part of the exponent.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 19:58:18 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.11 $  $Date: 2017/04/24 03:07:34 $
 
 -------------------------------------------------------------------------*/
 
-#include <math.h>		/* ld_exp, sqrt */
+#include <math.h>   /* ld_exp, sqrt */
 
 #include <libtsp/nucleus.h>
 #include <libtsp/UTtypes.h>
 
 #ifndef INFINITY
-#  define INFINITY	(sqrt(1.0)/0.0)
+#  define INFINITY  (sqrt(1.0)/0.0)
 #endif
 #ifndef NAN
-#  define NAN		(sqrt(-1.0))
+#  define NAN   (sqrt(-1.0))
 #endif
 
-#define EXP_BIAS	16383
-#define EXPC_ZERO	0
-#define EXPC_NAN	32767
-#define EXPC_INF	32767
+#define EXP_BIAS  16383
+#define EXPC_ZERO 0
+#define EXPC_NAN  32767
+#define EXPC_INF  32767
 
 /* IEEE 754 double-extended 80-bit format:
    Standard Apple Numerics Environment (SANE) format
@@ -79,12 +79,12 @@ double UTdIEEE80 (const unsigned char b[10])
   mantL = ((UT_uint4_t) b[6] << 24) | ((UT_uint4_t) b[7] << 16) |
           ((UT_uint4_t) b[8] << 8)  | ((UT_uint4_t) b[9]);
 
-  if (expc == EXPC_ZERO && mantH == 0 && mantL == 0) 	/* Zero */
+  if (expc == EXPC_ZERO && mantH == 0 && mantL == 0)  /* Zero */
 
 /* Not really a special case, since the general code below can handle it */
     dv = 0.0;
 
-   else if (expc == EXPC_INF)		/* Infinity or NaN */
+   else if (expc == EXPC_INF)   /* Infinity or NaN */
 
 /* We can distinguish infinity (mantH == 0 && mantL == 0) from NaN.  However,
    for NaN, there is machine-dependent information in the mantissa value
@@ -95,7 +95,7 @@ double UTdIEEE80 (const unsigned char b[10])
      else
        dv = NAN;
 
-  else					/* Normalized  mantissa */
+  else          /* Normalized  mantissa */
 
 /* The decoded value is
      dv = m * 2^exp, where m is the mantissa, m < 2.

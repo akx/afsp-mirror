@@ -3,7 +3,7 @@
 
 Routine:
   void FIdFiltIIR (const double x[], double y[], int Nout, const double h[][5],
-		   int Nsec)
+                   int Nsec)
 
 Purpose:
   Filter a signal using a cascade of biquadratic IIR filters
@@ -51,7 +51,7 @@ Description:
   elements are previous outputs of the penultimate section, and so on up to
   elements A[mem-2] and A[mem-1] which are previous inputs.  The remaining
   Nout values are new input values.  Invoke this routine as
-    FIfiltIIR (&A[mem-2], A, Nout, h, Nsec)
+    FIdFiltIIR (&A[mem-2], A, Nout, h, Nsec)
   On return, the Nout new output values start at A[2].  The top mem elements
   of A[] are suitable for priming the array for the next invocation.  These mem
   elements should be moved to the bottom of array A[].
@@ -64,6 +64,7 @@ Description:
                                |<---     filter memory     --->|
 
 Parameters:
+  <-  void FIdFIRIIR
    -> const double x[]
       Input array with Nout+2 elements.  The first two elements are previous
       input values.  The next Nout values are new input values.
@@ -82,8 +83,8 @@ Parameters:
       Number of filter sections
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.4 $  $Date: 2005/02/01 13:20:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.7 $  $Date: 2017/06/12 19:52:15 $
 
 -------------------------------------------------------------------------*/
 
@@ -92,7 +93,7 @@ Author / revision:
 
 void
 FIdFiltIIR (const double x[], double y[], int Nout, const double h[][5],
-	    int Nsec)
+            int Nsec)
 
 {
   int k;

@@ -2,7 +2,7 @@
                           McGill University
 Routine:
   void CAstats (AFILE *AFp, long int Start, long int Nsamp,
-                struct Stats_F Stats[], int Nchan)
+                struct Stats_F Stats[])
 
 Purpose:
   Gather statistics from an audio file
@@ -25,8 +25,8 @@ Parameters:
       channels; one structure for other numbers of channels)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.30 $  $Date: 2003/07/11 14:40:06 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.37 $  $Date: 2017/07/19 18:55:35 $
 
 -----------------------------------------------------------------------*/
 
@@ -34,48 +34,48 @@ Author / revision:
 #include <limits.h>
 #include <math.h>
 
-#include <libtsp.h>
-#include <libtsp/AFpar.h>
 #include "CompAudio.h"
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define ABSV(x)		(((x) < 0) ? -(x) : (x))
-#define ICEILV(n, m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
-#define SQRV(x)		((x) * (x))
+#define MINV(a, b)    (((a) < (b)) ? (a) : (b))
+#define MAXV(a, b)    (((a) > (b)) ? (a) : (b))
+#define ABSV(x)       (((x) < 0) ? -(x) : (x))
+#define ICEILV(n,m)   (((n) + ((m) - 1)) / (m))  /* int n,m >= 0 */
+#define RNDUPV(n,m)   ((m) * ICEILV (n, m))      /* Round up */
+#define SQRV(x)       ((x) * (x))
+#define NELEM(array)  ((int) ((sizeof array) / (sizeof array[0])))
 
-#define NBUF	2560
-#define MDB	15.9	/* Active speech offset (dB) */
-#define NTHR	15	/* Number of levels for speech activity level */
+#define NBUF  2560
+#define MDB 15.9  /* Active speech offset (dB) */
+#define NTHR  15  /* Number of levels for speech activity level */
 
 struct SpAct_P {
-  double c[NTHR];	/* Threshold values */
-  double g;		/* Envelope filter parameter */
-  long int I;		/* Hangover limit */
+  double c[NTHR]; /* Threshold values */
+  double g;       /* Envelope filter parameter */
+  long int I;     /* Hangover limit */
 };
 
 struct SpAct_S {
-  long int a[NTHR];	/* Threshold counts */
-  long int h[NTHR];	/* Hangover counts */
-  double p;		/* Envelope intermediate filter state */
-  double q;		/* Envelope value (state variable) */
+  long int a[NTHR]; /* Threshold counts */
+  long int h[NTHR]; /* Hangover counts */
+  double p;         /* Envelope intermediate filter state */
+  double q;         /* Envelope value (state variable) */
 };
 
 struct Thresh_L {
-  double Amax;		/* Value used to detect overloads */
-  double Amin;		/* Value used to detect overloads */
-  double Aup;		/* Upper anomalous transition region */
-  double Alw;		/* Lower anomalous transition region */
+  double Amax;    /* Value used to detect overloads */
+  double Amin;    /* Value used to detect overloads */
+  double Aup;     /* Upper anomalous transition region */
+  double Alw;     /* Lower anomalous transition region */
 };
 
-#define P_OVERL		(2)
-#define P_HIGH		(1)
-#define PN_NORMAL	(0)
-#define N_HIGH		(-1)
-#define N_OVERL		(-2)
+#define P_OVERL   (2)
+#define P_HIGH    (1)
+#define PN_NORMAL (0)
+#define N_HIGH    (-1)
+#define N_OVERL   (-2)
 static const struct Stats_F Stats_F_Init = {
   0L, 0.0, 0.0, DBL_MAX, -DBL_MAX, 0L, 0L, 0L, PN_NORMAL, 0.0 };
- 
+
 static int
 CA_INpar (struct SpAct_P *SpPar, double Sfreq);
 static void
@@ -84,10 +84,10 @@ static void
 CA_INThresh (int Format, double ScaleF, struct Thresh_L *Thresh);
 static void
 CA_stats (struct Stats_F *Stats, const struct Thresh_L *Thresh,
-	  const double x[], int N, int Nsub);
+          const double x[], int N, int Nsub);
 static void
 CA_SAcount (struct SpAct_S *SpAct, const struct SpAct_P *SpPar,
-	    const double x[], int N, int Nsub);
+            const double x[], int N, int Nsub);
 static double
 CA_ActLevel (const long int a[], const double c[], double Sx2, double MdB);
 
@@ -97,7 +97,7 @@ CAstats (AFILE *AFp, long int Start, long int Nsamp, struct Stats_F Stats[])
 
 {
   double X[NBUF];
-  int eof, k, is, it, m, Nv, Nr, Nsub, SA;
+  int eof, k, is, i0, m, Nv, Nr, Nsub, SA;
   long int ioffs, Ns, Nrem, Nchan;
   struct SpAct_P SpPar;
   struct SpAct_S *SpAct;
@@ -105,34 +105,41 @@ CAstats (AFILE *AFp, long int Start, long int Nsamp, struct Stats_F Stats[])
   double Sxx;
 
   Nchan = AFp->Nchan;
-  if (Nchan > 2)
+  if (Nchan > CA_MaxNchan)
     Nchan = 1;
 
   /* Turn off speech activity factor calculations for non-speech files - the
      active level will be returned as zero */
   SA = (AFp->Nchan <= 2 &&
-	AFp->Sfreq >= SA_SFREQ_L && AFp->Sfreq <= SA_SFREQ_U);
+        AFp->Sfreq >= SA_SFREQ_L && AFp->Sfreq <= SA_SFREQ_U);
 
-  /* Set up the speech activity measurement parameters */
-  Nsub = CA_INpar (&SpPar, AFp->Sfreq);
+  if (SA) {
+    /* Set up the speech activity measurement parameters */
+    Nsub = CA_INpar (&SpPar, AFp->Sfreq);
 
-  /* Allocate storage for the speech activity variables structure */
-  SpAct = (struct SpAct_S *) UTmalloc (Nchan * (sizeof (struct SpAct_S)));
+    /* Allocate storage for the speech activity variables structure */
+    SpAct = (struct SpAct_S *) UTmalloc (Nchan * (sizeof (struct SpAct_S)));
+  }
+  else {
+    Nsub = 1;
+    SpAct = NULL;
+  }
 
   for (k = 0; k < Nchan; ++k) {
 
     /* Initialize the statistics variables */
     Stats[k] = Stats_F_Init;
 
-    /* Initialize the speech activity variables */
-    CA_INcount (&SpAct[k]);
+    if (SA)
+      /* Initialize the speech activity variables */
+      CA_INcount (&SpAct[k]);
   }
 
   /* Initialize the data-specific thresholds */
   CA_INThresh (AFp->Format, AFp->ScaleF, &Thresh);
 
-  is = 0;
-  it = 0;
+  i0 = 0;     /* Index of first sample of channel 0 in the buffer */
+  is = 0;     /* Index of first subsampled sample of channel 0 in the buffer */
   ioffs = Start;
   eof = (Nsamp == AF_NSAMP_UNDEF);
   if (eof)
@@ -155,53 +162,53 @@ CAstats (AFILE *AFp, long int Start, long int Nsamp, struct Stats_F Stats[])
     for (k = 0; k < Nchan; ++k) {
 
       /* Gather statistics */
-      m = (it + k) % Nchan;	/* Offset, 0 to Nchan-1 */
+      m = (i0 + k) % Nchan; /* Offset, 0 to Nchan-1 */
       if (m < Nv)
-	CA_stats (&Stats[k], &Thresh, &X[m], Nv - m, Nchan);
+        CA_stats (&Stats[k], &Thresh, &X[m], Nv - m, Nchan);
 
-      /* Update the speech activity counts */
+      /* Update the speech activity counts (subsampled buffer) */
       if (SA) {
-	m = (is + k) % (Nsub*Nchan);
-	if (m < Nv)
-	  CA_SAcount (&SpAct[k], &SpPar, &X[m], Nv - m, Nsub*Nchan);
+        m = (is + k) % (Nsub*Nchan);
+        if (m < Nv)
+          CA_SAcount (&SpAct[k], &SpPar, &X[m], Nv - m, Nsub*Nchan);
       }
     }
-    it += Nchan * ICEILV (Nv - it, Nchan) - Nv;
-    is += (Nsub*Nchan) * ICEILV (Nv - is, Nsub*Nchan) - Nv;
+    i0 += RNDUPV (Nv - i0, Nchan) - Nv;
+    is += RNDUPV (Nv - is, Nsub*Nchan) - Nv;
   }
   /* Buffer pointers
-     - Consider a block of samples, size Nchan
-     - The pointer it gives the first sample from the channel 0 in the
-       current buffer.  This value may point beyond the buffer end if there are
-       no samples from channel 0 in the current buffer.
+     - Consider a block of Nv samples
+     - The pointer i0 gives the first sample from channel 0 in the current
+       buffer.  This value may point beyond the buffer end if there are no
+       samples from channel 0 in the current buffer.
      - m(k) is a pointer to the first sample in the buffer for channel k.  Note
-       that m can be less than it (partial block of samples before the first
+       that m(k) can be less than i0 (partial block of samples before the first
        channel 0 sample), or m(k) can be larger than and equal to Nv (no
        samples from channel k in the buffer).
      - After processing a block of samples (possibly with no actual updates
-       of the statistics, i.e. Nv-m(k) < 0 for all channels), it is updated to
+       of the statistics, i.e. Nv-m(k) < 0 for all channels), i0 is updated to
        point to the first sample for channel 0 in the next buffer.  First
        consider appending new samples to the current buffer.  The first sample
        for channel 0 in the new part of the buffer is a multiple of Nchan
-       beyond it and larger than or equal to Nv-it.
-         ix = it + Nchan * ICEILV (Nv-it,Nchan).
-       The new value of it is this value decreased by Nv, since the new buffer
+       beyond i0 and larger than or equal to Nv-i0.
+         ix = i0 + RNDUPV (Nv-i0,Nchan).
+       The new value of i0 is this value decreased by Nv, since the new buffer
        will overwrite the old buffer,
-         it = it + Nchan * ICEILV (Nv-it,Nchan) - Nv.
-       This expression always gives a positive value of it.
+         i0 = i0 + RNDUPV (Nv-i0,Nchan) - Nv.
+       This expression always gives a non-negative value of i0.
   */
 
 /* Calculate the active speech level */
-  for (k = 0; k < Nchan; ++k) {
-    Ns = Stats[k].N / Nsub;	/* Number of subsampled values */
-    Sxx = 0.0;
-    if (Ns > 0)
-      Sxx = Ns * (Stats[k].Sx2 / Stats[k].N);
-    Stats[k].ActLev = CA_ActLevel (SpAct[k].a, SpPar.c, Sxx, MDB);
+  if (SA) {
+    for (k = 0; k < Nchan; ++k) {
+      Ns = Stats[k].N / Nsub; /* Number of subsampled values */
+      Sxx = 0.0;
+      if (Ns > 0)
+        Sxx = Ns * (Stats[k].Sx2 / Stats[k].N);
+      Stats[k].ActLev = CA_ActLevel (SpAct[k].a, SpPar.c, Sxx, MDB);
+    }
+    UTfree (SpAct);
   }
-
-  UTfree (SpAct);
-
   return;
 }
 
@@ -212,10 +219,10 @@ CAstats (AFILE *AFp, long int Start, long int Nsamp, struct Stats_F Stats[])
    least EFREQ
 */
 
-#define EFREQ	1000.0		/* Samping frequency for speech activity */
-#define HSEC	0.2		/* Hangover time (seconds) */
-#define T	0.03		/* Envelope time constant (seconds) */
-#define MAXC	0.5		/* Largest threshold */
+#define EFREQ 1000.0   /* Samping frequency for speech activity */
+#define HSEC  0.2      /* Hangover time (seconds) */
+#define T 0.03         /* Envelope time constant (seconds) */
+#define MAXC  0.5      /* Largest threshold */
 
 static int
 CA_INpar (struct SpAct_P *SpPar, double Sfreq)
@@ -265,19 +272,21 @@ static void
 CA_INThresh (int Format, double ScaleF, struct Thresh_L *Thresh)
 
 {
-  static const struct Thresh_L Thresh_T[NFD] = {
-    /*    Amax           Amin           Aup            Alw  */
-  {          0.0,           0.0,          0.0,           0.0}, /* Undefined */
-  {      32124.0,      -32124.0,      16384.0,      -16384.0}, /* mu-law */
-  {      32256.0,      -32256.0,      16384.0,      -16384.0}, /* A-law */
-  {      32767.0,      -32768.0,      16384.0,      -16384.0}, /* 8-b Uint */
-  {      32767.0,      -32768.0,      16384.0,      -16384.0}, /* 8-b int */
-  {      32767.0,      -32768.0,      16384.0,      -16384.0}, /* 16-b int */
-  {    8388607.0,    -8388608.0,    4194304.0,    -4194304.0}, /* 24-b int */
-  { 2147483647.0, -2147483648.0, 1073741824.0, -1073741824.0}, /* 32-b int */
-  {          1.0,          -1.0,          0.5,          -0.5}, /* 32-b float */
-  {          1.0,          -1.0,          0.5,          -0.5}, /* 64-b float */
-  {          1.0,          -1.0,          0.5,          -0.5}, /* text */
+  static const struct Thresh_L Thresh_T[] = {
+    /*     Amax          Amin          Aup          Alw  */
+  {          0.,           0.,          0.,           0.}, /* Undefined */
+  {      32256.,      -32256.,      16384.,      -16384.}, /* A-law */
+  {      32124.,      -32124.,      16384.,      -16384.}, /* mu-law */
+  {      32124.,      -32124.,      16384.,      -16384.}, /* mu-lawR */
+  {      32767.,      -32768.,      16384.,      -16384.}, /* 8-b uint */
+  {      32767.,      -32768.,      16384.,      -16384.}, /* 8-b int */
+  {      32767.,      -32768.,      16384.,      -16384.}, /* 16-b int */
+  {    8388607.,    -8388608.,    4194304.,    -4194304.}, /* 24-b int */
+  { 2147483647., -2147483648., 1073741824., -1073741824.}, /* 32-b int */
+  {          1.,          -1.,         0.5,         -0.5}, /* 32-b float */
+  {          1.,          -1.,         0.5,         -0.5}, /* 64-b float */
+  {      32767.,      -32768.,      16384.,      -16384.}, /* text16 */
+  {          1.,          -1.,         0.5,         -0.5}, /* text */
   };
 
   /* Thresholds to determine the sample region
@@ -288,7 +297,8 @@ CA_INThresh (int Format, double ScaleF, struct Thresh_L *Thresh)
     Amax <= x              Positive overload
   */
 
-  assert (Format >= 1 && Format <= NFD-1);
+  assert (Format >= 1 && Format < AF_NFD);
+  assert (NELEM (Thresh_T) == AF_NFD);
 
   *Thresh = Thresh_T[Format];
   if (ScaleF == 0.0)
@@ -305,12 +315,12 @@ CA_INThresh (int Format, double ScaleF, struct Thresh_L *Thresh)
 
 static void
 CA_stats (struct Stats_F *Stats, const struct Thresh_L *Thresh,
-	  const double x[], int N, int Nsub)
+          const double x[], int N, int Nsub)
 
 {
   double Sx, Sx2;
   int i;
-  
+
   Sx = 0.0;
   Sx2 = 0.0;
   for (i = 0; i < N; i += Nsub) {
@@ -324,28 +334,28 @@ CA_stats (struct Stats_F *Stats, const struct Thresh_L *Thresh,
     /* Detect overloads and anomalous transitions */
     if (x[i] >= Thresh->Aup) {
       if (x[i] >= Thresh->Amax) {
-	++Stats->Novload;
-	if (Stats->Region != P_OVERL)
-	  ++Stats->Nrun;
-	Stats->Region = P_OVERL;
+        ++Stats->Novload;
+        if (Stats->Region != P_OVERL)
+          ++Stats->Nrun;
+       Stats->Region = P_OVERL;
       }
       else {
-	if (Stats->Region == N_HIGH)
-	  ++Stats->Nanomal;
-	Stats->Region = P_HIGH;
+        if (Stats->Region == N_HIGH)
+          ++Stats->Nanomal;
+        Stats->Region = P_HIGH;
       }
     }
     else if (x[i] <= Thresh->Alw) {
       if (x[i] <= Thresh->Amin) {
-	++Stats->Novload;
-	if (Stats->Region != N_OVERL)
-	  ++Stats->Nrun;
-	Stats->Region = N_OVERL;
+        ++Stats->Novload;
+      if (Stats->Region != N_OVERL)
+        ++Stats->Nrun;
+      Stats->Region = N_OVERL;
       }
       else {
-	if (Stats->Region == P_HIGH)
-	  ++Stats->Nanomal;
-	Stats->Region = N_HIGH;
+        if (Stats->Region == P_HIGH)
+          ++Stats->Nanomal;
+        Stats->Region = N_HIGH;
       }
     }
     else {
@@ -364,19 +374,19 @@ CA_stats (struct Stats_F *Stats, const struct Thresh_L *Thresh,
 
 /* Update the speech activity counts */
 
-#define P	SpAct->p
-#define Q	SpAct->q
-#define A	SpAct->a
-#define H	SpAct->h
+#define P SpAct->p
+#define Q SpAct->q
+#define A SpAct->a
+#define H SpAct->h
 
-#define C	SpPar->c
-#define G	SpPar->g
-#define HI	SpPar->I
+#define C SpPar->c
+#define G SpPar->g
+#define HI  SpPar->I
 
 
 static void
 CA_SAcount (struct SpAct_S *SpAct, const struct SpAct_P *SpPar,
-	    const double x[], int N, int Nsub)
+            const double x[], int N, int Nsub)
 
 {
   int i, j;
@@ -391,15 +401,15 @@ CA_SAcount (struct SpAct_S *SpAct, const struct SpAct_P *SpPar,
     /* Update the envelope activity counts */
     for (j = 0; j < NTHR; ++j) {
       if (Q >= C[j]) {
-	++A[j];
-	H[j] = 0;
+        ++A[j];
+        H[j] = 0;
       }
       else if (H[j] < HI) {
-	++A[j];
-	++H[j];
+        ++A[j];
+        ++H[j];
       }
       else
-	break;
+        break;
     }
   }
 
@@ -428,27 +438,27 @@ CA_ActLevel (const long int a[], const double c[], double Sx2, double MdB)
   double ActLev, Mln, Alnj, Clnj, dACj, alpha, Alno, Alnjp, dACjp;
   int j;
 
-  Alnjp = 0.0;	/* Stop compiler warning */
+  Alnjp = 0.0;  /* Stop compiler warning */
   dACjp = 0.0;
 
   /* Default return value */
   ActLev = 0.0;
 
-  Mln = MdB * log(10.0) / 10.0;		/* log (m), where m = 10^(M/10) */
+  Mln = MdB * log(10.0) / 10.0;   /* log (m), where m = 10^(M/10) */
 
   /* Find the solution to Aln - Cln = Mln */
   /* Calculations are carried out in natural logs */
   for (j = 0; j < NTHR; ++j) {
-    if (a[j] == 0)		/* a[j] is a decreasing function of j */
+    if (a[j] == 0)    /* a[j] is a decreasing function of j */
       break;
 
-    Alnj = log (Sx2 / a[j]);		/* Assume Sx2 > 0, since a[j] > 0 */
-    Clnj = 2.0 * log (c[j]);		/* log (c[j]^2) */
+    Alnj = log (Sx2 / a[j]);    /* Assume Sx2 > 0, since a[j] > 0 */
+    Clnj = 2.0 * log (c[j]);    /* log (c[j]^2) */
     dACj = Alnj - Clnj;
     if (j == 0) {
       if (dACj <= Mln) {
-	ActLev = exp (0.5 * Alnj);
-	break;
+        ActLev = exp (0.5 * Alnj);
+        break;
       }
     }
     else if (dACj <= Mln) {

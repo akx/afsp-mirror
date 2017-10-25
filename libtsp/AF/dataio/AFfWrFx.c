@@ -10,11 +10,11 @@ Purpose:
   Write 64-bit float data to an audio file (float input values)
 
 Description:
-  This routine writes a specified number of float samples to an audio file.
+  These routines write a specified number of float samples to an audio file.
   The input to this routine is a buffer of float values.
 
 Parameters:
-  <-  int AFfWrFx
+  <-  int AFdWrFx
       Number of samples written.  If this value is less than Nval, an error
       has occurred.
    -> AFILE *AFp
@@ -25,22 +25,17 @@ Parameters:
       Number of samples to be written
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 20:14:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.3 $  $Date: 2017/05/24 16:09:37 $
 
 -------------------------------------------------------------------------*/
 
+#include <AFpar.h>
 #include <libtsp/AFdataio.h>
-#include <libtsp/AFpar.h>
 #include <libtsp/UTtypes.h>
 
-#define LW4		FDL_FLOAT32
-#define LW8		FDL_FLOAT64
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define NBBUF		8192
-
-#define FWRITE(buf,size,nv,fp)	(int) fwrite ((const char *) buf, \
-					      (size_t) size, (size_t) nv, fp)
+#define LW4   FDL_FLOAT32
+#define LW8   FDL_FLOAT64
 
 
 int
@@ -49,22 +44,15 @@ AFfWrF4 (AFILE *AFp, const float Dbuff[], int Nval)
 {
   int is, N, Nw, i;
   UT_float4_t Buf[NBBUF/LW4];
-  unsigned char *cp;
-  unsigned char t;
-  double g;
 
 /* Write data to the audio file */
   is = 0;
-  g = AFp->ScaleF;
   while (is < Nval) {
     N = MINV (NBBUF / LW4, Nval - is);
     for (i = 0; i < N; ++i) {
-      Buf[i] = (UT_float4_t) (g * Dbuff[i+is]);
-      if (AFp->Swapb == DS_SWAP) {
-	cp = (unsigned char *) &Buf[i];
-	t = cp[3]; cp[3] = cp[0]; cp[0] = t;
-	t = cp[2]; cp[2] = cp[1]; cp[1] = t;
-      }
+      Buf[i] = (UT_float4_t) (AFp->ScaleF * Dbuff[i+is]);
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP4 (&Buf[i]);
     }
     Nw = FWRITE (Buf, LW4, N, AFp->fp);
     is += Nw;
@@ -81,24 +69,15 @@ AFfWrF8 (AFILE *AFp, const float Dbuff[], int Nval)
 {
   int is, N, Nw, i;
   UT_float8_t Buf[NBBUF/LW8];
-  unsigned char *cp;
-  unsigned char t;
-  double g;
 
 /* Write data to the audio file */
   is = 0;
-  g = AFp->ScaleF;
   while (is < Nval) {
     N = MINV (NBBUF / LW8, Nval - is);
     for (i = 0; i < N; ++i) {
-      Buf[i] = (UT_float8_t) (g * Dbuff[i+is]);
-      if (AFp->Swapb == DS_SWAP) {
-	cp = (unsigned char *) &Buf[i];
-	t = cp[7]; cp[7] = cp[0]; cp[0] = t;
-	t = cp[6]; cp[6] = cp[1]; cp[1] = t;
-	t = cp[5]; cp[5] = cp[2]; cp[2] = t;
-	t = cp[4]; cp[4] = cp[3]; cp[3] = t;
-      }
+      Buf[i] = AFp->ScaleF * Dbuff[i+is];
+      if (AFp->Swapb == DS_SWAP)
+        BSWAP8 (&Buf[i]);
     }
     Nw = FWRITE (Buf, LW8, N, AFp->fp);
     is += Nw;

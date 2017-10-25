@@ -11,6 +11,7 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libtsplite.a
 
@@ -24,22 +25,20 @@ $(LIB): \
 	$(LIB)(FLbaseName.o) \
 	$(LIB)(FLdefName.o) \
 	$(LIB)(FLdirName.o) \
-	$(LIB)(FLexpHome.o) \
 	$(LIB)(FLextName.o) \
 	$(LIB)(FLfileDate.o) \
 	$(LIB)(FLfullName.o) \
 	$(LIB)(FLgetLine.o) \
-	$(LIB)(FLgetRec.o) \
-	$(LIB)(FLhomeDir.o) \
 	$(LIB)(FLpathList.o) \
-	$(LIB)(FLpreName.o) \
 	#
 	ranlib $(LIB)
 
 nucleus_routines:
 	@(test -d nucleus && (cd nucleus; $(MAKE))) || true
 	@(test -d dataio && (cd dataio; $(MAKE))) || true
+	@(test -d deprecated && (cd deprecated; $(MAKE))) || true
 	@(test -d header && (cd header; $(MAKE))) || true
+	@(test -d info && (cd info; $(MAKE))) || true
 
 mostlyclean:
 	rm -f *.o */*.o

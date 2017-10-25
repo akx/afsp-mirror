@@ -9,7 +9,7 @@ Purpose:
 
 Description:
   This routine determines if an I/O stream associated with a given file pointer
-  is random access.
+  is random access, i.e. a regular file.
 
 Parameters:
   <-  int FLseekable
@@ -18,24 +18,24 @@ Parameters:
       File pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.12 $  $Date: 2009/03/01 21:07:11 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.16 $  $Date: 2017/06/09 14:59:08 $
 
 ----------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_NONSTDC_NO_DEPRECATE  /* Allow Posix names */
 #endif
 
-#include <stdio.h>	/* fileno (Section 8.2.1.1 of Posix) */
+#include <stdio.h>  /* fileno (Section 8.2.1.1 of Posix) */
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include <libtsp/nucleus.h>
 
-#ifndef S_ISREG		/* Defined by POSIX */
-#  define S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)
+#ifndef S_ISREG     /* Defined by POSIX */
+#  define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
 #endif
 
 

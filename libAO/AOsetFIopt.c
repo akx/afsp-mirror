@@ -16,6 +16,7 @@ Description:
   will leave NsampND and RAccess at their default settings.
 
 Parameters:
+  <-  void AOsetFIopt
    -> const struct AO_FIpar *FI
       Input file parameters
    -> int NsampND
@@ -29,12 +30,11 @@ Parameters:
       1 - File must be random access
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.3 $  $Date: 2003/05/09 12:32:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.9 $  $Date: 2017/06/13 12:28:53 $
 
 -------------------------------------------------------------------------*/
 
-#include <libtsp/AFpar.h>
 #include <AO.h>
 
 
@@ -42,14 +42,10 @@ void
 AOsetFIopt (const struct AO_FIpar *FI, int NsampND, int RAccess)
 
 {
-  struct AF_opt *AFopt;
-
-  AFopt = AFoptions ();
-
-  AFopt->NsampND = NsampND;
-  AFopt->RAccess = RAccess;
-  AFopt->FtypeI = FI->Ftype;
-  AFopt->NHpar = FI->NHpar;
+  AFopt.NsampND = NsampND;
+  AFopt.RAccess = RAccess;
+  AFopt.FtypeI = FI->Ftype;
+  AFopt.InputPar = FI->InputPar;
 
   return;
 }

@@ -5,23 +5,27 @@ Routine:
   libtsp.h
 
 Description:
-  Function prototypes and declarations for the TSP library routines
+  Function prototypes and declarations for the libtsp library routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 2.104 $  $Date: 2005/02/01 13:22:34 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 2.117 $  $Date: 2017/06/13 13:22:06 $
 
 ----------------------------------------------------------------------*/
 
 #ifndef libtsp_h_
 #define libtsp_h_
 
-#include <stdio.h>	/* typedef for FILE */
+#include <stdio.h>  /* typedef for FILE */
+
+enum AF_OPT_T;
+enum AF_FTW_T;
+enum AF_FD_T;
 
 /* Audio file parameter structure */
-#ifndef	AFILE_t_
+#ifndef AFILE_t_
 #  define AFILE_t_
-typedef struct AF_filepar AFILE;	/* Audio file parameters */
+typedef struct AF_filepar AFILE;  /* Audio file parameters */
 #endif
 
 #ifdef __cplusplus
@@ -41,26 +45,35 @@ int
 AFfWriteData (AFILE *AFp, const float Dbuff[], int Nval);
 AFILE *
 AFopnRead (const char Fname[], long int *Nsamp, long int *Nchan, double *Sfreq,
-	   FILE *fpinfo);
+           FILE *fpinfo);
 AFILE *
-AFopnWrite (const char Fname[], int Ftype, int Dformat, long int Nchan,
-	    double Sfreq, FILE *fpinfo);
+AFopnWrite (const char Fname[], enum AF_FTW_T FtypeW, enum AF_FD_T Format,
+            long int Nchan, double Sfreq, FILE *fpinfo);
+void
+AFprintChunkLims (const AFILE *AFp, FILE *fpinfo);
+void
+AFprintInfoRecs (const AFILE *AFp, FILE *fpinfo);
 int
 AFsetFileType (const char String[]);
 void
 AFsetInfo (const char Info[]);
 int
-AFsetNHpar (const char String[]);
+AFsetInputPar (const char String[]);
 int
 AFsetSpeaker(const char String[]);
 
-  /* Deprecated */
+/* ----- AF extras ------ */
+/* This prototype is also in libtsp/nucleus.h */
+struct AF_opt *
+AFoptions (enum AF_OPT_T Cat);
+
+/* Deprecated */
 AFILE *
 AFopenRead (const char Fname[], long int *Nsamp, long int *Nchan, float *Sfreq,
-	    FILE *fpinfo);
+            FILE *fpinfo);
 AFILE *
 AFopenWrite (const char Fname[], int Fformat, long int Nchan, double Sfreq,
-	     FILE *fpinfo);
+             FILE *fpinfo);
 int
 AFreadData (AFILE *AFp, long int offs, float Dbuff[], int Nreq);
 int
@@ -72,19 +85,19 @@ void
 FIdBiquad (const double x[], double y[], int Nout, const double h[5]);
 void
 FIdConvSI (const double x[], double y[], int Nout, const double h[], int Ncof,
-	  int mr, int Nsub, int Ir);
+           int mr, int Nsub, int Ir);
 void
 FIdConvol (const double x[], double y[], int Nout, const double h[], int Ncof);
 void
 FIdFiltAP (const double x[], double y[], int Nout, const double p[], int Np);
 void
 FIdFiltIIR (const double x[], double y[], int Nout, const double h[][5],
-	    int Nsec);
+            int Nsec);
 void
 FIdKaiserLPF (double h[], int N, double Fc, double alpha);
 int
 FIdReadFilt (const char Fname[], int MaxNcof, double h[], int *Ncof,
-	     FILE *fpinfo);
+             FILE *fpinfo);
 void
 FIdWinHamm (double win[], int N, double a);
 void
@@ -93,7 +106,7 @@ void
 FIfBiquad (const float x[], float y[], int Nout, const float h[5]);
 void
 FIfConvSI (const float x[], float y[], int Nout, const float h[], int Ncof,
-	  int mr, int Nsub, int Ir);
+           int mr, int Nsub, int Ir);
 void
 FIfConvol (const float x[], float y[], int Nout, const float h[], int Ncof);
 void
@@ -102,14 +115,14 @@ void
 FIfFiltAP (const float x[], float y[], int Nout, const float p[], int Np);
 void
 FIfFiltIIR (const float x[], float y[], int Nout, const float h[][5],
-	    int Nsec);
+            int Nsec);
 void
 FIfKaiserLPF (float h[], int N, double Fc, double alpha);
 void
 FIfPreem (double a, float *Fmem, const float x[], float y[], int Nout);
 int
 FIfReadFilt (const char Fname[], int MaxNcof, float h[], int *Ncof,
-	     FILE *fpinfo);
+             FILE *fpinfo);
 void
 FIfWinHCos (float win[], double T1, double T2, double T3, double a);
 void
@@ -184,7 +197,7 @@ void
 MAdFreeMat (double *A[]);
 void
 MAdPrint (FILE *fp, const char Header[], const double *A[], int Nrow,
-	  int Ncol);
+          int Ncol);
 float **
 MAfAllocMat (int Nrow, int Ncol);
 int
@@ -205,40 +218,40 @@ int
 MAfTpSolve (const float R[], const float g[], float c[], int N);
 void
 MAiPrint (FILE *fp, const char Header[], const int *A[], int Nrow,
-	  int Ncol);
+          int Ncol);
 void
 MAlPrint (FILE *fp, const char Header[], const long int *A[], int Nrow,
-	  int Ncol);
+          int Ncol);
 
 /* ----- MS Prototypes ----- */
 int
 MSdConvCof (const double x[], int Nx, const double y[], int Ny, double z[]);
 int
 MSdDeconvCof (const double u[], int Nu, const double v[], int Nv,
-	      double q[], double r[]);
+              double q[], double r[]);
 void
 MSdIntLin (const double x[], const double y[], int N, const double xi[],
-	   double yi[], int Ni);
+           double yi[], int Ni);
 void
 MSdIntMC (const double x[], const double y[], int N, const double xi[],
-	  double yi[], int Ni);
+          double yi[], int Ni);
 int
 MSdLocate (double x, const double T[], int N);
 double
 MSdNint (double x);
 double
 MSdPolyInt (double x, const double xa[], const double ya[], int N,
-	    double buff[]);
+            double buff[]);
 int
 MSfConvCof (const float x[], int Nx, const float y[], int Ny, float z[]);
 double
 MSfGaussRand (double rms);
 void
 MSfIntLin (const float x[], const float y[], int N, const float xi[],
-	   float yi[], int Ni);
+           float yi[], int Ni);
 void
 MSfIntMC (const float x[], const float y[], int N, const float xi[],
-	  float yi[], int Ni);
+          float yi[], int Ni);
 double
 MSfUnifRand (void);
 int
@@ -255,7 +268,7 @@ void
 MSrandSeed (int seed);
 void
 MSratio (double Val, long int *N, long int *D, double tol, long int MaxN,
-	 long int MaxD);
+         long int MaxD);
 
 /* ----- SP Prototypes ----- */
 void
@@ -270,7 +283,7 @@ double
 SPcorFilt (double Ed, const float rxx[], const float r[], float h[], int N);
 double
 SPcorFmse (const float h[], double Ed, const float rxx[], const float r[],
-	   int N);
+           int N);
 double
 SPcorPmse (const float pc[], const float rxx[], int Np);
 double
@@ -281,7 +294,7 @@ double
 SPcovFilt (double Ed, const float *R[], const float r[], float h[], int N);
 double
 SPcovFmse (const float h[], double Ed, const float *R[], const float r[],
-	   int N);
+           int N);
 double
 SPcovLXpc (const float *Cov[], float pc[], int Np);
 double
@@ -349,6 +362,8 @@ STdec1int (const char String[], int *Ival);
 int
 STdec1long (const char String[], long int *Lval);
 int
+STdec1ulong (const char String[], unsigned long int *Uval);
+int
 STdecDfrac (const char String[], double *Dval1, double *Dval2);
 int
 STdecIfrac (const char String[], int *Ival1, int *Ival2);
@@ -364,15 +379,17 @@ int
 STdecNint (const char String[], int Nmin, int Nmax, int Ival[], int *N);
 int
 STdecNlong (const char String[], int Nmin, int Nmax, long int Lval[],
-	    int *N);
+            int *N);
+int
+STdecSrange (const char String[], int *I1, int *I2, const char *SymTab[]);
 char *
 STfindToken (const char String[], const char Delims[], const char Quotes[],
-	     char Token[], int WSFlag, int Maxchar);
+             char Token[], int WSFlag, int Maxchar);
 int
 STkeyMatch (const char String[], const char *KeyTable[]);
 int
 STkeyXpar (const char Line[], const char Delims[], const char Quotes[],
-	   const char *Keytable[], char Par[]);
+           const char *Keytable[], char Par[]);
 int
 STstrLC (const char Si[], char So[]);
 int
@@ -389,7 +406,7 @@ void
 UTfree (void *ptr);
 int
 UTgetOption (int *Index, const int argc, const char *argv[],
-	     const char *OptTable[], const char **OptArg);
+             const char *OptTable[], const char **OptArg);
 char *
 UTgetProg (void);
 void

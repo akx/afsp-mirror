@@ -12,14 +12,15 @@ Description:
     y[i] = 0.0,  0 <= i < N.
 
 Parameters:
+  <-  void VRdZero
   <-  double y[]
       Array of doubles (N elements)
    -> int N
       Number of elements
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.7 $  $Date: 2003/05/09 03:33:10 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.8 $  $Date: 2017/06/12 18:58:08 $
 
 -------------------------------------------------------------------------*/
 

@@ -7,9 +7,10 @@ Purpose:
   Get file format information from an NSP file
 
 Description:
-  This routine reads the header for an NSP file.  The header information
-  is used to set the file data format information in the audio file pointer
-  structure.
+  This routine reads the header for an NSP file.  The header information is used
+  to set the file data format information in the audio file pointer structure.
+  This routine sets up for reading of the first of the SD_A, SD_B, or SDAB data
+  chunks. Other data chunks are ignored.
 
   WAVE file:
    Offset Length Type    Contents
@@ -31,6 +32,10 @@ Description:
      +8     4    int      Data length (bytes) for channel A, B or A and B
       D   ...    ...    Audio data
 
+  For NSP files text information as a "NOTE" chunk in the header.  This
+  information is stored as a "comment:" information record in the audio file
+  parameter structure.
+
 Parameters:
   <-  AFILE *AFrdNShead
       Audio file pointer for the audio file
@@ -38,48 +43,43 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.9 $  $Date: 2009/03/11 20:08:23 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.25 $  $Date: 2017/06/09 15:05:52 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_SECURE_NO_WARNINGS     /* Allow sprintf */
 #endif
 
-#include <assert.h>
 #include <setjmp.h>
 #include <string.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
+#include <libtsp/nucleus.h>     /* FLseekable */
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFheader.h>
+#include <libtsp/AFinfo.h>
 #include <libtsp/AFmsg.h>
-#include <libtsp/AFpar.h>
-#include <libtsp/nucleus.h>
 #include <libtsp/UTtypes.h>
 
-#define ICEILV(n,m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
-#define RNDUPV(n,m)	((m) * ICEILV (n, m))		/* Round up */
+#define ALIGN   2 /* Chunks padded out to a multiple of ALIGN */
 
-#define SAME_CSTR(str,ref) 	(memcmp (str, ref, sizeof (str)) == 0)
-
-#define ALIGN		2	/* Chunks padded out to a multiple of ALIGN */
-
-#define NS_HEDR_SIZE	32
-#define NS_LHMIN	(8 + 4 + 8 + NS_HEDR_SIZE + 8)
-#define NS_MAXABS_UNDEF	(UT_UINT2_MAX)
+#define NS_HEDR_SIZE  32
+#define NS_LHMIN  (8 + 4 + 8 + NS_HEDR_SIZE + 8)
+#define NS_MAXABS_UNDEF (UT_UINT2_MAX)
 
 /* setjmp / longjmp environment */
 extern jmp_buf AFR_JMPENV;
 
-AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
+AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
-/* NSP files are created by the Computerized Speech Lab software.  Files
-   in this format are also used by STR for their PDB phonetic database.
-   Information as to the format has been gleaned from the sources for
-   WaveSurfer and from the file headers themselves.
+/* NSP files are created by the Computerized Speech Lab software.  Files in this
+   format are also used by STR for their PDB phonetic database.  Information as
+   to the format has been gleaned from the sources for WaveSurfer and from the
+   file headers themselves.
 */
 
 struct NS_CkPreamb {
@@ -105,9 +105,9 @@ struct NS_CkHEDR {
 static int
 AF_rdFORM_DS16 (FILE *fp, struct NS_CkFORM *CkFORM);
 static int
-AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *InfoX);
+AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_info *RInfo);
 static void
-AF_setIval (const char Ident[], int Ival, struct AF_infoX *InfoX);
+AF_setIval (const char Ident[], int Ival, struct AF_info *RInfo);
 
 
 AFILE *
@@ -115,7 +115,7 @@ AFrdNShead (FILE *fp)
 
 {
   AFILE *AFp;
-  long int offs, LFORM;
+  long int offs, poffs, LFORM;
   char Info[AF_MAXINFO];
   struct NS_CkFORM CkFORM;
   struct NS_CkHEDR CkHEDR;
@@ -124,61 +124,72 @@ AFrdNShead (FILE *fp)
 
 /* Set the long jump environment; on error return a NULL */
   if (setjmp (AFR_JMPENV))
-    return NULL;	/* Return from a header read error */
+    return NULL;  /* Return from a header read error */
 
-/* Defaults and inital values */
+/* Defaults and initial values */
   AFr = AFr_default;
-  AFr.InfoX.Info = Info;
-  AFr.InfoX.Nmax = AF_MAXINFO;
+  AFr.RInfo.Info = Info;
+  AFr.RInfo.N = 0;
+  AFr.RInfo.Nmax = sizeof (Info);
   AFr.NData.Nchan = 0L;
 
 /* Check the file magic for an NSP file */
   if (AF_rdFORM_DS16 (fp, &CkFORM))
     return NULL;
-  offs = 12L;	/* Positioned after FORM/DS16 preamble */
+  offs = 12L; /* Positioned after FORM/DS16 preamble */
   LFORM = CkFORM.Size + 12;
+  AFsetChunkLim ("FORM", 0, 4, &AFr.ChunkInfo);
+  AFsetChunkLim ("DS16", 4, RNDUPV (LFORM-8, ALIGN), &AFr.ChunkInfo);
 
   while (offs < LFORM) {
+
+    poffs = offs;     /* Position at start of chunk */
 
     /* Read the chunk preamble */
     offs += RHEAD_S (fp, CkHead.ckID);
 
     /* HEDR or HDR8 chunk */
     if (SAME_CSTR (CkHead.ckID, "HEDR") || SAME_CSTR (CkHead.ckID, "HDR8")) {
-      offs += AF_rdHEDR (fp, &CkHEDR, &AFr.InfoX);
+      offs += AF_rdHEDR (fp, &CkHEDR, &AFr.RInfo);
       AFr.Sfreq = (double) CkHEDR.Srate;
       AFr.DFormat.Format = FD_INT16;
       AFr.DFormat.Swapb = DS_EL;
       AFr.NData.Nsamp = CkHEDR.Nsamp;
       if (CkHEDR.MaxAbsA != NS_MAXABS_UNDEF)
-	AF_setIval ("max_abs_A: ", CkHEDR.MaxAbsA, &AFr.InfoX);
+        AF_setIval ("max_abs_A: ", CkHEDR.MaxAbsA, &AFr.RInfo);
       if (CkHEDR.MaxAbsB != NS_MAXABS_UNDEF)
-	AF_setIval ("max_abs_B: ", CkHEDR.MaxAbsB, &AFr.InfoX);
+        AF_setIval ("max_abs_B: ", CkHEDR.MaxAbsB, &AFr.RInfo);
+      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
 
     /* NOTE chunk */
     else if (SAME_CSTR (CkHead.ckID, "NOTE")) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += AFrdTextAFsp (fp, CkHead.ckSize, "note: ", &AFr.InfoX, ALIGN);
-    }
+      offs += AFrdInfoIdentText (fp, CkHead.ckSize, "comment:", &AFr.RInfo,
+                                 ALIGN);
+     AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
+   }
 
     /* SDA_, SD_B or SDAB chunk */
-    else if (SAME_CSTR (CkHead.ckID, "SDA_") || 
-	     SAME_CSTR (CkHead.ckID, "SD_B") ||
-	     SAME_CSTR (CkHead.ckID, "SDAB")) {
+    else if (SAME_CSTR (CkHead.ckID, "SDA_") ||
+             SAME_CSTR (CkHead.ckID, "SD_B") ||
+             SAME_CSTR (CkHead.ckID, "SDAB")) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
       if (SAME_CSTR (CkHead.ckID, "SDAB"))
-	AFr.NData.Nchan = 2;
+        AFr.NData.Nchan = 2;
       else
-	AFr.NData.Nchan = 1;
+        AFr.NData.Nchan = 1;
       AFr.NData.Ldata = CkHead.ckSize;
-      break;		/* Leave loop positioned at beginning of data */
+      AFsetChunkLim (CkHead.ckID, poffs, RNDUPV (CkHead.ckSize + 8, ALIGN),
+                     &AFr.ChunkInfo);
+      break;    /* Leave loop positioned at beginning of data */
     }
 
     /* Miscellaneous chunks */
     else {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
       offs += RSKIP (fp, RNDUPV (CkHead.ckSize, ALIGN));
+      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
   }
 
@@ -233,7 +244,7 @@ AF_rdFORM_DS16 (FILE *fp, struct NS_CkFORM *CkFORM)
 
 
 static int
-AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *InfoX) 
+AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_info *RInfo)
 
 {
   int offs;
@@ -244,7 +255,7 @@ AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *InfoX)
     longjmp (AFR_JMPENV, 1);
   }
 
-  offs += AFrdTextAFsp (fp, 20, "date: ", InfoX, ALIGN);
+  offs += AFrdInfoIdentText (fp, 20, "date:", RInfo, ALIGN);
   offs += RHEAD_V (fp, CkHEDR->Srate, DS_EL);
   offs += RHEAD_V (fp, CkHEDR->Nsamp, DS_EL);
   offs += RHEAD_V (fp, CkHEDR->MaxAbsA, DS_EL);
@@ -260,14 +271,14 @@ AF_rdHEDR (FILE *fp, struct NS_CkHEDR *CkHEDR, struct AF_infoX *InfoX)
 
 
 static void
-AF_setIval (const char Ident[], int Ival, struct AF_infoX *InfoX)
+AF_setIval (const char Ident[], int Ival, struct AF_info *RInfo)
 
 {
   int Nv;
   char str[20];
 
-  Nv = sprintf (str, "%d", Ival); 
-  AFaddAFspRec (Ident, str, Nv, InfoX);
+  Nv = sprintf (str, "%d", Ival);
+  AFaddInfoRec (Ident, str, Nv, RInfo);
 
   return;
 }

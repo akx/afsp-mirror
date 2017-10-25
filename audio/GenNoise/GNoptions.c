@@ -24,19 +24,19 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.35 $  $Date: 2003/11/06 13:24:09 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.37 $  $Date: 2017/05/26 20:24:11 $
 
 ----------------------------------------------------------------------*/
 
 #include <assert.h>
 
 #include <libtsp.h>
-#include <libtsp/AFpar.h>
+#include <AFpar.h>
 #include <AO.h>
 #include "GenNoise.h"
 
-#define ERRSTOP(text,par)	UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
+#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
 
 /* Option table */
 static const char *OptTable[] = {
@@ -48,7 +48,7 @@ static const char *OptTable[] = {
 
 void
 GNoptions (int argc, const char *argv[], double *rms, int *seed,
-	   struct GN_FOpar *FO)
+           struct GN_FOpar *FO)
 
 {
   const char *OptArg;
@@ -95,21 +95,21 @@ GNoptions (int argc, const char *argv[], double *rms, int *seed,
       /* Filename argument */
       ++nF;
       if (nF > 1)
-	UThalt ("%s: %s", PROGRAM, GNM_XFName);
+        UThalt ("%s: %s", PROGRAM, GNM_XFName);
       STcopyMax (OptArg, FO->Fname, FILENAME_MAX-1);
       break;
     case 1:
     case 2:
       /* Standard deviation */
       if (STdecDfrac (OptArg, &Nv, &Dv) || Nv / Dv < 0.0)
-	ERRSTOP (GNM_BadStdDev, OptArg);
+        ERRSTOP (GNM_BadStdDev, OptArg);
       rmsx = Nv / Dv;
       break;
     case 3:
     case 4:
       /* Seed */
       if (STdec1int (OptArg, &seedx) || seedx < 0)
-	ERRSTOP (GNM_BadSeed, OptArg);
+        ERRSTOP (GNM_BadSeed, OptArg);
       break;
     default:
       assert (0);

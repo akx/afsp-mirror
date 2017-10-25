@@ -10,8 +10,9 @@ Purpose:
 Description:
   This routine gets file information for an audio file with a non-standard
   header or with no header.  File format information is passed to this routine
-  by calling AFsetNHpar before calling this routine.  This information is used
-  to set the file data format information in the audio file pointer structure.
+  by calling AFsetInputPar before calling this routine.  This information
+  used to set the file data format information in the audio file pointer
+  structure.
 
 Parameters:
   <-  AFILE *AFsetNHread
@@ -22,93 +23,56 @@ Parameters:
       File name
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.70 $  $Date: 2009/03/09 18:22:32 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.82 $  $Date: 2017/06/09 15:06:22 $
 
 -------------------------------------------------------------------------*/
 
-#include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
-#  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
-#  define _CRT_SECURE_NO_WARNINGS     /* Allow freopen */
-#endif
-
-#include <stdio.h>
-
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFheader.h>
 #include <libtsp/AFmsg.h>
-#include <libtsp/AFpar.h>
 
-#if (SY_OS != SY_OS_UNIX)
-#  include <io.h>	/* setmode */
-#  include <fcntl.h>	/* O_TEXT */
-#endif
-
-
-AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
+AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 
 AFILE *
-AFsetNHread (FILE *fp, const char Fname[])
+AFsetNHread (FILE *fp)
 
 {
   AFILE *AFp;
-  struct AF_NHpar *NHpar;
+  struct AF_InputPar *InputPar;
   struct AF_read AFr;
 
-/* Defaults and inital values */
+/* Defaults and initial values */
   AFr = AFr_default;
 
 /* Get the file data parameters */
-  NHpar = &((AFoptions ())->NHpar);
+  InputPar = &AFopt.InputPar;
 
 /* Check the data format */
-  if (NHpar->Format == FD_UNDEF) {
+  if (InputPar->Format == FD_UNDEF) {
     UTwarn ("AFsetNHread - %s", AFM_NH_NoFormat);
     return NULL;
   }
 
-/* Reopen the file as a text file if necessary */
-/* (For Unix, text files and binary files are the same) */
-#if (SY_OS != SY_OS_UNIX)
-  if (NHpar->Format == FD_TEXT) {
-    if (fp == stdin) {
-      if (setmode (fileno (fp), O_TEXT) == -1)
-	UTwarn ("AFsetNHread - %s", AFM_NoRTextMode);
-    }
-    else {
-      fp = freopen (Fname, "r", fp);
-      if (fp == NULL) {
-	UTsysMsg ("AFsetNHread - %s", AFM_ReopenErr);
-	return NULL;
-      }
-    }
-  }
-#endif
-
-/* Position at the start of data
-   Note: There is an inconsistency here in the byte offset count for text
-     files.  We read START bytes to move ahead to the starting point.  The
-     read operation returns a single LF for the end-of-line, when for some
-     operating systems, the file itself contains, for instance, CR/LF for the
-     end-of-line.
-*/
-  if (RSKIP (fp, NHpar->Start) != NHpar->Start)
+/* Position at the start of data */
+  if (RSKIP (fp, InputPar->Start) != InputPar->Start)
     return NULL;
 
 /* Set the parameters for file access */
-  AFr.Sfreq = NHpar->Sfreq;
-  AFr.DFormat.Format = NHpar->Format;
-  AFr.DFormat.Swapb = NHpar->Swapb;
-  if (NHpar->ScaleF == AF_SF_DEFAULT)
-    AFr.DFormat.ScaleF = AF_SF[NHpar->Format];
+  AFr.Sfreq = InputPar->Sfreq;
+  AFr.DFormat.Format = InputPar->Format;
+  AFr.DFormat.Swapb = InputPar->Swapb;
+  if (InputPar->FullScale == AF_FULLSCALE_DEFAULT)
+    AFr.DFormat.FullScale = AF_FULLSCALE[InputPar->Format];
   else
-    AFr.DFormat.ScaleF = NHpar->ScaleF;
-  AFr.NData.Nchan = NHpar->Nchan;
+    AFr.DFormat.FullScale = InputPar->FullScale;
+  AFr.NData.Nchan = InputPar->Nchan;
 
+  /* Set up the audio file structure */
   AFp = AFsetRead (fp, FT_NH, &AFr, AF_NOFIX);
 
   return AFp;

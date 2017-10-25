@@ -8,8 +8,8 @@ Description:
   Message texts for the TSP ST routines.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1997
-  $Revision: 1.1 $  $Date: 1997/10/10 21:30:34 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.4 $  $Date: 2017/05/01 20:05:44 $
 
 ----------------------------------------------------------------------*/
 
@@ -19,16 +19,17 @@ Author / revision:
 /* Error messages */
 
 /* Warning messages */
-#define STM_DataErr	"Data format error"
-#define STM_BadIdent	"Invalid identifier"
-#define STM_EmptyData	"Empty data string"
-#define STM_ExtraChars	"Extra characters follow parameter"
-#define STM_StrTrunc	"String truncated"
-#define STM_TooFewData	"Too few data values"
+#define STM_DataErr     "Data format error"
+#define STM_BadIdent    "Invalid identifier"
+#define STM_EmptyData   "Empty data string"
+#define STM_ExtraChars  "Extra characters follow parameter"
+#define STM_InvVal      "Invalid data value"
+#define STM_StrTrunc    "String truncated"
+#define STM_TooFewData  "Too few data values"
 
 /* Informational messages */
-#define STM_BigVal	"Value too large"
-#define STM_ExtraData	"Extra data ignored"
-#define STM_SmallVal	"Value too small"
+#define STM_ExtraData   "Extra data ignored"
+#define STM_SmallVal    "Value too small, set to zero"
+#define STM_UnBalQuote  "Unbalanced quotes"
 
-#endif	/* STmsg_h_ */
+#endif  /* STmsg_h_ */

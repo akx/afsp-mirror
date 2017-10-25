@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  AFILE *AFsetNHwrite (FILE *fp, struct AF_write *AF)
+  AFILE *AFsetNHwrite (FILE *fp, struct AF_write *AFw)
 
 Purpose:
   Set file format information for a headerless audio file
@@ -11,25 +11,28 @@ Description:
   This routine sets the file format information for a headerless audio file.
 
 Parameters:
-  <-  AFILE AFsetNHwrite
-      Audio file pointer for the audio file.  In case of error, the audio file
-      pointer is set to NULL.
+  <-  AFILE *AFsetNHwrite
+      Audio file pointer for the audio file.  This routine allocates the
+      space for this structure.  If an error is detected, a NULL pointer is
+      returned.
    -> FILE *fp
       File pointer for the audio file
   <-> struct AF_write *AFw
       Structure containing file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.34 $  $Date: 2003/05/09 01:21:35 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.42 $  $Date: 2017/05/08 03:34:21 $
 
 -------------------------------------------------------------------------*/
 
 #include <string.h>
+#include <assert.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
+#include <libtsp/nucleus.h>
 #include <libtsp/AFheader.h>
-#include <libtsp/AFpar.h>
 #include <libtsp/AFmsg.h>
 #include <libtsp/UTpar.h>
 
@@ -39,18 +42,29 @@ AFsetNHwrite (FILE *fp, struct AF_write *AFw)
 
 {
   AFILE *AFp;
+  enum UT_DS_T Swapb;
 
-/* Set the parameters for file access */
-  AFw->DFormat.ScaleF = 1. / AF_SF[AFw->DFormat.Format];
-  AFw->DFormat.Swapb = AFw->Ftype / FTW_SUBTYPE_MOD;
-
-/* Check the swap code */
-  if (! (AFw->DFormat.Swapb == DS_EB     || AFw->DFormat.Swapb == DS_EL ||
-	 AFw->DFormat.Swapb == DS_NATIVE || AFw->DFormat.Swapb == DS_SWAP)) {
-    UTwarn ("AFsetNHwrite - %s", AFM_NH_InvSwap);
-    return NULL;
+  switch (AFw->FtypeW) {
+  case FTW_NH_EB:
+    Swapb = DS_EB;
+    break;
+  case FTW_NH_EL:
+    Swapb = DS_EL;
+    break;
+  case FTW_NH_NATIVE:
+    Swapb = DS_NATIVE;
+    break;
+  case FTW_NH_SWAP:
+    Swapb = DS_SWAP;
+    break;
+  default:
+    assert (0);
   }
- 
+
+  /* Check the swap code */
+  AFw->DFormat.Swapb = UTswapCode(Swapb);  /* Now DS_NATIVE or DS_SWAP */
+
+  /* Create the audio file structure */
   AFp = AFsetWrite (fp, FT_NH, AFw);
 
   return AFp;

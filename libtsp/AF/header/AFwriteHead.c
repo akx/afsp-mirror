@@ -29,40 +29,38 @@ Parameters:
    -> int Nv
       Number of elements to be written
    -> int Swapb
-      Byte swap flag.  This parameter is not used for size = 1.  If the bytes
+      Byte swap flag.  This parameter is not used for Size = 1.  If the bytes
       are to be swapped, size must be 2, 4 or 8 bytes.
       DS_EB     - File data is in big-endian byte order.  The data will be
-      	          swapped if the current host uses little-endian byte order.
+                  swapped if the current host uses little-endian byte order.
       DS_EL     - File data is in little-endian byte order data.  The data will
-                  be swapped if the current host uses big-endian
-		  byte order.
+                  be swapped if the current host uses big-endian byte order.
       DS_NATIVE - File data is in native byte order
       DS_SWAP   - File data is byte-swapped
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.25 $  $Date: 2003/05/09 01:21:36 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.29 $  $Date: 2015/04/09 18:07:41 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/AFheader.h>
-#include <libtsp/AFpar.h>
 #include <libtsp/AFmsg.h>
 #include <libtsp/UTtypes.h>
 
-#define BSIZE(x)	((int)(sizeof (x)))
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define FWRITE(buf,size,nv,fp) \
+  (int) fwrite ((const char *) buf, (size_t) size, (size_t) nv, fp)
 
-#define FWRITE(buf,size,nv,fp)	(int) fwrite ((const char *) buf, \
-					      (size_t) size, (size_t) nv, fp)
+#define BSIZE(x)  ((int)(sizeof (x)))
 
-#define NBUF	256	/* Number of doubles */
-#define NPAD	16	/* Number of bytes */
+#define NBUF  256 /* Number of doubles */
+#define NPAD  16  /* Number of bytes */
 
 /* setjmp / longjmp environment */
-jmp_buf AFW_JMPENV;		/* Defining point */
+jmp_buf AFW_JMPENV;   /* Defining point */
 
 
 int
@@ -72,20 +70,20 @@ AFwriteHead (FILE * fp, const void *Buf, int Size, int Nv, int Swapb)
   int n, Nreq, Nw;
   const char *p;
   double Lbuf[NBUF];
-  static const char Pad[NPAD] = "";		/* Initialized to zero */
+  static const char Pad[NPAD] = "";   /* Initialized to zero */
 
   n = 0;
   if (Buf == NULL) {
 
     /* Write zeros to the file */
-    Nv = Nv * Size;	/* Change to units of bytes */
+    Nv = Nv * Size; /* Change to units of bytes */
     Size = 1;
     while (n < Nv) {
       Nreq = MINV (Nv - n, NPAD);
       Nw = FWRITE (Pad, 1, Nreq, fp);
       n += Nw;
       if (Nw < Nreq)
-	break;
+        break;
     }
   }
 
@@ -101,7 +99,7 @@ AFwriteHead (FILE * fp, const void *Buf, int Size, int Nv, int Swapb)
       p += Nw * Size;
       n += Nw;
       if (Nw < Nreq)
-	break;
+        break;
     }
   }
 

@@ -27,22 +27,22 @@ Parameters:
       Data offset into the input data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.15 $  $Date: 2005/02/01 13:24:07 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.16 $  $Date: 2017/03/28 00:29:40 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp.h>
 #include "FiltAudio.h"
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
-#define NBUF	5120
+#define NBUF  5120
 
 
 void
 FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-	   int Ncof, long int loffs)
+     int Ncof, long int loffs)
 
 {
   double x[NBUF];

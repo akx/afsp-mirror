@@ -11,6 +11,7 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libtsplite.a
 
@@ -20,30 +21,22 @@ all:	$(LIB)
 
 .PRECIOUS: $(LIB)
 $(LIB): \
-	$(LIB)(AFdRdAlaw.o) \
 	$(LIB)(AFdRdFx.o) \
 	$(LIB)(AFdRdIx.o) \
-	$(LIB)(AFdRdMulaw.o) \
 	$(LIB)(AFdRdTA.o) \
-	$(LIB)(AFdRdU1.o) \
-	$(LIB)(AFdWrAlaw.o) \
+	$(LIB)(AFdRdXlaw.o) \
 	$(LIB)(AFdWrFx.o) \
 	$(LIB)(AFdWrIx.o) \
-	$(LIB)(AFdWrMulaw.o) \
 	$(LIB)(AFdWrTA.o) \
-	$(LIB)(AFdWrU1.o) \
-	$(LIB)(AFfRdAlaw.o) \
+	$(LIB)(AFdWrXlaw.o) \
 	$(LIB)(AFfRdFx.o) \
 	$(LIB)(AFfRdIx.o) \
-	$(LIB)(AFfRdMulaw.o) \
 	$(LIB)(AFfRdTA.o) \
-	$(LIB)(AFfRdU1.o) \
-	$(LIB)(AFfWrAlaw.o) \
+	$(LIB)(AFfRdXlaw.o) \
 	$(LIB)(AFfWrFx.o) \
 	$(LIB)(AFfWrIx.o) \
-	$(LIB)(AFfWrMulaw.o) \
 	$(LIB)(AFfWrTA.o) \
-	$(LIB)(AFfWrU1.o) \
+	$(LIB)(AFfWrXlaw.o) \
 	$(LIB)(AFgetLine.o) \
 	$(LIB)(AFposition.o) \
 	$(LIB)(AFseek.o) \

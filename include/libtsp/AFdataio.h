@@ -8,28 +8,44 @@ Description:
   Function prototypes for the TSP library AF data I/O internal routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.9 $  $Date: 2003/05/09 00:02:43 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.17 $  $Date: 2017/06/27 18:33:31 $
 
 ----------------------------------------------------------------------*/
 
 #ifndef AFdataio_h_
 #define AFdataio_h_
 
-#include <stdio.h>	/* typedef for FILE */
+#include <stdio.h>  /* typedef for FILE */
 
-#ifndef	AFILE_t_
+enum AF_ERR_T;
+
+#ifndef AFILE_t_
 #  define AFILE_t_
-typedef struct AF_filepar AFILE;	/* Audio file parameters */
+typedef struct AF_filepar AFILE;  /* Audio file parameters */
 #endif
 
 #include <limits.h>
-#define AF_SEEK_END	LONG_MIN	/* Used as a flag to AFseek */
+#define AF_SEEK_END LONG_MIN  /* Used as a flag to AFseek */
+
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
+#define NBBUF   8192
+
+#define UT_UINT1_OFFSET ((UT_UINT1_MAX+1)/2)   /* Offset binary */
+#define UT_INT3_MAX    8388607                 /* 24-bit integer */
+#define UT_INT3_MIN   -8388608
+
+/* Read / write macros with type casting */
+#define FREAD(buf,size,nv,fp) \
+  (int) fread ((char *) buf, (size_t) size, (size_t) nv, fp)
+#define FWRITE(buf,size,nv,fp) \
+  (int) fwrite ((const char *) buf, (size_t) size, (size_t) nv, fp)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* AF/dataio function prototypes */
 int
 AFdRdAlaw (AFILE *AFp, double Dbuff[], int Nreq);
 int
@@ -46,6 +62,8 @@ int
 AFdRdI4 (AFILE *AFp, double Dbuff[], int Nreq);
 int
 AFdRdMulaw (AFILE *AFp, double Dbuff[], int Nreq);
+int
+AFdRdMulawR (AFILE *AFp, double Dbuff[], int Nreq);
 int
 AFdRdTA (AFILE *AFp, double Dbuff[], int Nreq);
 int
@@ -67,6 +85,8 @@ AFdWrI4 (AFILE *AFp, const double Dbuff[], int Nval);
 int
 AFdWrMulaw (AFILE *AFp, const double Dbuff[], int Nval);
 int
+AFdWrMulawR (AFILE *AFp, const double Dbuff[], int Nval);
+int
 AFdWrTA (AFILE *AFp, const double Dbuff[], int Nval);
 int
 AFdWrU1 (AFILE *AFp, const double Dbuff[], int Nval);
@@ -86,6 +106,8 @@ int
 AFfRdI4 (AFILE *AFp, float Dbuff[], int Nreq);
 int
 AFfRdMulaw (AFILE *AFp, float Cbuff[], int Nreq);
+int
+AFfRdMulawR (AFILE *AFp, float Dbuff[], int Nreq);
 int
 AFfRdTA (AFILE *AFp, float Dbuff[], int Nreq);
 int
@@ -107,19 +129,19 @@ AFfWrI4 (AFILE *AFp, const float Dbuff[], int Nval);
 int
 AFfWrMulaw (AFILE *AFp, const float Dbuff[], int Nval);
 int
+AFfWrMulawR (AFILE *AFp, const float Dbuff[], int Nval);
+int
 AFfWrTA (AFILE *AFp, const float Dbuff[], int Nval);
 int
 AFfWrU1 (AFILE *AFp, const float Dbuff[], int Nval);
 char *
-AFgetLine (FILE *fp, int *ErrCode);
+AFgetLine (FILE *fp, enum AF_ERR_T *ErrCode);
 int
 AFposition (AFILE *AFp, long int offs);
 int
-AFrdAlaw (AFILE *AFp, float Fbuff[], int Nreq);
-int
-AFseek (FILE *fp, long int pos, int *ErrCode);
+AFseek (FILE *fp, long int pos, enum AF_ERR_T *ErrCode);
 long int
-AFtell (FILE *fp, int *ErrCode);
+AFtell (FILE *fp, enum AF_ERR_T *ErrCode);
 
 #ifdef __cplusplus
 }

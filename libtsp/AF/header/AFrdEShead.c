@@ -31,6 +31,11 @@ Description:
     333    ...   --     Generic header items, including "record_freq"
       -    ...   --     Audio data
 
+  For ESPS sampled data feature files, additional information is embedded in
+  the  header.  This information is stored as "date:", "header_version:",
+  "program:", "program_version:", "program_compile_date:", "start_time:",
+  and "max_value:" information records in the audio file parameter structure.
+
 Parameters:
   <-  AFILE *AFrdEShead
       Audio file pointer for the audio file
@@ -38,13 +43,13 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 20:08:23 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.96 $  $Date: 2017/06/29 13:21:12 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_SECURE_NO_WARNINGS     /* Allow sprintf */
 #endif
 
@@ -54,33 +59,118 @@ Author / revision:
 #include <string.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/AFheader.h>
+#include <libtsp/AFinfo.h>
 #include <libtsp/AFmsg.h>
-#define AF_DATA_LENGTHS
-#include <libtsp/AFpar.h>
-#include <libtsp/ESpar.h>
 #include <libtsp/UTtypes.h>
 
-#define ICEILV(n,m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define RNDUPV(n,m)	((m) * ICEILV (n, m))		/* Round up */
+#define ES_LHMIN  333   /* start of generic items */
+/* Generic item, "record freq"
+   15             short
+   3              short   generic item identifier
+   record_freq\0  char    identifier (null terminated, multiple of 4 bytes)
+   1              long    data count
+   1              short   data type (double)
+*/
+#define ES_MAXGENERIC 8192
+#define ES_MAXINFO     256
 
-#define SAME_CSTR(str,ref) 	(memcmp (str, ref, sizeof (str)) == 0)
+/*  File magic value in file byte order.  ESPS files can be written in either
+    big-endian or little-endian byte order.
+*/
+#define FM_ESPS_BE  "\0\0\152\32"   /* Big-endian data */
+#define FM_ESPS_LE  "\32\152\0\0"   /* Little-endian data */
+
+/* File codes */
+enum {
+  ES_FT_SD    =  9,  /* (Old) Sampled data file */
+  ES_FT_FEA   = 13,  /* Feature file */
+  ES_FEA_SPEC =  7,  /* Feature file - spectrum file subcode */
+  ES_FEA_SD   =  8,  /* Feature file - sampled data file subcode */
+  ES_FEA_FILT =  9   /* Feature file - filter file subcode */
+};
+
+/* Machine codes */
+enum {
+  ES_SUN4_CODE   =  4,  /* Sun sparc 4 machine code */
+  ES_DS3100_CODE =  7,  /* Decstation machine code */
+  ES_SG_CODE     =  9,  /* SGI machine code */
+  ES_HP700_CODE  = 21   /* HP machine code */
+};
+
+/* Data codes for generic header items */
+enum {
+  ES_DOUBLE = 1,
+  ES_FLOAT  = 2,
+  ES_LONG   = 3,
+  ES_SHORT  = 4
+};
+
+struct ES_preamb {
+/*  UT_int4_t Machine_code; */  /* machine which wrote file */
+/*  uT_int4_t Check_code; */    /* version check code (3000) */
+  UT_int4_t Data_offset;        /* data offset in bytes */
+  UT_int4_t Record_size;        /* record size */
+  char Magic[4];                /* file magic */
+/*  UT_int4_t Edr; */           /* EDR_ESPS flag */
+/*  UT_int4_t Align_pad_size; */  /* alignment padding */
+/*  UT_int4_t Foreign_hd; */    /* pointer to foreign header */
+};
+
+struct ES_fixhead {
+  UT_int2_t Type;          /* File type (e.g. ES_FT_FEA) */
+/*  UT_int2_t pad1; */
+  char Magic[4];           /* File magic */
+/*  char Datetime[26]; */  /* File creation date */
+/*  char Version[8];   */  /* Header version */
+/*  char Prog[16];     */  /* Program name */
+/*  char Vers[8];      */  /* Program version */
+/*  char Progdate[26]; */  /* Program compile date */
+  UT_int4_t Ndrec;         /* Number of data records (0 means unknown) */
+/*  UT_int2_t Tag; */      /* Non-zero if data is tagged */
+/*  UT_int2_t nd1; */
+  UT_int4_t Ndouble;
+  UT_int4_t Nfloat;
+  UT_int4_t Nlong;
+  UT_int4_t Nshort;
+  UT_int4_t Nchar;
+/*  UT_int4_t Fixsiz; */   /* Fixed header structure size (40 longs) */
+/*  UT_int4_t Hsize; */    /* Variable header structure size (bytes) */
+/*  char User[8]; */
+/*  UT_int2_t spares[10]; */
+};
+
+struct ES_FEAhead {
+  UT_int2_t Fea_type;      /* Feature file subcode (e.g. ES_FEA_SD) */
+};
+
+/* Structure for a Generic Item */
+#define ES_MAX_gID  32
+struct ES_genItem {
+  UT_uint2_t code;         /* Generic Item code */
+  UT_uint2_t ID_len;       /* Length of ID in 4-byte words */
+  char ID[ES_MAX_gID];     /* ID */
+  UT_int4_t count;         /* Number of data items */
+  UT_uint2_t data_code;    /* Data type */
+  /* data */
+};
+
 #define SWAPB(value) \
-	VRswapBytes ((const void *) &(value), \
-		     (void *) &(value), sizeof (value), 1)
+  VRswapBytes ((const void *) &(value), (void *) &(value), sizeof (value), 1)
 #define SWAPBXY(x,y) \
-	VRswapBytes ((const void *) &(x), (void *) &(y), sizeof (x), 1)
+  VRswapBytes ((const void *) &(x), (void *) &(y), sizeof (x), 1)
 
 /* setjmp / longjmp environment */
 extern jmp_buf AFR_JMPENV;
 
-AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
+AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
+/* Local function */
 static int
 AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
-	       int Nval, int Type, void *Val);
+               int Nval, int Type, void *Val);
 
 
 AFILE *
@@ -88,9 +178,9 @@ AFrdEShead (FILE *fp)
 
 {
   AFILE *AFp;
-  int NgI, Nv;
-  long int offs;
-  UT_float8_t STime;
+  int NgI, Nv, Ntype;
+  long int offs, poffs, Ldata;
+  UT_float8_t DTemp;
   char Info[ES_MAXINFO];
   struct ES_preamb Fpreamb;
   struct ES_fixhead FheadF;
@@ -101,25 +191,33 @@ AFrdEShead (FILE *fp)
 
 /* Set the long jump environment; on error return a NULL */
   if (setjmp (AFR_JMPENV))
-    return NULL;	/* Return from a header read error */
+    return NULL;  /* Return from a header read error */
 
-/* Defaults and inital values */
+/* Defaults and initial values */
   AFr = AFr_default;
-  AFr.InfoX.Info = Info;
-  AFr.InfoX.Nmax = ES_MAXINFO;
+  AFr.RInfo.Info = Info;
+  AFr.RInfo.N = 0;
+  AFr.RInfo.Nmax = sizeof (Info);
 
 /* Read selected preamble values */
 /* We do not know the byte order until after we have read the file magic */
-  offs = RSKIP (fp, 8L);
+  poffs = 0;
+  offs  = RSKIP (fp, 8L);
   offs += RHEAD_V (fp, Fpreamb.Data_offset, DS_NATIVE);
   offs += RHEAD_V (fp, Fpreamb.Record_size, DS_NATIVE);
-  offs += RHEAD_S (fp, Fpreamb.Magic);
+  AFsetChunkLim ("pre ", poffs, offs, &AFr.ChunkInfo);
+  poffs = offs;
 
 /* Check the preamble file magic */
-  if (SAME_CSTR (Fpreamb.Magic, FM_ESPS_BE))
+  offs += RHEAD_S (fp, Fpreamb.Magic);
+  if (SAME_CSTR (Fpreamb.Magic, FM_ESPS_BE)) {
     AFr.DFormat.Swapb = DS_EB;
-  else if (SAME_CSTR (Fpreamb.Magic, FM_ESPS_LE))
+    AFsetChunkLim ("ES-b", poffs, offs, &AFr.ChunkInfo);
+  }
+  else if (SAME_CSTR (Fpreamb.Magic, FM_ESPS_LE)) {
     AFr.DFormat.Swapb = DS_EL;
+    AFsetChunkLim ("ES-l", poffs, offs, &AFr.ChunkInfo);
+  }
   else {
     UTwarn ("AFrdEShead - %s", AFM_ES_BadId);
     return NULL;
@@ -130,38 +228,66 @@ AFrdEShead (FILE *fp)
     SWAPB (Fpreamb.Data_offset);
     SWAPB (Fpreamb.Record_size);
   }
- 
+
 /* Read selected values from the fixed part of the header */
+  poffs = offs;
   offs += RSKIP (fp, 32 - offs);
+  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+
+  poffs = offs;
   offs += RHEAD_V (fp, FheadF.Type, AFr.DFormat.Swapb);
   offs += RSKIP (fp, 2);
   offs += RHEAD_S (fp, FheadF.Magic);
-  offs += AFrdTextAFsp (fp, 26, "date: ", &AFr.InfoX, 1);
-  offs += AFrdTextAFsp (fp,  8, "header_version: ", &AFr.InfoX, 1);
-  offs += AFrdTextAFsp (fp, 16, "program_name: ", &AFr.InfoX, 1);
-  offs += AFrdTextAFsp (fp,  8, "program_version: ", &AFr.InfoX, 1);
-  offs += AFrdTextAFsp (fp, 26, "program_compile_date: ", &AFr.InfoX, 1);
+  offs += AFrdInfoIdentText (fp, 26, "date:", &AFr.RInfo, 1);
+  offs += AFrdInfoIdentText (fp,  8, "header_version:", &AFr.RInfo, 1);
+  offs += AFrdInfoIdentText (fp, 16, "program:", &AFr.RInfo, 1);
+  offs += AFrdInfoIdentText (fp,  8, "program_version:", &AFr.RInfo, 1);
+  offs += AFrdInfoIdentText (fp, 26, "program_compile_date:", &AFr.RInfo, 1);
   offs += RHEAD_V (fp, FheadF.Ndrec, AFr.DFormat.Swapb);
   offs += RSKIP (fp, 4);
+
   offs += RHEAD_V (fp, FheadF.Ndouble, AFr.DFormat.Swapb);
+  Ntype  = (FheadF.Ndouble > 0);
   offs += RHEAD_V (fp, FheadF.Nfloat, AFr.DFormat.Swapb);
+  Ntype += (FheadF.Nfloat > 0);
   offs += RHEAD_V (fp, FheadF.Nlong, AFr.DFormat.Swapb);
+  Ntype += (FheadF.Nlong > 0);
   offs += RHEAD_V (fp, FheadF.Nshort, AFr.DFormat.Swapb);
+  Ntype += (FheadF.Nshort > 0);
   offs += RHEAD_V (fp, FheadF.Nchar, AFr.DFormat.Swapb);
+  Ntype += (FheadF.Nchar > 0);
+  if (Ntype > 1) {
+     UTwarn ("AFrdEShead - %s", AFM_ES_MixData);
+     return NULL;
+  }
+
   offs += RSKIP (fp, 8);
-  offs += AFrdTextAFsp (fp, 8, "user: ", &AFr.InfoX, 1);
+  offs += AFrdInfoIdentText (fp, 8, "user:", &AFr.RInfo, 1);
+  AFsetChunkLim ("fmt ", poffs, offs, &AFr.ChunkInfo);
 
 /* Read selected feature file header values */
+  poffs = offs;
   offs += RSKIP (fp, 188 - offs);
+  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+
+  poffs = offs;
   offs += RHEAD_V (fp, FheadV.Fea_type, AFr.DFormat.Swapb);
+  AFsetChunkLim ("feat", poffs, offs, &AFr.ChunkInfo);
 
 /* Generic items */
-  NgI = MINV (ES_MAXGENERIC, Fpreamb.Data_offset - ES_LHMIN);
+  poffs = offs;
   offs += RSKIP (fp, ES_LHMIN - offs);
+  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+
+  poffs = offs;
+  NgI = MINV (ES_MAXGENERIC, Fpreamb.Data_offset - ES_LHMIN);
   offs += RHEAD_SN (fp, GenItems, NgI);
+  AFsetChunkLim ("genI", poffs, offs, &AFr.ChunkInfo);
 
 /* Skip to the start of data */
-  RSKIP (fp, Fpreamb.Data_offset - offs);
+  poffs = offs;
+  offs += RSKIP (fp, Fpreamb.Data_offset - offs);
+  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
 
 /* Error checks */
   if (FheadF.Type != ES_FT_FEA) {
@@ -205,27 +331,32 @@ AFrdEShead (FILE *fp)
 
 /* Get the sampling frequency */
   if (! AF_getGeneric (GenItems, NgI, "record_freq", AFr.DFormat.Swapb,
-		       1, ES_DOUBLE, &AFr.Sfreq)) {
-    UTwarn ("AFrdEShead - %s", AFM_ES_NoSFreq);
+                       1, ES_DOUBLE, &AFr.Sfreq)) {
+    UTwarn ("AFrdEShead - %s", AFM_ES_NoSfreq);
     return NULL;
   }
 
   /* Other Generic Items */
-  if (AF_getGeneric (GenItems, NgI, "start_time", AFr.DFormat.Swapb,
-		     1, ES_DOUBLE, &STime)) {
-    Nv = sprintf (str, "%.7g", STime);
-    AFaddAFspRec ("start_time: ", str, Nv, &AFr.InfoX); 
+  if (AF_getGeneric (GenItems, NgI, "start_time", AFr.DFormat.Swapb, 1,
+                     ES_DOUBLE, &DTemp)) {
+    Nv = sprintf (str, "%.7g", DTemp);
+    AFaddInfoRec ("start_time: ", str, Nv, &AFr.RInfo);
   }
   /* Pick up "max_value" only if it is a single value */
-  if (AF_getGeneric (GenItems, NgI, "max_value", AFr.DFormat.Swapb,
-		     1, ES_DOUBLE, &STime)) {
-    Nv = sprintf (str, "%.7g", STime);
-    AFaddAFspRec ("max_value: ", str, Nv, &AFr.InfoX); 
+  if (AF_getGeneric (GenItems, NgI, "max_value", AFr.DFormat.Swapb, 1,
+                     ES_DOUBLE, &DTemp)) {
+    Nv = sprintf (str, "%.7g", DTemp);
+    AFaddInfoRec ("max_value: ", str, Nv, &AFr.RInfo);
   }
 
 /* Set the parameters for file access */
-  if (FheadF.Ndrec != 0)
+  if (FheadF.Ndrec != 0) {
     AFr.NData.Nsamp = FheadF.Ndrec * AFr.NData.Nchan;
+    Ldata = AFr.NData.Nsamp * AF_DL[AFr.DFormat.Format];
+    AFsetChunkLim ("data", offs, offs + Ldata, &AFr.ChunkInfo);
+  }
+  else                /* Ndrec = 0 may indicate unknown no. samples */
+    AFsetChunkLim ("data", offs, AF_EoF, &AFr.ChunkInfo);
 
   AFp = AFsetRead (fp, FT_ESPS, &AFr, AF_FIX_NSAMP_LOW | AF_FIX_NSAMP_HIGH);
 
@@ -237,16 +368,16 @@ AFrdEShead (FILE *fp)
 
 static int
 AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
-	       int Nval, int Type, void *Val)
+               int Nval, int Type, void *Val)
 
 {
   int ncID, ncIDX, k, nS, Found, Lw, Nr;
   char sstr[2+2+ES_MAX_gID+4+2+1];
   char *p;
   struct ES_genItem gItem;
-  
-  ncID = strlen (ID);
-  ncIDX = RNDUPV (ncID + 1, 4); 	/* Length of ID rounded up */
+
+  ncID = (int) strlen (ID);
+  ncIDX = RNDUPV (ncID + 1, 4);   /* Length of ID rounded up */
   assert (ncIDX <= ES_MAX_gID);
 
   /* Fill in a Generic Item structure */
@@ -275,7 +406,7 @@ AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
   }
   nS = ncIDX + 10;
 
-  /* Search for the Generic Item in the buffr */
+  /* Search for the Generic Item in the buffer */
   p = STstrstrNM (buff, sstr, Nbuff, nS);
   Found = 0;
   if (p != NULL) {
@@ -295,13 +426,13 @@ AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
       assert (0);
       break;
     }
-    p += nS;			/* Point to values */
-    Nr = Nbuff - (p - buff);	/* No. bytes remaining in buffer */
+    p += nS;                  /* Point to values */
+    Nr = Nbuff - (int) (p - buff);  /* No. bytes remaining in buffer */
     if (Nval * Lw <= Nr) {
       if (UTswapCode (Fbo) == DS_SWAP)
-	VRswapBytes (p, Val, Lw, Nval);
+       VRswapBytes (p, Val, Lw, Nval);
       else
-	memcpy (Val, p, Nval * Lw);
+        memcpy (Val, p, Nval * Lw);
       Found = 1;
     }
   }

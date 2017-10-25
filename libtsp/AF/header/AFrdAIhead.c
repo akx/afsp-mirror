@@ -8,8 +8,8 @@ Purpose:
 
 Description:
   This routine reads the header for an AIFF or AIFF-C sound file.  The header
-  information is used to set the file data format information in the audio
-  file pointer structure.
+  information is used to set the file data format information in the audio file
+  pointer structure.
 
   AIFF or AIFF-C sound file:
    Offset Length Type    Contents
@@ -32,6 +32,16 @@ Description:
     +12     4    int      Block size
     +16   ...    ...      Audio data
 
+  For AIFF and AIFF-C files, text information can appear in several different
+  chunks.  This information is extracted and stored as information records in
+  the audio file parameter structure.
+   - "NAME" chunk text is stored as a "name:" information record.
+   - "AUTH" chunk text is stored as an "author:" information record.
+   - "(c) " chunk text is stored as a "copyright:" information record.
+   - "ANNO" chunk without a "AFsp" preamble - text is stored as an
+     "annotation:" information record.  If the "AFsp" preamble is present, the
+     individual information records are retrieved.
+
 Parameters:
   <-  AFILE *AFrdAIhead
       Audio file pointer for the audio file
@@ -39,8 +49,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.68 $  $Date: 2003/11/03 18:53:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.86 $  $Date: 2017/05/15 22:18:01 $
 
 -------------------------------------------------------------------------*/
 
@@ -48,24 +58,20 @@ Author / revision:
 #include <string.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFheader.h>
 #include <libtsp/AFmsg.h>
-#include <libtsp/AFpar.h>
+#define AI_INFOREC
 #include <libtsp/AIpar.h>
 
-#define ICEILV(n,m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define RNDUPV(n,m)	((m) * ICEILV (n, m))		/* Round up */
-
-#define SAME_CSTR(str,ref) 	(memcmp (str, ref, sizeof (str)) == 0)
-
-#define ALIGN		2	/* Chunks padded out to a multiple of ALIGN */
+#define ALIGN   2 /* Chunks are padded out to a multiple of ALIGN */
 
 /* setjmp / longjmp environment */
 extern jmp_buf AFR_JMPENV;
 
+/* Local functions */
 static int
 AF_rdFORM_AIFF (FILE *fp, struct AI_CkFORM *CkFORM, int *Ftype);
 static int
@@ -77,9 +83,9 @@ AF_checkFVER (FILE *fp, struct AI_CkFVER *CkFVER);
 static long int
 AF_decSSND (FILE *fp, struct AI_CkSSND *CkSSND);
 static int
-AF_rPstring (FILE *fp, char string[], int ncMax);
+AF_rdPstring (FILE *fp, char string[], int ncMax);
 
-AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
+AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 
 AFILE *
@@ -87,17 +93,17 @@ AFrdAIhead (FILE *fp)
 
 {
   AFILE *AFp;
-  long int offs, LFORM, Dstart, EoD;
+  long int offs, poffs, LFORM, Dstart, EoD;
   int Ftype, AtData;
   char Info[AF_MAXINFO];
   struct AF_read AFr;
   struct AI_CkFORM CkFORM;
-  struct AI_CkPreamb CkHead;
+  struct AI_CkHead CkHead;
   struct AI_CkCOMM CkCOMM;
 
 /* Set the long jump environment; on error return a NULL */
   if (setjmp (AFR_JMPENV))
-    return NULL;	/* Return from a header read error */
+    return NULL;  /* Return from a header read error */
 
 /* Each chunk has an identifier and a length.  The length gives the number of
    bytes in the chunk (not including the ckID or ckDataSize fields).  If the
@@ -119,72 +125,90 @@ AFrdAIhead (FILE *fp)
        the start of data.
 */
 
-/* Defaults and inital values */
+/* Defaults and initial values */
   AFr = AFr_default;
-  AFr.InfoX.Info = Info;
-  AFr.InfoX.Nmax = AF_MAXINFO;
+  AFr.RInfo.Info = Info;
+  AFr.RInfo.N = 0;
+  AFr.RInfo.Nmax = sizeof (Info);
 
 /* Check the FORM chunk */
   if (AF_rdFORM_AIFF (fp, &CkFORM, &Ftype))
     return NULL;
-  offs = 12L;	/* Positioned after FORM/AIFF preamble */
+  offs = 12L; /* Positioned after FORM/AIFF preamble */
   LFORM = CkFORM.ckSize + 8;
-  
+  AFsetChunkLim (FM_IFF, 0, LFORM, &AFr.ChunkInfo);
+  if (Ftype == FT_AIFF)
+    AFsetChunkLim (FM_AIFF, 8, offs, &AFr.ChunkInfo);
+  else if (Ftype == FT_AIFF_C)
+    AFsetChunkLim (FM_AIFF_C, 8, offs, &AFr.ChunkInfo);
+
   Dstart = 0L;
   EoD = 0L;
   AtData = 0;
-  while (offs < LFORM-8) {	/* Leave 8 bytes for the chunk preamble */
+  while (offs < LFORM-8) {  /* Leave 8 bytes for the chunk preamble */
+
+    poffs = offs;     /* Position at start of chunk */
 
     /* Read the chunk preamble */
     offs += RHEAD_S (fp, CkHead.ckID);
 
     /* COMM chunk */
-    if (SAME_CSTR (CkHead.ckID, CKID_COMM)) {
+    if (SAME_CSTR (CkHead.ckID, ckID_COMM)) {
       offs += AF_rdCOMM (fp, Ftype, &CkCOMM);
       AF_decCOMM (&CkCOMM, &AFr);
+      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
 
-    /* FVER chunk */
-    else if (Ftype == FT_AIFF_C && SAME_CSTR (CkHead.ckID, CKID_FVER)) {
+    /* FVER chunk - should only appear in AIFFC files */
+    else if (SAME_CSTR (CkHead.ckID, ckID_FVER)) {
       offs += AF_checkFVER (fp, &CkFORM.CkFVER);
+      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
-    /* Text chunks */
-    else if (SAME_CSTR (CkHead.ckID, CKID_NAME)) {
+
+    /* Name chunk */
+    else if (SAME_CSTR (CkHead.ckID, ckID_NAME)) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
-      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "name: ",
-			    &AFr.InfoX, ALIGN);
+      offs += AFrdInfoIdentText (fp, (int) CkHead.ckSize, AI_NAMEid[0],
+                                 &AFr.RInfo, ALIGN);
+      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
-    else if (SAME_CSTR (CkHead.ckID, CKID_AUTHOR)) {
+    /* Author chunk */
+    else if (SAME_CSTR (CkHead.ckID, ckID_AUTH)) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
-      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "author: ",
-			    &AFr.InfoX, ALIGN);
+      offs += AFrdInfoIdentText (fp, (int) CkHead.ckSize, AI_AUTHid[0],
+                                 &AFr.RInfo, ALIGN);
+     AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
-    else if (SAME_CSTR (CkHead.ckID, CKID_COPYRIGHT)) {
+    /* Copyright chunk */
+    else if (SAME_CSTR (CkHead.ckID, ckID_CPRT)) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
-      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "copyright: ",
-			    &AFr.InfoX, ALIGN);
+      offs += AFrdInfoIdentText (fp, (int) CkHead.ckSize, AI_CPRTid[0],
+                                 &AFr.RInfo, ALIGN);
+     AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
     /* Annotation chunk */
-    else if (SAME_CSTR (CkHead.ckID, CKID_ANNOTATION)) {
+    else if (SAME_CSTR (CkHead.ckID, ckID_ANNO)) {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
-      offs += AFrdTextAFsp (fp, (int) CkHead.ckSize, "annotation: ",
-			    &AFr.InfoX, ALIGN);
+      offs += AFrdInfoAFspIdentText (fp, (int) CkHead.ckSize, AI_ANNOid[0],
+                                     &AFr.RInfo, ALIGN);
+     AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
 
     /* SSND chunk */
-    else if (SAME_CSTR (CkHead.ckID, CKID_SSND)) {
+    else if (SAME_CSTR (CkHead.ckID, ckID_SSND)) {
       offs += AF_decSSND (fp, &CkFORM.CkSSND);
       AFr.NData.Ldata = CkFORM.CkSSND.ckSize - 8 - CkFORM.CkSSND.offset;
       offs += RSKIP (fp, CkFORM.CkSSND.offset);
       Dstart = offs;
       EoD = RNDUPV (Dstart + AFr.NData.Ldata, ALIGN);
+      AFsetChunkLim (CkHead.ckID, poffs, EoD, &AFr.ChunkInfo);
       if (EoD >= LFORM || ! FLseekable (fp)) {
-	AtData = 1;
-	break;
+        AtData = 1;
+        break;
       }
       else {
-	AtData = 0;
-	offs += RSKIP (fp, EoD - Dstart);
+        AtData = 0;
+        offs += RSKIP (fp, EoD - Dstart);
       }
     }
 
@@ -192,17 +216,18 @@ AFrdAIhead (FILE *fp)
     else {
       offs += RHEAD_V (fp, CkHead.ckSize, DS_EB);
       offs += RSKIP (fp, RNDUPV (CkHead.ckSize, ALIGN));
+      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
- 
+
   }
 
   /* Error Checks */
   if (AFr.DFormat.Format == FD_UNDEF) {
-    UTwarn ("AFrdAIhead - %s", AFM_AIFF_BadHead);
+    UTwarn ("AFrdAIhead - %s", AFM_AIFFX_BadHead);
     return NULL;
   }
   if ((! AtData && offs != LFORM) || (AtData && EoD != LFORM))
-    UTwarn ("AFrdAIhead - %s", AFM_AIFF_BadSize);
+    UTwarn ("AFrdAIhead - %s", AFM_AIFFX_BadSize);
 
   /* If no SSND chunk has been found, check for a zero data size (does not
      need a SSND chunk)
@@ -214,7 +239,7 @@ AFrdAIhead (FILE *fp)
       Dstart = offs;
     }
     else {
-      UTwarn ("AFrdAIhead - %s", AFM_AIFF_NoSSND);
+      UTwarn ("AFrdAIhead - %s", AFM_AIFFX_NoSSND);
       return NULL;
     }
   }
@@ -242,7 +267,7 @@ AF_rdFORM_AIFF (FILE *fp, struct AI_CkFORM *CkFORM, int *Ftype)
 
   RHEAD_S (fp, CkFORM->ckID);
   if (! SAME_CSTR (CkFORM->ckID, FM_IFF)) {
-    UTwarn ("AFrdAIhead - %s", AFM_AIFF_BadId);
+    UTwarn ("AFrdAIhead - %s", AFM_AIFFX_BadId);
     return 1;
   }
 
@@ -253,17 +278,17 @@ AF_rdFORM_AIFF (FILE *fp, struct AI_CkFORM *CkFORM, int *Ftype)
     Lfile = FLfileSize (fp);
     if (LFORM > Lfile) {
       CkFORM->ckSize = Lfile - 8;
-      UTwarn ("AFrdAIhead - %s", AFM_AIFF_FixFORM);
+      UTwarn ("AFrdAIhead - %s", AFM_AIFFX_FixFORM);
     }
   }
- 
+
   RHEAD_S (fp, CkFORM->ckID);
   if (SAME_CSTR (CkFORM->ckID, FM_AIFF_C))
     *Ftype = FT_AIFF_C;
   else if (SAME_CSTR (CkFORM->ckID, FM_AIFF))
     *Ftype = FT_AIFF;
   else {
-    UTwarn ("AFrdAIhead - %s", AFM_AIFF_BadId);
+    UTwarn ("AFrdAIhead - %s", AFM_AIFFX_BadId);
     return 1;
   }
 
@@ -288,7 +313,7 @@ AF_rdCOMM (FILE *fp, int Ftype, struct AI_CkCOMM *CkCOMM)
   /* Set the compressionType field for both AIFF and AIFF-C files */
   if (Ftype == FT_AIFF_C) {
     offs += RHEAD_S (fp, CkCOMM->compressionType);
-    offs += AF_rPstring (fp, CkCOMM->compressionName, CNAME_MAX);
+    offs += AF_rdPstring (fp, CkCOMM->compressionName, CNAME_MAX);
   }
   else {
     memcpy (CkCOMM->compressionType, CT_NONE, sizeof (CT_NONE));
@@ -300,7 +325,7 @@ AF_rdCOMM (FILE *fp, int Ftype, struct AI_CkCOMM *CkCOMM)
      length of the COMM chunk.
   */
   if (offs - 4 > (int) CkCOMM->ckSize) {
-    UTwarn ("AFrdAIhead - %s", AFM_AIFF_FixCOMM);
+    UTwarn ("AFrdAIhead - %s", AFM_AIFFC_FixCOMM);
     CkCOMM->ckSize = offs - 4;
   }
   offs += RSKIP (fp, RNDUPV (CkCOMM->ckSize, ALIGN) - (offs-4));
@@ -308,20 +333,20 @@ AF_rdCOMM (FILE *fp, int Ftype, struct AI_CkCOMM *CkCOMM)
   return offs;
 }
 
-/* Read a P-string */
+/* Read a P-string: first byte gives the length */
 
 
 static int
-AF_rPstring (FILE *fp, char string[], int ncMax)
+AF_rdPstring (FILE *fp, char string[], int ncMax)
 
 {
   int offs, nc, ncP, nr;
-  char slen[1];
- 
-  offs = RHEAD_S (fp, slen);	/* 1 byte length */
+  unsigned char slen[1];
+
+  offs = RHEAD_S (fp, slen);  /* 1 byte length */
 
   nc = (int) slen[0];
-  ncP = RNDUPV (nc + 1, 2);
+  ncP = RNDUPV (nc + 1, ALIGN);
   nr = MINV (nc, ncMax);
 
   offs += RHEAD_SN (fp, string, nr);
@@ -341,7 +366,8 @@ AF_decCOMM (struct AI_CkCOMM *CkCOMM, struct AF_read *AFr)
   int NBytesS;
 
   /* Uncompressed */
-  if (SAME_CSTR (CkCOMM->compressionType, CT_NONE)) {
+  if (SAME_CSTR (CkCOMM->compressionType, CT_NONE) ||
+      SAME_CSTR (CkCOMM->compressionType, CT_SOWT)) {
 
     NBytesS = ICEILV (CkCOMM->sampleSize, 8);
     AFr->DFormat.NbS = (int) CkCOMM->sampleSize;
@@ -354,8 +380,8 @@ AF_decCOMM (struct AI_CkCOMM *CkCOMM, struct AF_read *AFr)
     else if (NBytesS == 4)
       AFr->DFormat.Format = FD_INT32;
     else {
-      UTwarn ("AFrdAIhead - %s: \"%d\"", AFM_AIFF_UnsSSize,
-	      (int) CkCOMM->sampleSize);
+      UTwarn ("AFrdAIhead - %s: \"%d\"", AFM_AIFFX_UnsSSize,
+              (int) CkCOMM->sampleSize);
       longjmp (AFR_JMPENV, 1);
     }
   }
@@ -364,42 +390,44 @@ AF_decCOMM (struct AI_CkCOMM *CkCOMM, struct AF_read *AFr)
   /* A-law and mu-law are compressed formats; for these formats
    CkCOMM.sampleSize = 16 (not checked) */
   else if (SAME_CSTR (CkCOMM->compressionType, CT_ULAW) ||
-	   SAME_CSTR (CkCOMM->compressionType, CT_X_ULAW)) {
+           SAME_CSTR (CkCOMM->compressionType, CT_X_ULAW)) {
     AFr->DFormat.Format = FD_MULAW8;
     AFr->DFormat.NbS = 8 * FDL_MULAW8;
   }
   else if (SAME_CSTR (CkCOMM->compressionType, CT_ALAW) ||
-	   SAME_CSTR (CkCOMM->compressionType, CT_X_ALAW)) {
+           SAME_CSTR (CkCOMM->compressionType, CT_X_ALAW)) {
     AFr->DFormat.Format = FD_ALAW8;
     AFr->DFormat.NbS = 8 * FDL_ALAW8;
   }
   else if (SAME_CSTR (CkCOMM->compressionType, CT_FLOAT32) ||
-	   SAME_CSTR (CkCOMM->compressionType, CT_FL32)) {
+           SAME_CSTR (CkCOMM->compressionType, CT_FL32)) {
     AFr->DFormat.Format = FD_FLOAT32;
     AFr->DFormat.NbS = 8 * FDL_FLOAT32;
     if (! UTcheckIEEE ())
       UTwarn ("AFrdAIhead - %s", AFM_NoIEEE);
   }
   else if (SAME_CSTR (CkCOMM->compressionType, CT_FLOAT64) ||
-	   SAME_CSTR (CkCOMM->compressionType, CT_FL64)) {
+           SAME_CSTR (CkCOMM->compressionType, CT_FL64)) {
     AFr->DFormat.Format = FD_FLOAT64;
     AFr->DFormat.NbS = 8 * FDL_FLOAT64;
     if (! UTcheckIEEE ())
       UTwarn ("AFrdAIhead - %s", AFM_NoIEEE);
   }
   else {
-    UTwarn ("AFrdAIhead - %s: \"%.4s\" (\"%s\")", AFM_AIFF_UnsComp,
-	    CkCOMM->compressionType, STstrDots (CkCOMM->compressionName, 32));
+    UTwarn ("AFrdAIhead - %s: \"%.4s\" (\"%s\")", AFM_AIFFC_UnsComp,
+            CkCOMM->compressionType, STstrDots (CkCOMM->compressionName, 32));
     longjmp (AFR_JMPENV, 1);
   }
-  AFr->DFormat.Swapb = DS_EB;
 
   AFr->Sfreq = UTdIEEE80 (CkCOMM->sampleRate);
+  AFr->DFormat.Swapb = DS_EB;     /* Default for AIFF/AIFF-C files */
+  if (SAME_CSTR (CkCOMM->compressionType, CT_SOWT))
+    AFr->DFormat.Swapb = DS_EL;    /* Exception for AIFF-C/sowt files */
   AFr->NData.Nsamp = CkCOMM->numSampleFrames * CkCOMM->numChannels;
   AFr->NData.Nchan = CkCOMM->numChannels;
 
   return;
-} 
+}
 
 /* Check the format version */
 
@@ -409,11 +437,11 @@ AF_checkFVER (FILE *fp, struct AI_CkFVER *CkFVER)
 
 {
   int offs;
-  
+
   offs  = RHEAD_V (fp, CkFVER->ckSize, DS_EB);
   offs += RHEAD_V (fp, CkFVER->timestamp, DS_EB);
   if (CkFVER->timestamp != AIFCVersion1)
-    UTwarn ("AFrdAIhead - %s", AFM_AIFF_BadVer);
+    UTwarn ("AFrdAIhead - %s", AFM_AIFFC_BadVer);
   offs += RSKIP (fp, RNDUPV (CkFVER->ckSize + 4, ALIGN) - offs);
 
   return offs;
@@ -431,7 +459,7 @@ AF_decSSND (FILE *fp, struct AI_CkSSND *CkSSND)
   long int offs;
 
   /* Data size, skip to start of data */
-  offs  = RHEAD_V (fp, CkSSND->ckSize, DS_EB); 
+  offs  = RHEAD_V (fp, CkSSND->ckSize, DS_EB);
   offs += RHEAD_V (fp, CkSSND->offset, DS_EB);
   offs += RHEAD_V (fp, CkSSND->blockSize, DS_EB);
 

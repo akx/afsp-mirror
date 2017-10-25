@@ -25,10 +25,10 @@ Description:
       1992.
 
 Parameters:
-  MSfUnifRand:
   <-  double MSfUnifRand
       Uniform deviate with values between 0 and 1, exclusive of the end points.
-  MSrandSeed:
+
+  <-  void MSrandSeed
    -> int seed
       Seed value.  A positive seed value sets the pseudo-random generation to a
       new sequence.  A zero value sets the actual seed to a value based on the
@@ -36,8 +36,8 @@ Parameters:
       value to 12345.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.18 $  $Date: 2003/05/09 02:29:38 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.20 $  $Date: 2017/06/12 19:30:09 $
 
 -------------------------------------------------------------------------*/
 
@@ -45,15 +45,15 @@ Author / revision:
 
 #include <libtsp.h>
 
-#define A	16807
-#define M	2147483647	/* M = A*Q + R */
-#define Q	(M / A)		/* 127773 */
-#define R	(M % A)		/* 2836 */
-#define NTAB	32
-#define NDIV	(1 + (M-1) / NTAB)
-#define EPS	1.2e-7
-#define RANMAX	(1.0 - EPS)
-#define DSEED	12345
+#define A 16807
+#define M 2147483647  /* M = A*Q + R */
+#define Q (M / A)   /* 127773 */
+#define R (M % A)   /* 2836 */
+#define NTAB  32
+#define NDIV  (1 + (M-1) / NTAB)
+#define EPS 1.2e-7
+#define RANMAX  (1.0 - EPS)
+#define DSEED 12345
 
 static long int y = 0;
 static long int is;

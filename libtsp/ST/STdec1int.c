@@ -17,27 +17,66 @@ Parameters:
   <-  int STdec1int
       Error status,
         0 - no error
-        1 - error, too few values or data format error
-	2 - warning, data values too large or too small
+        1 - error: data format error
+        2 - error: data value out of range
    -> const char String[]
       Input string
   <-  int *Ival
-      Returned value.  This value is not changed if an error status is
-      returned.
+      Returned value.  This value is not changed if an error status is returned.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.11 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.13 $  $Date: 2017/05/01 20:11:11 $
 
 -------------------------------------------------------------------------*/
 
+#include <errno.h>
+#include <limits.h> /* INT_MIN, INT_MAX */
+#include <stdlib.h> /* strtol */
+
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
+#include <libtsp/STmsg.h>
+
+#define MAXC  23
 
 
 int
 STdec1int (const char String[], int *Ival)
 
 {
-  return (STdec1val (String, 'I', (void *) Ival));
+  long int lv;
+  char *endstr;
+
+  /* Trim initial white-space */
+  String = STtrimIws (String);
+  if (String[0] == '\0') {
+    UTwarn ("STdec1int - %s", STM_EmptyData);
+    return 1;
+  }
+
+  errno = 0;
+  lv = strtol (String, &endstr, 10);
+
+  /* A decoding error is marked by
+  (1) Empty String (handled above)
+  (2) endstr pointing to String (which has been trimmed of leading white-space)
+  (3) More non-white-space characters following the decoded string
+  */
+  endstr = STtrimIws (endstr);        /* Trim leading white-space on endstr */
+  if (endstr[0] != '\0') {
+    /* Data format error */
+    UTwarn ("STdec1int - %s: \"%s\"", STM_DataErr, STstrDots (String, MAXC));
+    return 1;
+  }
+
+  if (errno == ERANGE || lv < INT_MIN || lv > INT_MAX) {
+    UTwarn ("STdec1int - %s: \"%s\"", STM_InvVal, STstrDots (String, MAXC));
+    return 2;
+  }
+
+  /* Success. return the decoded value */
+  *Ival = (int) lv;
+
+  return 0;
 }

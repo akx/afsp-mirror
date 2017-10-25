@@ -23,8 +23,8 @@ Parameters:
       FILENAME_MAX characters long including the terminating null character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.20 $  $Date: 2003/05/09 01:36:43 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.21 $  $Date: 2015/04/01 15:46:21 $
 
 ----------------------------------------------------------------------*/
 
@@ -34,13 +34,13 @@ Author / revision:
 #include <libtsp/sysOS.h>
 
 #if (SY_FILENAME_SPEC == SY_FNS_UNIX)
-#  define DIR_SEP_STR	"/"
+#  define DIR_SEP_STR "/"
 #elif (SY_FILENAME_SPEC == SY_FNS_WINDOWS)
-#  define DIR_SEP_STR	"\\"
+#  define DIR_SEP_STR "\\"
 #else
 #  error "Bad SY_FILENAME_SPEC value"
 #endif
-#define DIR_SEP_CHAR	((DIR_SEP_STR)[0])
+#define DIR_SEP_CHAR  ((DIR_SEP_STR)[0])
 
 
 int

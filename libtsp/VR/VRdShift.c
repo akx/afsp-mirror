@@ -22,6 +22,7 @@ Description:
     x[i] --> x[i-Nshift], for i from Nkeep-1 to 0
 
 Parameters:
+  <-  void VRdShift
   <-> double x[]
       Array of doubles (Nkeep + |Nshift| elements)
    -> int Nkeep
@@ -31,8 +32,8 @@ Parameters:
       and negative for a shift up.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.2 $  $Date: 2005/02/01 03:37:52 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.4 $  $Date: 2017/06/12 18:58:08 $
 
 -------------------------------------------------------------------------*/
 
@@ -53,7 +54,7 @@ VRdShift (double x[], int Nkeep, int Nshift)
   else if (Nshift < 0) {
     /* Shift down */
     for (i = Nkeep - 1; i >= 0; --i)
-      x[i-Nshift] = x[i];	/* note Nshift < 0 */
+      x[i-Nshift] = x[i]; /* note Nshift < 0 */
   }
   return;
 }

@@ -1,0 +1,120 @@
+.TH AFsetInputPar - libtsp (3tsp)
+.SH Routine:
+int AFsetInputPar (const char String[])
+.SH Purpose:
+Set defaults for input audio files from a string specification
+.SH Description:
+This routine sets the default audio file data parameters.  These parameters
+are used when opening input audio files with unrecognized (non-standard)
+headers or files with no headers (raw audio files).  Note that the parameters
+do not override values specified in the file headers of standard input files.
+.PP
+This routine must be called before opening the file with AFopnRead.  The
+parameters for AFsetInputPar are determined from an input string which
+consists of a list of parameters separated by commas.  The form of the list is
+.ft CW
+.nf
+  "Format, Start, Sfreq, Swapb, Nchan, FullScale"
+.fi
+.ft P
+.in +3n
+.ti -3n
+Format: File data format
+.br
+.ft CW
+.nf
+ "undefined" - Headerless files will be rejected
+ "A-law8"    - 8-bit A-law data
+ "mu-law8"   - 8-bit mu-law data
+ "mu-lawR8"  - 8-bit bit-reversed mu-law data
+ "unsigned8" - offset-binary 8-bit integer data
+ "integer8"  - two's-complement 8-bit integer data
+ "integer16" - two's-complement 16-bit integer data
+ "integer24" - two's-complement 24-bit integer data
+ "integer32" - two's-complement 32-bit integer data
+ "float32"   - 32-bit floating-point data
+ "float64"   - 64-bit floating-point data
+ "text16"    - text data scaled as 16-bit integers
+ "text"      - text data
+.fi
+.ft P
+.ti -3n
+Start: byte offset to the start of data (integer value)
+.br
+.ti -3n
+Sfreq: sampling frequency in Hz (floating-point value)
+.br
+.ti -3n
+Swapb: data byte swap parameter
+.br
+.ft CW
+.nf
+ "native" - no byte swapping
+ "little-endian" - file data is in little-endian byte order and will be
+   swapped if the current host uses big-endian byte order
+ "big-endian" - data is in big-endian byte order and will be swapped if
+   the current host uses little-endian byte order
+ "swap" - swap the data bytes
+.fi
+.ft P
+.ti -3n
+Nchan: number of channels
+.br
+The data consists of interleaved samples from Nchan channels
+.ti -3n
+FullScale: full scale value for the data in the file.
+.br
+This value is used to scale data from the file to fall in the range -1 to
++1.  If the FullScale value is set to "default", the FullScale value is
+determined based on the type of data in the file as shown below.
+.ft CW
+.nf
+   data type     FullScale
+ 8-bit A-law:               32768
+ 8-bit mu-law:              32768
+ 8-bit bit-reversed mu-law: 32768
+ 8-bit integer:             256
+ 16-bit integer:            32768
+ 24-bit integer:            256*32768
+ 32-bit integer:            65536*32768
+ float data:                1
+ text16 data:               32768
+ text data:                 1
+.fi
+.ft P
+The value of FullScale can be specified as a value or ratio of values.
+.in -3n
+The default values for the audio file parameters correspond to the following
+string.
+.ft CW
+.nf
+  "undefined, 0, 8000., native, 1, default"
+.fi
+.ft P
+Leading and trailing white-space is removed from each item.  Any of the
+parameters may be omitted, in which case whatever value has been previously
+set remains in effect for that parameter.  The string ",512, 10000." would set
+the Start and Sfreq parameters and leave the other parameters unchanged.
+.PP
+If the input string contains has a leading '$', the string is assumed to
+specify the name of an environment variable after the '$'.  This routine uses
+the value of this environment variable to determine the parameters.  If this
+routine is called as AFsetInputPar("$AF_SETINPUTPAR"), this routine would look
+for the parameter string in environment variable AF_SETINPUTPAR.
+.SH Parameters:
+.in +3n
+.ti -3n
+<-  int AFsetInputPar
+.br
+Error flag, zero for no error
+.ti -3n
+ -> const char String[]
+.br
+String containing the list of parameters for headerless files or the name
+of an environment variable (with a leading $)
+.in -3n
+.SH Author / revision:
+P. Kabal
+/ Revision 1.76  2017-07-03
+.SH See Also
+AFopnRead

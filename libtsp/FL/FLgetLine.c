@@ -5,10 +5,10 @@ Routine:
   char *FLgetLine (FILE *fp);
 
 Purpose:
-  Read a line of text from a file
+  Read a line of text from a text stream
 
 Description:
-  This routine retrieves a line of input from a file.  This routine reads
+  This routine retrieves a line of input from a text file.  This routine reads
   characters until a newline is encountered.  The newline is not returned.
   The return value is a pointer to the text string or NULL if end-of-file is
   encountered.
@@ -21,11 +21,11 @@ Parameters:
       is in an internally allocated storage area; each call to this routine
       overlays this storage.
    -> FILE *fp
-      File pointer to the file
+      File pointer to the text file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.15 $  $Date: 2003/05/09 01:36:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.18 $  $Date: 2017/05/24 16:21:53 $
 
 -------------------------------------------------------------------------*/
 
@@ -34,8 +34,8 @@ Author / revision:
 #include <libtsp.h>
 #include <libtsp/FLmsg.h>
 
-#define DEF_BUF_SIZE	256			/* default buffer size */
-#define MAX_BUF_SIZE	(40 * DEF_BUF_SIZE)	/* max buffer size */
+#define DEF_BUF_SIZE  256     /* default buffer size */
+#define MAX_BUF_SIZE  (40 * DEF_BUF_SIZE) /* max buffer size */
 
 
 char *
@@ -61,24 +61,24 @@ FLgetLine (FILE *fp)
 
     /* Read a line or partial line */
     p = fgets (&linebuf[nc], lenbuf - nc, fp);
-    nc += strlen (&linebuf[nc]);
+    nc += (int) strlen (&linebuf[nc]);
 
     /* Check for end-of-file */
     if (p == NULL) {
       if (! feof (fp))
-	UTerror("FLgetLine: %s", FLM_ReadErr);
+        UTerror("FLgetLine: %s", FLM_ReadErr);
       if (nc != 0)
-	break;
+        break;
       else {
-	UTfree ((void *) linebuf);
-	lenbuf = 0;
-	linebuf = NULL;
-	break;
+        UTfree ((void *) linebuf);
+        lenbuf = 0;
+        linebuf = NULL;
+        break;
       }
     }
 
     /* Return if the end-of-line has been reached (delete the newline) */
-    if (linebuf[nc-1] == '\n') {	/* nc is always > 0 */
+    if (linebuf[nc-1] == '\n') {  /* nc is always > 0 */
       linebuf[nc-1] = '\0';
       break;
     }

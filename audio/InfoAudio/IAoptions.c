@@ -12,6 +12,7 @@ Description:
   This routine decodes options for InfoAudio.
 
 Parameters:
+  <-  void IAoptions
    -> int argc
       Number of command line arguments
    -> const char *argv[]
@@ -24,8 +25,8 @@ Parameters:
       Number of input file names
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.31 $  $Date: 2003/05/13 01:19:47 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.33 $  $Date: 2017/05/07 02:53:27 $
 
 ----------------------------------------------------------------------*/
 
@@ -35,7 +36,7 @@ Author / revision:
 #include <AO.h>
 #include "InfoAudio.h"
 
-#define ERRSTOP(text,par)	UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
+#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
 
 /* Option table  */
 static const char *OptTable[] = {
@@ -46,7 +47,7 @@ static const char *OptTable[] = {
 
 void
 IAoptions (int argc, const char *argv[], int *Icode,
-	   struct IA_FIpar FI[MAXFILE], int *Nfiles)
+           struct IA_FIpar FI[MAXFILE], int *Nfiles)
 
 {
   struct IA_FIpar FIx;
@@ -57,7 +58,7 @@ IAoptions (int argc, const char *argv[], int *Icode,
   FIParSet = 0;
   FIpar_INIT (&FIx);
 
-  icode = 7;
+  icode = 15;
 
 /* Initialization */
   UTsetProg (PROGRAM);
@@ -92,15 +93,15 @@ IAoptions (int argc, const char *argv[], int *Icode,
       /* Filename argument */
       ++nF;
       if (nF > MAXFILE)
-	UThalt ("%s: %s", PROGRAM, IAM_XFName);
+        UThalt ("%s: %s", PROGRAM, IAM_XFName);
       STcopyMax (OptArg, FIx.Fname, FILENAME_MAX-1);
       FI[nF-1] = FIx;
       break;
     case 1:
     case 2:
       /* Info code parameter */
-      if (STdec1int (OptArg, &icode) || icode < 0 || icode > 7)
-	ERRSTOP (IAM_BadInfoCode, OptArg);
+      if (STdec1int (OptArg, &icode) || icode < 0 || icode > 15)
+        ERRSTOP (IAM_BadInfoCode, OptArg);
       break;
     default:
       assert (0);

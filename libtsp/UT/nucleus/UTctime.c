@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  char *UTctime (time_t *timer, int format)
+  char *UTctime (time_t *Time, int Format)
 
 Purpose:
   Convert a time value to a date/time string
@@ -12,95 +12,96 @@ Description:
   standard formats.  Formats 0, 1 and 2 are in local time.  Format 3 gives
   the date and time in GMT (Universal Coordinated Time).
 
-  Format 0 is the standard C-language format (without the trailing newline
-  character).  Format 1 includes the time zone abbreviation.  Formats 0 and 1
-  use abbreviations for the day of the week and the month.  Formats 2 and 3
-  avoid language dependent names (except for the time-zone code).
+  Format 0 and Format 1:
+    Standard C-language formats (without the trailing newline character).
+    Format 1 includes the time zone abbreviation.  Formats 0 and 1 use
+    abbreviations for the day of the week and the month.
+  Formats 2 and  3:
+    These formats adhere to the ISO 8601 standard, avoiding language dependent
+    names (except for the time-zone code).
+  Format 4:
+    This formats adheres to the ISO 8601 standard using Z to indicate UTC.
 
-   Format  Example                      time zone    typical length
-     0    Sun Sep 16 01:03:52 1973      local time   24 + null
-     1    Sun Sep 16 01:03:52 EST 1973  local time   28* + null
-     2    1994-01-23 09:59:53 EST       local time   23* + null
-     3    1994-01-23 14:59:53 UTC       GMT          23 + null
-               (*) the time zone length can vary
+    Format  Example                       time zone    typical length
+      0     Sun Sep 16 01:03:52 1973      local time   24 + null
+      1     Sun Sep 16 01:03:52 EST 1973  local time   28* + null
+      2     1994-01-23 09:59:53 EST       local time   23* + null
+      3     1994-01-23 14:59:53 UTC       GMT          23 + null
+      4     1994-01-23 14:59:53 Z         GMT          21 + null
+                                          (*) the time zone length can vary
 
 Parameters:
   <-  char UTctime[]
       Pointer to a character string for the date and time.  This is a pointer
       to an internal static storage area; each call to this routine overlays
       this storage.
-   -> time_t *timer
+   -> time_t *Time
       Input time value
-   -> int format
-      Date / time format code, taking on values from 0 to 3
+   -> int Format
+      Date / time format code, taking on values from 0 to 4
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.23 $  $Date: 2009/03/01 21:03:35 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.29 $  $Date: 2017/06/09 17:29:25 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
 #  define _CRT_SECURE_NO_WARNINGS     /* Allow strftime */
 #endif
 
-#include <time.h>	/* strftime definition */
-			/* tzset (Section 8.3.2.1 of Posix) */
+#include <time.h> /* strftime definition */
+      /* tzset (Section 8.3.2.1 of Posix) */
 
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 
-#define MAXDATE	64
+#define MAXDATE 64
 
 
 char *
-UTctime (time_t *timer, int format)
+UTctime (time_t *Time, int Format)
 
 {
   int nc;
   char *stdtime;
   static char Datetime[MAXDATE+1];
-  static int InitTZ = 0;
 
-  /* Initialize the time zone setting */
-  if (! InitTZ) {
-    tzset ();
-    InitTZ = 1;
-  }
-
-/* Notes:
-   - On some systems, the time zone is verbose.  For instance, on Windows,
-     with the MSVC compiler, the time zone is of the form
-     "Eastern Daylight Time".
-   - Setting the TZ environment variable will force the time zone names,
-     for instance TZ=EST5EDT with force the use of the 3 letter short forms
-     for the time zones.
+/* Time zone setting
+ For Unix systems, use tzselect on the command line, then assign the value
+ shown to the TZ environment variable
+ - export TZ='America/Montreal'
+     or
+ - export TZ='EST5EDT'
+ For Windows assume that time zone is correctly set. The time zone can be
+ verbose, for instance "Eastern Daylight Time".
+ - Setting the TZ environment variable and calling tzset () will force the
+   time zone names, for instance TZ=EST5EDT with force the use of the 3 letter
+   short forms for the time zones when tzset().
 */
-
-  switch (format) {
-
-  case (0):
-  default:
-    stdtime = asctime (localtime (timer));
-    STcopyNMax (stdtime, Datetime, 24, MAXDATE);
-    break;
-
-  case (1):
-    stdtime = asctime (localtime (timer));
+  switch (Format) {
+  case 1:
+    stdtime = asctime (localtime (Time));
     nc = STcopyNMax (stdtime, Datetime, 20, MAXDATE);
-    strftime (&Datetime[nc], MAXDATE - nc, "%Z %Y", localtime (timer));
+    strftime (&Datetime[nc], MAXDATE - nc, "%Z %Y", localtime (Time));
     STtrim (&Datetime[nc], &Datetime[nc]); /* In case time zone is empty */
     break;
-
-  case (2):
-    strftime (Datetime, MAXDATE, "%Y-%m-%d %H:%M:%S %Z", localtime (timer));
-    STtrim (Datetime, Datetime);	/* In case time zone is empty */
+  case 2:
+    strftime (Datetime, MAXDATE, "%Y-%m-%d %H:%M:%S %Z", localtime (Time));
+    STtrim (Datetime, Datetime);  /* In case time zone is empty */
     break;
-
-  case (3):
-    strftime (Datetime, MAXDATE, "%Y-%m-%d %H:%M:%S UTC", gmtime (timer));
+  case 3:
+    strftime (Datetime, MAXDATE, "%Y-%m-%d %H:%M:%S UTC", gmtime (Time));
+    break;
+  case 4:
+    strftime (Datetime, MAXDATE, "%Y-%m-%d %H:%M:%S Z", gmtime (Time));
+    break;
+  case 0:
+  default:
+    stdtime = asctime (localtime (Time));
+    STcopyNMax (stdtime, Datetime, 24, MAXDATE);
     break;
   }
 

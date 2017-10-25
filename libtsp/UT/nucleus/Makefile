@@ -11,6 +11,7 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libtsplite.a
 
@@ -27,7 +28,6 @@ $(LIB): \
 	$(LIB)(UTdIEEE80.o) \
 	$(LIB)(UTdecOption.o) \
 	$(LIB)(UTeIEEE80.o) \
-	$(LIB)(UTgetUser.o) \
 	$(LIB)(UTswapCode.o) \
 	#
 	ranlib $(LIB)

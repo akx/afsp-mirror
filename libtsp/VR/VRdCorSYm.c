@@ -50,8 +50,8 @@ Parameters:
       Number of elements in the input array
 
 Author / revision:
-  P. Kabal  Copyright (C) 2004
-  $Revision: 1.7 $  $Date: 2004/06/10 02:54:48 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.8 $  $Date: 2017/03/28 00:11:18 $
 
 -------------------------------------------------------------------------*/
 
@@ -70,7 +70,7 @@ VRdCorSym (const double x[], int N)
                 SUM x[i] y[i]
     rho = --------------------------- .
           sqrt(SUM x[i]^2 SUM y[i]^2)
-  
+
   The correlation takes on values from -1 to +1.  In our case, the vector
   y[i] is the reversal of x[i].  The two sums in the denominator are equal
   and so the square root can be eliminated.

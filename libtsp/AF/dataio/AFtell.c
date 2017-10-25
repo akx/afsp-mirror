@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  long int AFtell (FILE *fp, int *ErrCode)
+  long int AFtell (FILE *fp, enum AF_ERR_T *ErrCode)
 
 Purpose:
   Determine the position in a file
@@ -16,29 +16,30 @@ Description:
 
 Parameters:
   <-  long int AFtell
-      Position in the file
+      Position in the file, set to -1 for an error
    -> FILE *fp
       File pointer associated with the file
-  <-> int ErrCode
-      Error code.  This value is set if an error is detected, but otherwise
-      remains unchanged.
+  <-> enum AF_ERR_T ErrCode
+      Error code.  If ErrCode is initially set, this routine returns -1.
+      The error code is set if an error is detected, but otherwise remains
+      unchanged.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.9 $  $Date: 2003/05/09 01:11:35 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.13 $  $Date: 2017/06/28 23:51:20 $
 
 -------------------------------------------------------------------------*/
 
 #include <errno.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFmsg.h>
-#include <libtsp/AFpar.h>
 
 
 long int
-AFtell (FILE *fp, int *ErrCode)
+AFtell (FILE *fp, enum AF_ERR_T *ErrCode)
 
 {
   long int pos;

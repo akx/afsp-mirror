@@ -25,8 +25,8 @@ Parameters:
       Second value
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.7 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.8 $  $Date: 2017/03/28 00:14:11 $
 
 -------------------------------------------------------------------------*/
 
@@ -34,11 +34,11 @@ Author / revision:
 #include <libtsp/nucleus.h>
 #include <libtsp/STmsg.h>
 
-#define MAXC	23
-#define DP_EMPTY		0
-#define DP_LVAL			1
-#define DP_DELIM		2
-#define DP_RVAL			4	
+#define MAXC  23
+#define DP_EMPTY    0
+#define DP_LVAL     1
+#define DP_DELIM    2
+#define DP_RVAL     4
 
 
 int

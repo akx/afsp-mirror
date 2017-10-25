@@ -27,19 +27,19 @@ Parameters:
    -> const char String[]
       Input string
    -> const char Delim[];
-      Delimiter string.  This value is used in STfindToken to separate the
-      two values.
+      String with delimiter characters.  These delimiters are passed to function
+      STfindToken.  Any of the delimiter characters can separate the two values.
    -> int Type
-      Code for the data type, 'D' for double, 'F' for float, 'I' for int, 'L'
-      for long int.
+      Character code for the data type: 'D' for double, 'F' for float, 'I' for
+      int, 'L' for long int
   <-  void *Val1
       First value (may be unchanged)
   <-  void *Val2
       Second value (may be unchanged)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.9 $  $Date: 2003/05/09 03:06:42 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.14 $  $Date: 2017/05/24 16:56:51 $
 
 -------------------------------------------------------------------------*/
 
@@ -48,16 +48,16 @@ Author / revision:
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
 
-#define MAXC	80
-#define DP_EMPTY		0
-#define DP_LVAL			1
-#define DP_DELIM		2
-#define DP_RVAL			4	
+#define MAXC      80
+#define DP_EMPTY  0
+#define DP_LVAL   1
+#define DP_DELIM  2
+#define DP_RVAL   4
 
 
 int
 STdecPair (const char String[], const char Delim[], int Type, void *Val1,
-	   void *Val2)
+           void *Val2)
 
 {
   char *token;
@@ -67,7 +67,7 @@ STdecPair (const char String[], const char Delim[], int Type, void *Val1,
   char cbuf[MAXC+1];
 
 /* Allocate temporary string space */
-  nc = strlen (String);
+  nc = (int) strlen (String);
   if (nc > MAXC)
     token = (char *) UTmalloc (nc + 1);
   else
@@ -87,27 +87,27 @@ STdecPair (const char String[], const char Delim[], int Type, void *Val1,
     - token zero length, skip the first value
     - second value is p, if this is zero length, skip this value
 */
-  if (p == NULL) {
+  if (p == NULL) {    /* No delimiter */
     status = DP_LVAL;
-    if (STdec1val (token, Type, Val1))		/* No delimiter */
+    if (STdec1val (token, Type, Val1))
       status = -1;
   }
-  else {					/* Delimiter */
+  else {              /* Delimiter */
     status = DP_DELIM;
     if (token[0] != '\0') {
-      status += DP_LVAL;			/* Left value present */
+      status += DP_LVAL;      /* Left value present */
       if (STdec1val (token, Type, Val1))
-	status = -1;
+        status = -1;
     }
 
     /* Decode the second value of the pair */
     if (status >= 0 && *p != '\0') {
-      status += DP_RVAL;			/* Right value present */
+      status += DP_RVAL;      /* Right value present */
       if (STdec1val (p, Type, Val2))
-	status = -2;
+        status = -2;
     }
   }
-    
+
   if (token != cbuf)
     UTfree ((void *) token);
 

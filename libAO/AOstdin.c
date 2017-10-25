@@ -13,24 +13,24 @@ Description:
   is found, an error message is printed and execution is halted.
 
 Parameters:
+  <-  void AOstdin
    -> const struct AO_FIpar *FI
       Array of input file parameter structures
    -> int N
       Number of input file structures
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.6 $  $Date: 2003/05/09 12:32:49 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.9 $  $Date: 2017/06/13 12:29:20 $
 
 -------------------------------------------------------------------------*/
 
 #include <string.h>
 
-#include <libtsp.h>
 #include <AO.h>
 
-#define ROUTINE		"AOstdin"
-#define PGM		((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
+#define ROUTINE   "AOstdin"
+#define PGM   ((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
 
 
 void

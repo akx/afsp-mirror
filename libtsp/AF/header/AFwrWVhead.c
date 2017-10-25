@@ -2,14 +2,13 @@
                              McGill University
 
 Routine:
-  AFILE *AFwrWVhead (FILE *fp, struct AF_write *AF)
+ AFILE *AFwrWVhead (FILE *fp, struct AF_write *AFw)
 
 Purpose:
   Write header information to a WAVE file
 
 Description:
-  This routine opens and writes header information to a WAVE format audio
-  file.
+  This routine writes header information to a WAVE format audio file.
 
   WAVE file:
    Offset Length Type    Contents
@@ -25,6 +24,7 @@ Description:
      32     2    int      Block align
      34     2    int      Data word length (bits)
      36     2    int      Extra info size
+     38          ...     "fmt " extension
       C     4    int    "fact" chunk identifier (only for non-PCM data)
     C+4     4    int    Chunk length
     C+8     4    int      Number of samples (per channel)
@@ -35,16 +35,18 @@ Description:
 
 Parameters:
   <-  AFILE *AFwrWVhead
-      Audio file pointer for the audio file.  In case of error, the audio file
-      pointer is set to NULL.
+      Audio file pointer for the audio file.  This routine allocates the
+      space for this structure.  If an error is detected, a NULL pointer is
+      returned.
    -> FILE *fp
       File pointer for the audio file
   <-> struct AF_write *AFw
       Structure containing file parameters
+      AFw->DFormat.Swapb - set to DS_EL
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 20:08:23 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.84 $  $Date: 2017/05/24 16:15:38 $
 
 -------------------------------------------------------------------------*/
 
@@ -52,53 +54,54 @@ Author / revision:
 #include <setjmp.h>
 #include <string.h>
 
+#define WV_TEXT_CHUNKS
+
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/AFheader.h>
+#include <libtsp/AFinfo.h>
 #include <libtsp/AFmsg.h>
-#define AF_DATA_LENGTHS
-#define AF_SPKR_MASKS
-#include <libtsp/AFpar.h>
-#define WV_CHANNEL_MAP
-#define WAVEFORMATEX_SUBTYPE
+#ifdef WV_TEXT_CHUNKS
+#  define WV_INFO_REC
+#endif    /* WV_TEXT_CHUNKS */
+#define WV_SPKR
 #include <libtsp/WVpar.h>
 
-#define ICEILV(n,m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
-#define RNDUPV(n,m)	((m) * ICEILV (n, m))		/* Round up */
-
-#define MCOPY(src,dest)		memcpy ((void *) (dest), \
-					(const void *) (src), sizeof (dest))
-#define WRPAD(fp,size,align) \
-     AFwriteHead (fp, NULL, 1, (int) (RNDUPV(size, align) - (size)), \
-		  DS_NATIVE);
-
-#define ALIGN		2	/* Chunks padded out to a multiple of ALIGN */
+#define ALIGN   2 /* Chunks padded out to a multiple of ALIGN */
 
 /* setjmp / longjmp environment */
 extern jmp_buf AFW_JMPENV;
 
-static void
-AF_setFMT (struct WV_CKfmt *CKfmt, const struct AF_write *AFw);
-static void
-AF_wrRIFF (FILE *fp, const struct WV_CKRIFF *CKRIFF);
+/* Local functions */
 static int
-AF_wrFMT (FILE *fp, const struct WV_CKfmt *CKfmt);
+AF_setFMT (struct WV_Ckfmt *Ckfmt, const struct AF_write *AFw);
+static int
+AF_setTextChunks (struct WV_CkRIFF *CkRIFF, struct AF_info *TInfo, char *Text);
 static UT_uint4_t
-AF_encChannelConfig (const unsigned char *SpkrConfig);
-
+AF_spkrConfigMask (const unsigned char *SpkrConfig);
+static int
+AF_wrFMT (FILE *fp, const struct WV_Ckfmt *Ckfmt);
+static void
+AF_wrRIFF (FILE *fp, const struct WV_CkRIFF *CkRIFF);
+static int
+AF_wrTextChunks (FILE *fp, const struct WV_CkRIFF *CkRIFF);
 
 AFILE *
 AFwrWVhead (FILE *fp, struct AF_write *AFw)
 
 {
   AFILE *AFp;
-  int Lw;
+  int Ext, Lw, PCM;
   long int size, Ldata;
-  struct WV_CKRIFF CKRIFF;
+  struct WV_CkRIFF CkRIFF;
+  char *TempBuff, *Text;
+  int NInfo, sizeT;
+  struct AF_info TInfo;
 
 /* Set the long jump environment; on error return a NULL */
   if (setjmp (AFW_JMPENV))
-    return NULL;	/* Return from a header write error */
+    return NULL; /* Return from a header write error */
 
 /* Set up the encoding parameters */
   Lw = AF_DL[AFw->DFormat.Format];
@@ -112,37 +115,69 @@ AFwrWVhead (FILE *fp, struct AF_write *AFw)
   }
 
   /* RIFF chunk */
-  MCOPY ("RIFF", CKRIFF.ckID);
-  /* defer filling in the chunk size */ 
-  MCOPY ("WAVE", CKRIFF.WAVEID);
+  MCOPY (ckID_RIFF, CkRIFF.ckID);
+  /* defer filling in the chunk size */
+  MCOPY ("WAVE", CkRIFF.WAVEID);
 
   /* fmt chunk */
-  AF_setFMT (&CKRIFF.CKfmt, AFw);
+  Ext = AF_setFMT (&CkRIFF.Ckfmt, AFw);
+  PCM = (CkRIFF.Ckfmt.wFormatTag == WAVE_FORMAT_PCM ||
+         (Ext && CkRIFF.Ckfmt.SubFormat.wFormatTag == WAVE_FORMAT_PCM));
 
   /* fact chunk */
-  if (CKRIFF.CKfmt.wFormatTag != WAVE_FORMAT_PCM) {
-    MCOPY ("fact", CKRIFF.CKfact.ckID);
-    CKRIFF.CKfact.ckSize = (UT_uint4_t) sizeof (CKRIFF.CKfact.dwSampleLength);
-    CKRIFF.CKfact.dwSampleLength = (UT_uint4_t) 0;
+  if (! PCM) {
+    MCOPY (ckID_fact, CkRIFF.Ckfact.ckID);
+    CkRIFF.Ckfact.ckSize = (UT_uint4_t) sizeof (CkRIFF.Ckfact.dwSampleLength);
+    if (AFw->Nframe != AF_NFRAME_UNDEF)
+      CkRIFF.Ckfact.dwSampleLength = (UT_uint4_t) AFw->Nframe;
+    else
+      CkRIFF.Ckfact.dwSampleLength = (UT_uint4_t) 0;
   }
 
+/* ----- ----- ----- ----- */
+  /* Copy the information records to temp storage */
+  /* NInfo chars are reserved for Info record structure (modified when records
+     are deleted). Another NInfo characters are reserved for the text strings
+     which are extracted from the information record structure.  The text
+     array must be retained until afte the chunks are written to file. */
+  NInfo = AFw->WInfo.N;
+  TempBuff = UTmalloc (2 * NInfo);
+  TInfo.Info = TempBuff;
+  memcpy (TInfo.Info, AFw->WInfo.Info, NInfo);
+  TInfo.N = NInfo;
+  TInfo.Nmax = NInfo;
+  Text = TempBuff + NInfo;
+
+  /* Fill in the DISP, LIST/INFO, afsp chunks */
+  sizeT = AF_setTextChunks (&CkRIFF, &TInfo, Text);
+
   /* data chunk */
-  MCOPY ("data", CKRIFF.CKdata.ckID);
-  CKRIFF.CKdata.ckSize = (UT_uint4_t) Ldata;
+  MCOPY (ckID_data, CkRIFF.Ckdata.ckID);
+  CkRIFF.Ckdata.ckSize = (UT_uint4_t) Ldata;
 
   /* Fill in the RIFF chunk size */
-  size = 4 + 8 + RNDUPV(CKRIFF.CKfmt.ckSize, ALIGN) +
-             8 + RNDUPV(CKRIFF.CKdata.ckSize, ALIGN);
-  if (CKRIFF.CKfmt.wFormatTag != WAVE_FORMAT_PCM)
-    size += 8 + RNDUPV(CKRIFF.CKfact.ckSize, ALIGN);
-  CKRIFF.ckSize = (UT_uint4_t) size;
+  size  = 4 + 8 + RNDUPV (CkRIFF.Ckfmt.ckSize, ALIGN);
+  if (! PCM)
+    size += 8 + RNDUPV (CkRIFF.Ckfact.ckSize, ALIGN);
+  size += sizeT;
+  size += 8 + RNDUPV (CkRIFF.Ckdata.ckSize, ALIGN);
+  CkRIFF.ckSize = (UT_uint4_t) size;
+
+/* Update relevant parts of AFw */
+  AFw->DFormat.Swapb = DS_EL;
 
 /* Write out the header (error return via longjmp) */
-  AFw->DFormat.Swapb = DS_EL;
-  AF_wrRIFF (fp, &CKRIFF);
+/* Text chunks are written after the data by AFupdWVhead */
+  AF_wrRIFF (fp, &CkRIFF);
 
-/* Set the parameters for file access */
-  AFp = AFsetWrite (fp, FT_WAVE, AFw);
+  /* Recover temporary text buffer space */
+  UTfree (TempBuff);
+
+/* Create the audio file structure */
+  if (Ext)
+    AFp = AFsetWrite (fp, FT_WAVE_EX, AFw);
+  else
+    AFp = AFsetWrite (fp, FT_WAVE, AFw);
 
   return AFp;
 }
@@ -150,25 +185,16 @@ AFwrWVhead (FILE *fp, struct AF_write *AFw)
 /* Fill in the fmt chunk */
 
 
-static void
-AF_setFMT (struct WV_CKfmt *CKfmt, const struct AF_write *AFw)
+static int
+AF_setFMT (struct WV_Ckfmt *Ckfmt, const struct AF_write *AFw)
 
 {
   int Lw, Ext, Res, NbS;
   UT_uint2_t FormatTag;
 
+/* First: Set the fmt chunk without the extension */
+/* Later: Modify the parameters for an extension, if appropriate */
   Lw = AF_DL[AFw->DFormat.Format];
-  Res = 8 * Lw;
-  NbS = AFw->DFormat.NbS;
-
-  /* Determine whether to use an extensible header */
-  Ext = 0;
-  if (AFw->Ftype == FTW_WAVE)
-    Ext = (AFw->Nchan > 2 || NbS != Res ||
-	   AFw->DFormat.Format == FD_INT24 ||
-	   AFw->DFormat.Format == FD_INT32 ||
-	   (AFw->SpkrConfig[0] != AF_X_SPKR && AFw->SpkrConfig[0] != '\0'));
-
   switch (AFw->DFormat.Format) {
   case FD_UINT8:
   case FD_INT16:
@@ -192,71 +218,93 @@ AF_setFMT (struct WV_CKfmt *CKfmt, const struct AF_write *AFw)
   }
 
   /* Set the chunk size (minimum size for now) */
-  MCOPY ("fmt ", CKfmt->ckID);
-  CKfmt->ckSize = sizeof (CKfmt->wFormatTag) + sizeof (CKfmt->nChannels)
-    + sizeof (CKfmt->nSamplesPerSec) + sizeof (CKfmt->nAvgBytesPerSec)
-    + sizeof (CKfmt->nBlockAlign) + sizeof (CKfmt->wBitsPerSample);
+  MCOPY (ckID_fmt, Ckfmt->ckID);
+  Ckfmt->ckSize = sizeof (Ckfmt->wFormatTag) + sizeof (Ckfmt->nChannels)
+      + sizeof (Ckfmt->nSamplesPerSec) + sizeof (Ckfmt->nAvgBytesPerSec)
+      + sizeof (Ckfmt->nBlockAlign) + sizeof (Ckfmt->wBitsPerSample);
 
-  CKfmt->nChannels = (UT_uint2_t) AFw->Nchan;
-  CKfmt->nSamplesPerSec = (UT_uint4_t) (AFw->Sfreq + 0.5);	/* Rounding */
-  CKfmt->nAvgBytesPerSec = (UT_uint4_t) (CKfmt->nSamplesPerSec * AFw->Nchan * Lw);
-  CKfmt->nBlockAlign = (UT_uint2_t) (Lw * AFw->Nchan);
+  Ckfmt->nChannels = (UT_uint2_t) AFw->Nchan;
+  Ckfmt->nSamplesPerSec = (UT_uint4_t) (AFw->Sfreq + 0.5);  /* Rounding */
+  Ckfmt->nAvgBytesPerSec = (UT_uint4_t) (Ckfmt->nSamplesPerSec * AFw->Nchan * Lw);
+  Ckfmt->nBlockAlign = (UT_uint2_t) (Lw * AFw->Nchan);
+
+  /* Determine whether to use an extensible header */
+  Res = 8 * Lw;
+  NbS = AFw->DFormat.NbS;
+  if (AFw->FtypeW == FTW_WAVE_NOEX)
+    Ext = 0;
+  else {
+    Ckfmt->dwChannelMask = AF_spkrConfigMask (AFw->SpkrConfig);
+    Ext = (AFw->FtypeW == FTW_WAVE_EX ||
+           AFw->Nchan > 2 || NbS != Res || AFw->DFormat.Format == FD_INT24 ||
+           AFw->DFormat.Format == FD_INT32 || Ckfmt->dwChannelMask != 0L);
+  }
 
   if (Ext) {
-    CKfmt->wBitsPerSample = (UT_uint2_t) Res;
-    CKfmt->wFormatTag = WAVE_FORMAT_EXTENSIBLE;
-    CKfmt->cbSize = 22;
+    Ckfmt->wBitsPerSample = (UT_uint2_t) Res;
+    Ckfmt->wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+    Ckfmt->cbSize = 22;
     if (FormatTag == WAVE_FORMAT_PCM || FormatTag == WAVE_FORMAT_IEEE_FLOAT)
-      CKfmt->wValidBitsPerSample = (UT_uint2_t) NbS;
+      Ckfmt->wValidBitsPerSample = (UT_uint2_t) NbS;
     else
-      CKfmt->wValidBitsPerSample = (UT_uint2_t) Res;
-    CKfmt->dwChannelMask = AF_encChannelConfig (AFw->SpkrConfig);
-    CKfmt->SubFormat.wFormatTag = FormatTag;
-    MCOPY (WAVEFORMATEX_TEMPLATE.guidx, CKfmt->SubFormat.guidx);
+      Ckfmt->wValidBitsPerSample = (UT_uint2_t) Res;
+    Ckfmt->SubFormat.wFormatTag = FormatTag;
+    MCOPY (WAVEFORMATEX_TEMPLATE.guidx, Ckfmt->SubFormat.guidx);
   }
   else {
     /* Use wBitsPerSample to specify the "valid bits per sample" */
-    if (RNDUPV(NbS, 8) != Res) {
+    if (RNDUPV (NbS, 8) != Res) {
       UTwarn (AFMF_WV_InvNbS, "AFwrWVhead -", NbS, Res);
       NbS = Res;
     }
-    CKfmt->wBitsPerSample = (UT_uint2_t) NbS;
-    CKfmt->wFormatTag = FormatTag;
-    CKfmt->cbSize = 0;
+    Ckfmt->wBitsPerSample = (UT_uint2_t) NbS;
+    Ckfmt->wFormatTag = FormatTag;
+    Ckfmt->cbSize = 0;
   }
 
   /* Update the chunk size with the size of the chunk extension */
-  if (CKfmt->wFormatTag != WAVE_FORMAT_PCM)
-    CKfmt->ckSize += (sizeof (CKfmt->cbSize) + CKfmt->cbSize);
+  if (Ckfmt->wFormatTag != WAVE_FORMAT_PCM)
+    Ckfmt->ckSize += (sizeof (Ckfmt->cbSize) + Ckfmt->cbSize);
 
-  return;
+  return Ext;
 }
 
 /* Encode channel/speaker information */
 
 
 static UT_uint4_t
-AF_encChannelConfig (const unsigned char *SpkrConfig)
+AF_spkrConfigMask (const unsigned char *SpkrConfig)
 
 {
-  int i, n, Nspkr;
+  int i, n, mp, m, Nspkr;
   UT_uint4_t ChannelMask;
 
-  if (SpkrConfig[0] == AF_X_SPKR || SpkrConfig[0] == '\0')
+  if (SpkrConfig[0] == '\0')
     Nspkr = 0;
   else
-    Nspkr = strlen ((const char *) SpkrConfig);
+    Nspkr = (int) strlen ((const char *) SpkrConfig);
 
   ChannelMask = 0;
+  mp = -1;
   for (i = 0; i < Nspkr; ++i) {
     n = SpkrConfig[i];
-    if (i > 0 && n < SpkrConfig[i-1]) {
-      UTwarn ("AFwrWVhead - %s", AFM_WV_BadSpkr);
-      ChannelMask = 0;
-      break;
+    if (n == AF_SPKR_AUX)
+      mp = WV_N_SPKR_MASK; /* If any more locations => out of order error */
+    else {
+      m = AF_WV_ChannelMask[n-1];
+      if (m == WV_X) {
+        UTwarn ("AFwrWVhead - %s", AFM_WV_NSSpkr);
+        ChannelMask = 0;
+        break;
+      }
+      if (m <= mp) {   /* Check ordering */
+        UTwarn ("AFwrWVhead - %s", AFM_WV_NSSpkrO);
+        ChannelMask = 0;
+        break;
+      }
+      ChannelMask = ChannelMask | WV_Spkr_Mask[m];
+      mp = m;
     }
-    if (n != AF_SPKR_X)
-      ChannelMask = ChannelMask | WV_ChannelMap[n-1];
   }
 
   return ChannelMask;
@@ -266,26 +314,29 @@ AF_encChannelConfig (const unsigned char *SpkrConfig)
 
 
 static void
-AF_wrRIFF (FILE *fp, const struct WV_CKRIFF *CKRIFF)
+AF_wrRIFF (FILE *fp, const struct WV_CkRIFF *CkRIFF)
 
 {
-  WHEAD_S (fp, CKRIFF->ckID);
-  WHEAD_V (fp, CKRIFF->ckSize, DS_EL);
-  WHEAD_S (fp, CKRIFF->WAVEID);
+  WHEAD_S (fp, CkRIFF->ckID);
+  WHEAD_V (fp, CkRIFF->ckSize, DS_EL);
+  WHEAD_S (fp, CkRIFF->WAVEID);
 
-  AF_wrFMT (fp, &CKRIFF->CKfmt);
+  AF_wrFMT (fp, &CkRIFF->Ckfmt);
 
   /* Write the Fact chunk if the data format is not PCM */
-  if (!(CKRIFF->CKfmt.wFormatTag == WAVE_FORMAT_PCM ||
-      (CKRIFF->CKfmt.wFormatTag == WAVE_FORMAT_EXTENSIBLE &&
-       CKRIFF->CKfmt.SubFormat.wFormatTag == WAVE_FORMAT_PCM))) {
-    WHEAD_S (fp, CKRIFF->CKfact.ckID);
-    WHEAD_V (fp, CKRIFF->CKfact.ckSize, DS_EL);
-    WHEAD_V (fp, CKRIFF->CKfact.dwSampleLength, DS_EL);
+  if (!(CkRIFF->Ckfmt.wFormatTag == WAVE_FORMAT_PCM ||
+      (CkRIFF->Ckfmt.wFormatTag == WAVE_FORMAT_EXTENSIBLE &&
+       CkRIFF->Ckfmt.SubFormat.wFormatTag == WAVE_FORMAT_PCM))) {
+    WHEAD_S (fp, CkRIFF->Ckfact.ckID);
+    WHEAD_V (fp, CkRIFF->Ckfact.ckSize, DS_EL);
+    WHEAD_V (fp, CkRIFF->Ckfact.dwSampleLength, DS_EL);
   }
 
-  WHEAD_S (fp, CKRIFF->CKdata.ckID);
-  WHEAD_V (fp, CKRIFF->CKdata.ckSize, DS_EL);
+  /* Write out the DISP, LIST/INFO, afsp chunks */
+  AF_wrTextChunks (fp, CkRIFF);
+
+  WHEAD_S (fp, CkRIFF->Ckdata.ckID);
+  WHEAD_V (fp, CkRIFF->Ckdata.ckSize, DS_EL);
 
   return;
 }
@@ -294,30 +345,167 @@ AF_wrRIFF (FILE *fp, const struct WV_CKRIFF *CKRIFF)
 
 
 static int
-AF_wrFMT (FILE *fp, const struct WV_CKfmt *CKfmt)
+AF_wrFMT (FILE *fp, const struct WV_Ckfmt *Ckfmt)
 
 {
   long int offs, LFMT;
 
-  offs  = WHEAD_S (fp, CKfmt->ckID);
-  offs += WHEAD_V (fp, CKfmt->ckSize, DS_EL);
-  LFMT = CKfmt->ckSize + 8;
-  offs += WHEAD_V (fp, CKfmt->wFormatTag, DS_EL);
-  offs += WHEAD_V (fp, CKfmt->nChannels, DS_EL);
-  offs += WHEAD_V (fp, CKfmt->nSamplesPerSec, DS_EL);
-  offs += WHEAD_V (fp, CKfmt->nAvgBytesPerSec, DS_EL);
-  offs += WHEAD_V (fp, CKfmt->nBlockAlign, DS_EL);
-  offs += WHEAD_V (fp, CKfmt->wBitsPerSample, DS_EL);
+  offs  = WHEAD_S (fp, Ckfmt->ckID);
+  offs += WHEAD_V (fp, Ckfmt->ckSize, DS_EL);
+  LFMT = Ckfmt->ckSize + 8;
+  offs += WHEAD_V (fp, Ckfmt->wFormatTag, DS_EL);
+  offs += WHEAD_V (fp, Ckfmt->nChannels, DS_EL);
+  offs += WHEAD_V (fp, Ckfmt->nSamplesPerSec, DS_EL);
+  offs += WHEAD_V (fp, Ckfmt->nAvgBytesPerSec, DS_EL);
+  offs += WHEAD_V (fp, Ckfmt->nBlockAlign, DS_EL);
+  offs += WHEAD_V (fp, Ckfmt->wBitsPerSample, DS_EL);
   if (offs < LFMT)
-    offs += WHEAD_V (fp, CKfmt->cbSize, DS_EL);
+    offs += WHEAD_V (fp, Ckfmt->cbSize, DS_EL);
   if (offs < LFMT) {
-    offs += WHEAD_V (fp, CKfmt->wValidBitsPerSample, DS_EL);
-    offs += WHEAD_V (fp, CKfmt->dwChannelMask, DS_EL);
-    offs += WHEAD_V (fp, CKfmt->SubFormat.wFormatTag, DS_EL);
-    offs += WHEAD_S (fp, CKfmt->SubFormat.guidx);
+    offs += WHEAD_V (fp, Ckfmt->wValidBitsPerSample, DS_EL);
+    offs += WHEAD_V (fp, Ckfmt->dwChannelMask, DS_EL);
+    offs += WHEAD_V (fp, Ckfmt->SubFormat.wFormatTag, DS_EL);
+    offs += WHEAD_S (fp, Ckfmt->SubFormat.guidx);
   }
 
   assert (offs == LFMT);
+
+  return offs;
+}
+
+/* Fill in the DISP, LIST/INFO, and afsp chunks */
+/* Text chunks:
+   - The text in DISP and LIST/INFO chunks is null terminated
+   - For each chunk, pick up the record text and delete the info record
+   - Any remaining records are written to the AFsp chunk
+  The text strings for the chunks point to pieces of the text buffer Text.  This
+  buffer must be retained until after the chunks have been written to the file.
+
+*/
+
+static int
+AF_setTextChunks (struct WV_CkRIFF *CkRIFF, struct AF_info *TInfo, char *Text)
+
+{
+  int N, i, Nc, Nmax, size;
+  const struct WV_LI *LImap;
+  struct WV_CkDISP *CkDISP;
+  struct WV_CkLIST *CkLIST;
+  struct WV_Ckafsp *Ckafsp;
+
+  Nmax = TInfo->N - 1;  /* Maximum room needed to decode subsequent strings */
+
+  /* DISP chunk */
+  CkDISP = &CkRIFF->CkDISP;
+  Nc = AFgetDelInfoRec (WV_DISPid, TInfo, Text, Nmax);
+  if (Nc > 0) {
+    Nc++;   /* Nc +  terminating null */
+    MCOPY (ckID_DISP, CkDISP->ckID);
+    CkDISP->ckSize = 4 + Nc;
+    CkDISP->CFtype = (UT_uint4_t) (CF_TEXT);
+    CkDISP->text = Text;
+  }
+  else
+    CkDISP->ckSize = 0;
+  Text += Nc;
+  Nmax -= Nc;
+
+  /* LIST/INFO preamble */
+  CkLIST = &CkRIFF->CkLIST;
+  MCOPY (ckID_LIST, CkLIST->ckID);
+  CkLIST->ckSize = 4;       /* CkLIST->ckSize updated in the loop below */
+  MCOPY (FM_INFO, CkLIST->INFOID);
+
+  /* Look for a record with the given identifier */
+  N = 0;
+  for (i = 0; i < N_LIMAP; ++i) {
+    LImap = &WV_LImap[i];
+    Nc = AFgetDelInfoRec ((const char **) LImap->RecID, TInfo, Text, Nmax);
+    if (Nc > 0) {
+      ++Nc;     /* Count terminating null */
+      MCOPY (LImap->ckID, CkLIST->CkINFO[N].ckID); /* Item ID */
+      CkLIST->CkINFO[N].ckSize = Nc;
+      CkLIST->CkINFO[N].text = Text;
+      CkLIST->ckSize += 8 + RNDUPV (CkLIST->CkINFO[N].ckSize, ALIGN);
+      ++N;
+      Text += Nc;
+      Nmax -= Nc;
+    }
+  }
+  if (CkLIST->ckSize == 4)
+    CkLIST->ckSize = 0;
+  CkLIST->N = N;            /* Number of INFO chunks (not written to file) */
+
+  /* afsp chunk */
+  Ckafsp = &CkRIFF->Ckafsp;
+  if (TInfo->N > 0) {
+    MCOPY (ckID_afsp, Ckafsp->ckID);
+    Ckafsp->ckSize = 4 + TInfo->N;
+    MCOPY (FM_AFSP, Ckafsp->AFspID);
+    Ckafsp->text = TInfo->Info;
+  }
+  else
+    Ckafsp->ckSize = 0;
+
+  /* Total up the size to be written to file */
+  size = 0;
+  if (CkDISP->ckSize > 0)
+    size += 8 + RNDUPV (CkDISP->ckSize, ALIGN);
+  if (CkLIST->ckSize > 0)
+    size += 8 + RNDUPV (CkLIST->ckSize, ALIGN);
+  if (Ckafsp->ckSize > 0)
+    size += 8 + RNDUPV (Ckafsp->ckSize, ALIGN);
+
+  return size;
+}
+
+/* Write the DISP, LIST/INFO, afsp chunks */
+
+
+static int
+AF_wrTextChunks (FILE *fp, const struct WV_CkRIFF *CkRIFF)
+
+{
+  int i, offs;
+  const struct WV_CkDISP *CkDISP;
+  const struct WV_CkLIST *CkLIST;
+  const struct WV_Ckafsp *Ckafsp;
+
+  offs = 0;
+
+/* DISP chunk */
+  CkDISP = &CkRIFF->CkDISP;
+  if (CkDISP->ckSize > 0) {
+    offs += WHEAD_S (fp, CkDISP->ckID);
+    offs += WHEAD_V (fp, CkDISP->ckSize, DS_EL);
+    offs += WHEAD_V (fp, CkDISP->CFtype, DS_EL);
+    offs += WHEAD_SN (fp, CkDISP->text, CkDISP->ckSize - 4);
+    offs += WRPAD (fp, offs, ALIGN);
+  }
+
+/* LIST chunk */
+  CkLIST = &CkRIFF->CkLIST;
+  if (CkLIST->ckSize > 0) {
+    offs += WHEAD_S (fp, CkLIST->ckID);
+    offs += WHEAD_V (fp, CkLIST->ckSize, DS_EL);
+    offs += WHEAD_S (fp, CkLIST->INFOID);
+    for (i = 0; i < CkLIST->N; ++i) {
+      offs += WHEAD_S (fp, CkLIST->CkINFO[i].ckID);
+      offs += WHEAD_V (fp, CkLIST->CkINFO[i].ckSize, DS_EL);
+      offs += WHEAD_SN (fp, CkLIST->CkINFO[i].text, CkLIST->CkINFO[i].ckSize);
+      offs += WRPAD (fp, CkLIST->CkINFO[i].ckSize, ALIGN);
+    }
+  }
+
+/* afsp chunk */
+  Ckafsp = &CkRIFF->Ckafsp;
+  if (Ckafsp->ckSize > 0) {
+    offs += WHEAD_S (fp, Ckafsp->ckID);
+    offs += WHEAD_V (fp, Ckafsp->ckSize, DS_EL);
+    offs += WHEAD_S (fp, Ckafsp->AFspID);
+    offs += WHEAD_SN (fp, Ckafsp->text, Ckafsp->ckSize - 4);
+    offs += WRPAD (fp, offs, ALIGN);
+  }
 
   return offs;
 }

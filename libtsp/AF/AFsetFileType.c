@@ -8,9 +8,9 @@ Purpose:
   Set the input audio file type
 
 Description:
-  This routine sets the audio file type.  This file type is checked when
-  reading audio files.  Explicitly setting the audio file type bypasses the
-  need for a check for file type from the file header.
+  This routine sets the audio file type.  Normally, the file type is checked
+  when opening an input audio file.  Explicitly setting the audio file type
+  bypasses the need to check the file header for file type match.
     "auto"      - determine the input file type from the file header
     "AU" or "au" - AU audio file
     "WAVE" or "wave" - WAVE file
@@ -23,13 +23,13 @@ Description:
     "INRS"      - INRS-Telecom audio file
     "SPW"       - Comdisco SPW Signal file
     "CSL" or "NSP" - CSL NSP file
-    "text"      - Text audio file
+    "text"      - Text audio file (with header)
 
   If the input string contains has a leading '$', the string is assumed to
-  specify the name of an environment variable after the '$'.  This routine
-  uses the value of this environment variable to determine the parameters.
-  For instance, if this routine is called as AFsetFileType("$AF_FILETYPE"),
-  this routine would look for the parameter string in environment variable
+  specify the name of an environment variable after the '$'.  This routine uses
+  the value of this environment variable to determine the parameters.  For
+  instance, if this routine is called as AFsetFileType("$AF_FILETYPE"), this
+  routine would look for the parameter string in environment variable
   AF_FILETYPE.
 
 Parameters:
@@ -39,26 +39,26 @@ Parameters:
       String with the input file type
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.17 $  $Date: 2009/03/01 22:14:08 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.24 $  $Date: 2017/06/09 11:02:45 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
 #  define _CRT_SECURE_NO_WARNINGS     /* Allow getenv */
 #endif
 
-#include <stdlib.h>	/* getenv prototype */
+#include <stdlib.h> /* getenv prototype */
 
 #include <libtsp.h>
-#include <libtsp/AFpar.h>
+#include <AFpar.h>
 #include <libtsp/AFmsg.h>
 
 static const char *Ftype_keys[] = {
   "auto",
-  "AU", "au", "AFsp", "Sun", "sun",
+  "AU", "au", "Sun", "sun",
   "WAVE", "wave",
   "AIFF*-C", "aiff*-c",
   "nohead*er",
@@ -76,7 +76,7 @@ static const char *Ftype_keys[] = {
 /* Values corresponding to keywords */
 static const int Ftype_vals[] = {
   FT_AUTO,
-  FT_AU, FT_AU, FT_AU, FT_AU, FT_AU,
+  FT_AU, FT_AU, FT_AU, FT_AU,
   FT_WAVE, FT_WAVE,
   FT_AIFF, FT_AIFF,
   FT_NH,
@@ -95,9 +95,8 @@ int
 AFsetFileType (const char String[])
 
 {
-  int n, ErrCode;
+  int n, Err;
   const char *p;
-  struct AF_opt *AFopt;
 
 /* Check for an environment variable */
   if (String[0] == '$') {
@@ -108,18 +107,16 @@ AFsetFileType (const char String[])
   else
     p = String;
 
-  ErrCode = 0;
+  Err = 0;
   if (p[0] != '\0') {
     n = STkeyMatch (p, Ftype_keys);
     if (n < 0) {
-      UTwarn ("AFsetFileType - %s, \"%.20s\"", AFM_BadFType, p);
-      ErrCode = 1;
+      UTwarn ("AFsetFileType - %s, \"%.20s\"", AFM_BadFtype, p);
+      Err = 1;
     }
-    else {
-      AFopt = AFoptions ();
-      AFopt->FtypeI = Ftype_vals[n];
-    }
+    else
+      AFopt.FtypeI = Ftype_vals[n];
   }
 
-  return ErrCode;
+  return Err;
 }

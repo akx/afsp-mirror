@@ -1,34 +1,39 @@
-September 2010
+July 2017
 
 Audio File Programs and Routines
   The AFsp package contains audio file utility programs and a library of
   routines for reading and writing audio files.
 
 Audio File Utility Programs:
-  InfoAudio - display information about an audio file.
+  InfoAudio - display information about an audio file (data format, header/data
+              layout, information records)
   CompAudio - compare audio files, producing statistics and signal-to-noise
               ratio figures.
   CopyAudio - copy audio files.  This program combines samples from input audio
               files (an arbitrary linear combination) and writes them to the
               output file in a user selectable format.  One application is to
               provide format conversion for an audio file; another is to
-              combine samples from multi-channel files.
+              manipulate samples from multi-channel files.
   FiltAudio - filter audio files.  This program filters an audio file with an
               FIR, IIR or all-pole filter.
   GenNoise  - generate noise.  This program generates an audio file containing
               Gaussian white noise.
   GenTone   - generae a tone.  This program generates an audio file containing
               samples from a sinusoid.
-  LPanal    - demonstration program to do LPC analysis on a speech file.
-  LPsyn     - demonstation program to do LPC synthesis from a residual file.
-  PQevalAudio - Perceptual evaluation of audio quality
   ResampAudio - resample data from an audio file.  This process involves
               interpolating between the samples in the original file to create
               a new sequence of samples with a new spacing (sampling rate).
 
-Windows:
-  A MS Visual C project and executables for use under Windows (command line)
-  are included in the distribution (directory MSVC/bin).
+Windows
+  A MS Visual Studio C project and executables (64-bit) for use under Windows
+  (command line) are included in the distribution (directory bin/Windows)
+
+Linux
+  Linux binaries (64-bit) are available in the bin/Linux folder.  These were
+  built using the Windows 10 Subsystem for Linux.
+
+Cygwin
+  Cygwin binaries (64-bit) are available in the bin/Cygwin folder.
 
 Filters:
   The package includes the filters from the ITU-T Software Tool Library
@@ -38,10 +43,10 @@ Audio File I/O Routines:
   The library supports reading and writing of audio files.  The routines have
   been designed to be easy to use, yet provide transparent support the reading
   of several audio file formats.  The audio file open routine automatically
-  senses the input file type.  Based on the file format, the audio file reading
-  routine does byte swapping and format conversion on the fly as the file is
-  read.  The user sees float data without needing to worry about the underlying
-  data format.
+  determines the input file type.  Based on the file format, the audio file
+  reading routine does byte swapping and format conversion on the fly as the
+  file is read.  The user sees double data without needing to worry about the
+  underlying data format.
 
 Audio File Formats:
 
@@ -49,28 +54,50 @@ Audio File Formats:
   - Headerless audio files
   - AU audio files
   - WAVE files
-  - AIFF/AIFF-C sound files
+  - AIFF/AIFF-C/AIFF-C-sowt sound files
   - NIST SPHERE audio files
   - IRCAM soundfiles
   - INRS-Telecom audio files
   - ESPS sampled data feature files
   - CSL / NSP audio files
-  - Text audio files (NATO/ESPRIT CD-ROM format)
+  - SPPACK sampled data files
+  - Cadence SPW signal files
+  - Text audio files (with or without a header)
 
   The following file formats are supported for writing.
-  - Headerless audio files (including text files)
+  - Headerless audio files
   - AU audio files
   - WAVE files
   - AIFF sound files
   - AIFF-C sound files
+  - Text audio files (with header)
 
 The AFsp routines are covered by copyright, see the file "Copying" for details
 of the distribution conditions.
 
-AFsp-v9r0.tar.gz
+AFsp-v10r0.tar.gz
 http://www-MMSP.ECE.McGill.CA/MMSP/Documents/
 
 =============
+Changes in v10r0
+- Added new audio file types and data
+  - AIFF-C-sowt PCM sound files for reading and writing
+  - Read/Write bit-reversed mu-law format
+  - Text data file (with header) for importing / exporting data
+- InfoAudio prints the header/data structure for audio files
+- Executables built using Cygwin, Linux, and Microsoft Visual Studio 2017
+  are included
+- CopyAudio supports a larger number of channels
+- Information record subsystem is more consistent across file types. Additional
+  text fields in file headers are now returned as information records (includes
+  text information from WAVE files with a Broadcast Wave Format chunk).
+- Information chunks for WAVE files now stored in the header (rather than after
+  the data)
+- Internal data scaling rationalized, can be changed with an optional
+  parameter
+Changes in v9r1
+- Invoke the Simplified BSD License
+- Fix Makefile for PQevalAudio to apply mostlyclean to subdirectories
 Changes in v9r0
 - MSVC files updated for Visual C++ 2008
 - Use #def to avoid warnings with MSVC compiler
@@ -151,8 +178,8 @@ Changes in V2R0
 
 =============
 Peter Kabal
-Electrical & Computer Engineering    McGill University
-+1 514 398-7130   +1 514 398-4470 Fax
+Electrical & Computer Engineering
+McGill University
 Peter.Kabal@McGill.CA
 
-$Id: README.txt 1.81 2010/09/24 AFsp-v9r0 $
+$Id: README.txt 1.87 2017/07/21 AFsp-v10r1a $

@@ -3,7 +3,7 @@
 
 Routine:
   int STdecNfloat (const char String[], int Nmin, int Nmax, float Fval[],
-		   int *N)
+       int *N)
 
 Purpose:
   Decode float values (variable number)
@@ -22,7 +22,7 @@ Parameters:
       Error status,
         0 - no error
         1 - error, too few values or data format error
-	2 - warning, data values too large or too small
+        2 - error, data value out of range
    -> const char String[]
       Input string
    -> int Nmin
@@ -38,8 +38,8 @@ Parameters:
       than Nmin.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.22 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.24 $  $Date: 2017/05/02 19:13:07 $
 
 -------------------------------------------------------------------------*/
 

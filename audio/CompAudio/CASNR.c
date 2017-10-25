@@ -2,7 +2,7 @@
                           McGill University
 Routine:
   void CASNR (const struct Stats_T *Stats, double *SNR, double *SNRG,
-	      double *SF, double *SSNR)
+              double *SF, double *SSNR)
 
 Purpose:
   Calculate SNR values for two files
@@ -26,13 +26,13 @@ Parameters:
       segmental SNR is not available.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.9 $  $Date: 2003/05/15 01:21:28 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.12 $  $Date: 2017/03/28 00:29:07 $
 
 -----------------------------------------------------------------------*/
 
-#include <float.h>	/* DBL_MAX */
-#include <math.h>	/* log10 */
+#include <float.h>  /* DBL_MAX */
+#include <math.h> /* log10 */
 
 #include "CompAudio.h"
 
@@ -98,7 +98,7 @@ CASNR (const struct Stats_T *Stats, double *SNR, double *SNRG, double *SF,
     else
       *SNRG = DBL_MAX;
   }
-  
+
   /* Segmental SNR */
   if (Stats->Nseg > 0)
     *SSNR = pow (10.0, (Stats->SNRlog / Stats->Nseg)) - 1.0;

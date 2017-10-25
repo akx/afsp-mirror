@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  int AFposition (AFILE *AFp, long int offs)
+  enum AF_ERR_T AFposition (AFILE *AFp, long int offs)
 
 Purpose:
   Position an audio file to a given sample offset
@@ -11,7 +11,7 @@ Description:
   This routine positions a file to a given position.
 
 Parameters:
-  <-  int AFposition
+  <-  enum AF_ERR_T AFposition
       Error indication, zero for no error
    -> AFILE *AFp
       Audio file pointer for an audio file opened by AFopnRead
@@ -24,29 +24,31 @@ Parameters:
       rewinding and reading (random access text file).
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.12 $  $Date: 2017/06/09 15:05:31 $
 
 -------------------------------------------------------------------------*/
 
+#include <libtsp/sysOS.h>
+#if (SY_OS == SY_OS_WINDOWS)
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow fscanf */
+#endif
+
+#include <errno.h>
 #include <string.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFmsg.h>
-#define AF_DATA_LENGTHS
-#include <libtsp/AFpar.h>
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define AFSEEK(AFp,boff)  AFseek ((AFp)->fp, (AFp)->Start + (boff), NULL)
 
-#define FREAD(buf,size,nv,fp)	(int) fread ((char *) buf, (size_t) size, \
-					     (size_t) nv, fp)
-#define AFSEEK(AFp,boff)	AFseek ((AFp)->fp, (AFp)->Start + (boff), NULL)
-
-static int
-AF_skipNRec (AFILE *AFp, long int N);
-static int
+/* Local functions */
+static enum AF_ERR_T
+AF_skipNFields (AFILE *AFp, long int N);
+static enum AF_ERR_T
 AF_skipNVal (AFILE *AFp, long int N);
 
 
@@ -54,7 +56,8 @@ int
 AFposition (AFILE *AFp, long int offs)
 
 {
-  int Lw, ErrCode;
+  int Lw;
+  enum AF_ERR_T ErrCode;
 
 /*
   Notes:
@@ -67,7 +70,7 @@ AFposition (AFILE *AFp, long int offs)
                 (on encountering EOF, the value of AFp->Nsamp is set)
              == value, can be either random access or not
 */
-  ErrCode = 0;
+  ErrCode = AF_NOERR;
 
   /* Quick exit */
   if (offs == AFp->Isamp || offs < 0L ||
@@ -81,7 +84,7 @@ AFposition (AFILE *AFp, long int offs)
     if (FLseekable (AFp->fp)) {
       ErrCode = AFSEEK (AFp, Lw * offs);
       if (! ErrCode)
-	AFp->Isamp = offs;
+        AFp->Isamp = offs;
     }
     else if (offs < AFp->Isamp) {
       UTwarn ("AFposition: %s", AFM_MoveBack);
@@ -96,19 +99,19 @@ AFposition (AFILE *AFp, long int offs)
 /* Variable length (text) records */
     if (offs < AFp->Isamp) {
       if (FLseekable (AFp->fp)) {
-	ErrCode = AFSEEK (AFp, 0L);	/* Rewinding to start of data */
-	if (! ErrCode)
-	  AFp->Isamp = 0L;
+        ErrCode = AFSEEK (AFp, 0L); /* Rewinding to start of data */
+        if (! ErrCode)
+          AFp->Isamp = 0L;
       }
       else {
-	UTwarn ("AFposition: %s", AFM_MoveBack);
-	ErrCode = AF_IOERR;
+        UTwarn ("AFposition: %s", AFM_MoveBack);
+        ErrCode = AF_IOERR;
       }
     }
 
     /* Move forward to the desired position */
     if (! ErrCode)
-      ErrCode = AF_skipNRec (AFp, offs - AFp->Isamp);
+      ErrCode = AF_skipNFields (AFp, offs - AFp->Isamp);
   }
 
   return ErrCode;
@@ -116,10 +119,10 @@ AFposition (AFILE *AFp, long int offs)
 
 /* Skip N values */
 
-#define NBUF	256
+#define NBUF  256
 
 
-static int
+static enum AF_ERR_T
 AF_skipNVal (AFILE *AFp, long int N)
 
 {
@@ -140,7 +143,7 @@ AF_skipNVal (AFILE *AFp, long int N)
   }
   AFp->Isamp += nl;
 
-  ErrCode = 0;
+  ErrCode = AF_NOERR;
   if (nl < N) {
     if (ferror (AFp->fp)) {
       UTsysMsg ("AFposition: %s %ld", AFM_ReadErrOffs, AFp->Isamp);
@@ -161,25 +164,37 @@ AF_skipNVal (AFILE *AFp, long int N)
 
 
 static int
-AF_skipNRec (AFILE *AFp, long int N)
+AF_skipNFields (AFILE *AFp, long int N)
 
 {
-  char *p;
-  int ErrCode;
-  long int nl;
+  int nv;
+  enum AF_ERR_T ErrCode;
+  long int n;
+  double Dv;
 
-  /* Read N lines of input */
-  ErrCode = 0;
-  for (nl = 0; nl < N; ++nl) {
-    p = AFgetLine (AFp->fp, &ErrCode);
-    if (p == NULL || AFp->Error)
+/* Read N values */
+  ErrCode = AF_NOERR;
+  for (n = 0; n < N; ++n) {
+    errno = 0;
+    nv = fscanf (AFp->fp, "%lg", &Dv);
+    if (nv == 1)
+      continue;
+    else if (nv == EOF)
       break;
+    else if (errno != 0) {
+      ErrCode = AF_IOERR;
+      break;
+    }
+    else {
+      ErrCode = AF_DECERR;
+      break;
+    }
   }
-  AFp->Isamp += nl;
+  AFp->Isamp += n;
 
-  if (nl < N) {
+  if (n < N) {
     if (ErrCode)
-      UTwarn ("AFposition: %s %ld", AFM_ReadErrOffs, AFp->Isamp);
+      UTsysMsg ("AFposition: %s %ld", AFM_ReadErrOffs, AFp->Isamp);
     else if (AFp->Nsamp != AF_NSAMP_UNDEF) {
       UTwarn ("AFposition: %s %ld", AFM_UEoFOffs, AFp->Isamp);
       ErrCode = AF_UEOF;

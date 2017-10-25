@@ -8,10 +8,17 @@ Purpose:
   Read samples (text data) from an audio file (return float values)
 
 Description:
-  This routine reads a specified number of samples from an audio file.  The
+  These routines read a specified number of samples from an audio file.  The
   data in the file is converted to float format on output.
 
-  The data is expected to be one value to a line.
+  This routines reads values until (i) Nreq values have been decoded, or (ii)
+  end-of-file is reached, or (iii) a decoding error is encountered.
+
+  If the input file contains values larger in magnitude than a float can
+  represent, the decoded values are set to HUGE_VAL with the appropriate sign.
+  In any implementations of the C-library, HUGE_VAL is infinity.  If the input
+  file contains values smaller in magnitude than a float can represent, the
+  decoded values are set to zero.
 
 Parameters:
   <-  int AFfRdTA
@@ -25,55 +32,51 @@ Parameters:
       Number of samples requested.  Nreq may be zero.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:11:34 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.6 $  $Date: 2017/06/26 23:44:10 $
 
 -------------------------------------------------------------------------*/
 
-#include <ctype.h>
-#include <stdlib.h>	/* strtod definition */
+#include <libtsp/sysOS.h>
+#if (SY_OS == SY_OS_WINDOWS)
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow fscanf */
+#endif
+
+#include <errno.h>
+#include <float.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/AFdataio.h>
-#include <libtsp/AFmsg.h>
-#include <libtsp/AFpar.h>
-
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
 
 
 int
 AFfRdTA (AFILE *AFp, float Dbuff[], int Nreq)
 
 {
-  char *line;
-  int n, ErrCode;
+  int nv, n;
+  enum AF_ERR_T ErrCode;
   double Dv;
-  char *endstr;
-  double g;
 
-/*
-   This routine spends most of its time in strtod (sscanf is even slower)
-   Tests:  24 Mb file with 4.7M samples
-   - read data, copy to another file, 43 sec CPU
-   - read data (strtod commented out), copy to another file, 16 sec CPU
-*/
+  ErrCode = AF_NOERR;
 
 /* Read the data */
-  ErrCode = 0;
-  g = AFp->ScaleF;
+
   for (n = 0; n < Nreq; ++n) {
-    line = AFgetLine (AFp->fp, &ErrCode);	/* prints error messages */
-    if (line == NULL || ErrCode)
+    errno = 0;
+    nv = fscanf (AFp->fp, "%lg", &Dv);
+    if (nv == 1)
+      Dbuff[n] = (float) (AFp->ScaleF * Dv);
+    else if (nv == EOF)
       break;
-    Dv = strtod (line, &endstr);
-    for (; isspace ((int)(*endstr)); ++endstr)
-      ;
-    if (endstr[0] != '\0') {
-      UTwarn ("AFrdTA - %s", AFM_DataErr);
+    else if (errno != 0) {
+      ErrCode = AF_IOERR;
+      break;
+    }
+    else {
       ErrCode = AF_DECERR;
       break;
     }
-    Dbuff[n] = (float) (g * Dv);
   }
 
 /* Check for errors */

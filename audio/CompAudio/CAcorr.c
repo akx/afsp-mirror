@@ -28,43 +28,42 @@ Parameters:
       Structure containing the file statistics
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.21 $  $Date: 2003/07/14 11:28:54 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.25 $  $Date: 2017/03/28 00:29:07 $
 
 -----------------------------------------------------------------------*/
 
 #include <assert.h>
-#include <math.h>	/* log10 */
+#include <math.h> /* log10 */
 
-#include <libtsp.h>
 #include "CompAudio.h"
 
-#define ABSV(x)		(((x) < 0) ? -(x) : (x))
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define SQRV(x)		((x) * (x))
+#define ABSV(x)   (((x) < 0) ? -(x) : (x))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
+#define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
+#define SQRV(x)   ((x) * (x))
 
-#define NBUF	2560
+#define NBUF  2560
 
 struct ActLev_W {
-  double Ssx2;		/* Sum x[i]*x[i] for a segment */
-  double Ssd2;		/* Sum (x[i]-y[i])(x[i]-y[i]) for a segment */
-  int ks;		/* Segment sample counter */
+  double Ssx2;    /* Sum x[i]*x[i] for a segment */
+  double Ssd2;    /* Sum (x[i]-y[i])(x[i]-y[i]) for a segment */
+  int ks;         /* Segment sample counter */
 };
 
 static const struct Stats_T Stats_T_Init = {
   0.0, 0.0, 0.0, 0L, 0.0, 0L, 0, 0L, 0L, 0.0 };
 static const struct ActLev_W ActLev_W_Init = { 0.0, 0.0, 0 };
 
-    
+
 static void
 CA_corr (struct Stats_T *Stats, const double Xa[], const double Xb[], int N,
-	 struct ActLev_W *AWork);
+         struct ActLev_W *AWork);
 
 
 void
 CAcorr (AFILE *AFp[2], long int Start[2], long int Nsamp, long int delay,
-	long int Nsseg, struct Stats_T *Stats)
+        long int Nsseg, struct Stats_T *Stats)
 
 {
   double Xa[NBUF];
@@ -103,12 +102,12 @@ CAcorr (AFILE *AFp[2], long int Start[2], long int Nsamp, long int delay,
   return;
 }
 
-#define EPSD	(0.01/(32768.*32768.))
+#define EPSD  (0.01/(32768.*32768.))
 
 
 static void
 CA_corr (struct Stats_T *Stats, const double Xa[], const double Xb[], int N,
-	 struct ActLev_W *AWork)
+         struct ActLev_W *AWork)
 
 {
   int i;
@@ -123,8 +122,8 @@ CA_corr (struct Stats_T *Stats, const double Xa[], const double Xb[], int N,
 
     if (Xa[i] != Xb[i]) {
       if (Stats->Inrun == 0) {
-	++Stats->Nrun;
-	Stats->Inrun = 1;
+        ++Stats->Nrun;
+        Stats->Inrun = 1;
       }
       ++Stats->Ndiff;
       diff = Xa[i] - Xb[i];

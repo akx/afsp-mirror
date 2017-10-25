@@ -22,10 +22,10 @@ Parameters:
    -> const char Si[]
       Input character string
   <-  char So[]
-      Output character string.  This string is always null terminated, with
-      at most Maxchar characters not including the terminating null character.
-      If the input string is longer than Maxchar, only the first Maxchar
-      characters are copied and a warning message is printed.
+      Output character string.  This string is always null terminated, with at
+      most Maxchar characters not including the terminating null character.  If
+      the input string is longer than Maxchar, only the first Maxchar characters
+      are copied and a warning message is printed.
    -> int N
       Number of characters to be transferred
    -> int Maxchar
@@ -33,8 +33,8 @@ Parameters:
       to be placed in So.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.13 $  $Date: 2003/05/09 03:06:42 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.15 $  $Date: 2017/04/03 12:36:21 $
 
 -------------------------------------------------------------------------*/
 
@@ -57,7 +57,7 @@ STtrimNMax (const char Si[], char So[], int N, int Maxchar)
       break;
 
   /* Trim trailing white-space */
-  for (p = Si+(n-1); n > 0 ; --n, --p)	/* n is the number of characters */
+  for (p = Si+(n-1); n > 0 ; --n, --p)  /* n is the number of characters */
     if (! isspace ((int) *p))
       break;
 

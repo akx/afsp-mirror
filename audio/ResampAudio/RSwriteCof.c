@@ -26,17 +26,16 @@ Parameters:
       Filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.11 $  $Date: 2009/03/09 18:45:02 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.13 $  $Date: 2017/06/09 12:57:12 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_SECURE_NO_WARNINGS     /* Allow fopen */
 #endif
 
-#include <libtsp.h>
 #include "ResampAudio.h"
 
 
@@ -59,8 +58,8 @@ RSwriteCof (const char Fname[], const struct Fspec_T *Fs, const double h[])
 /* Header */
   if (Fs->FFile == NULL)
     fprintf (fp, RSMF_KWFile,
-	     Fs->Ir, Fs->Fc, Fs->alpha, Fs->Gain,
-	     Fs->Del, Fs->Woffs, Fs->Wspan);
+             Fs->Ir, Fs->Fc, Fs->alpha, Fs->Gain,
+             Fs->Del, Fs->Woffs, Fs->Wspan);
   else
     fprintf (fp, RSMF_IntFile, Fs->Ir, Fs->Del);
 

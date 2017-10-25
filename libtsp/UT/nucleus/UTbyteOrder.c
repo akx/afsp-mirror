@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  int UTbyteOrder (void)
+  enum UT_DS_T UTbyteOrder (void)
 
 Purpose:
   Determine the byte order for data storage
@@ -15,26 +15,24 @@ Description:
   bytes are stored from least significant to most significant.
 
 Parameters:
-  <-  int UTbyteOrder
+  <-  enum UT_DS_T UTbyteOrder
       Returned integer code
         0 - Big-endian storage order
         1 - Little-endian storage order
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Date: 2009/03/11 19:58:18 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.28 $  $Date: 2017/04/24 03:07:11 $
 
 -------------------------------------------------------------------------*/
 
 #include <assert.h>
 
-#include <libtsp.h>
 #include <libtsp/nucleus.h>
 #include <libtsp/UTpar.h>
 #include <libtsp/UTtypes.h>
-#include <libtsp/UTmsg.h>
 
-#define U4		((int) sizeof (UT_uint4_t))
+#define U4    ((int) sizeof (UT_uint4_t))
 
 static union { UT_uint4_t U; unsigned char C[U4]; } u;
 static const unsigned char C[4] = { 1, 2, 4, 8 };
@@ -42,23 +40,23 @@ static const UT_uint4_t I4L = 0x08040201;
 static const UT_uint4_t I4B = 0x01020408;
 
 
-int
+enum UT_DS_T
 UTbyteOrder (void)
 
 {
-  static int Hbo = DS_UNDEF;
+  static enum UT_DS_T Hbo = DS_UNDEF;
 
-  if (Hbo == DS_UNDEF) {	/* Cache the byte order */
+  if (Hbo == DS_UNDEF) {  /* Cache the byte order */
     u.C[0] = C[0];
     u.C[1] = C[1];
     u.C[2] = C[2];
-    u.C[U4-1] = C[3];	/* Implicit check that sizeof (UT_uint4_t) is 4 */
+    u.C[U4-1] = C[3]; /* Implicit check that sizeof (UT_uint4_t) is 4 */
     if (u.U == I4L)
       Hbo = DS_EL;
     else if (u.U == I4B)
       Hbo = DS_EB;
     else
-      assert (0);	/* Funny byte order */
+      assert (0); /* Funny byte order */
   }
 
   return Hbo;

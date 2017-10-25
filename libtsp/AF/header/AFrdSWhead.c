@@ -14,25 +14,31 @@ Description:
 
   Cadence SPW Signal file header:
    Offset Length Type    Contents
-      0    12    char   File identifier ("$SIGNAL FILE 9\n")
-  The remaining header consists of lines of text data, with each line
-  terminated by a newline character.  The header is divided into sections with
-  a section header marked by a string starting with a "$" character.  An
-  example header is shown below.
-    $USER_COMMENT
-    <comment line(s)>
-    $COMMON_INFO
-    SPW Version        = 3.10
-    System Type        = <machine> (e.g. "sun4")
-    Sampling Frequency = <Sfreq>   (e.g. "8000")
-    Starting Time      = 0
-    $DATA_INFO
-    Number of points   = <Nsamp>   (e.g. "2000")
-    Signal Type        = <type>    ("Double", "Float", "Fixedpoint")
-    Fixed Point Format = <16.0,t>  (optional)
-    Complex Format     = Real_Imag (optional)
-    $DATA <data_type>              ("ASCII", "BINARY")
-  This routine does not support files with time stamps.
+      0     15   char   File identifier ("$SIGNAL_FILE 9\n")
+  The remaining header consists of lines of text data, with each line terminated
+  by a newline character.  The header is divided into sections with a section
+  header marked by a string starting with a "$" character.  An example header is
+  shown below.
+      $SIGNAL_FILE 9
+      $USER_COMMENT
+      <comment line(s)>
+      $COMMON_INFO
+      SPW Version        = 3.10
+      System Type        = <machine> (e.g. "sun4")
+      Sampling Frequency = <Sfreq>   (e.g. "8000")
+      Starting Time      = 0
+      $DATA_INFO
+      Number of points   = <Nsamp>   (e.g. "2000")
+      Signal Type        = <type>    ("Double", "Float", "Fixedpoint")
+      Fixed Point Format = <16,0,t>  (optional) 16-bit integer, signed
+      Complex Format     = Real_Imag (optional)
+      $DATA <data_type>              ("ASCII", "BINARY")
+  This routine does not support ASCII data with embedded comments.
+
+  Text in the comment field of a Cadence SPW Signal file is returned as a
+  "comment:" information record in the audio file parameter structure.  All
+  lines between section markers are stored as information records.  For instance,
+  the "SPW Version" line in the example is stored as "SPW Version: 3.10".
 
 Parameters:
   <-  AFILE *AFrdSWhead
@@ -41,59 +47,34 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.39 $  $Date: 2003/11/03 18:56:26 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.54 $  $Date: 2017/07/13 20:12:43 $
 
 -------------------------------------------------------------------------*/
 
 #include <string.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
+#include <libtsp/nucleus.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFheader.h>
+#include <libtsp/AFinfo.h>
 #include <libtsp/AFmsg.h>
-#include <libtsp/AFpar.h>
 
-#define NCHEAD_MAX	1024
-#define SW_MAXINFO	NCHEAD_MAX
+#define SW_ID "$SIGNAL_FILE 9"
+#define SW_MAXLHEAD 1024      /* Maximum number of characters in the header */
+#define SW_MAXINFO  SW_MAXLHEAD
 
-/*
- Minimal header              Number of chars
-$SIGNAL_FILE 9			14
-$USER_COMMENT			13
-				 0
-$COMMON_INFO			12
-SPW Version        = 3		22
-System Type        = ?		22
-Sampling Frequency = 1		22
-Starting Time      = 0		22
-$DATA_INFO			10
-Number of points   = 1		22
-Signal Type        = Float	26
-$DATA ASCII			11
-
-                   total       196  + 12 newlines
-*/
-
-#define SW_FD_INT32		128
-
-#define SW_UNDEF		-1
-#define SW_SIGNAL_FILE_9	0
-#define SW_USER_COMMENT		1
-#define SW_COMMON_INFO		2
-#define SW_DATA_INFO		3
-#define SW_DATA_ASCII		4
-#define SW_DATA_BINARY		5
-static const char *SW_SectTab[] = {
-  "$SIGNAL_FILE 9",
-  "$USER_COMMENT",
-  "$COMMON_INFO",
-  "$DATA_INFO",
-  "$DATA* ASCII",	/* "ASCII" is optional */
-  "$DATA BINARY",
-  NULL
+enum SW_HDR_T {
+  SW_SIGNAL_FILE_9 = 0,
+  SW_USER_COMMENT  = 1,
+  SW_COMMON_INFO   = 2,
+  SW_DATA_INFO     = 3,
+  SW_DATA_ASCII    = 4,
+  SW_DATA_BINARY   = 5
 };
-static const int SW_sect[] = {
+enum SW_HDR_T SW_sect[] = {
   SW_SIGNAL_FILE_9,
   SW_USER_COMMENT,
   SW_COMMON_INFO,
@@ -101,28 +82,49 @@ static const int SW_sect[] = {
   SW_DATA_ASCII,
   SW_DATA_BINARY
 };
-
-static const char *SW_CITab[] = {
-  "SPW Version",
-  "System Type",
-  "Sampling Frequency",
-  "Starting Time",
+static const char *SW_SectTab[] = {
+  SW_ID,
+  "$USER_COMMENT",
+  "$COMMON_INFO",
+  "$DATA_INFO",
+  "$DATA ASCII",
+  "$DATA BINARY",
   NULL
 };
-static const char *SW_DITab[] = {
-  "Number of points",
-  "Signal Type",
-  "fixed point Format",
-  "Complex Format",
+static const char *SW_ckID[] = {
+  "SIG9",
+  "COMT",
+  "INFO",
+  "fmt ",
+  "DASC",
+  "DBIN",
+  "data"
+};
+static const char *SW_DTtab[] = {
+  "Double",
+  "Float",
+  "Fixed-point",
+  "Integer",
   NULL
 };
+enum {
+  SW_DOUBLE     = 0,
+  SW_FLOAT      = 1,
+  SW_FIXEDPOINT = 2,
+  SW_INTEGER    = 3
+};
 
-AF_READ_DEFAULT(AFr_default);	/* Define the AF_read defaults */
+static const char *RecID_SysType[] = {"System Type:", NULL};
+static const char *RecID_SigType[] = {"Signal Type:", NULL};
+static const char *RecID_FPFormat[] = {"Fixed Point Format:", NULL};
+/* Unsupported format options (note: no ':" on "Asynchronous") */
+static const char *RecID_UnsOpt[] = {"Complex Format:", "Asynchronous", NULL};
 
+AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
+
+/* Local functions */
 static int
-AF_CommonInfo (char line[], int *Fbo, double *Sfreq);
-static int
-AF_DataInfo (char line[], struct AF_read *AFr);
+AF_procSWhead (FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr);
 
 
 AFILE *
@@ -130,220 +132,212 @@ AFrdSWhead (FILE *fp)
 
 {
   AFILE *AFp;
-  int sect, n, nc, ErrCode;
-  char *line;
+  int n, Err;
+  int BinData, DataOffs[2];
+  long int Nchan, Nframe, FLsize;
+  double Sfreq, FullScale;
+  enum UT_DS_T Fbo;
+  enum AF_FD_T Format;
+  const char *text;
   char Info[SW_MAXINFO];
   struct AF_read AFr;
 
-/* Defaults and inital values */
+/* Defaults and initial values */
   AFr = AFr_default;
-  AFr.InfoX.Info = Info;
-  AFr.InfoX.Nmax = SW_MAXINFO;
+  AFr.RInfo.Info = Info;
+  AFr.RInfo.N = 0;
+  AFr.RInfo.Nmax = sizeof (Info);
 
-  /* Defaults */
-  AFr.Sfreq = -1.0;
+/* Process the header, creating info records */
+  Err = AF_procSWhead (fp, &BinData, DataOffs, &AFr);
+  if (Err)
+    return NULL;
 
-  ErrCode = 0;
-  nc = 0;
-  sect = SW_UNDEF;
+  text = AFgetInfoRec (RecID_UnsOpt, &AFr.RInfo);
+  if (text != NULL) {
+    UTwarn ("AFrSWhead - %s", AFM_SW_UnsOpt);
+    return NULL;
+  }
 
-  while (sect != SW_DATA_ASCII && sect != SW_DATA_BINARY) {
+/* Set the number of channels */
+  Nchan = 1;
 
-    if (nc >= NCHEAD_MAX) {
-      UTwarn ("AFrdSWhead - %s", AFM_SW_LongHead);
-      return NULL;
+/* Get the number of sample frames (can remain undefined) */
+  Nframe = AFgetInfoFrame (&AFr.RInfo);
+
+/* Get the sampling frequency */
+  Sfreq = AFgetInfoSfreq (&AFr.RInfo);
+  if (Sfreq == AF_SFREQ_UNDEF) {
+    Sfreq = AFopt.InputPar.Sfreq;
+    UTwarn (AFMF_SfreqInPar, "AFrdSWhead -", Sfreq);
+  }
+
+/* Set the byte swap code */
+  Fbo = DS_EB;
+  if (BinData) {
+    text = AFgetInfoRec (RecID_SysType, &AFr.RInfo);
+    if (text != NULL && ! (strcmp (text, "sun4") == 0 ||
+                           strcmp (text, "hp700") == 0))
+      UTwarn (AFMF_SW_UnsSys, "AFrdSWhead -", text);
+  }
+
+/* Set the data type */
+  FullScale = AF_FULLSCALE_DEFAULT;
+  text = AFgetInfoRec (RecID_SigType, &AFr.RInfo);
+  n = STkeyMatch (text, SW_DTtab);
+  if (n < 0) {
+    UTwarn (AFMF_SW_UnsSigType, "AFrdSWhead:", text);
+    return NULL;
+  }
+  Format = FD_UNDEF;
+  if (BinData) {
+    if (n == SW_DOUBLE)
+      Format = FD_FLOAT64;
+    else if (n == SW_FLOAT)
+      Format = FD_FLOAT32;
+    else if (n == SW_FIXEDPOINT)
+      Format = FD_INT16;
+    else if (n == SW_INTEGER)
+      Format = FD_INT32;
+  }
+  else {
+    Format = FD_TEXT;
+    if (n == SW_DOUBLE || n == SW_FLOAT)
+      FullScale = 1;
+    else if (n == SW_FIXEDPOINT)
+      FullScale = AF_FULLSCALE_INT16;
+    else if (n == SW_INTEGER)
+      FullScale = AF_FULLSCALE_INT32;
+  }
+
+/* Modify the FullScale value if "Fixed Point Fomat" is set */
+  text = AFgetInfoRec (RecID_FPFormat, &AFr.RInfo);
+  if (text != NULL) {
+    if (strcmp (text, "<16,15,t>") == 0) {
+      Format = FD_TEXT16;
+      FullScale = AF_FULLSCALE_INT16;   /* Sign + 15 bits for integer part */
     }
-
-    /* Read a line from the header */
-    line = AFgetLine (fp, &ErrCode);
-    if (line == NULL && ! ErrCode) {
-      UTwarn ("AFrdSWhead - %s", AFM_UEoF);
-      return NULL;
-    }
-    nc += strlen (line);
-    ++nc;	/* Account for newline */
-
-    /* Compare with section headers */
-    n = STkeyMatch (line, SW_SectTab);
-    if (n >= 0) {
-      sect = SW_sect[n];
-    }
+    else if (strcmp (text, "<16,0,t>") == 0)
+      FullScale = 1;                    /* Sign + 15 bits for fractional part */
     else {
-      switch (sect) {
-
-      case SW_UNDEF:
-	UTwarn ("AFrdSWhead - %s", AFM_SW_BadId);
-	return NULL;
-
-      case SW_SIGNAL_FILE_9:
-	break;
-
-      case SW_USER_COMMENT:
-	if (strlen (line) > 0)
-	  AFaddAFspRec ("user_comment: ", line, strlen (line), &AFr.InfoX);
-	break;
-
-      case SW_COMMON_INFO:
-	if (AF_CommonInfo (line, &AFr.DFormat.Swapb, &AFr.Sfreq))
-	  return NULL;
-	break;
-
-      case SW_DATA_INFO:
-	if (AF_DataInfo (line, &AFr))
-	  return NULL;
-	break;
-
-      default:
-	UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_UnkKey, line);
-	return NULL;
-      }
+      UTwarn (AFMF_SW_UnsFixFormat, "AFrdSWhead:", text);
+      return NULL;
     }
   }
-  if (sect == SW_DATA_ASCII)
-    AFr.DFormat.Format = FD_TEXT;
-    
-/* Check for missing header information */
-  if (AFr.DFormat.Format == FD_UNDEF) {
-    UTwarn ("AFrdSWhead - %s", AFM_SW_NoData);
-    return NULL;
-  }
-  if (AFr.Sfreq <= 0.0) {
-    UTwarn ("AFrdSWhead - %s", AFM_SW_NoSFreq);
-    return NULL;
-  }
 
-/* Check for incompatible options */
-  if (AFr.DFormat.Format == FD_TEXT && AFr.NData.Nchan == 2) {
-    UTwarn ("AFrdSWhead - %s", AFM_SW_AscCmplx);
-    return NULL;
-  }
+/* Set the parameters for file access */
+  AFr.NData.Nchan = Nchan;
+  if (Nframe != AF_NFRAME_UNDEF)
+    AFr.NData.Nsamp = Nframe * Nchan;
+  AFr.DFormat.Format = Format;
+  AFr.DFormat.FullScale = FullScale;
+  AFr.DFormat.Swapb = Fbo;
+  AFr.Sfreq = Sfreq;
+
+/* Set up the data limits */
+  FLsize = AF_EoF;
+  if (BinData && AFr.NData.Nsamp != AF_NSAMP_UNDEF)
+    FLsize = DataOffs[1] + AFr.NData.Nsamp * AF_DL[Format];
+  if (BinData)
+    AFsetChunkLim ("DBIN", DataOffs[0], FLsize, &AFr.ChunkInfo);
+  else
+    AFsetChunkLim ("DASC", DataOffs[0], FLsize, &AFr.ChunkInfo);
+  AFsetChunkLim ("data", DataOffs[1], FLsize, &AFr.ChunkInfo);
 
   AFp = AFsetRead (fp, FT_SPW, &AFr, AF_NOFIX);
-
   return AFp;
 }
 
-/* Decode common info */
-
+/* Process the header - write records to the info record structure */
 
 static int
-AF_CommonInfo (char line[], int *Fbo, double *Sfreq)
+AF_procSWhead (FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr)
 
 {
-  int n;
-  float STime;
+  char *line;
+  char *p;
+  char Token[SW_MAXLHEAD+1];
+  enum AF_ERR_T ErrCode;
+  int nc, iSec, Err;
+  int soffs, ioffs, poffs;
 
-  n = STkeyXpar (line, "=", "", SW_CITab, line);
-  switch (n) {
-  case 0:
-    /* SPW Version - ignore */
-    break;
-  case 1:
-    /* System Type */
-    if (strcmp (line, "sun4") == 0 || strcmp (line, "hp700") == 0)
-      *Fbo = DS_EB;
-    else {
-      *Fbo = DS_NATIVE;
-      UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_UnkSys, line);
+/* Check for the file identifier */
+  soffs = 0;
+  ErrCode = AF_NOERR;
+  line = AFgetLine (fp, &ErrCode);
+  if (line == NULL || ! SAME_CSTR (SW_ID, line)) {
+    UTwarn ("AFrdSWhead - %s", AFM_SW_BadId);
+    return 1;
+  }
+  ioffs = (int) strlen (line) + 1;      /* Past '\n' */
+
+/* Check the header information, line by line */
+  Err = 0;
+  iSec = 0;
+  while (ioffs < SW_MAXLHEAD) {
+
+    poffs = ioffs;    /* Line start */
+
+    /* Read a line */
+    line = AFgetLine (fp, &ErrCode);
+    if (ErrCode)
+      break;
+    ioffs += (int) strlen (line) + 1;   /* line length + '\n' */
+
+    /* Trim trailing white-space */
+    nc = STtrimTail (line);
+
+    if (line[0] == '$') {
+
+      /* Finish a section */
+      AFsetChunkLim (SW_ckID[iSec], soffs, poffs, &AFr->ChunkInfo);
+
+      /* Identify a new section */
+      soffs = poffs;
+      iSec = STkeyMatch (line, SW_SectTab);
+      if (iSec < 0) {
+        Err = 1;
+        break;
+      }
+      else if (iSec == SW_DATA_BINARY || iSec == SW_DATA_ASCII)
+        break;        /* At data */
+      else
+        continue;     /* Get next line */
     }
-    break;
-  case 2:
-    /* Sampling Frequency */
-    if (STdec1double (line, Sfreq) || *Sfreq <= 0.0) {
-      UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_BadSFreq, line);
-      return 1;
+
+    if (iSec == SW_USER_COMMENT) {
+      if (nc > 0)
+        AFaddInfoRec ("comment:", line, nc, &AFr->RInfo);
     }
-    break;
-  case 3:
-    /* Starting Time */
-    if (STdec1float (line, &STime)) {
-      UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_BadSTime, line);
-      return 1;
+    else if (iSec == SW_COMMON_INFO || iSec == SW_DATA_INFO) {
+      /* Check for an equal sign separator */
+      p = STfindToken (line, "=", "", Token, 1, SW_MAXLHEAD);
+      if (p != NULL) {
+        STcatMax (":", Token, SW_MAXLHEAD);
+        nc = (int) strlen (p);
+        AFaddInfoRec (Token, p, nc, &AFr->RInfo);
+      }
+      /* No equal sign */
+      else
+        AFaddInfoRec (Token, NULL, 0, &AFr->RInfo);
     }
-    if (STime != 0.0F)
-      UTwarn ("AFrdSWhead - %s: \"%g\"", AFM_SW_NZSTime, STime);
-    break;
-  default:
-    UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_UnkCOM, line);
-    break;
   }
 
-  return 0;
-}
-
-/* Decode data info */
+/* Set the binary data flag and data limits */
+  *BinData = (iSec == SW_DATA_BINARY);
+  DataOffs[0] = soffs;
+  DataOffs[1] = ioffs;
 
-
-static int
-AF_DataInfo (char line[], struct AF_read *AFr)
-
-{
-  int n;
-
-  n = STkeyXpar (line, "=", "", SW_DITab, line);
-  switch (n) {
-  case 0:
-    /* Number of points */
-    if (STdec1long (line, &AFr->NData.Nsamp) || AFr->NData.Nsamp <= 0) {
-      UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_BadNSamp, line);
-      return 1;
-    }
-    break;
-  case 1:
-    /* Signal Type */
-    if (strcmp (line, "Double") == 0) {
-      AFr->DFormat.Format = FD_FLOAT64;
-      AFr->DFormat.ScaleF = 32768.;
-    }
-    else if (strcmp (line, "Float") == 0) {
-      AFr->DFormat.Format = FD_FLOAT32;
-      AFr->DFormat.ScaleF = 32768.;
-    }
-    else if (strcmp (line, "Fixed-point") == 0) {
-      AFr->DFormat.Format = FD_INT16;
-      AFr->DFormat.ScaleF = 1.;
-    }
-    else if (strcmp (line, "Integer") == 0) {
-      AFr->DFormat.Format = SW_FD_INT32;
-      AFr->DFormat.ScaleF = 1.;
-    }
-    else {
-      UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_UnsData, line);
-      return 1;
-    }
-    break;
-  case 2:
-    /* fixed point Format */
-    if (strcmp (line, "<16,16,t>") == 0) {
-      AFr->DFormat.Format = FD_INT16;
-      AFr->DFormat.ScaleF = 1.;
-    }
-    if (strcmp (line, "<16,0,t>") == 0) {
-      AFr->DFormat.Format = FD_INT16;
-      AFr->DFormat.ScaleF = 32768;
-    }
-    else if (strcmp (line, "<8,8,t>") == 0) {
-      AFr->DFormat.Format = FD_INT8;
-      AFr->DFormat.ScaleF = 128.;
-    }
-    else {
-      UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_UnsFixP, line);
-      return 1;
-    }
-    break;
-  case 3:
-    /* Complex Format */
-    if (strcmp (line, "Real_Imag") == 0)
-      AFr->NData.Nchan = 2;
-    else {
-      UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_UnsCmplx, line);
-      return 1;
-    }
-    break;
-  default:
-    UTwarn ("AFrdSWhead - %s: \"%.30s\"", AFM_SW_UnsDInfo, line);
+  if (! (iSec == SW_DATA_ASCII || iSec == SW_DATA_BINARY) ||
+      Err == 1 || ioffs >= SW_MAXLHEAD) {
+    UTwarn ("AFrdSWhead - %s", AFM_SW_UnsHead);
     return 1;
   }
 
-  return 0;
+  if (FLseekable (fp) && ioffs != (int) AFtell (fp, &ErrCode)) {
+    UTwarn ("AFrdSWhead  - %s", AFM_SW_PosErr);
+    return 1;
+  }
+
+  return Err;
 }

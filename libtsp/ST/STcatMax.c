@@ -31,15 +31,15 @@ Parameters:
       truncated to this length.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.23 $  $Date: 2003/05/09 03:02:43 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.24 $  $Date: 2017/03/28 00:14:10 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp.h>
 #include <libtsp/STmsg.h>
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
 
 int

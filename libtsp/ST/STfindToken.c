@@ -4,7 +4,7 @@
 Routine:
   char *STfindToken (const char String[], const char Delims[],
                      const char Quotes[], char Token[], int WSFlag,
-		     int Maxchar);
+                     int Maxchar);
 
 Purpose:
   Find the first token string in a string
@@ -25,22 +25,23 @@ Description:
       This mode causes leading and trailing white-space in the token string to
       be stripped off before the token string is returned.
   WSFlag = 2:
-      This mode causes white-space to serve as an additional delimiter.
-      There are two subcases here.  If the Delims string is empty, then
-      only white-space serves as a delimiter.  However leading and trailing
-      white-space in the input string does not serve as a delimiter, i.e.
-      only the characters after the initial white-space are returned as token
-      characters.  The second subcase occurs if the Delims string is not empty.
-      Now the delimiter can be either white-space alone, or a character from
-      the Delims string with optional white-space surrounding the delimiter
-      character.  The white-space serving as a delimiter or surrounding the
-      delimiter character is stripped off before returning the token string.
+      This mode causes white-space to serve as an additional delimiter. There
+      are two subcases here.
+      1. If the Delims string is empty, then only white-space serves as a
+         delimiter.  However leading and trailing white-space in the input
+         string does not serve as a delimiter, i.e. only the characters after
+         the initial white-space are returned as token characters.
+      2. The second subcase occurs if the Delims string is not empty.  Now the
+         delimiter can be either white-space alone, or a character from the
+         Delims string with optional white-space surrounding the delimiter
+         character.  The white-space serving as a delimiter or surrounding the
+         delimiter character is stripped off before returning the token string.
 
   Example:
         String = "XXX : yyy";
         Delims = ":";
         WSFlag = 1;
-        STfindToken (String, Delims, Token, WSFlag, 100);
+        STfindToken (String, Delims, "", Token, WSFlag, 100);
   On return, Token contains the string "XXX".
 
   Quote characters are specified in pairs, a left quote character and a right
@@ -67,7 +68,7 @@ Description:
       In this case, the left and right quote characters are different.  Nesting
       of groups can occur.
   Example:
-      |f1 (x, f2 (y,z)), f3(x)|.  Quote characters |()|, |,| as a delimiter.
+      |f1 (x, f2 (y,z)), f3(x)|.  Quote characters "||()", "," as a delimiter.
       The commas occurring inside the parentheses do not serve as delimiters.
       Also, nesting is observed, so that only the second |)| character matches
       the first |(|.  The string returned is |f1 (x, f2 (y,z))|.
@@ -109,13 +110,12 @@ Parameters:
       are to be recognized, or that only white-space is to be recognized as a
       delimiter (if WSFlag is set appropriately).
    -> const char Quotes[]
-      Character string specifying pairs of quote characters (the left and
-      right quote characters).  In the part of the input string between a
-      matched pair of quote characters, any other characters, including quote
-      characters other than from the active pair, are treated as ordinary
-      characters.  Up to 5 pairs of quote characters can be specified.  A zero
-      length string indicates that quote characters should not to be
-      recognized.
+      Character string specifying pairs of quote characters (the left and right
+      quote characters).  In the part of the input string between a matched pair
+      of quote characters, any other characters, including quote characters
+      other than from the active pair, are treated as ordinary characters.  Up
+      to 5 pairs of quote characters can be specified.  A zero length string
+      indicates that quote characters should not to be recognized.
   <-  char Token[]
       Output token string.  This string has at most Maxchar characters, not
       including the terminating null character.  This string is always null
@@ -136,8 +136,8 @@ Parameters:
       to be placed in Token.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.36 $  $Date: 2003/05/09 03:16:39 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.41 $  $Date: 2017/05/24 16:54:24 $
 
 -------------------------------------------------------------------------*/
 
@@ -145,15 +145,19 @@ Author / revision:
 #include <string.h>
 #include <libtsp.h>
 #include <libtsp/nucleus.h>
+#include <libtsp/STmsg.h>
 
-enum { OTHER = 0, WHITESPACE = 1, DELIM = 2 };
+enum { OTHER = 0, LQUOTE = 1, RQUOTE = 2, WHITESPACE = 3, DELIM = 4 };
 enum { START = 0, TOKEN = 1, WSAFTER = 2, FINIS = 3 };
 enum { LEFT = 0, RIGHT = 1 };
-static const int NextState[3][3] = {
-/* OTHER  WHITESPACE DELIM  <== CharType */
-  {TOKEN,  WSAFTER, FINIS},	/* PrevState = START */
-  {TOKEN,  WSAFTER, FINIS},	/* PrevState = TOKEN */
-  {FINIS,  WSAFTER, FINIS},	/* PrevState = WSAFTER */
+
+/* Note: Initial white-space has been trimmed, so white-space not possible
+     with PrevState = START */
+static const int NextState[3][5] = {
+/* OTHER  LQUOTE  RQUOTE  WHITESPACE DELIM  <== CharType */
+  {TOKEN,  TOKEN,  TOKEN,  WSAFTER,  FINIS}, /* PrevState: START */
+  {TOKEN,  TOKEN,  TOKEN,  WSAFTER,  FINIS}, /* PrevState: TOKEN */
+  {FINIS,  FINIS,  FINIS,  WSAFTER,  FINIS}  /* PrevState: WSAFTER */
 };
 
 static char *
@@ -162,7 +166,7 @@ ST_strochr (const char s[], int c);
 
 char *
 STfindToken (const char String[], const char Delims[], const char Quotes[],
-	     char Token[], int WSFlag, int Maxchar)
+       char Token[], int WSFlag, int Maxchar)
 
 {
   int inquotes;
@@ -203,59 +207,55 @@ STfindToken (const char String[], const char Delims[], const char Quotes[],
 
 /* In quotes */
       CharType = OTHER;
-      /*
-	 Check only the active quote pair in QC.
-	 If the left and right quote characters are the same, the match
-	 should be interpreted as a right quote.
-      */
+/* Check only the active quote pair in QC */
+/* If the left and right quote characters are the same, the match should be
+   interpreted as a right quote.
+   */
       q = strchr (QC, *p);
       if (q != NULL) {
-	if ((q-QC) % 2 == RIGHT || QC[0] == QC[1])
-	  inquotes--;
-	else
-	  inquotes++;
+        if ((q-QC) % 2 == RIGHT || QC[0] == QC[1]) {
+          CharType = RQUOTE;
+          inquotes--;
+        } else {
+          CharType = LQUOTE;
+          inquotes++;
+        }
       }
     }
 
     else {
 
 /* Not in quotes, look for new left quotes */
-      /*
-	 Check all left quote characters, ignoring possible right quote
-	 matches.
-      */
+/* Check all left quote characters, ignoring possible right quote matches */
       q = ST_strochr (Quotes, *p);
       if (q != NULL) {
-	CharType = OTHER;
-	n = q-Quotes;
-	inquotes++;
-	STcopyNMax (&Quotes[n], QC, 2, 2);
+        CharType = LQUOTE;
+        n = (int) (q-Quotes);
+        inquotes++;
+        STcopyNMax (&Quotes[n], QC, 2, 2);
       }
 
 /* Not in quotes - process other characters */
-      /* Check for a separator */
+/* Check for a separator */
       else if (strchr (Delims, *p) != NULL)
-	CharType = DELIM;
+        CharType = DELIM;
 
       /* Look for white-space */
       else if (WSFlag > 1 && isspace ((int) *p))
-	CharType = WHITESPACE;
+        CharType = WHITESPACE;
 
       /* Must be other */
       else
-	CharType = OTHER;
+        CharType = OTHER;
     }
 
 /* Make a state transition */
     State = NextState [State][CharType];
-    n = p - String;
+    n = (int) (p - String);
     ++p;
   }
 
 /* End of loop
-   Note: The flag inquotes may be set on loop exit in the case that a left
-     quote after a white-space delimiter terminated the scan.
-
    Several ways to exit the loop:
      - null character acting as a delimiter, p points at the null character.
        For this case, State != FINIS.
@@ -263,13 +263,20 @@ STfindToken (const char String[], const char Delims[], const char Quotes[],
      - white-space terminated by an OTHER character, p points at one beyond the
        OTHER character and should be pushed back, State == FINIS.
 */
+
   if (State == FINIS) {
-    if (CharType == OTHER)
-      --p;		/* unget the last character read */
-    n = (p - pst) - 1;
+    if (CharType == OTHER || CharType == LQUOTE)
+      --p;    /* unget the last character */
+    n = (int) (p - pst) - 1;
   }
   else
-    n = p - pst;	/* Null character terminated the scan */
+    n = (int) (p - pst);    /* Null character terminated the scan */
+
+  /* Check for unbalanced quotes */
+  if (inquotes && CharType == LQUOTE)
+    inquotes--;
+  if (inquotes)
+    UTwarn ("STfindToken - %s", STM_UnBalQuote);
 
 /* Omit trailing white-space, if appropriate */
   if (WSFlag > 0)
@@ -281,12 +288,13 @@ STfindToken (const char String[], const char Delims[], const char Quotes[],
   if (State == FINIS)
     return ((char *) p);
   else
-    return NULL;	/* Null character terminated the scan */
+    return NULL;  /* Null character terminated the scan */
 }
 
 /* Modified version of strchr
    - checks every second character
    - number of characters can be odd
+   - returns pointer to the character matched
 */
 
 

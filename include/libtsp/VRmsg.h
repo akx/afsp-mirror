@@ -8,8 +8,8 @@ Description:
   Message texts for the TSP VR routines.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1997
-  $Revision: 1.2 $  $Date: 1997/10/11 02:21:30 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.3 $  $Date: 2015/03/18 14:37:55 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,9 +17,9 @@ Author / revision:
 #define VRmsg_h_
 
 /* Error Messages */
-#define VRM_BadSize	"Invalid data element size"
-#define VRM_NegAmpl	"Negative input amplitude"
-#define VRM_NegVal	"Negative input value(s)"
-#define VRM_BadN	"Invalid number of elements"
+#define VRM_BadSize  "Invalid data element size"
+#define VRM_NegAmpl  "Negative input amplitude"
+#define VRM_NegVal   "Negative input value(s)"
+#define VRM_BadN     "Invalid number of elements"
 
-#endif	/* VRmsg_h_ */
+#endif  /* VRmsg_h_ */

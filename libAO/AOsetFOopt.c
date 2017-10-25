@@ -8,23 +8,22 @@ Purpose:
   Set output file options
 
 Description:
-  This routine sets the input file options in the audio file options structure
-  from the input file parameter structure.
+  This routine sets the output file options in the audio file options structure
+  from the output file parameter structure.
 
 Parameters:
+  <-  void AOsetFOopt
    -> const struct AO_FOpar *FO
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.6 $  $Date: 2009/03/09 18:37:23 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.12 $  $Date: 2017/06/13 12:29:03 $
 
 -------------------------------------------------------------------------*/
 
 #include <string.h>
 
-#include <libtsp.h>
-#include <libtsp/AFpar.h>
 #include <AO.h>
 
 
@@ -33,22 +32,16 @@ AOsetFOopt (const struct AO_FOpar *FO)
 
 {
   int N;
-  struct AF_opt *AFopt;
 
-  AFopt = AFoptions ();
+  AFopt.Nframe = FO->Nframe;
+  AFopt.NbS = FO->DFormat.NbS;
 
-  AFopt->Nframe = FO->Nframe;
-  AFopt->NbS = FO->DFormat.NbS;
-
-  UTfree (AFopt->SpkrConfig);
+  UTfree (AFopt.SpkrConfig);
   if (FO->SpkrConfig != NULL) {
-    N = strlen ((const char *) FO->SpkrConfig);
-    AFopt->SpkrConfig = (unsigned char *) UTmalloc (N+1);
-    STcopyMax ((const char *) FO->SpkrConfig, (char *) AFopt->SpkrConfig, N);
+    N = (int) strlen ((const char *) FO->SpkrConfig);
+    AFopt.SpkrConfig = (unsigned char *) UTmalloc (N+1);
+    STcopyMax ((const char *) FO->SpkrConfig, (char *) AFopt.SpkrConfig, N);
   }
-
-  AFsetInfo (NULL);	/* Reset the info string */
-  AFsetInfo (FO->Info);
 
   return;
 }

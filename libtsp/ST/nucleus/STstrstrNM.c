@@ -13,6 +13,9 @@ Description:
   Null characters in either string are treated as ordinary characters.
 
 Parameters:
+  <-  char *STstrstrNM
+      Pointer to the position in the string; NULL if the string Ti does not
+      occur in Si
    -> char Si[]
       Input character string of length N
    -> char Ti[]
@@ -23,8 +26,8 @@ Parameters:
       Number of characters in Ti
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.13 $  $Date: 2003/05/09 03:06:42 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.16 $  $Date: 2017/05/05 00:14:36 $
 
 -------------------------------------------------------------------------*/
 
@@ -54,11 +57,11 @@ STstrstrNM (const char Si[], const char Ti[], int N, int M)
       ss = Si;
       tt = Ti;
       for (k = 1; k < M; ++k) {
-	if (*++ss != *++tt)
-	  break;
+        if (*++ss != *++tt)
+        break;
       }
       if (k == M)
-	return (char *) Si;
+        return (char *) Si;
     }
 
   }

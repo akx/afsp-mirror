@@ -8,8 +8,8 @@ Description:
   Declarations for GenNoise
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.35 $  $Date: 2003/11/06 13:23:59 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.41 $  $Date: 2017/10/18 18:30:12 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,21 +17,21 @@ Author / revision:
 #define GenNoise_h_
 
 #define PROGRAM "GenNoise"
-#define VERSION	"v5r0a  2003-11-06"
+#define VERSION "v10r1  2017-10-18"
 
 #define RMS_DEFAULT 0.03
 
-#include <libtsp.h>		/* p_ */
-#include <AO.h>			/* struct AO_FOpar */
+#include <libtsp.h>   /* p_ */
+#include <AO.h>     /* struct AO_FOpar */
 
-#define GN_FOpar	AO_FOpar	/* Output file structure */
+#define GN_FOpar  AO_FOpar  /* Output file structure */
 
 /* Error messages */
-#define GNM_BadSeed	"Invalid seed value"
-#define GNM_BadStdDev	"Invalid standard deviation"
-#define GNM_XFName	"Too many filenames specified"
-#define GNM_NoFName	"No filename specified"
-#define GNM_NoNsamp	"Number of samples not specified"
+#define GNM_BadSeed "Invalid seed value"
+#define GNM_BadStdDev "Invalid standard deviation"
+#define GNM_XFName  "Too many filenames specified"
+#define GNM_NoFName "No filename specified"
+#define GNM_NoNsamp "Number of samples not specified"
 
 /* Usage */
 #define GNMF_Usage "\
@@ -41,14 +41,15 @@ Options:\n\
   -d SDEV, --std_deviation=SDEV  Standard deviation of the noise samples.\n\
   -x SEED, --seed=SEED        Seed for the random number generator.\n\
   -s SFREQ, --srate=SFREQ     Sampling frequency for the output file.\n\
-  -F FTYPE, --file_type=FTYPE  Output file type,\n\
-                              \"AU\", \"WAVE\", \"AIFF\", \"AIFF-C\",\n\
-                              \"noheader\", or \"noheader_swap\".\n\
-  -D DFORMAT, --data_format=DFORMAT  Data format for the output file,\n\
-                              \"mu-law\", \"A-law\", \"unsigned8\", \"integer8\",\n\
-                              \"integer16\", \"integer24\", \"float32\",\n\
-                              \"float64\", or \"text\".\n\
-  -I INFO, --info=INFO        Header information string.\n\
+  -F FTYPE, --file-type=FTYPE  Output file type,\n\
+                              \"AU\", \"WAVE\", \"WAVE-NOEX\", \"AIFF\",\n\
+                              \"AIFF-C\", \"AIFF-C/sowt\", \"noheader\",\n\
+                              \"noheader-swap\", \"text-audio\".\n\
+  -D DFORMAT, --data-format=DFORMAT  Data format for the output file,\n\
+                              \"mu-law8\", \"mu-lawR8\", \"A-law8\", \"unsigned8\",\n\
+                              \"integer8\", \"integer16\", \"integer24\",\n\
+                              \"float32\", \"float64\", \"text16\", \"text\".\n\
+  -I INFO, --info=INFO        Add a header information record.\n\
   -h, --help                  Print a list of options and exit.\n\
   -v, --version               Print the version number and exit."
 
@@ -59,7 +60,7 @@ extern "C" {
 /* Prototypes */
 void
 GNoptions (int argc, const char *argv[], double *rms, int *seed,
-	   struct GN_FOpar *FO);
+     struct GN_FOpar *FO);
 
 #ifdef __cplusplus
 }

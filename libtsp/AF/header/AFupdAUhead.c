@@ -18,18 +18,18 @@ Parameters:
       Audio file pointer for an audio file opened by AFopnWrite
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.39 $  $Date: 2009/03/11 20:08:23 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.45 $  $Date: 2017/05/08 20:37:06 $
 
 -------------------------------------------------------------------------*/
 
 #include <setjmp.h>
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFheader.h>
-#define AF_DATA_LENGTHS
-#include <libtsp/AFpar.h>
+#include <libtsp/AFmsg.h>
 #include <libtsp/AUpar.h>
 
 /* setjmp / longjmp environment */
@@ -41,19 +41,27 @@ AFupdAUhead (AFILE *AFp)
 
 {
   UT_uint4_t val;
+  int Changed;
   long int Ldata;
 
 /* Set the long jump environment; on error return a 1 */
   if (setjmp (AFW_JMPENV))
-    return 1;		/* Return from a header write error */
+    return 1;   /* Return from a header write error */
 
-  Ldata = AF_DL[AFp->Format] * AFp->Nsamp;
+/* Check if the header needs updating */
+  Changed = (AFp->Nframe != AF_NFRAME_UNDEF &&
+             AFp->Nframe != AFp->Nsamp / AFp->Nchan);
+  if (Changed)
+    UTwarn ("AFupdAUhead - %s", AFM_NsampUpd);
 
-/* Move to the header data length field */
-  val = (UT_uint4_t) Ldata;
-  if (AFseek (AFp->fp, 8L, NULL))
-    return 1;
-  WHEAD_V (AFp->fp, val, DS_EB);
+/* Update the Ldata field in the header */
+  if (AFp->Nframe == AF_NFRAME_UNDEF || Changed) {
+    Ldata = AF_DL[AFp->Format] * AFp->Nsamp;
+    val = (UT_uint4_t) Ldata;
+    if (AFseek (AFp->fp, 8L, NULL))   /* Move to the header data length field */
+      return 1;
+    WHEAD_V (AFp->fp, val, DS_EB);
+  }
 
   return 0;
 }

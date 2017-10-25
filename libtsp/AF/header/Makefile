@@ -11,6 +11,7 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libtsplite.a
 
@@ -20,29 +21,23 @@ all:	$(LIB)
 
 .PRECIOUS: $(LIB)
 $(LIB): \
-	$(LIB)(AFdecSpeaker.o) \
-	$(LIB)(AFfindType.o) \
-	$(LIB)(AFgetInfoRec.o) \
-	$(LIB)(AFoptions.o) \
-	$(LIB)(AFprAFpar.o) \
-	$(LIB)(AFpreSetWPar.o) \
+	$(LIB)(AFfindFtype.o) \
 	$(LIB)(AFrdAIhead.o) \
 	$(LIB)(AFrdAUhead.o) \
 	$(LIB)(AFrdBLhead.o) \
 	$(LIB)(AFrdEShead.o) \
+	$(LIB)(AFrdInfoText.o) \
 	$(LIB)(AFrdINhead.o) \
 	$(LIB)(AFrdNShead.o) \
 	$(LIB)(AFrdSFhead.o) \
 	$(LIB)(AFrdSPhead.o) \
 	$(LIB)(AFrdSWhead.o) \
-	$(LIB)(AFrdTextAFsp.o) \
 	$(LIB)(AFrdTAhead.o) \
 	$(LIB)(AFrdWVhead.o) \
 	$(LIB)(AFreadHead.o) \
+	$(LIB)(AFsetChunkLim.o) \
 	$(LIB)(AFsetNHread.o) \
 	$(LIB)(AFsetNHwrite.o) \
-	$(LIB)(AFsetRead.o) \
-	$(LIB)(AFsetWrite.o) \
 	$(LIB)(AFupdAIhead.o) \
 	$(LIB)(AFupdAUhead.o) \
 	$(LIB)(AFupdHead.o) \
@@ -50,6 +45,7 @@ $(LIB): \
 	$(LIB)(AFwrAIhead.o) \
 	$(LIB)(AFwrAUhead.o) \
 	$(LIB)(AFwriteHead.o) \
+	$(LIB)(AFwrTAhead.o) \
 	$(LIB)(AFwrWVhead.o) \
 	#
 	ranlib $(LIB)

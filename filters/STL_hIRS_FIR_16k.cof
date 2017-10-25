@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_hIRS_FIR_16k.cof
 ! See ITU-T G.191 (2000), Software Tools Library (module fir-hirs.c)
-! $Id: STL_hIRS_FIR_16k.cof 1.3 2002/06/18 AFsp-v9r0 $
+! $Id: STL_hIRS_FIR_16k.cof 1.3 2002/06/18 AFsp-v10r1a $
 !
 ! IRS (send) filter wih a half-tilt inclination within the
 ! ITU-T Recommendation P.48 send mask

@@ -25,8 +25,8 @@ Parameters:
       case the output string overlays the input string.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.4 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.5 $  $Date: 2017/05/24 16:54:54 $
 
 -------------------------------------------------------------------------*/
 
@@ -43,7 +43,7 @@ STunQuote (const char Si[], const char Quotes[], char So[])
   const char *p;
 
   /* Count the number of characters */
-  nc = strlen (Si);
+  nc = (int) strlen (Si);
 
   /* Check for a leading and trailing quote */
   for (p = Quotes; *p != '\0' && *(p+1) != '\0'; ++p, ++p) {

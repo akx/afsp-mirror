@@ -19,8 +19,8 @@ Parameters:
       File pointer associated with the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.22 $  $Date: 2003/05/09 01:39:26 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.23 $  $Date: 2017/05/01 20:19:05 $
 
 -------------------------------------------------------------------------*/
 
@@ -39,10 +39,10 @@ FLfileSize (FILE *fp)
   long int endpos;
 
 /*
-   The ANSI C standard does not guarantee that this method of determining
-   the file size will work on all systems.  It works on Unix systems and
-   probably a lot of other systems.  The alternative is to use stat, but that
-   is probably even less portable.
+   The ANSI C standard does not guarantee that this method of determining the
+   file size will work on all systems.  It works on Unix systems and probably a
+   lot of other systems.  The alternative is to use stat, but that is probably
+   even less portable.
 */
   errno = 0;
   pos = ftell (fp);

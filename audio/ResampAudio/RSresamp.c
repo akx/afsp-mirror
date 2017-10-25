@@ -31,8 +31,8 @@ Parameters:
       information about the filter is printed on the stream selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.18 $  $Date: 2005/02/01 04:23:08 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.21 $  $Date: 2017/05/26 18:37:23 $
 
 ----------------------------------------------------------------------*/
 
@@ -41,14 +41,14 @@ Author / revision:
 
 #include "ResampAudio.h"
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
-#define MAXBUF	8192		/* Buffer size (per channel) */
+#define MAXBUF  8192    /* Buffer size (per channel) */
 
 
 void
 RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
-	  const struct Fpoly_T *PF, FILE *fpinfo)
+          const struct Fpoly_T *PF, FILE *fpinfo)
 
 {
   int lmem, NbufI, NbufO, Nx, Ny, Nxm, i, j;
@@ -92,7 +92,7 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
   (5) Resample the continuous-time output at 44100 Hz.
 
   We can move the D/C block ahead of the filter H(z) if we replace h(n) with
-  a transveral filter h(t).  Then we can form a composite continuous-time
+  a transversal filter h(t).  Then we can form a composite continuous-time
   filter g(t) by convolving the linear interpolation filter with h(t).  The
   impulse response of the resulting filter is that of h(n) with linear
   interpolation between the sample values.
@@ -111,7 +111,7 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
   interpolating filter and so are well suppressed.  We can measure the
   suppression at the bottom of the first image.  The suppression at other
   image frequencies will be better.  The following table shows the results
-  for an input samplng rate fs and various values of Ir.
+  for an input sampling rate fs and various values of Ir.
 
      Ir      attenuation
            freq fs-fs/(2Ir)
@@ -227,26 +227,26 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
    memory.
 
    For each input channel:
-   - Extract the data from one channel from the channel-interleaved signal
-     x, forming xc;
+   - Extract the data from one channel from the channel-interleaved signal x,
+     forming xc;
    - Filter one channel to form the output signal yc;
-   - Place the output in the channel-interleaved vector y. 
+   - Place the output in the channel-interleaved vector y.
 */
   assert (AFpI->Nchan == AFpO->Nchan);
   Nchan = AFpI->Nchan;
   if (Nchan == 1) {
     buf = (double *) UTmalloc ((NbufI + NbufO) * sizeof (double));
-    x = buf;			/* x has NbufI elements */
-    y = buf + NbufI;		/* y has NbufO elements */
-    xc = x;			/* xc is an alias for x */
-    yc = y;			/* yc is an alias for y */
+    x = buf;      /* x has NbufI elements */
+    y = buf + NbufI;    /* y has NbufO elements */
+    xc = x;       /* xc is an alias for x */
+    yc = y;       /* yc is an alias for y */
   }
   else {
     buf = (double *) UTmalloc ((NbufI + NbufO) * (Nchan + 1) * sizeof (double));
-    x = buf;			/* x has Nchan*NbufI elements */
-    xc = buf + Nchan * NbufI;	/* xc has NbufI elements */
-    yc = xc + NbufI;		/* yc has NbufO elements */
-    y = yc + NbufO;		/* y has Nchan*NbufO elements */
+    x = buf;            /* x has Nchan*NbufI elements */
+    xc = buf + Nchan * NbufI; /* xc has NbufI elements */
+    yc = xc + NbufI;    /* yc has NbufO elements */
+    y = yc + NbufO;     /* y has Nchan*NbufO elements */
   }
 
 /*
@@ -259,7 +259,7 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
     Ds <= LMAX / (Sratio + Ny) .
 */
   RSratio (Sratio, PF->Ir, &LNs, &Ds, LONG_MAX,
-	   (long int) (LONG_MAX / (Sratio + NbufO)), fpinfo);
+     (long int) (LONG_MAX / (Sratio + NbufO)), fpinfo);
 
   /*
     Express the time offset in the form,
@@ -267,7 +267,7 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
   */
   RSexpTime (toffs, LNs, &Ts);
 
-  RSrefresh (AFpI, 0L, x, 0);		/* initialize the buffer */
+  RSrefresh (AFpI, 0L, x, 0);   /* initialize the buffer */
   k = 0;
   while (k < Nout) {
 
@@ -283,16 +283,16 @@ RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout, double toffs,
     for (i = 0; i < Nchan; ++i) {
 
       if (Nchan > 1) {
-	for (j = 0; j < Nxm; ++j)
-	  xc[j] = x[j*Nchan + i];
+        for (j = 0; j < Nxm; ++j)
+          xc[j] = x[j*Nchan + i];
       }
 
       /* Generate the output samples for channel i */
       RSinterp (xc, Nxm, yc, Ny, Ds, &Ts, PF);
 
       if (Nchan > 1) {
-	for (j = 0; j < Ny; ++j)
-	  y[j*Nchan + i] = yc[j];
+        for (j = 0; j < Ny; ++j)
+          y[j*Nchan + i] = yc[j];
       }
     }
 

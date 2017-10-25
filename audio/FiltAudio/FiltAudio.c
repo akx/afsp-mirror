@@ -18,11 +18,12 @@ Description:
     !FIR  - FIR filter, direct form
     !IIR  - IIR filter, cascade of biquad sections
     !ALL  - All-pole filter, direct form
-  Subsequent records contain filter coefficients.  Comment records ('!' in the
-  first position of the record) can be interspersed amongst the data.  Data
-  records are free form, with data values separated by white space (blanks,
-  tabs and newlines).  Commas can also be used to separate data values, but
-  only within records, i.e. a comma should not appear at the end of a record.
+  Subsequent records contain text lines with filter coefficients.  Comment
+  records ('!' in the first position of the record) can be interspersed amongst
+  the data.  Data records are free form, with data values separated by
+  white-space (blanks, tabs and newlines).  Commas can also be used to separate
+  data values, but only within records, i.e. a comma should not appear at the
+  end of a record.
 
   FIR filters are specified by the direct-form coefficients h[i],
            N-1       -i
@@ -77,21 +78,21 @@ Description:
   maximum of 1000 samples to provide the warm-up points.
 
   If the initial filter alignment is not explicitly specified, it is chosen to
-  be zero, except for symmetric or anti-symmetric FIR filters. In those cases
+  be zero, except for symmetric or anti-symmetric FIR filters.  In those cases
   the default alignment is Ncof/2-1 for even length filters and (Ncof-1)/2 for
   odd length filters.  If the number of output samples is not explicitly set,
-  it is chosen to be Ir*Nin/Nsub.  For the case of Ir=1 and Nsub=1, this 
+  it is chosen to be Ir*Nin/Nsub.  For the case of Ir=1 and Nsub=1, this
   results in the same number of output samples as input samples.  If the
   initial filter alignment, offs, is explicitly specified, the number of output
   samples is chosen to be (Ir*Nin-offs)/Nsub.  This value can be overridden by
   explicitly setting the number of output samples.
 
 Options:
-  Input file name: AFileI:
+  Input file name, AFileI:
       The environment variable AUDIOPATH specifies a list of directories to be
       searched for the input audio file.  Specifying "-" as the input file
       indicates that input is from standard input.
-  Output file name: AFileO:
+  Output file name, AFileO:
       The second file name is the output file.  Specifying "-" as the output
       file name indicates that output is to be written to standard output.  If
       the output file type is not explicitly given (-F option), the extension
@@ -101,9 +102,10 @@ Options:
         ".aif"  - AIFF sound file
         ".afc"  - AIFF-C sound file
         ".raw"  - Headerless file (native byte order)
-        ".txt"  - Headerless file (text data)
+        ".txt"  - Text audio file (with header)
   -f FILTFILE, --filter_file=FILTFILE
-      Filter file name.
+     Text file containing filter coefficients.  The header of the file indicates
+     the type of filter as described above.
   -i IR/NSUB, --interpolate=IR/NSUB
       Filter interpolation ratio, default 1.  The interpolation and subsampling
       factors are specified as a fraction Ir/Nsub.  Interpolation can only be
@@ -112,40 +114,34 @@ Options:
       Alignment of data relative to the filter.  The first output sample is
       calculated with the beginning of the filter response aligned with the
       specified sample of the interpolated data sequence.
-  -n NSAMPLE, --number_samples=NSAMPLE
-      Number of samples (per channel) for the output file.
-  -t FTYPE, --type=FTYPE
-      Input audio file type.  In the default automatic mode, the input file
-      type is determined from the file header.  For input from a non-random
-      access file (e.g. a pipe), the input file type can be explicitly
-      specified to avoid the lookahead used to read the file header.  See the
-      description of the environment variable AF_FILETYPE below for a list of
-      file types.
-  -P PARMS, --parameters=PARMS
-      Parameters to be used for headerless input files.  See the description
-      of the environment variable AF_NOHEADER below for the format of the
-      parameter specification.
   -g GAIN, --gain=GAIN
-      A gain factor applied to the data from the input file.  This gain applies
+      A gain factor applied to the data from the INPUT file.  This gain applies
       to all channels in a file.  The gain value can be given as a real number
       (e.g., "0.003") or as a ratio (e.g., "1/256").
-  -F FTYPE, --file_type=FTYPE
-      Output file type.  If this option is not specified, the file type is
+  -n NSAMPLE, --number_samples=NSAMPLE
+      Number of samples (per channel) for the OUTPUT file.  If not specified,
+      the number of samples is determined automatically.
+  -F FTYPE, --file-type=FTYPE
+      OUTPUT file type.  If this option is not specified, the file type is
       determined by the output file name extension.
         "AU" or "au"             - AU audio file
-        "WAVE" or "wave"         - WAVE file
-        "WAVE-NOEX" or "wave-noex" - WAVE file (no extensible data)
-        "AIFF-C" "aiff-c"        - AIFF-C sound file
+        "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
+                                   file extensible format is automatically
+                                   determined.
+        "WAVE-EX" or "wave-ex"   - WAVE file. Use the WAVE file extensible
+                                   format.
+        "WAVE-NOEX" or "wave-noex" - WAVE file; do not use the WAVE file
+                                   extensible format
+        "AIFF-C" or "aiff-c"     - AIFF-C sound file
+        "AIFF-C/sowt" or "aiff-c/sowt" - AIFF-C (byte-swapped data)
         "AIFF" or "aiff"         - AIFF sound file
-        "noheader" or "noheader_native" - Headerless file (native byte
-                                   order)
-        "noheader_swap"          - Headerless file (byte swapped)
-        "noheader_big-endian"    - Headerless file (big-endian byte
-                                   order)
-        "noheader_little-endian" - Headerless file (little-endian byte
-                                   order)
-  -D DFORMAT, --data_format=DFORMAT
-      Data format for the output file.
+        "noheader" or "noheader-native" - Headerless file (native byte order)
+        "noheader-swap"          - Headerless file (byte swapped)
+        "noheader-big-endian"    - Headerless file (big-endian byte order)
+        "noheader-little-endian" - Headerless file (little-endian byte order)
+        "text-audio"             - Text audio file (with header)
+  -D DFORMAT, --data-format=DFORMAT
+      Data format for the OUTPUT file.
         "mu-law8"   - 8-bit mu-law data
         "A-law8"    - 8-bit A-law data
         "unsigned8" - offset-binary 8-bit integer data
@@ -153,149 +149,64 @@ Options:
         "integer16" - two's-complement 16-bit integer data
         "integer24" - two's-complement 24-bit integer data
         "integer32" - two's-complement 32-bit integer data
-        "float32"   - 32-bit floating-point data
-        "float64"   - 64-bit floating-point data
-        "text"      - text data
+        "float32"   - 32-bit IEEE floating-point data
+        "float64"   - 64-bit IEEE floating-point data
+        "text16"    - text data, scaled the same as 16-bit integer data
+        "text"      - text data, scaled the same as float/double data
       The data formats available depend on the output file type.
-      AU audio files:
-        mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
-      WAVE files:
-        mu-law, A-law, offset-binary 8-bit integer, 16/24/32-bit integer,
-        32/64-bit float
-      AIFF-C sound files:
-        mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
-      AIFF sound files:
-        8/16/24/32-bit integer
-      Headerless files:
-        all data formats
-  -S SPEAKER, --speaker=SPEAKER
-      Mapping of the output channel to a speaker position.  The spacial
-      position of the loudspeakers is one of the following.
-        "FL"  - Front Left
-        "FR"  - Front Right
-        "FC"  - Front Center
-        "LF"  - Low Frequency
-        "BL"  - Back Left
-        "BR"  - Back Right
-        "FLC" - Front Left of Center
-        "FRC" - Front Right of Center
-        "BC"  - Back Center
-        "SL"  - Side Left
-        "SR"  - Side Right
-        "TC"  - Top Center
-        "TFL" - Top Front Left
-        "TFC" - Top Front Center
-        "TFR" - Top Front Right
-        "TBL" - Top Back Lefty
-        "TBC" - Top Back Center
-        "TBR" - Top Back Right
-        "-"   - none
+        AU audio files:
+          mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
+        WAVE files:
+          mu-law, A-law, offset-binary 8-bit, 16/24/32-bit integer,
+          32/64-bit float
+        AIFF-C sound files:
+          mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
+        AIFF and AIFF-C/sowt sound files:
+          8/16/24/32-bit integer
+        Headerless files:
+          all data formats
+        Text audio files:
+          tex16, text
   -I INFO, --info=INFO
-      Audio file information string for the output file.
+      Add an information record to the OUTPUT audio file.
   -h, --help
       Print a list of options and exit.
   -v, --version
       Print the version number and exit.
 
-  By default, the output file contains a standard audio file information
-  string.
-    Standard Audio File Information:
-       date: 2001-01-25 19:19:39 UTC    date
-       program: FiltAudio               program name
-  This information can be changed with the header information string which is
-  specified as one of the command line options.  Structured information records
-  should adhere to the above format with a named field terminated by a colon,
-  followed by numeric data or text.  Comments can follow as unstructured
-  information.
-    Record delimiter: Newline character or the two character escape
-        sequence "\" + "n".
-    Line delimiter: Within records, lines are delimiteded by a carriage
-        control character, the two character escape sequence "\" + "r",
-        or the two character sequence "\" + newline.
-  If the information string starts with a record delimiter, the header
-  information string is appended to the standard header information.  If not,
-  the user supplied header information string appears alone.
+  See routine CopyAudio for a description of other parameters.
+  -t FTYPE, --type=FTYPE
+      Input file type and environment variable AF_FILETYPE
+  -P PARMS, --parameters=PARMS
+      Input file parameters and environment variable AF_INPUTPAR
+  -D DFORMAT, --data-format=DFORMAT
+      More details on allowed data formats for the output file
+  -I INFO, --info-INFO
+      Details on usage and default information records
+  -S SPEAKERS, --speakers=SPEAKERS
+      Loudspeaker configuration
 
 Environment variables:
-  AF_FILETYPE:
-  This environment variable defines the input audio file type.  In the default
-  mode, the input file type is determined from the file header.
-    "auto"       - determine the input file type from the file header
-    "AU" or "au" - AU audio file
-    "WAVE" or "wave" - WAVE file
-    "AIFF" or "aiff" - AIFF or AIFF-C sound file
-    "noheader"   - headerless (non-standard or no header) audio file
-    "SPHERE"     - NIST SPHERE audio file
-    "ESPS"       - ESPS sampled data feature file
-    "IRCAM"      - IRCAM soundfile
-    "SPPACK"     - SPPACK file
-    "INRS"       - INRS-Telecom audio file
-    "SPW"        - Comdisco SPW Signal file
-    "CSL" or "NSP" - CSL NSP file
-    "text"       - Text audio file
-
-  AF_NOHEADER:
-  This environment variable defines the data format for headerless or
-  non-standard input audio files.  The string consists of a list of parameters
-  separated by commas.  The form of the list is
-    "Format, Start, Sfreq, Swapb, Nchan, ScaleF"
-  Format: File data format
-       "undefined" - Headerless files will be rejected
-       "mu-law8"   - 8-bit mu-law data
-       "A-law8"    - 8-bit A-law data
-       "unsigned8" - offset-binary 8-bit integer data
-       "integer8"  - two's-complement 8-bit integer data
-       "integer16" - two's-complement 16-bit integer data
-       "integer24" - two's-complement 24-bit integer data
-       "integer32" - two's-complement 32-bit integer data
-       "float32"   - 32-bit floating-point data
-       "float64"   - 64-bit floating-point data
-       "text"      - text data
-  Start: byte offset to the start of data (integer value)
-  Sfreq: sampling frequency in Hz (floating point number)
-  Swapb: Data byte swap parameter
-       "native"        - no byte swapping
-       "little-endian" - file data is in little-endian byte order
-       "big-endian"    - file data is in big-endian byte order
-       "swap"          - swap the data bytes as the data is read
-  Nchan: number of channels
-    The data consists of interleaved samples from Nchan channels
-  ScaleF: Scale factor
-       "default" - Scale factor chosen appropriate to the type of data. The
-          scaling factors shown below are applied to the data in the file.
-          8-bit mu-law:    1/32768
-          8-bit A-law:     1/32768
-          8-bit integer:   128/32768
-          16-bit integer:  1/32768
-          24-bit integer:  1/(256*32768)
-          32-bit integer:  1/(65536*32768)
-          float data:      1
-       "<number or ratio>" - Specify the scale factor to be applied to
-          the data from the file.
-  The default values for the audio file parameters correspond to the following
-  string.
-    "undefined, 0, 8000., native, 1, default"
-
   AUDIOPATH:
-  This environment variable specifies a list of directories to be searched when
-  opening the input audio files.  Directories in the list are separated by
-  colons (semicolons for Windows).
+    This environment variable specifies a list of directories to be searched
+    when opening the input audio files.  Directories in the list are separated
+    by colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v6r1  2005-02-01  Copyright (C) 2006
+  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
 
 -------------------------------------------------------------------------*/
 
-#include <stdlib.h>	/* EXIT_SUCCESS */
+#include <stdlib.h> /* EXIT_SUCCESS */
 #include <string.h>
 
 #include <libtsp.h>
-#include <libtsp/AFpar.h>
+#include <AFpar.h>
 #include <libtsp/FIpar.h>
 #include <AO.h>
 #include "FiltAudio.h"
 
-#define CHECKSYM(x,N)	((int) (1.00001 * VRdCorSym(x,N)))
+#define CHECKSYM(x,N) ((int) (1.00001 * VRdCorSym(x,N)))
 
 
 int
@@ -307,7 +218,6 @@ main (int argc, const char *argv[])
   struct FA_FOpar FO;
   AFILE *AFpI, *AFpO;
   FILE *fpinfo;
-  int Ftype, Dformat;
   int FiltType, Ncof, Nsec;
   long int Nsamp, Nchan;
   double SfreqO;
@@ -329,7 +239,7 @@ main (int argc, const char *argv[])
   AFpI = AFopnRead (FI.Fname, &Nsamp, &Nchan, &SfreqI, fpinfo);
   if (Nchan != 1)
     UThalt ("%s: %s", PROGRAM, FAM_XNchan);
-  AFpI->ScaleF *= FI.Gain;	/* Gain absorbed into scaling factor */
+  AFpI->ScaleF *= FI.Gain;  /* Gain absorbed into scaling factor */
 
 /* Read the coefficient file */
   FiltType = FIdReadFilt (FF.Fname, MAXCOF, h, &Ncof, fpinfo);
@@ -340,27 +250,26 @@ main (int argc, const char *argv[])
   if (FiltType == FI_ALL && FF.Ir != 1)
     UThalt ("%s: %s", PROGRAM, FAM_APNoInt);
   if (FiltType == FI_IIR && FF.Ir != 1)
-    UThalt ("%s: %s", PROGRAM, FAM_IIRNoInt); 
+    UThalt ("%s: %s", PROGRAM, FAM_IIRNoInt);
   fprintf (fpinfo, "\n");
 
 /* Open the output audio file */
   if (FO.SpkrConfig == NULL)
     FO.SpkrConfig = AFpI->SpkrConfig;
   SfreqO = (FF.Ir * (double) SfreqI) / FF.Nsub;
-  Ftype = AOsetFtype (&FO);
-  Dformat = AOsetDformat (&FO, &AFpI, 1);
+  AOsetDFormat (&FO, &AFpI, 1);
   AOsetFOopt (&FO);
   if (strcmp (FO.Fname, "-") != 0)
     FLbackup (FO.Fname);
-  AFpO = AFopnWrite (FO.Fname, Ftype, Dformat, 1L, SfreqO, fpinfo);
+  AFpO = AFopnWrite (FO.Fname, FO.FtypeW, FO.DFormat.Format, 1L, SfreqO, fpinfo);
 
 /* Default alignment */
   if (FF.Doffs == DOFFS_DEF) {
     if (FiltType == FI_FIR && CHECKSYM (h, Ncof) != 0) {
       if (Ncof % 2 == 0)
-	FF.Doffs = Ncof / 2 - 1;
+  FF.Doffs = Ncof / 2 - 1;
       else
-	FF.Doffs = (Ncof - 1) / 2;
+  FF.Doffs = (Ncof - 1) / 2;
     }
     else
       FF.Doffs = 0;
@@ -380,7 +289,7 @@ main (int argc, const char *argv[])
   else if (FiltType == FI_IIR) {
     Nsec = Ncof / 5;
     FAfiltIIR (AFpI, AFpO, FO.Nframe, (const double (*)[5]) h, Nsec,
-	       FF.Nsub, FF.Doffs);
+         FF.Nsub, FF.Doffs);
   }
   else if (FiltType == FI_ALL)
     FAfiltAP (AFpI, AFpO, FO.Nframe, h, Ncof, FF.Nsub, FF.Doffs);

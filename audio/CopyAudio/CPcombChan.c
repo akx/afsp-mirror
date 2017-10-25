@@ -4,7 +4,7 @@
 Routine:
   long int CPcombChan (AFILE *AFp[], const long int StartF[], int Nifiles,
                        long int Nframe, const struct CP_Chgain *Chgain,
-		       long int MaxNframe, AFILE *AFpO)
+                       long int MaxNframe, AFILE *AFpO)
 
 Purpose:
   Combine audio file samples (linear combinations of values)
@@ -19,7 +19,6 @@ Description:
   number of frames to the end-of-file be EoF.  The combinations are as follows.
                                       MaxNframe
                              specified        unspecified
-
     Nframe   specified    min(Nframe, MaxNframe)  Nframe
            unspecified    min(MaxNframe, EoF)     EoF
 
@@ -42,34 +41,33 @@ Parameters:
       Output audio file pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.25 $  $Date: 2003/05/13 01:34:10 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.27 $  $Date: 2017/05/26 12:49:03 $
 
 -------------------------------------------------------------------------*/
 
 #include <assert.h>
 
-#include <libtsp.h>
 #include "CopyAudio.h"
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define ICEILV(n, m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
+#define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
+#define ICEILV(n, m)  (((n) + ((m) - 1)) / (m)) /* int n,m >= 0 */
 
-#define BFSIZE	5120		/* At least MAXNI + MAXNO */
+#define BFSIZE  5120    /* At least MAXNCI + MAXNCO */
 
 static long int
 CP_comb1 (AFILE *AFpI, long int StartF, long int Nframe,
-	  const struct CP_Chgain *Chgain, long int MaxNframe, AFILE *AFpO);
-static long int
+          const struct CP_Chgain *Chgain, long int MaxNframe, AFILE *AFpO);
+          static long int
 CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles,
-	  long int Nframe, const struct CP_Chgain *Chgain, AFILE *AFpO);
+          long int Nframe, const struct CP_Chgain *Chgain, AFILE *AFpO);
 
 
 long int
 CPcombChan (AFILE *AFp[], const long int StartF[], int Nifiles,
-	    long int Nframe, const struct CP_Chgain *Chgain,
-	    long int MaxNframe, AFILE *AFpO)
+            long int Nframe, const struct CP_Chgain *Chgain,
+            long int MaxNframe, AFILE *AFpO)
 
 {
   long int Nfw;
@@ -93,25 +91,25 @@ CPcombChan (AFILE *AFp[], const long int StartF[], int Nifiles,
 
 static long int
 CP_comb1 (AFILE *AFpI, long int StartF, long int Nframe,
-	  const struct CP_Chgain *Chgain, long int MaxNframe, AFILE *AFpO)
+          const struct CP_Chgain *Chgain, long int MaxNframe, AFILE *AFpO)
 
 {
-  int eof, i, k, m, NO, Nc, Nr, Ns, Nfv, Nfr;
-  long int offr, offs, Nj, Nfrem;
+  int eof, i, k, m, NCO, NC, Nr, Ns, Nfv, Nfr;
+  long int offr, offs, NCj, Nfrem;
   double g;
   double Dbuff[BFSIZE];
   double *Dbuffi, *Dbuffo;
 
-  NO = (int) AFpO->Nchan;
-  Nj = AFpI->Nchan;
-  assert (AFpO->Nchan == Chgain->NO);
-  assert (Nj >= Chgain->NI);
+  NCO = (int) AFpO->Nchan;
+  NCj = AFpI->Nchan;
+  assert (AFpO->Nchan == Chgain->NCO);
+  assert (NCj >= Chgain->NCI);
 
 /* Split the buffer space up for the input and output buffers */
-  Nc = (int) MINV (MAXNI, Nj);
-  Ns = BFSIZE / (Nc + NO);
+  NC = (int) MINV (MAXNCI, NCj);
+  Ns = BFSIZE / (NC + NCO);
   Dbuffi = Dbuff;
-  Dbuffo = Dbuff + Nc * Ns;
+  Dbuffo = Dbuff + NC * Ns;
 
 /* Main loop */
   eof = (Nframe == AF_NFRAME_UNDEF);
@@ -133,22 +131,22 @@ CP_comb1 (AFILE *AFpI, long int StartF, long int Nframe,
 
     Nfv = (int) MINV (Nfrem, Ns);
 
-    for (k = 0; k < NO; ++k) {
+    for (k = 0; k < NCO; ++k) {
       for (i = 0; i < Nfv; ++i)
-	Dbuffo[i*NO+k] = Chgain->Offset[k];	/* dc offset */
+        Dbuffo[i*NCO+k] = Chgain->Offset[k]; /* dc offset */
     }
 
-    /* Read Nc channels (out of Nj) channels from the input file */
-    offs = Nj * (offr + StartF);
-    if (Nc == Nj) {
-      Nr = AFdReadData (AFpI, offs, Dbuffi, Nfv * Nc);
-      Nfr = ICEILV (Nr, Nc);
+    /* Read NC channels (out of NCj) channels from the input file */
+    offs = NCj * (offr + StartF);
+    if (NC == NCj) {
+      Nr = AFdReadData (AFpI, offs, Dbuffi, Nfv * NC);
+      Nfr = ICEILV (Nr, NC);
     }
     else {
       for (i = 0; i < Nfv; ++i) {
-	Nr = AFdReadData (AFpI, offs + i * Nj, &Dbuffi[i*Nc], Nc);
-	if (Nr == 0 && eof)
-	  break;
+        Nr = AFdReadData (AFpI, offs + i * NCj, &Dbuffi[i*NC], NC);
+        if (Nr == 0 && eof)
+          break;
       }
       Nfr = i;
     }
@@ -161,59 +159,59 @@ CP_comb1 (AFILE *AFpI, long int StartF, long int Nframe,
     offr += Nfv;
 
     /* Add the contribution from the input buffer to the output buffer */
-    for (m = 0; m < Nc; ++m) {
-      for (k = 0; k < NO; ++k) {
-	g = Chgain->Gain[k][m];
-	if (g != 0.0) {
-	  for (i = 0; i < Nfv; ++i)
-	    Dbuffo[i*NO+k] += g * Dbuffi[i*Nc+m];
-	}
+    for (m = 0; m < NC; ++m) {
+      for (k = 0; k < NCO; ++k) {
+        g = Chgain->Gain[k][m];
+        if (g != 0.0) {
+          for (i = 0; i < Nfv; ++i)
+            Dbuffo[i*NCO+k] += g * Dbuffi[i*NC+m];
+        }
       }
     }
 
     /* Write the samples to the output file */
-    AFdWriteData (AFpO, Dbuffo, Nfv * NO);
+    AFdWriteData (AFpO, Dbuffo, Nfv * NCO);
   }
 
   return offr;
 }
 
-/* Multiple input channels */
+/* Multiple input files */
 
 
 static long int
 CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
-	  const struct CP_Chgain *Chgain, AFILE *AFpO)
+          const struct CP_Chgain *Chgain, AFILE *AFpO)
 
 {
-  int i, j, k, m, n, Nt, NI, NO, Nc, Ns, Nfr, NchanMax;
-  long int offr, offs, Nj, Nrem;
+  int i, j, k, m, n, NCt, NCI, NCO, NC, Ns, Nfr, NchanMax;
+  long int offr, offs, NCj, Nrem;
   double g;
   double Dbuff[BFSIZE];
   double *Dbuffi, *Dbuffo;
 
   assert (Nframe != AF_NFRAME_UNDEF);
-  assert (AFpO->Nchan == Chgain->NO);
+  assert (AFpO->Nchan == Chgain->NCO);
 
-/* Number of channels to be read (all files), maximum MAXNI */
-  NI = 0;
+/* Number of channels to be read (all files), maximum MAXNCI */
+  NCI = 0;
   for (j = 0; j < Nifiles; ++j)
-    NI += (int) MINV (AFp[j]->Nchan, MAXNI - NI);
-  assert (NI >= Chgain->NI);
+    NCI += (int) MINV (AFp[j]->Nchan, MAXNCI - NCI);
+  assert (NCI >= Chgain->NCI);
 
 /* Maximum number of channels from any single file */
-  Nt = 0;
+  NCt = 0;
   NchanMax = 0;
   for (j = 0; j < Nifiles; ++j) {
-    Nc = (int) MINV (AFp[j]->Nchan, NI - Nt);
-    NchanMax = MAXV (NchanMax, Nc);
-    Nt += Nc;
+    NC = (int) MINV (AFp[j]->Nchan, NCI - NCt);
+    NchanMax = MAXV (NchanMax, NC);
+    NCt += NC;
   }
 
-  NO = (int) AFpO->Nchan;
+  NCO = (int) AFpO->Nchan;
 
 /* Split the buffer space up for the input and output buffers */
-  Ns = BFSIZE / (NchanMax + NO);
+  Ns = BFSIZE / (NchanMax + NCO);
   Dbuffi = Dbuff;
   Dbuffo = Dbuff + NchanMax * Ns;
 
@@ -222,7 +220,7 @@ CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
    (channel n, sample i) and sums them to form so(k,i) (channel k, sample i)
 
      so(k,i) = SUM g(k,n) * si(n,i)
-              n
+                n
    However, samples from different channels are interleaved.  Thus so(k,i) is
    really so(i * No + k), where No is the number of output channels.  For the
    input data, the channels appear in different files.
@@ -242,40 +240,40 @@ CP_combN (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
   while (Nrem > 0) {
 
     Nfr = (int) MINV (Nrem, Ns);
-    for (k = 0; k < NO; ++k) {
+    for (k = 0; k < NCO; ++k) {
       for (i = 0; i < Nfr; ++i)
-	Dbuffo[i*NO+k] = Chgain->Offset[k];	/* dc offset */
+        Dbuffo[i*NCO+k] = Chgain->Offset[k]; /* dc offset */
     }
     n = 0;
-    Nt = 0;
+    NCt = 0;
     for (j = 0; j < Nifiles; ++j) {
-      Nj = AFp[j]->Nchan;
-      Nc = (int) MINV (NI - Nt, Nj);
+      NCj = AFp[j]->Nchan;
+      NC = (int) MINV (NCI - NCt, NCj);
 
       /* Read Nc channels (out of Nj) channels from file j */
-      offs = Nj * (offr + StartF[j]);
-      if (Nc == Nj)
-	AFdReadData (AFp[j], offs, Dbuffi, Nfr * Nc);
-      else if (Nc > 0) {
-	for (i = 0; i < Nfr; ++i)
-	  AFdReadData (AFp[j], offs + i * Nj, &Dbuffi[i*Nc], Nc);
+      offs = NCj * (offr + StartF[j]);
+      if (NC == NCj)
+        AFdReadData (AFp[j], offs, Dbuffi, Nfr * NC);
+      else if (NC > 0) {
+        for (i = 0; i < Nfr; ++i)
+          AFdReadData (AFp[j], offs + i * NCj, &Dbuffi[i*NC], NC);
       }
-      Nt += Nc;
+      NCt += NC;
 
       /* Add the contribution from file j to the output */
-      for (m = 0; m < Nc; ++m) {
-	for (k = 0; k < NO; ++k) {
-	  g = Chgain->Gain[k][n];
-	  if (g != 0.0) {
-	    for (i = 0; i < Nfr; ++i)
-	      Dbuffo[i*NO+k] += g * Dbuffi[i*Nc+m];
-	  }
-	}
-	++n;
+      for (m = 0; m < NC; ++m) {
+        for (k = 0; k < NCO; ++k) {
+          g = Chgain->Gain[k][n];
+          if (g != 0.0) {
+            for (i = 0; i < Nfr; ++i)
+              Dbuffo[i*NCO+k] += g * Dbuffi[i*NC+m];
+          }
+        }
+        ++n;
       }
     }
     /* Write the samples to the output file */
-    AFdWriteData (AFpO, Dbuffo, Nfr * NO);
+    AFdWriteData (AFpO, Dbuffo, Nfr * NCO);
     offr += Nfr;
     Nrem -= Nfr;
   }

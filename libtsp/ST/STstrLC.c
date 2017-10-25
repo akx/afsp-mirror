@@ -11,7 +11,7 @@ Description:
   This routine changes uppercase characters to lowercase.
 
 Parameters:
- <-   int STstrLC
+  <-  int STstrLC
       Number of characters in the output string
    -> const char Si[]
       Input character string
@@ -21,8 +21,8 @@ Parameters:
       case the output string overlays the input string.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.3 $  $Date: 2017/05/05 00:11:29 $
 
 -------------------------------------------------------------------------*/
 

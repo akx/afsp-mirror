@@ -11,17 +11,17 @@ Description:
   This procedure takes a given time t0 expressed in terms of an integer part
   and a fractional part.  The representation is
     t0 = n0 + (dm0 + dmr0)/M,
-  where n is an integer value, ds is a positive integer value less than M, and
+  where n0 is an integer value, dm is a positive integer value less than M, and
   dmr is a positive fractional value, 0 <= dmr < 1.  The value of t0 is
   incremented by di/M, to give a new value t1,
     t1 = t0 + di/M
        = n1 + (dm1 + dmr1)/M .
-  Note that dsr remains unchanged if di is an integer.  In such a case, the
+  Note that dmr remains unchanged if di is an integer.  In such a case, the
   increment occurs without accumulation of error.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.4 $  $Date: 2003/05/13 01:08:13 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.5 $  $Date: 2017/05/26 18:37:42 $
 
 -------------------------------------------------------------------------*/
 

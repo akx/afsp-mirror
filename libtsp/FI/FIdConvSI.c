@@ -3,7 +3,7 @@
 
 Routine:
   void FIdConvSI (const double x[], double y[], int Nout, const double h[],
-		  int Ncof, int mr, int Nsub, int Ir)
+                  int Ncof, int mr, int Nsub, int Ir)
 
 Purpose:
   Filter a signal with an FIR filter (sample rate change)
@@ -16,7 +16,7 @@ Description:
   The process of interpolation is equivalent to the conceptual notion of
   inserting Ir-1 zeros between each element of the input array.  This increased
   rate signal array is convolved with the filter coefficients.  Since the
-  increased rate signal array has imbedded zeros, only every Ir'th filter
+  increased rate signal array has embedded zeros, only every Ir'th filter
   coefficient is involved in producing a given output point.  These
   coefficients can be considered to constitute a sub-filter.  Sub-filters
   are used in a round-robin fashion to produce successive output points.
@@ -47,6 +47,7 @@ Description:
          = ceil((Ir*(Nx-lmem)-mr)/Nsub).
 
 Parameters:
+  <-  void FIdConvSI
    -> const double x[]
       Input array of data.  Let lmem=(Ncof-1)/Ir.  The first output point is
       calculated as follows
@@ -74,8 +75,8 @@ Parameters:
       convolving with the filter coefficients.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.1 $  $Date: 2005/02/01 13:19:58 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.3 $  $Date: 2017/06/12 19:52:15 $
 
 -------------------------------------------------------------------------*/
 
@@ -84,14 +85,14 @@ Author / revision:
 
 void
 FIdConvSI (const double x[], double y[], int Nout, const double h[], int Ncof,
-	   int mr, int Nsub, int Ir)
+           int mr, int Nsub, int Ir)
 
 {
   int l, m, lp, j, ia;
   double sum;
 
   /* The pair (l,mr) is an index ==>  xi[l*Ir+mr} */
-  l = (Ncof - 1) / Ir;		/* Initial l = lmem */
+  l = (Ncof - 1) / Ir;    /* Initial l = lmem */
 
   /* Loop over output points */
   for (m = 0; m < Nout; ++m) {

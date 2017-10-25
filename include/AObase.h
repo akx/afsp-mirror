@@ -8,8 +8,8 @@ Description:
   Declarations for audio utility program options routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2000
-  $Revision: 1.1 $  $Date: 2000/12/04 19:41:02 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.3 $  $Date: 2017/03/28 00:24:12 $
 
 ----------------------------------------------------------------------*/
 
@@ -18,10 +18,10 @@ Author / revision:
 
 /* Option parameters */
 struct AO_CmdArg {
-  const char **Argv;	/* Argument pointer */
-  int Argc;		/* Argument count */
-  int Index;		/* Argument index */
-  int EndOptions;	/* End-of-options indicator */
+  const char **Argv;  /* Argument pointer */
+  int Argc;           /* Argument count */
+  int Index;          /* Argument index */
+  int EndOptions;     /* End-of-options indicator */
 };
 
 #ifdef __cplusplus

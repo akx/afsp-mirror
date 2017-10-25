@@ -32,33 +32,33 @@ Parameters:
       information about the filter is printed on the stream selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.21 $  $Date: 2005/02/01 04:19:45 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.23 $  $Date: 2017/03/28 00:32:37 $
 
 ----------------------------------------------------------------------*/
 
-#include <limits.h>		/* LONG_MAX */
+#include <limits.h>   /* LONG_MAX */
 #include <math.h>
 
 #include <libtsp/FIpar.h>
 #include "ResampAudio.h"
 
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define CHECKSYM(x,N)	((int) (1.00001 * VRdCorSym(x,N)))
+#define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
+#define CHECKSYM(x,N) ((int) (1.00001 * VRdCorSym(x,N)))
 
 static void
 RS_parFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
-	    struct Fspec_T *Fs);
+            struct Fspec_T *Fs);
 static void
 RS_readFilt (const char Fname[], const struct Fspec_T *Fspec,
-	     double h[], int *Ncof, int *Ir, double *Del, FILE *fpinfo);
+             double h[], int *Ncof, int *Ir, double *Del, FILE *fpinfo);
 static void
 RS_polyphase (const double h[], int Ncof, int Ir, struct Fpoly_T *PF);
 
 
 void
 RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
-	   struct Fpoly_T *PF, double *FDel, FILE *fpinfo)
+           struct Fpoly_T *PF, double *FDel, FILE *fpinfo)
 
 {
   int i, is;
@@ -82,13 +82,13 @@ RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
     if (fpinfo != NULL) {
       fprintf (fpinfo, "\n");
       fprintf (fpinfo, RSMF_IntFilt, Fs.Ir, Fs.Fc, Fs.alpha, Fs.Gain,
-	       Fs.Del, Fs.Ncof, Fs.Woffs, Fs.Wspan);
+               Fs.Del, Fs.Ncof, Fs.Woffs, Fs.Wspan);
     }
 
     /* Design the filter */
     h = (double *) UTmalloc (Fs.Ncof * sizeof (double));
     RSKaiserLPF (h, Fs.Ncof, Fs.Fc / Fs.Ir, Fs.alpha, Fs.Gain, Fs.Woffs,
-		 Fs.Wspan);
+                 Fs.Wspan);
   }
 
   /* Remove leading and trailing zero coefficients */
@@ -112,7 +112,7 @@ RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
   RS_polyphase (&h[is], Fs.Ncof, Fs.Ir, PF);
   UTfree ((void *) h);
 
-  *FDel = Fs.Del / Fs.Ir;		/* Filter delay in samples */
+  *FDel = Fs.Del / Fs.Ir;   /* Filter delay in samples */
 
   return;
 }
@@ -122,7 +122,7 @@ RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
 
 static void
 RS_readFilt (const char Fname[], const struct Fspec_T *Fspec, double h[],
-	     int *Ncof, int *Ir, double *Del, FILE *fpinfo)
+             int *Ncof, int *Ir, double *Del, FILE *fpinfo)
 
 {
   int FiltType, ncof, ir;
@@ -158,7 +158,7 @@ RS_readFilt (const char Fname[], const struct Fspec_T *Fspec, double h[],
 
 static void
 RS_parFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
-	    struct Fspec_T *Fs)
+      struct Fspec_T *Fs)
 
 {
   int n, m;
@@ -269,15 +269,15 @@ RS_polyphase (const double h[], int Ncof, int Ir, struct Fpoly_T *PF)
   /* For each sub-filter, find the first and last non-zero component */
   Ncmax = 0;
   for (i = 0; i < Ir; ++i) {
-    nc = (Ncof - 1 - i + Ir) / Ir;	/* nc >= 0 for Ncof >= 0 */
+    nc = (Ncof - 1 - i + Ir) / Ir;  /* nc >= 0 for Ncof >= 0 */
     for (mst = 0, j = i; nc > 0; ++mst, --nc, j+=Ir) {
       if (h[j] != 0.0)
-	break;
+        break;
     }
     PF->offs[i] = mst;
     for (j += (nc-1)*Ir; nc > 0; --nc, j-=Ir) {
       if (h[j] != 0)
-	break;
+        break;
     }
     PF->Nc[i] = nc;
     Ncmax = MAXV (nc, Ncmax);
@@ -301,7 +301,7 @@ RS_polyphase (const double h[], int Ncof, int Ir, struct Fpoly_T *PF)
     where mo is an offset,
       hs[i][m] = h[i][m+mo] = h[j],
     where
-      m = floor(j/Ir) - mo, and i = j - Ir*(m+mo). 
+      m = floor(j/Ir) - mo, and i = j - Ir*(m+mo).
   */
   for (i = 0; i < Ir; ++i) {
     mst = PF->offs[i];
@@ -311,8 +311,8 @@ RS_polyphase (const double h[], int Ncof, int Ir, struct Fpoly_T *PF)
   }
 
   /* Set up the extra subfilter */
-  PF->hs[Ir] = PF->hs[0];	/* Same coefficients */
-  PF->Nc[Ir] = PF->Nc[0];	/* Same number of coefficients */
+  PF->hs[Ir] = PF->hs[0]; /* Same coefficients */
+  PF->Nc[Ir] = PF->Nc[0]; /* Same number of coefficients */
   PF->offs[Ir] = PF->offs[0]-1; /* Adjust the offset */
 
   return;

@@ -8,11 +8,11 @@ Purpose:
   Decode a ratio specification of two integer values
 
 Description:
-  This routine decodes a string specifying a ratio of integer values.  The
-  ratio is specified in the form "V" or "V1/V2", for example "-23 / 45".
-  Optional white-space (as defined by isspace) can surround the values.  For
-  the case of a single value V, this is equivalent to the ratio "V/1".  If an
-  error is encountered, neither output value is set.
+  This routine decodes a string specifying a ratio of integer values.  The ratio
+  is specified in the form "V" or "V1/V2", for example "-23 / 45".  Optional
+  white-space (as defined by isspace) can surround the values.  For the case of
+  a single value V, this is equivalent to the ratio "V/1".  If an error is
+  encountered, neither output value is set.
 
 Parameters:
   <-  int STdecIfrac
@@ -25,8 +25,8 @@ Parameters:
       Second value
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.8 $  $Date: 2003/05/09 03:02:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.10 $  $Date: 2017/03/30 13:47:56 $
 
 -------------------------------------------------------------------------*/
 
@@ -34,11 +34,11 @@ Author / revision:
 #include <libtsp/nucleus.h>
 #include <libtsp/STmsg.h>
 
-#define MAXC	23
-#define DP_EMPTY		0
-#define DP_LVAL			1
-#define DP_DELIM		2
-#define DP_RVAL			4	
+#define MAXC  23
+#define DP_EMPTY    0
+#define DP_LVAL     1
+#define DP_DELIM    2
+#define DP_RVAL     4
 
 
 int

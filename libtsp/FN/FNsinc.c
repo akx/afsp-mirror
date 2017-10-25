@@ -20,8 +20,8 @@ Parameters:
       Input value
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.6 $  $Date: 2003/05/09 01:41:29 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.7 $  $Date: 2017/03/28 00:19:15 $
 
 -------------------------------------------------------------------------*/
 
@@ -29,7 +29,7 @@ Author / revision:
 
 #include <libtsp.h>
 
-#define PI	3.14159265358979323846
+#define PI  3.14159265358979323846
 
 
 double

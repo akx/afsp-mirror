@@ -14,17 +14,17 @@ Description:
   reporting routines as an identifier in error message strings.
 
 Parameters:
-  UTsetProg:
+  <-  void UTsetProg
    -> const char Program[]
       Program name, normally without a path
-  UTgetProg:
+
   <-  char *UTgetProg
       Pointer to the program name.  If the program name has not been set, this
       is a pointer to an empty string.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.14 $  $Date: 2009/03/01 20:59:56 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.17 $  $Date: 2017/05/24 16:55:54 $
 
 -------------------------------------------------------------------------*/
 
@@ -42,10 +42,10 @@ UTsetProg (const char Program[])
   int nc;
 
   UTfree ((void *) Pgm);
-  nc = strlen (Program);
+  nc = (int) strlen (Program);
   if (nc > 0) {
     Pgm = (char *) UTmalloc (nc + 1);
-	STcopyMax (Program, Pgm, nc);
+  STcopyMax (Program, Pgm, nc);
   }
   else
     Pgm = NULL;
@@ -57,10 +57,8 @@ char *
 UTgetProg (void)
 
 {
-  static char Empty[] = "";
-
   if (Pgm == NULL)
-    return Empty;
+    return "";
   else
     return Pgm;
 }

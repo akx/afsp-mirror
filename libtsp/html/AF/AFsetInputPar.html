@@ -1,0 +1,143 @@
+<html>
+<head>
+<style>
+  body { font-family: Verdana, Arial, Helvetica, sans-serif;
+         font-size: 12px; background-color: #FFFFD7; }
+  h1   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #6699CC;
+         font-size:160%; font-weight:bold; margin: 0px 0px 8px 0px; }
+  h2   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #5588BB;
+         font-size:130%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  h3   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #4477AA;
+         font-size:120%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  pre  { color: #0000A0; }
+</style>
+<title>AFsetInputPar</title>
+</head>
+<body>
+<h2>AFsetInputPar</h2>
+<hr>
+<h3>Routine:</h3>
+<p>
+int AFsetInputPar (const char String[])
+</p>
+<h3>Purpose:</h3>
+<p>
+Set defaults for input audio files from a string specification
+</p>
+<h3>Description:</h3>
+<p>
+This routine sets the default audio file data parameters.  These parameters
+are used when opening input audio files with unrecognized (non-standard)
+headers or files with no headers (raw audio files).  Note that the parameters
+do not override values specified in the file headers of standard input files.
+</p>
+<p>
+This routine must be called before opening the file with AFopnRead.  The
+parameters for AFsetInputPar are determined from an input string which
+consists of a list of parameters separated by commas.  The form of the list is
+</p>
+<pre>
+  "Format, Start, Sfreq, Swapb, Nchan, FullScale"
+</pre>
+<dl>
+<dt>Format: File data format</dt>
+<dd>
+<pre>
+ "undefined" - Headerless files will be rejected
+ "A-law8"    - 8-bit A-law data
+ "mu-law8"   - 8-bit mu-law data
+ "mu-lawR8"  - 8-bit bit-reversed mu-law data
+ "unsigned8" - offset-binary 8-bit integer data
+ "integer8"  - two's-complement 8-bit integer data
+ "integer16" - two's-complement 16-bit integer data
+ "integer24" - two's-complement 24-bit integer data
+ "integer32" - two's-complement 32-bit integer data
+ "float32"   - 32-bit floating-point data
+ "float64"   - 64-bit floating-point data
+ "text16"    - text data scaled as 16-bit integers
+ "text"      - text data
+</pre>
+</dd>
+<dt>Start: byte offset to the start of data (integer value)</dt>
+<dt>Sfreq: sampling frequency in Hz (floating-point value)</dt>
+<dt>Swapb: data byte swap parameter</dt>
+<dd>
+<pre>
+ "native" - no byte swapping
+ "little-endian" - file data is in little-endian byte order and will be
+   swapped if the current host uses big-endian byte order
+ "big-endian" - data is in big-endian byte order and will be swapped if
+   the current host uses little-endian byte order
+ "swap" - swap the data bytes
+</pre>
+</dd>
+<dt>Nchan: number of channels</dt>
+<dd>
+The data consists of interleaved samples from Nchan channels
+</dd>
+<dt>FullScale: full scale value for the data in the file.</dt>
+<dd>
+This value is used to scale data from the file to fall in the range -1 to
++1.  If the FullScale value is set to "default", the FullScale value is
+determined based on the type of data in the file as shown below.
+</dd>
+<dd>
+<pre>
+   data type     FullScale
+ 8-bit A-law:               32768
+ 8-bit mu-law:              32768
+ 8-bit bit-reversed mu-law: 32768
+ 8-bit integer:             256
+ 16-bit integer:            32768
+ 24-bit integer:            256*32768
+ 32-bit integer:            65536*32768
+ float data:                1
+ text16 data:               32768
+ text data:                 1
+</pre>
+</dd>
+<dd>
+The value of FullScale can be specified as a value or ratio of values.
+</dd>
+</dl>
+<p>
+The default values for the audio file parameters correspond to the following
+string.
+</p>
+<pre>
+  "undefined, 0, 8000., native, 1, default"
+</pre>
+<p>
+Leading and trailing white-space is removed from each item.  Any of the
+parameters may be omitted, in which case whatever value has been previously
+set remains in effect for that parameter.  The string ",512, 10000." would set
+the Start and Sfreq parameters and leave the other parameters unchanged.
+</p>
+<p>
+If the input string contains has a leading '$', the string is assumed to
+specify the name of an environment variable after the '$'.  This routine uses
+the value of this environment variable to determine the parameters.  If this
+routine is called as AFsetInputPar("$AF_SETINPUTPAR"), this routine would look
+for the parameter string in environment variable AF_SETINPUTPAR.
+</p>
+<h3>Parameters:</h3>
+<dl>
+<dt>&lt;-  int AFsetInputPar</dt>
+<dd>
+Error flag, zero for no error
+</dd>
+<dt> -&gt; const char String[]</dt>
+<dd>
+String containing the list of parameters for headerless files or the name
+of an environment variable (with a leading $)
+</dd>
+</dl>
+<h3>Author / revision:</h3>
+<p>
+P. Kabal
+/ Revision 1.76  2017-07-03
+</p>
+<h3>See Also</h3>
+<a href="AFopnRead.html">AFopnRead</a>
+</body>
+</html>

@@ -26,18 +26,16 @@ Parameters:
       Input file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.47 $  $Date: 2003/07/11 14:37:27 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.49 $  $Date: 2017/06/13 15:33:39 $
 
 ----------------------------------------------------------------------*/
 
 #include <assert.h>
 
-#include <libtsp.h>
-#include <AO.h>
 #include "CompAudio.h"
 
-#define ERRSTOP(text,par)	UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
+#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
 
 /* Option table */
 static const char *OptTable[] = {
@@ -49,7 +47,7 @@ static const char *OptTable[] = {
 
 void
 CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
-	   long int *Nsseg, struct CA_FIpar FI[2])
+           long int *Nsseg, struct CA_FIpar FI[2])
 
 {
   struct CA_FIpar FIx;
@@ -99,7 +97,7 @@ CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
       /* Filename argument */
       ++nF;
       if (nF > 2)
-	UThalt ("%s: %s", PROGRAM, CAM_XFName);
+        UThalt ("%s: %s", PROGRAM, CAM_XFName);
       STcopyMax (OptArg, FIx.Fname, FILENAME_MAX-1);
       FI[nF-1] = FIx;
       break;
@@ -107,13 +105,13 @@ CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
     case 2:
       /* Delay specification */
       if (STdecLrange (OptArg, &delL, &delU) || delL > delU)
-	ERRSTOP (CAM_BadDelay, OptArg);
+        ERRSTOP (CAM_BadDelay, OptArg);
       break;
     case 3:
     case 4:
       /* Segment length */
       if (STdec1long (OptArg, &nsseg) || nsseg < 0)
-	ERRSTOP (CAM_BadSegLen, OptArg);
+        ERRSTOP (CAM_BadSegLen, OptArg);
       break;
     default:
       assert (0);

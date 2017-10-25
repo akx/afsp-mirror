@@ -1,0 +1,115 @@
+.TH InfoAudio - AFsp (1AFsp)
+.SH Routine:
+InfoAudio [options] AFile1 [AFile2 ... ]
+.SH Purpose:
+Print audio file information
+.SH Description:
+This program prints information about a number of audio files to standard
+output.  The full output consists of the file type and name (indented part of
+the output below), the file data parameters, information records, and if
+appropriate, the chunk structure of the file.
+.ft CW
+.nf
+   AIFF-C sound file: --path--/audiofiles/addf8.aifc
+     Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+     Sampling frequency: 8000 Hz
+     Number of channels: 1 (16-bit integer)
+.fi
+.ft P
+.ft CW
+.nf
+  --File format--
+  File name: ../../../audiofiles/addf8.aifc
+  Header length: 166
+  Sampling frequency: 8000
+  No. frames: 23808
+  No. channels: 1
+  Data type: integer16
+  File byte order: big-endian
+  Host byte order: little-endian
+.fi
+.ft P
+.ft CW
+.nf
+  --Information records--
+  date: YYYY-MM-dd hh:mm:ss UTC
+  program: CopyAudio
+.fi
+.ft P
+.ft CW
+.nf
+  -- Chunk layout--
+   <FORM> 0 -> 47781
+       <AIFC> 8 -> 11
+       <COMM> 12 -> 57
+         ...
+       <FVER> 58 -> 69
+         ...
+       <ANNO> 70 -> 149
+         ...
+       <SSND> 150 -> 47781
+         ...
+   <EoF > 47782
+.fi
+.ft P
+Non-printing characters (as defined by the routine isprint) in the information
+records are replaced by question marks.
+.SH Options:
+.in +3n
+.ti -3n
+Input file names, AFile1 [AFile2 ... ]:
+.br
+The environment variable AUDIOPATH specifies a list of directories to be
+searched for the input audio file(s).
+.ti -3n
+-i ICODE, --info_code=ICODE
+.br
+Parameter to choose the information to be printed.  The information that
+can be printed consists of four parts.  The ICODE parameter is the sum
+of the codes which control printing of the individual parts.
+.ft CW
+.nf
+  1:  Print the standard information: file name, filetype, no. samples ...
+  2:  Print the file data parameters
+  4:  Print the information records
+  8:  Print the chunk configuration (only for AIFF/WAVE/NSP files)
+.fi
+.ft P
+The default is to print all of the information (ICODE=15).  For ICODE=0,
+no information is printed, but the program return code indicates if all
+files were opened successfully.
+.ti -3n
+-h, --help
+.br
+Print a list of options and exit.
+.ti -3n
+-v, --version
+.br
+Print the version number and exit.
+.in -3n
+See routine CopyAudio for a description of other parameters.
+.in +3n
+.ti -3n
+-t FTYPE, --type=FTYPE
+.br
+Input file type and environment variable AF_FILETYPE
+.ti -3n
+-P PARMS, --parameters=PARMS
+.br
+Input file parameters and environment variable AF_INPUTPAR
+.in -3n
+.SH Environment variables:
+.in +3n
+.ti -3n
+AUDIOPATH:
+.br
+This environment variable specifies a list of directories to be searched
+when opening the input audio files.  Directories in the list are separated
+by colons (semicolons for Windows).
+.in -3n
+.SH Author / version:
+P. Kabal / v10r1  2017-10-18
+.SH See Also
+CompAudio,
+CopyAudio,
+AFsp

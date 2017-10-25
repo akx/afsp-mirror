@@ -11,12 +11,13 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libAO.a
 
-.PHONY: all mostlyclean clean
+.PHONY: all nucleau_routines mostlyclean clean
 
-all:	$(LIB)
+all:	$(LIB) nucleus_routines
 
 .PRECIOUS: $(LIB)
 $(LIB): \
@@ -25,16 +26,16 @@ $(LIB): \
 	$(LIB)(AOdecHelp.o) \
 	$(LIB)(AOdecOpt.o) \
 	$(LIB)(AOnFrame.o) \
-	$(LIB)(AOsetDformat.o) \
+	$(LIB)(AOsetDFormat.o) \
 	$(LIB)(AOsetFIopt.o) \
 	$(LIB)(AOsetFOopt.o) \
-	$(LIB)(AOsetFtype.o) \
 	$(LIB)(AOstdin.o) \
-	$(LIB)(AOsetFormat.o) \
 	#
 	ranlib $(LIB)
+
+nucleus_routines:
+	@(test -d nucleus && (cd nucleus; $(MAKE))) || true
 
 mostlyclean:
 	rm -f *.o
 clean:	mostlyclean
-

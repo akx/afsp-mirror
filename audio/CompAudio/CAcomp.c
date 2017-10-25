@@ -3,7 +3,7 @@
 Routine:
   void CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp,
                long int Nsseg, long int delayL, long int delayU,
-	       long int *delayM, struct Stats_T *Stats)
+               long int *delayM, struct Stats_T *Stats)
 
 Purpose:
   Gather correlation statistics for two audio files over a range of delays
@@ -31,24 +31,26 @@ Parameters:
    -> long int delayU
       End delay value
   <-  long int *delayM
-      Delay of file B relative to file A which maximizes the gain adjusted SNR.
+      Delay of file B relative to file A which maximizes the gain adjusted SNR
   <-  struct Stats_T *Stats
       Structure containing the cross-file statistics corresponding to the delay
       value delayM
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.23 $  $Date: 2003/07/11 14:35:36 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.26 $  $Date: 2017/03/24 13:25:45 $
 
 -----------------------------------------------------------------------*/
 
-#include <float.h>	/* DBL_MAX */
-#include <math.h>	/* log10 */
+#include <float.h>  /* DBL_MAX */
+#include <math.h> /* log10 */
 
 #include "CompAudio.h"
 
-#define ABSV(x)		(((x) < 0) ? -(x) : (x))
-#define DB(x)		(10.0 * log10 (x))
+#define ABSV(x)   (((x) < 0) ? -(x) : (x))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
+#define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
+#define DB(x)   (10.0 * log10 (x))
 
 static double
 CA_sfreq (double SfreqA, double SfreqB);
@@ -58,8 +60,8 @@ CA_nsseg (long int Nsseg, double Sfreq);
 
 void
 CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp, long int Nsseg,
-	long int delayL, long int delayU, long int *delayM,
-	struct Stats_T *Stats)
+        long int delayL, long int delayU, long int *delayM,
+        struct Stats_T *Stats)
 
 {
   struct Stats_T Statst;
@@ -99,17 +101,17 @@ CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp, long int Nsseg,
 
       /* Print the match statistics */
       if (SNRG != DBL_MAX)
-	printf (CAMF_DelaySNR, delay, DB (SNRG), SF);
+        printf (CAMF_DelaySNR, delay, DB (SNRG), SF);
       else
-	printf (CAMF_DelayAxB, delay, SF);
+        printf (CAMF_DelayAxB, delay, SF);
 
       /* Save the best match statistics - if the best match occurs at several
-	 delays, use the delay with the smallest absolute value */
+         delays, use the delay with the smallest absolute value */
       if (SNRG > SNRGmax ||
-	  (SNRG == SNRGmax && ABSV (delay) <= ABSV (*delayM))) {
-	SNRGmax = SNRG;
-	*Stats = Statst;
-	*delayM = delay;
+          (SNRG == SNRGmax && ABSV (delay) <= ABSV (*delayM))) {
+        SNRGmax = SNRG;
+        *Stats = Statst;
+        *delayM = delay;
       }
     }
     else {
@@ -142,23 +144,17 @@ CA_sfreq (double SfreqA, double SfreqB)
 
 /* Choose a block size */
 
-#define DSEGTIME	16E-3	/* Segment size in seconds */
-#define NSSEG_MAX	1024
-#define NSSEG_MIN	64
-#define NSSEG_MID	256
-
 
 static long int
 CA_nsseg (long int Nsseg, double Sfreq)
 
 {
   /* Choose a block size, 16 ms by default */
-  if (Nsseg == 0) {
-    Nsseg = (long int) MSdNint (DSEGTIME * Sfreq);
-    if (Nsseg < NSSEG_MIN || Nsseg > NSSEG_MAX) {
-      Nsseg = NSSEG_MID;
-      UTwarn (CAMF_SegSize, PROGRAM, Nsseg);
-    }
+  if (Nsseg == 0)
+    Nsseg = (long int) MSdNint (SN_SEGTIME * Sfreq);
+  if (Nsseg < SN_NSEG_MIN || Nsseg > SN_NSEG_MAX) {
+    Nsseg = MINV(SN_NSEG_MAX, MAXV(SN_NSEG_MIN, Nsseg));
+    UTwarn (CAMF_SegSize, PROGRAM, Nsseg);
   }
 
   return Nsseg;

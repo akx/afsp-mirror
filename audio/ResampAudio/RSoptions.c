@@ -4,7 +4,7 @@
 Routine:
   void RSoptions (int argc, const char *argv[], struct FA_FIpar *FI,
                   double *Soffs, double *Sratio, struct Fspec_T *Fspec,
-		  struct FA_FOpar *FO)
+      struct FA_FOpar *FO)
 
 Purpose:
   Decode options for ResampAudio
@@ -29,18 +29,16 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.19 $  $Date: 2003/05/13 01:09:07 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.20 $  $Date: 2015/04/10 12:46:11 $
 
 ----------------------------------------------------------------------*/
 
 #include <assert.h>
 
-#include <libtsp.h>
-#include <AO.h>
 #include "ResampAudio.h"
 
-#define ERRSTOP(text,par)	UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
+#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
 
 /* Option table */
 static const char *OptTable[] = {
@@ -53,7 +51,7 @@ static const char *OptTable[] = {
 
 void
 RSoptions (int argc, const char *argv[], struct RS_FIpar *FI, double *Soffs,
-	   double *Sratio, struct Fspec_T *Fspec, struct RS_FOpar *FO)
+           double *Sratio, struct Fspec_T *Fspec, struct RS_FOpar *FO)
 
 {
   const char *OptArg;
@@ -107,24 +105,24 @@ RSoptions (int argc, const char *argv[], struct RS_FIpar *FI, double *Soffs,
       /* Filename argument */
       ++nF;
       if (nF == 1)
-	STcopyMax (OptArg, FI->Fname, FILENAME_MAX-1);
+        STcopyMax (OptArg, FI->Fname, FILENAME_MAX-1);
       else if (nF == 2)
-	STcopyMax (OptArg, FO->Fname, FILENAME_MAX-1);
+        STcopyMax (OptArg, FO->Fname, FILENAME_MAX-1);
       else
-	UThalt ("%s: %s", PROGRAM, RSM_XFName);
+        UThalt ("%s: %s", PROGRAM, RSM_XFName);
       break;
     case 1:
     case 2:
       /* Sampling rate ratio */
       if (STdecDfrac (OptArg, &Nv, &Dv) || Nv <= 0 || Dv <= 0)
-	ERRSTOP (RSM_BadRatio, OptArg);
+        ERRSTOP (RSM_BadRatio, OptArg);
       sratio = Nv / Dv;
       break;
     case 3:
     case 4:
       /* Alignment */
       if (STdecDfrac (OptArg, &Nv, &Dv))
-	ERRSTOP (RSM_BadAlign, OptArg);
+        ERRSTOP (RSM_BadAlign, OptArg);
       soffs = Nv / Dv;
       break;
     case 5:

@@ -5,6 +5,7 @@
 PROG = InfoAudio
 OBJECTS = \
 	InfoAudio.o \
+	IAfileInfo.o \
 	IAoptions.o \
 	#
 

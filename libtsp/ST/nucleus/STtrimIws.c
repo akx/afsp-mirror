@@ -8,10 +8,10 @@ Purpose:
   Trim leading white-space
 
 Description:
-  This routine returns a pointer to the first character in a string that is not
-  white-space (as defined by isspace).  If the input string consists entirely
-  of white-space, this routine returns a pointer to the terminating null
-  character.
+  This routine returns a pointer to the first character in the input string that
+  is not white-space (as defined by isspace).  If the input string consists
+  entirely of white-space, this routine returns a pointer to the terminating
+  null character.
 
 Parameters:
   <-  char *STrimIws
@@ -20,8 +20,8 @@ Parameters:
       Input character string
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.8 $  $Date: 2003/05/09 03:06:42 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.9 $  $Date: 2017/04/03 15:18:34 $
 
 -------------------------------------------------------------------------*/
 

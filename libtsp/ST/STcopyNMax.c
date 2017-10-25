@@ -14,7 +14,7 @@ Description:
   printed.
 
 Parameters:
- <-   int STcopyNMax
+  <-  int STcopyNMax
       Number of characters in the output string
    -> const char Si[]
       Input character string
@@ -28,15 +28,15 @@ Parameters:
       character) to be placed in So.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.21 $  $Date: 2009/03/09 17:49:47 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.23 $  $Date: 2017/05/05 00:11:17 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp.h>
 #include <libtsp/STmsg.h>
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
 
 int

@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_mIRSS_FIR_16k.cof
 ! See ITU-T G.191 (2005), Software Tools Library (module fir-irs.c)
-! $Id: STL_mIRSS_FIR_16k.cof 1.4 2006/03/30 AFsp-v9r0 $
+! $Id: STL_mIRSS_FIR_16k.cof 1.4 2006/03/30 AFsp-v10r1a $
 !
 ! Modified IRS (send) filter, ITU-T Recommendation P.48 (SRAEN response
 ! removed)

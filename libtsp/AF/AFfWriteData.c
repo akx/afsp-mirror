@@ -8,12 +8,11 @@ Purpose:
   Write data to an audio file (float input values)
 
 Description:
-  This routine writes a specified number of samples to an audio file.  The
-  float input data is converted to the audio file data representation.  The
-  file data representation is set on opening the file with routine AFopnWrite.
-  This routine writes data sequentially to the file.  A warning message is
-  printed if the input values exceed the dynamic range of the file data
-  representation. 
+  This routine writes a specified number of samples to an audio file.  The float
+  input data is converted to the audio file data representation.  The file
+  data representation is set on opening the file with routine AFopnWrite. This
+  routine writes data sequentially to the file.  A warning message is printed
+  if the input values exceed the dynamic range of the file data representation.
 
 Parameters:
   <-  int AFfWriteData
@@ -26,27 +25,28 @@ Parameters:
       Number of samples to be written
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.3 $  $Date: 2003/05/13 01:50:31 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.13 $  $Date: 2017/06/27 18:27:35 $
 
 -------------------------------------------------------------------------*/
 
 #include <assert.h>
-#include <stdlib.h>		/* EXIT_FAILURE */
+#include <stdlib.h>   /* EXIT_FAILURE */
 
 #include <libtsp.h>
+#include <AFpar.h>
 #include <libtsp/AFdataio.h>
 #include <libtsp/AFmsg.h>
-#include <libtsp/AFpar.h>
 
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
+#define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
 
 /* Writing routines */
 static int
-(*AF_Write[NFD])(AFILE *AFp, const float Dbuff[], int Nval) =
-  { NULL,    	AFfWrMulaw,	AFfWrAlaw,	AFfWrU1,       	AFfWrI1,
-    AFfWrI2,	AFfWrI3,	AFfWrI4,	AFfWrF4,	AFfWrF8,
-    AFfWrTA };
+(*AF_Write[AF_NFD])(AFILE *AFp, const float Dbuff[], int Nval) =
+                    {NULL,     AFfWrAlaw, AFfWrMulaw, AFfWrMulawR,
+                     AFfWrU1,  AFfWrI1,   AFfWrI2,    AFfWrI3,
+                     AFfWrI4,  AFfWrF4,   AFfWrF8,    AFfWrTA,
+                     AFfWrTA};
 
 
 int
@@ -55,9 +55,9 @@ AFfWriteData (AFILE *AFp, const float Dbuff[], int Nval)
 {
   int Nw;
   long int Novld;
-  struct AF_opt *AFopt;
 
   assert (AFp->Op == FO_WO);
+  assert (AF_Write[AF_NFD-1] != NULL);
 
 /* The file writing routines write scaled data to the file.  They write to the
    current file position.  They use the following AFp fields:
@@ -74,7 +74,7 @@ AFfWriteData (AFILE *AFp, const float Dbuff[], int Nval)
 */
 
 /* Transfer data to the audio file */
-  Novld = AFp->Novld;	/* Save the value before writing */
+  Novld = AFp->Novld; /* Save the value before writing */
   Nw = (*AF_Write[AFp->Format]) (AFp, Dbuff, Nval);
   AFp->Isamp += Nw;
   AFp->Nsamp = MAXV (AFp->Isamp, AFp->Nsamp);
@@ -82,15 +82,14 @@ AFfWriteData (AFILE *AFp, const float Dbuff[], int Nval)
 /* Check for an error */
   if (Nw < Nval) {
     UTsysMsg ("AFfWriteData: %s", AFM_WriteErr);
-    AFopt = AFoptions ();
-    if (AFopt->ErrorHalt)
+    if (AFopt.ErrorHalt)
       exit (EXIT_FAILURE);
     AFp->Error = AF_IOERR;
   }
 
 /* Check for overloads (print a message the first time only) */
   if (Novld == 0L && AFp->Novld != 0L)
-    UTwarn ("AFfWriteData - %s", AFM_OClip);
+    UTwarn ("AFfWriteData - %s", AFM_Clip);
 
   return Nw;
 }

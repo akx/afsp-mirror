@@ -29,19 +29,19 @@ Parameters:
       Data offset into the input data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.16 $  $Date: 2005/02/01 13:24:34 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.18 $  $Date: 2017/05/26 17:07:24 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp.h>
 #include "FiltAudio.h"
 
-#define ICEILV(n,m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
+#define ICEILV(n,m) (((n) + ((m) - 1)) / (m)) /* int n,m >= 0 */
+#define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
-#define NBUF	5120
+#define NBUF  5120
 
 static void
 FA_writeSubData (AFILE *AFp0, long int k, int Nsub, const double x[], int Nx);
@@ -49,7 +49,7 @@ FA_writeSubData (AFILE *AFp0, long int k, int Nsub, const double x[], int Nx);
 
 void
 FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[][5],
-	   int Nsec, int Nsub, long int loffs)
+     int Nsec, int Nsub, long int loffs)
 
 {
   double x[NBUF];
@@ -113,9 +113,9 @@ FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[][5],
 /* Write the output data to the output audio file */
     if (l >= loffs) {
       if (Nsub == 1)
-	AFdWriteData (AFpO, &x[2], Nx);
+        AFdWriteData (AFpO, &x[2], Nx);
       else
-	FA_writeSubData (AFpO, k, Nsub, &x[2], Nx);
+        FA_writeSubData (AFpO, k, Nsub, &x[2], Nx);
       k = k + Nx;
     }
     l = l + Nx;

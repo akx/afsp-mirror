@@ -18,8 +18,8 @@ Parameters:
       File name
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.10 $  $Date: 2003/05/09 01:39:26 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.11 $  $Date: 2015/04/01 15:48:47 $
 
 ----------------------------------------------------------------------*/
 
@@ -28,8 +28,8 @@ Author / revision:
 
 #include <libtsp/nucleus.h>
 
-#ifndef S_ISREG		/* Defined by POSIX */
-#  define S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)
+#ifndef S_ISREG   /* Defined by POSIX */
+#  define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
 #endif
 
 

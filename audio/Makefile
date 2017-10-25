@@ -1,7 +1,7 @@
 #
 # run make in subdirectories
 #
-# $Id: Makefile 1.1 1995/01/11 AFsp-v9r0 $
+# $Id: Makefile 1.1 1995/01/11 AFsp-v10r1a $
 
 SHELL=/bin/sh
 

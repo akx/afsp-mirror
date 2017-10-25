@@ -1,0 +1,156 @@
+<html>
+<head>
+<style>
+  body { font-family: Verdana, Arial, Helvetica, sans-serif;
+         font-size: 12px; background-color: #FFFFD7; }
+  h1   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #6699CC;
+         font-size:160%; font-weight:bold; margin: 0px 0px 8px 0px; }
+  h2   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #5588BB;
+         font-size:130%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  h3   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #4477AA;
+         font-size:120%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  pre  { color: #0000A0; }
+</style>
+<title>AFsp - GenNoise</title>
+</head>
+<body>
+<h2>GenNoise</h2>
+<hr>
+<h3>Routine:</h3>
+<p>
+GenNoise [options] AFile
+</p>
+<h3>Purpose:</h3>
+<p>
+Generate an audio file containing uncorrelated Gaussian noise samples
+</p>
+<h3>Description:</h3>
+<p>
+This program generates zero-mean uncorrelated pseudo-random Gaussian
+deviates.  These white noise samples are written to an audio file.  Each
+invocation of this program generates a different random sequence unless the
+random number generator seed is specified.  Options are available to specify
+the number of samples, the sampling frequency and the data format of the
+output file.
+</p>
+<h3>Options:</h3>
+<dl>
+<dt>Output file name, AFile:</dt>
+<dd>
+Specifying "-" as the output file indicates that output is to be written
+to standard output.  If the output file type is not explicitly given (-F
+option), the extension of the output file name is used to determine the
+file type.
+</dd>
+<dd>
+<pre>
+  ".au"   - AU audio file
+  ".wav"  - WAVE file
+  ".aif"  - AIFF sound file
+  ".afc"  - AIFF-C sound file
+  ".raw"  - Headerless file (native byte order)
+  ".txt"  - Text audio file (with header)
+</pre>
+</dd>
+<dt>-d SDEV, --std_deviation=SDEV</dt>
+<dd>
+Standard deviation of the noise samples in normalized units, default 0.03.
+The standard deviation can be given as a real number (e.g., "0.03") or as
+a ratio (e.g., "983.04/32768").
+</dd>
+<dt>-x SEED, --seed=SEED</dt>
+<dd>
+Integer-valued seed for the random number generator, default from the
+current time.
+</dd>
+<dt>-n NSAMPLE, --number_samples=NSAMPLE</dt>
+<dd>
+Number of output samples to be generated.
+</dd>
+<dt>-s SFREQ, --srate=SFREQ</dt>
+<dd>
+Sampling frequency for the output audio file, default 8000.
+</dd>
+<dt>-F FTYPE, --file-type=FTYPE</dt>
+<dd>
+Output file type.  If this option is not specified, the file type is
+determined by the output file name extension.
+</dd>
+<dd>
+<pre>
+  "AU" or "au"             - AU audio file
+  "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
+                             file extensible format is automatically
+                             determined.
+  "WAVE-EX" or "wave-ex"   - WAVE file. Use the WAVE file extensible
+                             format.
+  "WAVE-NOEX" or "wave-noex" - WAVE file; do not use the WAVE file
+                             extensible format
+  "AIFF-C" or "aiff-c"     - AIFF-C sound file
+  "AIFF-C/sowt" or "aiff-c/sowt" - AIFF-C (byte-swapped data)
+  "AIFF" or "aiff"         - AIFF sound file
+  "noheader" or "noheader-native" - Headerless file (native byte order)
+  "noheader-swap"          - Headerless file (byte swapped)
+  "noheader-big-endian"    - Headerless file (big-endian byte order)
+  "noheader-little-endian" - Headerless file (little-endian byte order)
+  "text-audio"             - Text audio file (with header)
+</pre>
+</dd>
+<dt>-D DFORMAT, --data-format=DFORMAT</dt>
+<dd>
+Data format for the output file.
+</dd>
+<dd>
+<pre>
+  "mu-law8"   - 8-bit mu-law data
+  "A-law8"    - 8-bit A-law data
+  "unsigned8" - offset-binary 8-bit integer data
+  "integer8"  - two's-complement 8-bit integer data
+  "integer16" - two's-complement 16-bit integer data
+  "integer24" - two's-complement 24-bit integer data
+  "integer32" - two's-complement 32-bit integer data
+  "float32"   - 32-bit IEEE floating-point data
+  "float64"   - 64-bit IEEE floating-point data
+  "text16"    - text data, scaled the same as 16-bit integer data
+  "text"      - text data, scaled the same as float/double data
+</pre>
+</dd>
+<dt>-I INFO, --info=INFO</dt>
+<dd>
+Add an information record to the output audio file.
+</dd>
+<dt>-h, --help</dt>
+<dd>
+Print a list of options and exit.
+</dd>
+<dt>-v, --version</dt>
+<dd>
+Print the version number and exit.
+</dd>
+</dl>
+<p>
+See routine CopyAudio for a description of other parameters.
+</p>
+<dl>
+<dt>-D DFORMAT, --data-format=DFORMAT</dt>
+<dd>
+More details on allowed data formats for the output file
+</dd>
+<dt>-I INFO, --info-INFO</dt>
+<dd>
+Details on usage and default information records
+</dd>
+<dt>-S SPEAKERS, --speakers=SPEAKERS</dt>
+<dd>
+Loudspeaker configuration
+</dd>
+</dl>
+<h3>Author / version:</h3>
+<p>
+P. Kabal / v10r1  2017-10-18
+</p>
+<p></p>
+<hr>
+Main Index <a href="AFsp.html">AFsp</a>
+</body>
+</html>

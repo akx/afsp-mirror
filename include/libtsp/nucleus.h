@@ -8,20 +8,53 @@ Description:
   Function prototypes for the TSP library internal (nucleus) routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 2.56 $  $Date: 2005/02/01 05:24:47 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 2.72 $  $Date: 2017/06/27 00:03:26 $
 
 ----------------------------------------------------------------------*/
 
 #ifndef nucleus_h_
 #define nucleus_h_
 
-#include <stdio.h>	/* typedef for FILE */
-#include <time.h>	/* typedef for time_t */
+#include <stdio.h>  /* typedef for FILE */
+#include <time.h>   /* typedef for time_t */
+
+enum AF_FD_T;
+enum AF_FIX_T;
+enum AF_FT_T;
+enum AF_FTW_T;
+enum AF_OPT_T;
+
+struct AF_ndata;
+struct AF_read;
+struct AF_write;
+
+#ifndef AFILE_t_
+# define  AFILE_t_
+  typedef struct AF_filepar AFILE;  /* Audio file parameters */
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* ----- AF Prototypes ----- */
+/* nucleus */
+int
+AFcheckDataPar (FILE *fp, int Lw, long int *Dstart, struct AF_ndata *NData,
+                enum AF_FIX_T Fix);
+struct AF_opt *
+AFoptions (enum AF_OPT_T Cat);
+int
+AFpreSetWPar (enum AF_FTW_T FtypeW, enum AF_FD_T Dformat, long int Nchan,
+              double Sfreq, struct AF_write *AFw);
+void
+AFprintAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo);
+AFILE *
+AFsetRead (FILE *fp, enum AF_FT_T Ftype, const struct AF_read *AFr,
+           enum AF_FIX_T Fix);
+AFILE *
+AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw);
 
 /* ----- FI Prototypes ----- */
 double
@@ -60,7 +93,7 @@ double
 MSdSlopeMC (int k, const double x[], const double y[], int N);
 double
 MSevalMC (double x, double x1, double x2, double y1, double y2, double d1,
-	  double d2);
+          double d2);
 double
 MSfSlopeMC (int k, const float x[], const float y[], int N);
 
@@ -79,10 +112,13 @@ int
 STdec1val (const char String[], int Type, void *Val);
 int
 STdecNval (const char String[], int Nmin, int Nmax, int Type, void *Val,
-	   int *N);
+           int *N);
 int
 STdecPair (const char String[], const char Delim[], int Type, void *Val1,
-	   void *Val2);
+           void *Val2);
+int
+STdecSpair (const char String[], const char Delim[], int *I1, int *I2,
+            const char *SymTab[]);
 char *
 STstrDots (const char Si[], int Maxchar);
 char *
@@ -91,11 +127,13 @@ char *
 STtrimIws (const char Si[]);
 int
 STtrimNMax (const char Si[], char So[], int N, int Maxchar);
+int
+STtrimTail (char Si[]);
 
 /* ----- UT Prototypes ----- */
-int
-UTbyteCode (int Dbo);
-int
+enum UT_DS_T
+UTbyteCode (enum UT_DS_T Dbo);
+enum UT_DS_T
 UTbyteOrder (void);
 int
 UTcheckIEEE (void);
@@ -109,8 +147,8 @@ void
 UTeIEEE80 (double V, unsigned char b[10]);
 char *
 UTgetHost (void);
-int
-UTswapCode (int Dbo);
+enum UT_DS_T
+UTswapCode (enum UT_DS_T Dbo);
 char *
 UTgetUser (void);
 

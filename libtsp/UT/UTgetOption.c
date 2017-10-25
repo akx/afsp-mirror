@@ -21,26 +21,26 @@ Description:
 
   The table of keywords contains entries which can specify the minimum length
   needed for a match with an optional "*" character.
-  -d
-      This form specifies that an exact match to "-d" is required.  The "-"
-      character is just treated as an ordinary character for the match.
-  --d*elay
-      This form specifies that the option must match the first three characters
-      and optionally match additional characters.  For instance, "--d" matches
-      as does "--del", but not "--dx".
+   -d
+     This form specifies that an exact match to "-d" is required.  The "-"
+     character is just treated as an ordinary character for the match.
+   -d*elay
+     This form specifies that the option must match the first three characters
+     and optionally match additional characters.  For instance, "--d" matches
+     as does "--del", but not "--dx".
 
   The need for an option value is signalled in two ways.
-  -d#
-      The presence of the trailing "#" indicates that the option can either
-      directly follow the option as in "-d30" or in the next argument as in
-      "-d" followed by "30" in the next argument.
-  --d*elay=
-      The presence of the trailing "=" indicates that the option can either
-      follow the option, separated by a '=' character as in "--del=30" or in
-      the next argument as in "--del" followed by "30" in the next argument.
+   -d#
+     The presence of the trailing "#" indicates that the option can either
+     directly follow the option as in "-d30" or in the next argument as in
+     "-d" followed by "30" in the next argument.
+   --d*elay=
+     The presence of the trailing "=" indicates that the option can either
+     follow the option, separated by a '=' character as in "--del=30" or in
+     the next argument as in "--del" followed by "30" in the next argument.
 
   The keywords are searched in order.  Keywords can contain a second asterisk
-  can be used to indicate that characters after this point need not match.  
+  can be used to indicate that characters after this point need not match.
 
   Errors detected by this routine result in an error message being printed and
   an error code being returned.
@@ -65,11 +65,11 @@ Description:
   case for an option with no option value.  Each call to UTgetOption returns
   at most one option or argument.
 
-  Return codes: 
-    -2 - Error detected, invalid option or missing value
-    -1 - Normal end of processing
-     0 - Argument string, not an option.
-     n - Option specified by the n'th keyword, n >= 1.
+  Return codes:
+       -2 - Error detected, invalid option or missing value
+       -1 - Normal end of processing
+        0 - Argument string, not an option.
+        n - Option specified by the n'th keyword, n >= 1.
   For the non-negative return codes, the argument string or the option value
   string are pointed to by OptArg.  OptArg will be NULL for an option for which
   no option value is allowed.
@@ -79,13 +79,13 @@ Description:
       "-d#", "--d*elay=",
       "-p", "--p*rint",
       NULL};
-    
+
     void main (int argc, const char *argv[])
     {
       const char *OptArg;
       int Index;
       int n;
-    
+
       Index = 1;
       while (Index < argc) {
         n = UTgetOption (&Index, argc, argv, OptTable, &OptArg);
@@ -98,7 +98,7 @@ Description:
           ... process option 1 (-d or --delay)
           break;
         case 3:
-       	case 4:
+        case 4:
           ... process option 2 (-p or --print)
           break;
         default:
@@ -118,7 +118,7 @@ Parameters:
       Integer used internally for saving the state of the search.  It is the
       index of the next element of argv to be examined.  This value should be
       saved from call to call.  Note that the index may be incremented by zero
-      (error detected), one or two (option followed by a value in the next
+      (error detected), one, or two (option followed by a value in the next
       element of argv).  The initial value of Index should be one.
    -> int argc
       Number of argument strings in argv
@@ -139,8 +139,8 @@ Parameters:
       const attribute, an explict cast to (const char **) is required.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.31 $  $Date: 2003/05/09 03:20:37 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.34 $  $Date: 2017/06/09 12:56:22 $
 
 -------------------------------------------------------------------------*/
 
@@ -148,18 +148,18 @@ Author / revision:
 #include <libtsp/nucleus.h>
 #include <libtsp/UTmsg.h>
 
-#define NOMATCH		0
-#define MATCH		1
-#define MVAL		-2
+#define NOMATCH  0
+#define MATCH    1
+#define MVAL    -2
 
-#define RET_ERROR	-2
-#define RET_END		-1
-#define RET_ARG		0
+#define RET_ERROR -2
+#define RET_END   -1
+#define RET_ARG    0
 
 
 int
 UTgetOption (int *Index, const int argc, const char *argv[],
-	     const char *OptTable[], const char **OptArg)
+       const char *OptTable[], const char **OptArg)
 
 {
   int n, status, ip, rv, allminus;
@@ -214,7 +214,7 @@ UTgetOption (int *Index, const int argc, const char *argv[],
     /* Error - missing value */
     /* Try to pick up the option from the next argument */
     if (ip+1 < argc) {
-      ++ip;		/* extra increment */
+      ++ip;   /* extra increment */
       *OptArg = argv[ip];
       status = n+1;
     }

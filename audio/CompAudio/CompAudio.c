@@ -13,14 +13,16 @@ Description:
   two input files, the signal-to-noise ratio (SNR) of the second file relative
   to the first file is also printed.  For this calculation, the first audio
   file is used as the reference signal.  The "noise" is the difference between
-  sample values in the files.  
+  sample values in the files.
 
   For SNR comparisons between two-channel audio files, the data is treated as
-  complex values.  For more than two channels, the audio files are treated as
-  if they were single channel files.
+  complex values.  For more than two channels, the statistics of the individual
+  channels are computed. For a very large number of channels, the audio files
+  are treated as if they were single channel files.
 
   For each file, the following statistical quantities are calculated and
-  printed for each channel.
+  printed for each channel. However if the number of channels is large, these
+  values are calculated across all channels.
   Mean:
        Xm = SUM x(i) / N
   Standard deviation:
@@ -29,9 +31,8 @@ Description:
        Xmax = max (x(i))
   Min value:
        Xmin = min (x(i))
-
-  These values are reported as a percent of full scale.  For instance for
-  16-bit data, full scale is 32768.
+  The above values are reported as a percent of full scale.  For instance for
+  16-bit integer data, full scale is 32768.
   Number of Overloads:
       Count of values at or exceeding the full scale value.  For integer data
       from a saturating A/D converter, the presence of such values is an
@@ -46,13 +47,19 @@ Description:
       ITU-T Recommendation P.56.  The smoothed envelope of the signal is used
       to divide the signal into active and non-active regions.  The active
       level is the average envelope value for the active region.  The activity
-      factor in percent is also reported.  
+      factor in percent is also reported. The speech activity measurements are
+      calculated only for stereo or mono files with sampling rates appropriat
+      for recording speech.
 
   An optional delay range can be specified when comparing files.  The samples
   in file B are delayed relative to those in file A by each of the delay values
   in the delay range.  For each delay, the SNR with optimized gain factor (see
-  below) is calculated.  For the delay corresponding to the largest SNR, the
-  full regalia of file comparison values is reported.
+  below) is calculated.  For the delay corresponding to the largest SNR (with
+  optimized gain), the full regalia of file comparison values is reported.
+
+  For multi-channel files, the comparisons are carried out over all samples in
+  all channels. For stereo files, the two channels can be considered to
+  represent the real and imaginary parts of a complex signal.
 
   Conventional SNR:
                   SUM |xa(i)|^2
@@ -76,29 +83,64 @@ Description:
       This is the average of SNR values calculated for segments of data.  The
       default segment length corresponds to 16 ms (128 samples at a sampling
       rate of 8000 Hz).  However if the sampling rate is such that the segment
-      length is less than 64 samples or more than 1024 samples, the segment
-      length is set to 256 samples.  For each segment, the SNR is calculated
-      as
+      length is outside the range of 64 to 1024 samples, the segment is set to
+      the appropriate edge value.  For each segment, the SNR is calculated as
                           SUM xa(i)^2
         SS(k) = 1 + ------------------------- .
                     eps + SUM [xa(i)-xb(i)]^2
-      The term eps in the denominator prevents divides by zero.  The additive
+      The term eps in the denominator prevents division by zero.  The additive
       unity term discounts segments with SNR's less than unity.  The final
       average segmental SNR in dB is calculated as
         SSNR = 10 * log10 ( 10^[SUM log10 (SS(k)) / N] - 1 ) dB.
       The first term in the bracket is the geometric mean of SS(k).  The
       subtraction of the unity term tends to compensate for the unity term
-      in SS(k). 
+      in SS(k).
 
   If any of these SNR values is infinite, only the optimal gain factor is
   printed as part of the message (Sf is the optimized gain factor),
     "File A = Sf * File B".
 
+  An example of the output for a stereo file over a range of delays is shown
+  below.
+
+    Delay:  20,  SNR = 5.2461    dB  (Gain for File B = 0.55831)
+    Delay:  21,  SNR = 65.394    dB  (Gain for File B = 0.66674)
+    Delay:  22,  SNR = 5.2462    dB  (Gain for File B = 0.55831)
+
+    File A:
+     Channel 1:
+       Number of Samples: 23829
+       Std Dev = 855.02 (2.609%),  Mean = -9.9431 (-0.03034%)
+       Maximum = 4774 (14.57%),  Minimum = -6156 (-18.79%)
+       Active Level: 946.7 (2.889%), Activity Factor: 81.6%
+     Channel 2:
+       Number of Samples: 23829
+       Std Dev = 427.5 (1.305%),  Mean = -4.9737 (-0.01518%)
+       Maximum = 2387 (7.285%),  Minimum = -3078 (-9.393%)
+       Active Level: 473.34 (1.445%), Activity Factor: 81.6%
+    File B:
+     Channel 1:
+       Number of Samples: 23829
+       Std Dev = 1282.4 (3.914%),  Mean = -14.886 (-0.04543%)
+       Maximum = 7160 (21.85%),  Minimum = -9233 (-28.18%)
+       Active Level: 1418.6 (4.329%), Activity Factor: 81.7%
+     Channel 2:
+       Number of Samples: 23829
+       Std Dev = 641.2 (1.957%),  Mean = -7.4417 (-0.02271%)
+       Maximum = 3580 (10.93%),  Minimum = -4617 (-14.09%)
+       Active Level: 709.29 (2.165%), Activity Factor: 81.7%
+    Best match at delay = 21
+    SNR      = 6.0233   dB
+    SNR      = 65.394   dB  (Gain for File B = 0.66674)
+    Seg. SNR = 6.0203   dB  (256 sample segments)
+    Max Diff = 3077 (9.39%),  No. Diff = 46127 (573 runs)
+
 Options:
-  Input file(s): AFileA [AFileB]:
+  Input file(s), AFileA [AFileB]:
       The environment variable AUDIOPATH specifies a list of directories to be
       searched for the input audio file(s).  Specifying "-" as the input file
-      indicates that input is from standard input.
+      indicates that input is from standard input.  One or two input files can
+      be specified.
   -d DL:DU, --delay=DL:DU
       Specify a delay range (in samples).  Each delay in the delay range
       represents a delay of file B relative to file A.  The default range is
@@ -117,100 +159,31 @@ Options:
       applies to the input files that follow the option.  The specification
       ":" means the entire file; "L:" means from sample L to the end; ":U"
       means from sample 0 to sample U; "N" means from sample 0 to sample N-1.
-  -t FTYPE, --type=FTYPE
-      Input audio file type.  In the default automatic mode, the input file
-      type is determined from the file header.  For input from a non-random
-      access file (e.g. a pipe), the input file type can be explicitly
-      specified to avoid the lookahead used to read the file header.  This
-      option can be specified more than once.  Each invocation applies to the
-      input files that follow the option.  See the description of the
-      environment variable AF_FILETYPE below for a list of file types.
-  -P PARMS, --parameters=PARMS
-      Parameters to be used for headerless input files.  This option may be
-      given more than once.  Each invocation applies to the input files that
-      follow the option.  See the description of the environment variable
-      AF_NOHEADER below for the format of the parameter specification.
   -h, --help
       Print a list of options and exit.
   -v, --version
       Print the version number and exit.
 
+  See routine CopyAudio for a description of other parameters.
+  -t FTYPE, --type=FTYPE
+     Input file type and environment variable AF_FILETYPE
+  -P PARMS, --parameters=PARMS
+     Input file parameters and environment variable AF_INPUTPAR
+
 Environment variables:
-  AF_FILETYPE:
-  This environment variable defines the input audio file type.  In the default
-  mode, the input file type is determined from the file header.
-    "auto"       - determine the input file type from the file header
-    "AU" or "au" - AU audio file
-    "WAVE" or "wave" - WAVE file
-    "AIFF" or "aiff" - AIFF or AIFF-C sound file
-    "noheader"   - headerless (non-standard or no header) audio file
-    "SPHERE"     - NIST SPHERE audio file
-    "ESPS"       - ESPS sampled data feature file
-    "IRCAM"      - IRCAM soundfile
-    "SPPACK"     - SPPACK file
-    "INRS"       - INRS-Telecom audio file
-    "SPW"        - Comdisco SPW Signal file
-    "CSL" or "NSP" - CSL NSP file
-    "text"       - Text audio file
-
-  AF_NOHEADER:
-  This environment variable defines the data format for headerless or
-  non-standard input audio files.  The string consists of a list of parameters
-  separated by commas.  The form of the list is
-    "Format, Start, Sfreq, Swapb, Nchan, ScaleF"
-  Format: File data format
-       "undefined" - Headerless files will be rejected
-       "mu-law8"   - 8-bit mu-law data
-       "A-law8"    - 8-bit A-law data
-       "unsigned8" - offset-binary 8-bit integer data
-       "integer8"  - two's-complement 8-bit integer data
-       "integer16" - two's-complement 16-bit integer data
-       "integer24" - two's-complement 24-bit integer data
-       "integer32" - two's-complement 32-bit integer data
-       "float32"   - 32-bit floating-point data
-       "float64"   - 64-bit floating-point data
-       "text"      - text data
-  Start: byte offset to the start of data (integer value)
-  Sfreq: sampling frequency in Hz (floating point number)
-  Swapb: Data byte swap parameter
-       "native"        - no byte swapping
-       "little-endian" - file data is in little-endian byte order
-       "big-endian"    - file data is in big-endian byte order
-       "swap"          - swap the data bytes as the data is read
-  Nchan: number of channels
-    The data consists of interleaved samples from Nchan channels
-  ScaleF: Scale factor
-       "default" - Scale factor chosen appropriate to the type of data. The
-          scaling factors shown below are applied to the data in the file.
-          8-bit mu-law:    1/32768
-          8-bit A-law:     1/32768
-          8-bit integer:   128/32768
-          16-bit integer:  1/32768
-          24-bit integer:  1/(256*32768)
-          32-bit integer:  1/(65536*32768)
-          float data:      1
-       "<number or ratio>" - Specify the scale factor to be applied to
-          the data from the file.
-  The default values for the audio file parameters correspond to the following
-  string.
-    "undefined, 0, 8000., native, 1, default"
-
   AUDIOPATH:
-  This environment variable specifies a list of directories to be searched when
-  opening the input audio files.  Directories in the list are separated by
-  colons (semicolons for Windows).
+    This environment variable specifies a list of directories to be searched
+    when opening the input audio files.  Directories in the list are separated
+    by colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v5r1  2003-07-11  Copyright (C) 2003
+  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
 
 ----------------------------------------------------------------------*/
 
-#include <stdlib.h>	/* EXIT_SUCCESS */
+#include <stdlib.h> /* EXIT_SUCCESS */
 #include <string.h>
 
-#include <libtsp.h>
-#include <libtsp/AFpar.h>
-#include <AO.h>
 #include "CompAudio.h"
 
 static long int
@@ -242,9 +215,9 @@ main (int argc, const char *argv[])
   NsampND = 0;
   RAccess = 0;
   if (Nfiles == 1)
-    NsampND = 1;	/* Number of samples can be unknown */
+    NsampND = 1;  /* Number of samples can be unknown */
   else
-    RAccess = 1;	/* Must be random access (need to rewind) */
+    RAccess = 1;  /* Must be random access (need to rewind) */
 
 /* Open the input files */
   AFp[1] = NULL;
@@ -252,8 +225,8 @@ main (int argc, const char *argv[])
     AOsetFIopt (&FI[i], NsampND, RAccess);
     FLpathList (FI[i].Fname, AFPATH_ENV, FI[i].Fname);
     AFp[i] = AFopnRead (FI[i].Fname, &Nsamp[i], &Nchan[i], &Sfreq[i], stdout);
-    ScaleF[i] = AFp[i]->ScaleF;		/* Native data scaling */
-    AFp[i]->ScaleF *= FI[i].Gain;	/* Gain absorbed into scaling factor */
+    ScaleF[i] = AFp[i]->ScaleF;   /* Native data scaling */
+    AFp[i]->ScaleF *= FI[i].Gain; /* Gain absorbed into scaling factor */
   }
 
   /* Resolve the file limits */
@@ -272,14 +245,12 @@ main (int argc, const char *argv[])
     Nch = CA_CheckNchan (AFp[0]->Nchan, AFp[0]->Nchan);
   else
     Nch = CA_CheckNchan (AFp[0]->Nchan, AFp[1]->Nchan);
-
   /*
-    - Nch is the possibly reduced number of channels, while AFp[i]->Nchan is
-      the real number of channels
+    - Nch is either AFp[i]->Nchan or 1 (for a large number of channels)
     - Ns is the number of samples to be processed (starting from sample
       Start[i])
-    - ScaleF[i] is the scale factor before introducting the user supplied
-      gain; AFp[i]->ScaleF includes the user supplied gain
+    - ScaleF[i] is the scale factor before introducing the user supplied gain;
+      AFp[i]->ScaleF includes the user supplied gain
   */
 
   if (Ns == 0L)
@@ -313,16 +284,16 @@ main (int argc, const char *argv[])
       /* Identical files */
       printf ("\n");
       if (delayL < delayU || delayL != 0)
-	printf (CAMF_AeqBdelay, delayM);
+        printf (CAMF_AeqBdelay, delayM);
       else
-	printf (CAMF_AeqB);
+        printf (CAMF_AeqB);
     }
     else {
       /* File B statistics */
       if (delayL < delayU)
-	printf (CAMF_BestMatch, delayM);
+        printf (CAMF_BestMatch, delayM);
       else if (delayL != 0)
-	printf (CAMF_Delay, delayM);
+        printf (CAMF_Delay, delayM);
 
       CAprcorr (&StatsT, ScaleF);
     }
@@ -337,7 +308,7 @@ main (int argc, const char *argv[])
 }
 
 /* Resolve the number of channels
-   - Reduce Nchan, if Nchan > 2
+   - Reduce Nchan, if Nchan > CA_MaxNcchan
 */
 
 
@@ -350,7 +321,7 @@ CA_CheckNchan (long int NchanA, long int NchanB)
   /* Set the number of channels to one if Nchan > 2 */
   if (NchanA != NchanB)
     UThalt ("%s: %s", PROGRAM, CAM_DiffNChan);
-  if (NchanA > 2) {
+  if (NchanA > CA_MaxNchan) {
     UTwarn ("%s: %s", PROGRAM, CAM_XNChan);
     Nchan = 1;
   }

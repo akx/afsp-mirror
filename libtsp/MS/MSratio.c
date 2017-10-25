@@ -36,6 +36,7 @@ Description:
     4th ed., John Wiley & Sons, 1980.
 
 Parameters:
+  <-  void MSratio
    -> double Val
       Value to be approximated. This value should have a magnitude
       between 1/MaxD and MaxN.
@@ -53,8 +54,8 @@ Parameters:
       floor(1/|Val|).
 
 Author / revision:
-  P. Kabal  Copyright (C) 2008
-  $Revision: 1.8 $  $Date: 2008/05/13 20:02:48 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.11 $  $Date: 2017/06/13 16:12:27 $
 
 -------------------------------------------------------------------------*/
 
@@ -62,12 +63,12 @@ Author / revision:
 
 #include <libtsp.h>
 
-#define ABSV(x)		(((x) < 0) ? -(x) : (x))
+#define ABSV(x)   (((x) < 0) ? -(x) : (x))
 
 
 void
 MSratio (double Val, long int *N, long int *D, double tol, long int MaxN,
-	 long int MaxD)
+   long int MaxD)
 
 {
   double pk, pkm1, pkm2, qk, qkm1, qkm2;
@@ -132,7 +133,7 @@ MSratio (double Val, long int *N, long int *D, double tol, long int MaxN,
   pkm1 = 0.0;
   pk = 1.0;
   qkm1 = 1.0;
-  qk = 0.0;		/* C[-1] = 1/0 */
+  qk = 0.0;   /* C[-1] = 1/0 */
 
   AVS = ABSV (Val);
   AV = AVS;
@@ -152,7 +153,7 @@ MSratio (double Val, long int *N, long int *D, double tol, long int MaxN,
 
     if (pk > MaxN || qk > MaxD) {
 
-      pk = pkm1;	/* Back off to the previous convergent */
+      pk = pkm1;  /* Back off to the previous convergent */
       qk = qkm1;
 
       /* Try a secondary convergent */
@@ -160,12 +161,12 @@ MSratio (double Val, long int *N, long int *D, double tol, long int MaxN,
       mq = floor ((MaxD - qkm2) / qkm1);
       m = (mp <= mq) ? mp : mq;
       if (m > 0) {
-	rk = m * pkm1 + pkm2;
-	sk = m * qkm1 + qkm2;
-	if (ABSV (AVS - rk/sk) < ABSV (AVS - pk/qk)) {
-	  pk = rk;
-	  qk = sk;
-	}
+        rk = m * pkm1 + pkm2;
+        sk = m * qkm1 + qkm2;
+        if (ABSV (AVS - rk/sk) < ABSV (AVS - pk/qk)) {
+          pk = rk;
+          qk = sk;
+        }
       }
       break;
     }

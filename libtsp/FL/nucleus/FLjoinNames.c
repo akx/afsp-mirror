@@ -32,8 +32,8 @@ Parameters:
       character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.19 $  $Date: 2003/05/09 01:39:26 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.20 $  $Date: 2015/04/01 15:48:47 $
 
 ----------------------------------------------------------------------*/
 
@@ -44,13 +44,13 @@ Author / revision:
 #include <libtsp/FLmsg.h>
 
 #if (SY_FILENAME_SPEC == SY_FNS_UNIX)
-#  define DIR_SEP_STR	"/"
+#  define DIR_SEP_STR "/"
 #elif (SY_FILENAME_SPEC == SY_FNS_WINDOWS)
-#  define DIR_SEP_STR	"\\"
+#  define DIR_SEP_STR "\\"
 #else
 #  error "Bad SY_FILENAME_SPEC value"
 #endif
-#define DIR_SEP_CHAR	((DIR_SEP_STR)[0])
+#define DIR_SEP_CHAR  ((DIR_SEP_STR)[0])
 
 static int
 FL_rootdir (const char Fname[]);
@@ -60,7 +60,7 @@ int
 FLjoinNames (const char Dname[], const char Bname[], char Fname[])
 
 {
-  char tname[FILENAME_MAX+1];	/* One extra: catch names that are too long */
+  char tname[FILENAME_MAX+1]; /* One extra: catch names that are too long */
   int n;
 
   /* Test for a root directory specification in Bname */

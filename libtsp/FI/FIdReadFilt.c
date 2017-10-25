@@ -3,7 +3,7 @@
 
 Routine:
   int FIdReadFilt (const char Fname[], int MaxNcof, double h[], int *Ncof,
-		   FILE *fpinfo)
+                   FILE *fpinfo)
 
 Purpose:
   Read a filter coefficient file
@@ -11,11 +11,11 @@ Purpose:
 Description:
   This procedure reads filter coefficients from a filter coefficient file.  The
   first line in the file indicates the type of filter.
-    !FIR	- FIR filter, direct form
-    !IIR	- IIR filter, cascade of biquad sections
-    !ALL	- All-pole filter, direct form
-    !WIN	- Window coefficients, direct form
-    !CAS	- Cascade analog biquad sections
+    !FIR  - FIR filter, direct form
+    !IIR  - IIR filter, cascade of biquad sections
+    !ALL  - All-pole filter, direct form
+    !WIN  - Window coefficients, direct form
+    !CAS  - Cascade analog biquad sections
   Subsequent lines contain filter coefficients in text form.  Data fields
   are free format, with data values separated by white-space (as defined by
   isspace).  Zero or more data values can appear in each line of input.  Commas
@@ -49,13 +49,13 @@ Parameters:
       selected by fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2009
-  $Revision: 1.2 $  $Date: 2009/03/01 21:16:17 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.4 $  $Date: 2017/06/09 11:03:25 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
-#ifdef SY_OS_WINDOWS
+#if (SY_OS == SY_OS_WINDOWS)
 #  define _CRT_NONSTDC_NO_DEPRECATE   /* Allow Posix names */
 #  define _CRT_SECURE_NO_WARNINGS     /* Allow fopen */
 #endif
@@ -65,16 +65,16 @@ Author / revision:
 #include <libtsp/FIpar.h>
 #include <libtsp/FImsg.h>
 
-#define COMMENT_CHAR	'!'
-#define CHECKSYM(x,N)	((int) (1.00001 * VRdCorSym(x,N)))
+#define COMMENT_CHAR  '!'
+#define CHECKSYM(x,N) ((int) (1.00001 * VRdCorSym(x,N)))
 
 /* Keyword templates for the filter types */
 static const char *FItab[] = {
-  "!FIR**",	/* FIR filter, direct form */
-  "!IIR**",	/* IIR filter, cascade of biquad sections */
-  "!ALL**",	/* All-pole filter, direct form */
-  "!WIN**",	/* Window coefficients, direct form */
-  "!CAS**",	/* Cascade analog biquad sections */
+  "!FIR**", /* FIR filter, direct form */
+  "!IIR**", /* IIR filter, cascade of biquad sections */
+  "!ALL**", /* All-pole filter, direct form */
+  "!WIN**", /* Window coefficients, direct form */
+  "!CAS**", /* Cascade analog biquad sections */
   NULL
 };
 
@@ -128,26 +128,26 @@ FIdReadFilt (const char Fname[], int MaxNcof, double h[], int *Ncof,
     if (FiltType == FI_FIR || FiltType == FI_WIN || FiltType == FI_ALL) {
       Sym = CHECKSYM (h, N);
       if (Sym == 1)
-	fprintf (fpinfo, FIMF_FiltSubType, FItype[FiltType],
-		 FIM_FiltSym, FLfileDate(fp, 3));
+        fprintf (fpinfo, FIMF_FiltSubType, FItype[FiltType],
+                 FIM_FiltSym, FLfileDate(fp, 3));
       else if (Sym == -1)
-	fprintf (fpinfo, FIMF_FiltSubType, FItype[FiltType],
-		 FIM_FiltAsym, FLfileDate(fp, 3));
+        fprintf (fpinfo, FIMF_FiltSubType, FItype[FiltType],
+                 FIM_FiltAsym, FLfileDate(fp, 3));
       else
-	fprintf (fpinfo, FIMF_FiltSubType, FItype[FiltType],
-		 FIM_FiltDirect, FLfileDate(fp, 3));
+        fprintf (fpinfo, FIMF_FiltSubType, FItype[FiltType],
+                 FIM_FiltDirect, FLfileDate(fp, 3));
     }
     else if (FiltType == FI_IIR || FiltType == FI_CAS)
-	fprintf (fpinfo, FIMF_FiltSubType, FItype[FiltType],
-		 FIM_FiltBiquad, FLfileDate(fp, 3));
+      fprintf (fpinfo, FIMF_FiltSubType, FItype[FiltType],
+               FIM_FiltBiquad, FLfileDate(fp, 3));
     else
-      	fprintf (fpinfo, FIMF_FiltType, FItype[FiltType], FLfileDate(fp, 3));
+        fprintf (fpinfo, FIMF_FiltType, FItype[FiltType], FLfileDate(fp, 3));
 
     if (FiltType == FI_IIR) {
       if (N == 5)
-	fprintf (fpinfo, FIMF_NumIIR1, N);
+        fprintf (fpinfo, FIMF_NumIIR1, N);
       else
-	fprintf (fpinfo, FIMF_NumIIRN, N, N / 5);
+        fprintf (fpinfo, FIMF_NumIIRN, N, N / 5);
     }
     else
       fprintf (fpinfo, FIMF_NumCoef, N);

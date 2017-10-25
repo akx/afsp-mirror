@@ -13,7 +13,7 @@ Description:
   characters.  If no "/" character appears in the name, an empty string is
   returned.  For Windows, the directory separator character is "\".
 
-  Examples: 
+  Examples:
      "abc/def"      => "abc"
      "abc/def/"     => "abc/def"
      "abc/bcd/def"  => "abc/bcd"
@@ -21,7 +21,7 @@ Description:
      "/abc/bcd/def" => "/abc/bcd"
      "./def"        => "."
      "def"          => ""
-  Special cases: 
+  Special cases:
      "/def"         => "/"
      "/"            => "/"
 
@@ -36,8 +36,8 @@ Parameters:
       character.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.22 $  $Date: 2003/05/09 01:36:43 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.25 $  $Date: 2017/05/24 16:21:25 $
 
 ----------------------------------------------------------------------*/
 
@@ -47,13 +47,13 @@ Author / revision:
 #include <libtsp/sysOS.h>
 
 #if (SY_FILENAME_SPEC == SY_FNS_UNIX)
-#  define DIR_SEP_STR	"/"
+#  define DIR_SEP_STR "/"
 #elif (SY_FILENAME_SPEC == SY_FNS_WINDOWS)
-#  define DIR_SEP_STR	"\\"
+#  define DIR_SEP_STR "\\"
 #else
 #  error "Bad SY_FILENAME_SPEC value"
 #endif
-#define DIR_SEP_CHAR	((DIR_SEP_STR)[0])
+#define DIR_SEP_CHAR  ((DIR_SEP_STR)[0])
 
 
 int
@@ -66,7 +66,7 @@ FLdirName (const char Fname[], char Dname[])
 /* Break the string at the last directory separator */
   p = strrchr (Fname, DIR_SEP_CHAR);
   if (p != NULL) {
-    nc = p - Fname;
+    nc = (int) (p - Fname);
     if (nc == 0)
       n = STcopyMax (DIR_SEP_STR, Dname, FILENAME_MAX-1);
     else

@@ -36,38 +36,37 @@ Parameters:
       Maximum number of frames to be written to the output file
    -> AFILE *AFpO
       Output audio file pointer
- 
+
 Author / revision:
-  P. Kabal  Copyright (C) 2005
-  $Revision: 1.23 $  $Date: 2005/02/01 04:29:25 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.26 $  $Date: 2017/05/26 12:48:51 $
 
 -------------------------------------------------------------------------*/
 
 #include <assert.h>
 #include <limits.h>
 
-#include <libtsp.h>
 #include "CopyAudio.h"
 
-#define MINV(a, b)	(((a) < (b)) ? (a) : (b))
-#define MAXV(a, b)	(((a) > (b)) ? (a) : (b))
-#define ICEILV(n, m)	(((n) + ((m) - 1)) / (m))	/* int n,m >= 0 */
+#define MINV(a, b)  (((a) < (b)) ? (a) : (b))
+#define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
+#define ICEILV(n, m)  (((n) + ((m) - 1)) / (m)) /* int n,m >= 0 */
 
-#define BFSIZE	5120
+#define BFSIZE  5120
 
 static long int
 CP_copy1 (AFILE *AFpI, long int StartF, long int Nframe, int eof, AFILE *AFpO);
 static long int
 CP_copyNa (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
-	   AFILE *AFpO);
+           AFILE *AFpO);
 static long int
 CP_copyNb (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
-	   AFILE *AFpO);
+           AFILE *AFpO);
 
 
 long int
 CPcopyChan (AFILE *AFp[], const long int StartF[], int Nifiles,
-	    long int Nframe, long int MaxNframe, AFILE *AFpO)
+      long int Nframe, long int MaxNframe, AFILE *AFpO)
 
 {
   long int NchanI, NchanMax, Nfw;
@@ -81,7 +80,7 @@ CPcopyChan (AFILE *AFp[], const long int StartF[], int Nifiles,
        output.  The number of samples must be known.
        (a) The number of channels is such that one or more record from the
            file with the largest number of channels can fit into the buffer
-	   along with the output record.
+     along with the output record.
        (b) The number of channels is large.  The data from a single input file
            may have to be read in chunks.  Each chunk is immediately sent to
            the output.
@@ -102,9 +101,9 @@ CPcopyChan (AFILE *AFp[], const long int StartF[], int Nifiles,
     eof = (Nframe == AF_NFRAME_UNDEF);
     if (MaxNframe != AF_NFRAME_UNDEF) {
       if (eof)
-	Nframe = MaxNframe;
+        Nframe = MaxNframe;
       else
-	Nframe = MINV (Nframe, MaxNframe);
+        Nframe = MINV (Nframe, MaxNframe);
     }
 
     Nfw = CP_copy1 (AFp[0], StartF[0], Nframe, eof, AFpO);
@@ -165,10 +164,10 @@ CP_copy1 (AFILE *AFpI, long int StartF, long int Nframe, int eof, AFILE *AFpO)
     if (eof && Nr < Nv) {
       ioffs = Nj * ICEILV (offr + Nr, Nj);
       if (ioffs != offr + Nr)
-	UTwarn ("%s - %s", PROGRAM, CPM_NSampNChan);
-      Nrem = ioffs - offr;	/* Reset Nrem */
-      Nv = MINV (Nrem, Nv);	/* Reset Nv (no. samples to be written) */
-      eof = 0;			/* Reset eof: do not test for EOF again */
+  UTwarn ("%s - %s", PROGRAM, CPM_NSampNChan);
+      Nrem = ioffs - offr;  /* Reset Nrem */
+      Nv = MINV (Nrem, Nv); /* Reset Nv (no. samples to be written) */
+      eof = 0;      /* Reset eof: do not test for EOF again */
     }
     Nrem -= Nv;
     offr += Nv;
@@ -185,10 +184,10 @@ CP_copy1 (AFILE *AFpI, long int StartF, long int Nframe, int eof, AFILE *AFpO)
 
 static long int
 CP_copyNa (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
-	   AFILE *AFpO)
+           AFILE *AFpO)
 
 {
-  int i, j, k, n, Ns, Nj, NO, Nfr;
+  int i, j, k, n, Ns, NCj, NCO, Nfr;
   long int offr, offs, Nrem, NchanMax;
   double Dbuff[BFSIZE];
   double *Dbuffi, *Dbuffo;
@@ -201,8 +200,8 @@ CP_copyNa (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
     NchanMax = MAXV (NchanMax, AFp[j]->Nchan);
 
 /* Split the buffer space up for the input and output buffers */
-  NO = (int) AFpO->Nchan;
-  Ns = (int) (BFSIZE / (NchanMax + NO));
+  NCO = (int) AFpO->Nchan;
+  Ns = (int) (BFSIZE / (NchanMax + NCO));
   assert (Ns > 0);
 
   Dbuffi = Dbuff;
@@ -215,18 +214,18 @@ CP_copyNa (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
     Nfr = (int) MINV (Nrem, Ns);
     n = 0;
     for (j = 0; j < Nifiles; ++j) {
-      Nj = (int) AFp[j]->Nchan;
-      offs = Nj * (offr + StartF[j]);
-      AFdReadData (AFp[j], offs, Dbuffi, Nfr * Nj);
-      for (k = 0; k < Nj; ++k) {
-	for (i = 0; i < Nfr; ++i)
-	  Dbuffo[i*NO+n+k] = Dbuffi[i*Nj+k];
+      NCj = (int) AFp[j]->Nchan;
+      offs = NCj * (offr + StartF[j]);
+      AFdReadData (AFp[j], offs, Dbuffi, Nfr * NCj);
+      for (k = 0; k < NCj; ++k) {
+        for (i = 0; i < Nfr; ++i)
+          Dbuffo[i*NCO+n+k] = Dbuffi[i*NCj+k];
       }
-      n += Nj;
+      n += NCj;
     }
 
     /* Write the samples to the output file */
-    AFdWriteData (AFpO, Dbuffo, Nfr * NO);
+    AFdWriteData (AFpO, Dbuffo, Nfr * NCO);
     offr += Nfr;
     Nrem -= Nfr;
   }
@@ -239,7 +238,7 @@ CP_copyNa (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
 
 static long int
 CP_copyNb (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
-	   AFILE *AFpO)
+           AFILE *AFpO)
 
 {
   int j, Nc;
@@ -253,10 +252,10 @@ CP_copyNb (AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
     for (j = 0; j < Nifiles; ++j) {
       Nj = AFp[j]->Nchan;
       for (l = 0L; l < Nj; l += Nc) {
-	Nc = (int) MINV (Nj - l, BFSIZE);
-	offs = Nj * (offr + StartF[j]) + l;
-	AFdReadData (AFp[j], offs, Dbuff, Nc);
-	AFdWriteData (AFpO, Dbuff, Nc);
+        Nc = (int) MINV (Nj - l, BFSIZE);
+        offs = Nj * (offr + StartF[j]) + l;
+        AFdReadData (AFp[j], offs, Dbuff, Nc);
+        AFdWriteData (AFpO, Dbuff, Nc);
       }
     }
   }

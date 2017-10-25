@@ -11,6 +11,7 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libtsplite.a
 
@@ -27,6 +28,7 @@ $(LIB): \
 	$(LIB)(STstrstrNM.o) \
 	$(LIB)(STtrimIws.o) \
 	$(LIB)(STtrimNMax.o) \
+	$(LIB)(STtrimTail.o) \
 	#
 	ranlib $(LIB)
 

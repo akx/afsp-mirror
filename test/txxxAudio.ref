@@ -1,40 +1,43 @@
-CopyAudio: v6r0  2003-05-08
-CompAudio: v5r1  2003-07-11
-FiltAudio: v6r1  2005-02-01
-ResampAudio: v5r1  2005-01-31
+CopyAudio: v10r1  2017-10-18
+CompAudio: v10r1  2017-10-18
+FiltAudio: v10r1  2017-10-18
+InfoAudio: v10r1  2017-10-18
+ResampAudio: v10r1  2017-10-18
 
 ========== CopyAudio: scale by 2, scale by 0.5, expect File A = File B
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
  AU audio file: --path--/test/xx.au
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 2 (32-bit float)
 ------
  AU audio file: --path--/test/xx.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 2 (32-bit float)
 
  WAVE file: --path--/test/yy.wav
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 ------
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  WAVE file: --path--/test/yy.wav
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
@@ -52,85 +55,86 @@ ResampAudio: v5r1  2005-01-31
  File A = File B
 
 ========== CopyAudio: apply mu-law, expect max diff 254
- AU audio file: --path--/test/audiofiles/addf8.au
-   Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+ INRS-Telecom audio file: --path--/audiofiles/catm8.aud
+   Samples / channel : 19712 (2.464 s)  11-FEB-81 17:56:44
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
  AU audio file: --path--/test/xx.au
+   Samples / channel : 19712 (2.464 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (8-bit mu-law)
 ------
- AU audio file: --path--/test/audiofiles/addf8.au
-   Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+ INRS-Telecom audio file: --path--/audiofiles/catm8.aud
+   Samples / channel : 19712 (2.464 s)  11-FEB-81 17:56:44
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  AU audio file: --path--/test/xx.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 19712 (2.464 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (8-bit mu-law)
 
  File A:
-    Number of Samples: 23808
-    Std Dev = 1710.5 (5.22%),  Mean = -19.852 (-0.06058%)
-    Maximum = 9547 (29.14%),  Minimum = -12311 (-37.57%)
-    Active Level: 1894.5 (5.782%), Activity Factor: 81.5%
+    Number of Samples: 19712
+    Std Dev = 1320.9 (4.031%),  Mean = -17.821 (-0.05439%)
+    Maximum = 9796 (29.9%),  Minimum = -14355 (-43.81%)
+    Active Level: 1495.6 (4.564%), Activity Factor: 78.0%
  File B:
-    Number of Samples: 23808
-    Std Dev = 1711.7 (5.224%),  Mean = -19.25 (-0.05875%)
-    Maximum = 9340 (28.5%),  Minimum = -12412 (-37.88%)
-    Active Level: 1895.8 (5.785%), Activity Factor: 81.5%
- SNR      = 37.098   dB
- SNR      = 37.111   dB  (Gain for File B = 0.99924)
- Seg. SNR = 33.073   dB  (128 sample segments)
- Max Diff = 254 (0.7751%),  No. Diff = 21910 (1543 runs)
+    Number of Samples: 19712
+    Std Dev = 1321.7 (4.034%),  Mean = -16.998 (-0.05187%)
+    Maximum = 9852 (30.07%),  Minimum = -14460 (-44.13%)
+    Active Level: 1496.5 (4.567%), Activity Factor: 78.0%
+ SNR      = 37.083   dB
+ SNR      = 37.094   dB  (Gain for File B = 0.9993)
+ Seg. SNR = 31.52    dB  (128 sample segments)
+ Max Diff = 251 (0.766%),  No. Diff = 17953 (1435 runs)
 
 ========== CopyAudio: apply mu-law again, expect File A = File B
  AU audio file: --path--/test/xx.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 19712 (2.464 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (8-bit mu-law)
 
  AU audio file: --path--/test/yy.au
+   Samples / channel : 19712 (2.464 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (8-bit mu-law)
 ------
  AU audio file: --path--/test/xx.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 19712 (2.464 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (8-bit mu-law)
  AU audio file: --path--/test/yy.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 19712 (2.464 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (8-bit mu-law)
 
-    Number of Samples: 23808
-    Std Dev = 1711.7 (5.224%),  Mean = -19.25 (-0.05875%)
-    Maximum = 9340 (28.5%),  Minimum = -12412 (-37.88%)
-    Active Level: 1895.8 (5.785%), Activity Factor: 81.5%
+    Number of Samples: 19712
+    Std Dev = 1321.7 (4.034%),  Mean = -16.998 (-0.05187%)
+    Maximum = 9852 (30.07%),  Minimum = -14460 (-44.13%)
+    Active Level: 1496.5 (4.567%), Activity Factor: 78.0%
 
  File A = File B
 
 ========== CopyAudio: headerless output, expect File A = File B
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
  Headerless audio file: --path--/test/xx.nh
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 ------
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  Headerless audio file: --path--/test/xx.nh
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
@@ -148,9 +152,9 @@ ResampAudio: v5r1  2005-01-31
  File A = File B
 
 -------- ALL - FIR, expect File A = File B
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  Filter file: --path--/test/f.cof
@@ -158,11 +162,12 @@ ResampAudio: v5r1  2005-01-31
    Number of coefficients: 3
 
  AU audio file: --path--/test/tx1.au
+   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
  AU audio file: --path--/test/tx1.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
  Filter file: --path--/test/a.cof
@@ -170,16 +175,17 @@ ResampAudio: v5r1  2005-01-31
    Number of coefficients: 3
 
  WAVE file: --path--/test/tx2.wav
+   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  WAVE file: --path--/test/tx2.wav
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
@@ -196,9 +202,9 @@ ResampAudio: v5r1  2005-01-31
 
  File A = File B
 -------- FIR x5 x(1/5), expect File A = File B
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  Filter file: --path--/test/fx5.cof
@@ -206,11 +212,12 @@ ResampAudio: v5r1  2005-01-31
    Number of coefficients: 31
 
  AU audio file: --path--/test/tx5.au
+   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 40000 Hz
    Number of channels: 1 (16-bit integer)
 
  AU audio file: --path--/test/tx5.au
-   Number of samples : 119040 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 119040 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 40000 Hz
    Number of channels: 1 (16-bit integer)
  Filter file: --path--/test/fs5.cof
@@ -218,16 +225,17 @@ ResampAudio: v5r1  2005-01-31
    Number of coefficients: 7
 
  AU audio file: --path--/test/tx1.au
+   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  AU audio file: --path--/test/tx1.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -238,9 +246,9 @@ ResampAudio: v5r1  2005-01-31
 
  File A = File B
 -------- IIR, expect File A = File B
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  Filter file: --path--/test/fi1.cof
@@ -248,11 +256,12 @@ ResampAudio: v5r1  2005-01-31
    Number of coefficients: 5  (1 section)
 
  AU audio file: --path--/test/tx1.au
+   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
  AU audio file: --path--/test/tx1.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
  Filter file: --path--/test/fi2.cof
@@ -260,16 +269,17 @@ ResampAudio: v5r1  2005-01-31
    Number of coefficients: 5  (1 section)
 
  AU audio file: --path--/test/tx2.au
+   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  AU audio file: --path--/test/tx2.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
@@ -287,9 +297,9 @@ ResampAudio: v5r1  2005-01-31
  File A = File B
 
 ========== ResampAudio: 8000 -> 8001 -> 8000
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -298,11 +308,12 @@ ResampAudio: v5r1  2005-01-31
    delay: 816, no. coeffs: 1633, offset: 0, span: 1632
 
  AU audio file: --path--/test/xxx.au
+   Samples / channel : 23811 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8001 Hz
    Number of channels: 1 (16-bit integer)
  Sampling ratio: 8001/8000
  AU audio file: --path--/test/xxx.au
-   Number of samples : 23811 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23811 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8001 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -311,16 +322,17 @@ ResampAudio: v5r1  2005-01-31
    delay: 816, no. coeffs: 1633, offset: 0, span: 1632
 
  WAVE file: --path--/test/yyy.wav
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  Sampling ratio: 8000/8001
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  WAVE file: --path--/test/yyy.wav
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -340,9 +352,9 @@ ResampAudio: v5r1  2005-01-31
  Max Diff = 6 (0.01831%),  No. Diff = 3393 (2372 runs)
 
 ========== ResampAudio: 8000 -> 48000 -> 8000
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -352,6 +364,7 @@ ResampAudio: v5r1  2005-01-31
  Coefficient file: --path--/test/temp.cof
 
  AU audio file: --path--/test/xxxa.au
+   Samples / channel : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 48000 Hz
    Number of channels: 1 (16-bit integer)
  Sampling ratio: 6/1
@@ -440,9 +453,9 @@ ResampAudio: v5r1  2005-01-31
               0   4.504137e-05   7.106571e-05   7.451258e-05   5.838965e-05
    3.038548e-05              0  -2.435547e-05  -3.747093e-05  -3.819317e-05
   -2.898679e-05  -1.454277e-05
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  Filter file: --path--/test/temp.cof
@@ -450,15 +463,16 @@ ResampAudio: v5r1  2005-01-31
    Number of coefficients: 407
 
  AU audio file: --path--/test/xxxb.au
+   Samples / channel : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 48000 Hz
    Number of channels: 1 (16-bit integer)
  Sampling ratio: 6/1
  AU audio file: --path--/test/xxxa.au
-   Number of samples : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 48000 Hz
    Number of channels: 1 (16-bit integer)
  AU audio file: --path--/test/xxxb.au
-   Number of samples : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 48000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -477,7 +491,7 @@ ResampAudio: v5r1  2005-01-31
  Seg. SNR = 100.67   dB  (768 sample segments)
  Max Diff = 1 (0.003052%),  No. Diff = 4 (4 runs)
  AU audio file: --path--/test/xxxa.au
-   Number of samples : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 142843 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 48000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -486,16 +500,17 @@ ResampAudio: v5r1  2005-01-31
    delay: 201, no. coeffs: 403, offset: 0, span: 402
 
  AU audio file: --path--/test/zzz.au
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  Sampling ratio: 1/6
- AU audio file: --path--/test/audiofiles/addf8.au
+ AU audio file: --path--/audiofiles/addf8.au
    Description: female speaker; "Add the sum ..."
-   Number of samples : 23808 (2.976 s)  1981/02/11 hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  1981/02/11 23:03:34 UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
  AU audio file: --path--/test/zzz.au
-   Number of samples : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -513,3 +528,98 @@ ResampAudio: v5r1  2005-01-31
  SNR      = 86.203   dB  (Gain for File B = 1)
  Seg. SNR = 92.506   dB  (128 sample segments)
  Max Diff = 12 (0.03662%),  No. Diff = 10 (2 runs)
+
+========== InfoAudio M1F1-int16.wav
+ WAVE file: --path--/audiofiles/M1F1-int16.wav
+   Description: kabal@CAPELLA
+   Samples / channel : 23493 (2.937 s)  2003-01-30 03:28:46 UTC
+   Sampling frequency: 8000 Hz
+   Number of channels: 2 (16-bit integer)
+
+--File format--
+File name: audiofiles/M1F1-int16.wav
+Header length: 44
+Sampling frequency: 8000
+No. frames: 23493
+No. channels: 2
+Data type: integer16
+Data byte order: little-endian
+Host byte order: little-endian
+
+--Information records--
+date: 2003-01-30 03:28:46 UTC
+user: kabal@CAPELLA
+program: CopyAudio
+creation_date: 2003-01-30 03:28:46 UTC
+software: CopyAudio
+comment: kabal@CAPELLA
+
+--File layout--
+ <RIFF> 0 -> 94181
+     <WAVE> 8 -> 11
+     <fmt > 12 -> 35
+       ...
+     <data> 36 -> 94015
+       ...
+     <afsp> 94016 -> 94097
+       ...
+     <LIST> 94098 -> 94181
+          <INFO> 94106 -> 94109
+          <ICRD> 94110 -> 94141
+            ...
+          <ISFT> 94142 -> 94159
+            ...
+          <ICMT> 94160 -> 94181
+            ...
+ <EoF > 94182
+
+========== InfoAudio jg00b1ss.wav
+ NIST SPHERE audio file: --path--/audiofiles/jg00b1ss.wav
+   Description: jg00b1ss
+   Samples / channel : 16384 (1.024 s)  13-May-1992
+   Sampling frequency: 16000 Hz
+   Number of channels: 1 (16-bit integer)
+
+--File format--
+File name: audiofiles/jg00b1ss.wav
+Header length: 1024
+Sampling frequency: 16000
+No. frames: 16384
+No. channels: 1
+Data type: integer16
+Data byte order: big-endian
+Host byte order: little-endian
+
+--Information records--
+speaker_id: jg
+speaking_mode: spontaneous
+recording_date: 13-May-1992
+recording_time: 11:18:05.00
+microphone: Sennheiser HMD-414
+utterance_id: jg00b1ss
+database_id: atis2
+database_version: 1.0
+channel_count: 1
+speaker_session_number: 1
+speaker_sentence_number: 00b
+session_utterance_number: 11
+sample_count: 16384
+sample_max: 3131
+sample_min: -2817
+sample_rate: 16000
+sample_n_bytes: 2
+sample_byte_format: 10
+sample_sig_bits: 16
+
+--File layout--
+ <NIST> 0 -> 15
+   ...
+ <fmt > 16 -> 497
+   ...
+ <EoH > 498 -> 506
+   ...
+ <skip> 507 -> 1023
+   ...
+ <data> 1024 -> 33791
+   ...
+ <EoF > 33792

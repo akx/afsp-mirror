@@ -11,6 +11,7 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libtsplite.a
 
@@ -27,21 +28,21 @@ $(LIB): \
 	$(LIB)(AFfWriteData.o) \
 	$(LIB)(AFopnRead.o) \
 	$(LIB)(AFopnWrite.o) \
+	$(LIB)(AFprintChunkLims.o) \
+	$(LIB)(AFprintInfoRecs.o) \
 	$(LIB)(AFsetFileType.o) \
 	$(LIB)(AFsetInfo.o) \
-	$(LIB)(AFsetNHpar.o) \
+	$(LIB)(AFsetInputPar.o) \
 	$(LIB)(AFsetSpeaker.o) \
-	$(LIB)(AFopenRead.o) \
-	$(LIB)(AFopenWrite.o) \
-	$(LIB)(AFreadData.o) \
-	$(LIB)(AFwriteData.o) \
 	#
 	ranlib $(LIB)
 
 nucleus_routines:
 	@(test -d nucleus && (cd nucleus; $(MAKE))) || true
 	@(test -d dataio && (cd dataio; $(MAKE))) || true
+	@(test -d deprecated && (cd deprecated; $(MAKE))) || true
 	@(test -d header && (cd header; $(MAKE))) || true
+	@(test -d info && (cd info; $(MAKE))) || true
 
 mostlyclean:
 	rm -f *.o */*.o

@@ -38,6 +38,7 @@ Description:
   of the array and appending Nout new input values.
 
 Parameters:
+  <-  void FIdBiquad
    -> const double x[]
       Input array with Nout+2 elements.  The first two elements, x[0] and x[1],
       represent past input samples.  The next Nout samples are the current
@@ -52,8 +53,8 @@ Parameters:
       Array of 5 filter coefficients defining the biquadratic filter section
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.2 $  $Date: 2003/05/09 01:29:44 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.3 $  $Date: 2017/06/12 19:52:15 $
 
 -------------------------------------------------------------------------*/
 

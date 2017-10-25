@@ -8,8 +8,8 @@ Description:
   Message texts for the TSP UT routines.
 
 Author / revision:
-  P. Kabal  Copyright (C) 1999
-  $Revision: 1.3 $  $Date: 1999/06/12 23:46:45 $
+  P. Kabal  Copyright (C) 2015
+  $Revision: 1.4 $  $Date: 2015/03/18 14:38:12 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,8 +17,8 @@ Author / revision:
 #define UTmsg_h_
 
 /* Warning messages */
-#define UTM_BadOption	"Invalid option"
-#define UTM_BadSwap	"Invalid byte swap code"
-#define UTM_ExpectValue	"Value expected for option"
+#define UTM_BadOption   "Invalid option"
+#define UTM_BadSwap     "Invalid byte swap code"
+#define UTM_ExpectValue "Value expected for option"
 
-#endif	/* UTmsg_h_ */
+#endif  /* UTmsg_h_ */

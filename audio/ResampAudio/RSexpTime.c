@@ -29,8 +29,8 @@ Parameters:
       Structure containing the expanded time value
 
 Author / revision:
-  P. Kabal  Copyright (C) 2003
-  $Revision: 1.8 $  $Date: 2003/05/13 01:08:13 $
+  P. Kabal  Copyright (C) 2017
+  $Revision: 1.9 $  $Date: 2017/03/28 00:32:37 $
 
 -------------------------------------------------------------------------*/
 
@@ -38,7 +38,7 @@ Author / revision:
 
 #include "ResampAudio.h"
 
-#define EPS	1E-8
+#define EPS 1E-8
 
 /*
    The value t might (due to numerical round-off) be such that the fractional
@@ -55,7 +55,7 @@ RSexpTime (double t, long int M, struct Tval_T *T)
   long int n;
   long int dm;
   double dmr;
-  
+
   n = (long int) floor (t);
   dm = (long int) floor (M * (t - n));
   dmr = M * (t - n) -  dm;

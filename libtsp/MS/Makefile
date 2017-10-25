@@ -11,6 +11,7 @@ dist_includedir = $(dist_dir)/include
 
 COPTS = -O
 CFLAGS = $(COPTS) -I$(dist_includedir)
+ARFLAGS = rUv
 
 LIB = $(dist_libdir)/libtsplite.a
 
@@ -24,7 +25,6 @@ $(LIB): \
 	$(LIB)(MSfGaussRand.o) \
 	$(LIB)(MSfUnifRand.o) \
 	$(LIB)(MSiCeil.o) \
-	$(LIB)(MSiFloor.o) \
 	$(LIB)(MSratio.o) \
 	#
 	ranlib $(LIB)
@@ -32,7 +32,9 @@ $(LIB): \
 nucleus_routines:
 	@(test -d nucleus && (cd nucleus; $(MAKE))) || true
 	@(test -d dataio && (cd dataio; $(MAKE))) || true
+	@(test -d deprecated && (cd deprecated; $(MAKE))) || true
 	@(test -d header && (cd header; $(MAKE))) || true
+	@(test -d info && (cd info; $(MAKE))) || true
 
 mostlyclean:
 	rm -f *.o */*.o

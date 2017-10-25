@@ -2,18 +2,20 @@
 
 # Rudimentary tests for audio utility programs
 
-# $Id: txxxAudio 1.12 1999/06/07 AFsp-v9r0 $
+# $Id: txxxAudio 1.18 2017/10/25 AFsp-v10r1a $
 
 AUDIOPATH=audiofiles
 export AUDIOPATH
 CA=../bin/CompAudio
 CP=../bin/CopyAudio
 FA=../bin/FiltAudio
+IA=../bin/InfoAudio
 RS=../bin/ResampAudio
 
 $CP --version
 $CA --version
 $FA --version
+$IA --version
 $RS --version
 
 echo ""
@@ -28,10 +30,10 @@ $CA addf8.au yy.wav
 rm -rf xx.au yy.wav
 
 echo ""
-echo "========== CopyAudio: apply mu-law, expect max diff 254"
-$CP -D mu-law addf8.au xx.au
+echo "========== CopyAudio: apply mu-law, expect max diff 251"
+$CP -D mu-law catm8.aud xx.au
 echo "------"
-$CA addf8.au xx.au
+$CA catm8.aud xx.au
 
 echo ""
 echo "========== CopyAudio: apply mu-law again, expect File A = File B"
@@ -42,7 +44,7 @@ rm -rf xx.au yy.au
 
 echo ""
 echo "========== CopyAudio: headerless output, expect File A = File B"
-$CP -D float -F noheader_big-endian addf8.au xx.nh
+$CP -D float -F noheader-big-endian addf8.au xx.nh
 echo "------"
 $CA --param="float,0,,big-endian,," addf8.au xx.nh
 rm -rf xx.nh
@@ -128,3 +130,11 @@ $CA xxxa.au xxxb.au
 $RS -s 8000 xxxa.au zzz.au
 $CA addf8.au zzz.au
 rm -f temp.cof xxxa.au xxxb.au zzz.au
+
+echo ""
+echo "========== InfoAudio M1F1-int16.wav"
+$IA M1F1-int16.wav
+
+echo ""
+echo "========== InfoAudio jg00b1ss.wav"
+$IA jg00b1ss.wav
