@@ -156,11 +156,13 @@ Options:
         ".raw"  - Headerless file (native byte order)
         ".txt"  - Text audio file (with header)
   -s SFREQ, --srate=SFREQ
-      Sampling frequency for the output file.
+      Sampling frequency for the output file.  The sampling rate can be
+      expressed as a single value or as a ratio of the form N/D, where each of
+      N and D can be a floating point value.
   -i SRATIO, --interpolate=SRATIO
       Ratio of the output sampling rate to the input sampling rate.  This
       argument is specified as a single number or as a ratio of the form N/D,
-      where each of N and D can be floating point values.  This option is an
+      where each of N and D can be a floating point value.  This option is an
       alternate means to specify the output sampling rate.
   -a OFFS, --alignment=OFFS
       Time offset of the first output sample relative to the input data.  The
@@ -228,7 +230,7 @@ Options:
       may be given more than once.  Each invocation applies to the input files
       that follow the option.
   -F FTYPE, --file-type=FTYPE
-      OUTPUT file type.  If this option is not specified, the file type is
+      output file type.  If this option is not specified, the file type is
       determined by the output file name extension.
         "AU" or "au"             - AU audio file
         "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
@@ -246,21 +248,6 @@ Options:
         "noheader-big-endian"    - Headerless file (big-endian byte order)
         "noheader-little-endian" - Headerless file (little-endian byte order)
         "text-audio"             - Text audio file (with header)
-  -D DFORMAT, --data-format=DFORMAT
-      Data format for the OUTPUT file.
-        "mu-law8"   - 8-bit mu-law data
-        "A-law8"    - 8-bit A-law data
-        "unsigned8" - offset-binary 8-bit integer data
-        "integer8"  - two's-complement 8-bit integer data
-        "integer16" - two's-complement 16-bit integer data
-        "integer24" - two's-complement 24-bit integer data
-        "integer32" - two's-complement 32-bit integer data
-        "float32"   - 32-bit IEEE floating-point data
-        "float64"   - 64-bit IEEE floating-point data
-        "text16"    - text data, scaled the same as 16-bit integer data
-        "text"      - text data, scaled the same as float/double data
-  -I INFO, --info=INFO
-      Audio file information record for the OUTPUT file.
   -h, --help
       Print a list of options and exit.
   -v, --version
@@ -272,7 +259,7 @@ Options:
   -P PARMS, --parameters=PARMS
       Input file parameters and environment variable AF_INPUTPAR
   -D DFORMAT, --data-format=DFORMAT
-      More details on allowed data formats for the output file
+      Details on allowed data formats for the output file
   -I INFO, --info-INFO
       Details on usage and default information records
   -S SPEAKERS, --speakers=SPEAKERS
@@ -295,7 +282,7 @@ Environment variables:
   colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
+  P. Kabal / v10r2  2018-11-16  Copyright (C) 2018
 -------------------------------------------------------------------------*/
 
 #include <stdlib.h> /* EXIT_SUCCESS */
@@ -329,16 +316,25 @@ main (int argc, const char *argv[])
     fpinfo = stdout;
 
 /* Open the input audio file */
+/* Unless AFopt.NsampND is set, the number of samples will be available */
   AOsetFIopt (&FI, 0, 0);
   FLpathList (FI.Fname, AFPATH_ENV, FI.Fname);
   AFpI = AFopnRead (FI.Fname, &Nsamp, &Nchan, &SfreqI, fpinfo);
   AFpI->ScaleF *= FI.Gain;  /* Gain absorbed into scaling factor */
 
-/* Get the interpolating filter coefficients */
-  if (Sratio > 0.0)
+/* Check the interpolation ratio / sampling frequency */
+  if (Sratio > 0.0 && FO.Sfreq > 0.0) {
+    if (FO.Sfreq != Sratio * SfreqI)
+      UThalt ("%s: %s", PROGRAM, RSM_BadSFreqRatio);
+  }
+  else if (Sratio > 0.0)
     FO.Sfreq = Sratio * SfreqI;
-  else
+  else if (FO.Sfreq > 0.0)
     Sratio = FO.Sfreq / SfreqI;
+  else
+    UThalt ("%s: %s", PROGRAM, RSM_MRatio);
+
+/* Generate the interpolating filter coefficients */
   RSintFilt (Sratio, Soffs, &Fspec, &PF, &FDel, fpinfo);
   fprintf (fpinfo, "\n");
 
@@ -348,15 +344,18 @@ main (int argc, const char *argv[])
 
 /* Default number of output samples, filter time offset */
   NframeI = AOnFrame (&AFpI, &FI, 1, AF_NFRAME_UNDEF);
-  if (FO.Nframe == AF_NFRAME_UNDEF) /* Rounding */
+  if (FO.Nframe == AF_NFRAME_UNDEF)
     FO.Nframe = (long int) (((NframeI - 1L) - Soffs) * Sratio + 1.5);
   toffs = Soffs + FDel;     /* Time alignment, h[0] <-> toffs */
 
-/* Open the output audio file */
+/* Set data format information into FO */
+  AOsetDFormat (&FO, &AFpI, 1);
+/* Set AFopt.Nframe, AFopt.Nbs, AFopt.SpkrConfig used by AFpreSetWPar */
   if (FO.SpkrConfig == NULL)
     FO.SpkrConfig = AFpI->SpkrConfig;
-  AOsetDFormat (&FO, &AFpI, 1);
   AOsetFOopt (&FO);
+
+/* Open the output audio file */
   if (strcmp (FO.Fname, "-") != 0)
     FLbackup (FO.Fname);
   AFpO = AFopnWrite (FO.Fname, FO.FtypeW, FO.DFormat.Format, Nchan, FO.Sfreq,

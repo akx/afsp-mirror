@@ -8,8 +8,8 @@ Description:
   Declarations for CompAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.72 $  $Date: 2017/10/18 18:33:24 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.75 $  $Date: 2018/11/16 23:48:14 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define CompAudio_h_
 
 #define PROGRAM "CompAudio"
-#define VERSION "v10r1  2017-10-18"
+#define VERSION "v10r2  2018-11-16"
 
 #include <float.h>    /* DBL_MAX */
 
@@ -33,8 +33,6 @@ Author / revision:
                                  corresponding to 128 samples  at 8 kHz*/
 #define SN_NSEG_MIN 64        /* Segmental SNR, min segment length */
 #define SN_NSEG_MAX 768       /* Segmental SNR, max segment length */
-
-#define CA_FIpar  AO_FIpar    /* Input file structure */
 
 struct Stats_F {
   long int N;       /* Number of samples */
@@ -69,6 +67,7 @@ struct Stats_T {
 
 /* Error messages */
 #define CAM_BadDelay  "Invalid delay range specification"
+#define CAM_BadLimits  "Invalid limits specification"
 #define CAM_BadSegLen "Invalid segment length"
 #define CAM_DiffNChan "Numbers of channels differ"
 #define CAM_LateFPar  "Input file parameter specified after input files"
@@ -125,14 +124,13 @@ CASNR (const struct Stats_T *Stats, double *SNR, double *SNRG, double *SF,
        double *SSNR);
 void
 CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp, long int Nsseg,
-        long int delayL, long int delayU, long int *delayM,
-        struct Stats_T *Stats);
+        const long int Delay[2], long int *DelayM, struct Stats_T *Stats);
 void
 CAcorr (AFILE *AFp[2], long int Start[2], long int Nsamp, long int delay,
         long int Nsseg, struct Stats_T *Stats);
 void
-CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
-           long int *Nsseg, struct CA_FIpar FI[2]);
+CAoptions (int argc, const char *argv[], long int Delay[2], long int *Nsseg,
+           struct AO_FIpar FI[2]);
 void
 CAprcorr (const struct Stats_T *Stats, const double ScaleF[2]);
 void

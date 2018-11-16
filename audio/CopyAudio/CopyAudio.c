@@ -68,30 +68,29 @@ Options:
         ".raw"  - Headerless file (native byte order)
         ".txt"  - Text audio file (with header)
   -c, --combine
-      Use the combine mode for multiple INPUT files (default).  If no channel
+      Use the combine mode for multiple input files (default).  If no channel
       scaling factors are specified, the number of output channels is the sum
       of the numbers of channels in the input files.
   -C, --concatenate
-      Use the concatenate mode for multiple INPUT files. If no channel scaling
+      Use the concatenate mode for multiple input files. If no channel scaling
       factors are specified, each output channel is equal to the concatenation
       of each channel in each input files.
   -g GAIN, --gain=GAIN
-      A gain factor applied to the data from the INPUT files.  This gain
+      A gain factor applied to the data from the input files.  This gain
       applies to all channels in a file and is applied in addition to the
       channel scaling factors.  The gain value can be given as a real number
       (e.g., "0.003") or as a ratio (e.g., "1/256"). This option may be
       given more than once.  Each invocation applies to the input files that
       follow the option.
   -l L:U, --limits=L:U
-      Sample limits for the INPUT files (numbered from zero).  For the combine
+      Sample limits for the input files (numbered from zero).  For the combine
       mode, the default sample limits correspond to the limits of the longest
       input audio file.  For the concatenate mode, this option may be given
       more than once.  Each invocation applies to the input files that follow
-      the option.  The specification ":" means the entire file; "L:" means from
-      sample L to the end; ":U" means from sample 0 to sample U; "N" means from
-      sample 0 to sample N-1.
+      the option.  The specification "L:" means from sample L to the end; "N"
+      means from sample 0 to sample N-1.
   -t FTYPE, --type=FTYPE
-      INPUT audio file type.  In the default automatic mode, the input file type
+      Input audio file type.  In the default automatic mode, the input file type
       is determined from the file header.  For input from a non-random access
       file (e.g. a pipe), the input file type can be specified explicitly to
       avoid the lookahead needed to read the file header.  This option can be
@@ -105,14 +104,18 @@ Options:
       environment variable AF_INPUTPAR below for the format of the parameter
       specification.
   -s SFREQ, --srate=SFREQ
-      Sampling frequency for the OUTPUT file, default from the input audio
+      Sampling frequency for the output file, default from the input audio
       file(s).  This option only changes the sampling frequency field in the
-      output header; the audio data itself is unaffected.
+      output header; the audio data itself is unaffected.  The sampling rate can
+      be expressed as a single value or as a ratio of the form N/D, where each
+      of N and D can be a floating point value.
   -n NSAMPLE, --number-samples=NSAMPLE
-      Number of samples per channel for the OUTPUT file.  If not specified,
-      the number of samples is determined automatically.
+      Number of samples per channel for the output file.  If not specified, the
+      number of samples is equal to the sum of the numbers of samples in the
+      input files (concatenate mode) or to the largest number of samples in any
+      of the input files (combine mode).
   -cA GAINS, --cA=CGAINS
-      The OUTPUT data for OUTPUT channel A is created by adding scaled samples
+      The output data for output channel A is created by adding scaled samples
       from the specified input channels.  For specifying channel scaling
       factors, input channels are labelled A, B, ... X, Y, Z.  The scaling
       factor string CGAINS takes the form
@@ -123,12 +126,12 @@ Options:
       character "*" is a special character in Unix and should appear only within
       single quotes to prevent interpreting it as a wildcard character.
   -cB CGAINS, --chanB=CGAINS
-      Channel scaling  factors for OUTPUT channel B.
+      Channel scaling  factors for output channel B.
   ...
   -cL CGAINS, --chanL=CGAINS
-      Channel scaling  factors for OUTPUT channel L.
+      Channel scaling  factors for output channel L.
   -F FTYPE, --file-type=FTYPE
-      OUTPUT file type.  If this option is not specified, the file type is
+      Output file type.  If this option is not specified, the file type is
       determined by the output file name extension.
         "AU" or "au"             - AU audio file
         "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
@@ -147,8 +150,9 @@ Options:
         "noheader-little-endian" - Headerless file (little-endian byte order)
         "text-audio"             - Text audio file (with header)
   -D DFORMAT, --data-format=DFORMAT
-      Data format for the OUTPUT file.
+      Data format for the output file.
         "mu-law8"   - 8-bit mu-law data
+        "mu-lawR8"  - 8-bit bit-reversed mu-law data
         "A-law8"    - 8-bit A-law data
         "unsigned8" - offset-binary 8-bit integer data
         "integer8"  - two's-complement 8-bit integer data
@@ -159,7 +163,10 @@ Options:
         "float64"   - 64-bit IEEE floating-point data
         "text16"    - text data, scaled the same as 16-bit integer data
         "text"      - text data, scaled the same as float/double data
-      The data formats available depend on the output file type.
+      Optionally, the number of "significant" bits may be specified as a
+      qualifier to the integer data formats, e.g. "integer16/12".  The number
+      of significant bits is for informational purposes only.  The data formats
+      available depend on the output file type.
         AU audio files:
           mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
         WAVE files:
@@ -172,12 +179,16 @@ Options:
         Headerless files:
           all data formats
         Text audio files:
-          tex16, text
-      Optionally, the number of "significant" bits may be specified as a
-      qualifier to the integer data formats, e.g. "integer16/12".  The number
-      of significant bits is for informational purposes only.
+          text16, text
+      If the output file data type is not specified, the default data format is
+      determined by ranking data types according to precision.  The desired
+      output precision is initially set that of integer16.  The desired
+      precision is compared to the precision of the data in the input files and
+      increased if necessary.  The output data type is determined by a table of
+      available precisions for the each file type.  The table is addressed by
+      the desired precision.
   -S SPEAKERS, --speakers=SPEAKERS
-      Mapping of OUTPUT channels to speaker positions.  The spatial positions
+      Mapping of output channels to speaker positions.  The spatial positions
       of the loudspeakers are specified as a list of white-space or comma
       separated locations from the list below.
         "FL"    - Front Left            "FR"    - Front Right
@@ -218,7 +229,7 @@ Options:
       order as the list, but locations can be skipped.  For example, the order
       "FL FR TpC" is valid, but "FL FC FR" is not.
   -I INFO, --info=INFO
-      Add an information record to the OUTPUT audio file.  An empty INFO string
+      Add an information record to the output audio file.  An empty INFO string
       turns off the generation standard information records (described below).
       The information record option can be repeated, with each invocation adding
       an information record.  The suggested format for information records is an
@@ -334,6 +345,7 @@ Environment variables:
        Format: File data type
          "undefined" - Headerless or non-standard files will be rejected
          "mu-law8"   - 8-bit mu-law data
+         "mu-lawR8"  - 8-bit bit-reversed mu-law data
          "A-law8"    - 8-bit A-law data
          "unsigned8" - offset-binary 8-bit integer data
          "integer8"  - two's-complement 8-bit integer data
@@ -356,16 +368,17 @@ Environment variables:
          This vale is used to scale data from the file to fall in the range -1
          to +1.  If the FullScale value is set to "default", the FullScale value
          is determined based on the type of data in the file.
-           data type        FullScale
-           8-bit mu-law:    32768
-           8-bit A-law:     32768
-           8-bit integer:   256
-           16-bit integer:  32768
-           24-bit integer:  256*32768
-           32-bit integer:  65536*32768
-           float data:      1
-           text16 data:     32768
-           text data:       1
+           data type                  FullScale
+           8-bit mu-law:              32768
+           8-bit bit-reversed mu-law: 32768
+           8-bit A-law:               32768
+           8-bit integer:             256
+           16-bit integer:            32768
+           24-bit integer:            256*32768 (838808)
+           32-bit integer:            65536*32768 (2147483648)
+           float data:                1
+           text16 data:               32768
+           text data:                 1
          The value of FullScale can be specified as a value or ratio of values.
 
   AUDIOPATH:
@@ -374,7 +387,7 @@ Environment variables:
     by colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
+  P. Kabal / v10r2  2018-11-16  Copyright (C) 2018
 
 -------------------------------------------------------------------------*/
 
@@ -395,8 +408,8 @@ int
 main (int argc, const char *argv[])
 
 {
-  struct CP_FIpar FI[MAXIFILE];
-  struct CP_FOpar FO;
+  struct AO_FIpar FI[MAXIFILE];
+  struct AO_FOpar FO;
   struct CP_Chgain Chgain;
   AFILE *AFp[MAXIFILE], *AFpO;
   FILE *fpinfo;
@@ -435,11 +448,11 @@ main (int argc, const char *argv[])
 /* Open the input files */
   for (i = 0; i < Nifiles; ++i) {
     if (Mode == M_COMB && Nifiles > 1 && FO.Nframe == AF_NFRAME_UNDEF &&
-        FI[i].Lim[1] == CP_LIM_UNDEF)
+        FI[i].Lim[1] == AO_LIM_UNDEF)
       NsampND = 0;
     else
       NsampND = 1;
-    AOsetFIopt (&FI[i], NsampND, 0);
+    AOsetFIopt (&FI[i], NsampND, 0);    /* Allow/deny undefined Nsamp */
     FLpathList (FI[i].Fname, AFPATH_ENV, FI[i].Fname);
     AFp[i] = AFopnRead (FI[i].Fname, &Nsamp, &NchanI, &SfreqI, fpinfo);
     AFp[i]->ScaleF *= FI[i].Gain; /* Gain absorbed into scaling factor */
@@ -486,7 +499,6 @@ main (int argc, const char *argv[])
 
 /* Check the number of channels for each file. */
 
-
 static long int
 CP_Nchan (AFILE *AFp[], int Nifiles, int Mode)
 
@@ -520,7 +532,6 @@ CP_Nchan (AFILE *AFp[], int Nifiles, int Mode)
 }
 
 /* Check the sampling frequency */
-
 
 static double
 CP_Sfreq (AFILE *AFp[], int Nifiles)

@@ -1,0 +1,67 @@
+<html>
+<head>
+<style>
+  body { font-family: Verdana, Arial, Helvetica, sans-serif;
+         font-size: 12px; background-color: #FFFFD7; }
+  h1   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #6699CC;
+         font-size:160%; font-weight:bold; margin: 0px 0px 8px 0px; }
+  h2   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #5588BB;
+         font-size:130%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  h3   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #4477AA;
+         font-size:120%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  pre  { color: #0000A0; }
+</style>
+<title>AFdWriteData</title>
+</head>
+<body>
+<h2>AFdWriteData</h2>
+<hr>
+<h3>Routine:</h3>
+<p>
+int AFdWriteData (AFILE *AFp, const double Dbuff[], int Nval)
+</p>
+<h3>Purpose:</h3>
+<p>
+Write data to an audio file (double input values)
+</p>
+<h3>Description:</h3>
+<p>
+This routine writes a specified number of samples to an audio file.  The
+double input data is converted to the audio file data representation.  The
+file data representation is set on opening the file with routine AFopnWrite.
+This routine writes data sequentially to the file.  A warning message is
+printed if the input values exceed the dynamic range of the file data
+representation.
+</p>
+<h3>Parameters:</h3>
+<dl>
+<dt>&lt;-  int AFdWriteData</dt>
+<dd>
+Number of samples written
+</dd>
+<dt> -&gt; AFILE *AFp</dt>
+<dd>
+Audio file pointer for an audio file opened by AFopnWrite
+</dd>
+<dt> -&gt; const double Dbuff[]</dt>
+<dd>
+Array of doubles with Nval samples
+</dd>
+<dt> -&gt; int Nval</dt>
+<dd>
+Number of samples to be written
+</dd>
+</dl>
+<h3>Author / revision:</h3>
+<p>
+P. Kabal
+/ Revision 1.14  2017-06-27
+</p>
+<h3>See Also</h3>
+<a href="AFfWriteData.html">AFfWriteData</a>,
+<a href="AFopnWrite.html">AFopnWrite</a>
+<p></p>
+<hr>
+Main Index <a href="../libtsp.html">libtsp</a>
+</body>
+</html>

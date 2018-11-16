@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_MSin_FIR.cof
 ! See ITU-T G.191 (2005), Software Tools Library (module fir-msin.c)
-! $Id: STL_MSin_FIR_16k.cof 1.2 2006/03/30 AFsp-v10r1a $
+! $Id: STL_MSin_FIR_16k.cof 1.2 2006/03/30 AFsp-v10r2 $
 !
 ! Linear-phase FIR high-pass filter, 185 taps
 ! This filter models the noise filtering of a mobile station, cutting off

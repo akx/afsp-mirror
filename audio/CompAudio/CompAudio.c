@@ -156,9 +156,8 @@ Options:
       that follow the option.
   -l L:U, --limits=L:U
       Sample limits for the input files (numbered from zero).  Each invocation
-      applies to the input files that follow the option.  The specification
-      ":" means the entire file; "L:" means from sample L to the end; ":U"
-      means from sample 0 to sample U; "N" means from sample 0 to sample N-1.
+      applies to the input files that follow the option.  The specification "L:"
+      means from sample L to the end; "N" means from sample 0 to sample N-1.
   -h, --help
       Print a list of options and exit.
   -v, --version
@@ -177,7 +176,7 @@ Environment variables:
     by colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
+  P. Kabal / v10r2  2018-11-16  Copyright (C) 2018
 
 ----------------------------------------------------------------------*/
 
@@ -194,18 +193,18 @@ int
 main (int argc, const char *argv[])
 
 {
-  struct CA_FIpar FI[2];
+  struct AO_FIpar FI[2];
   AFILE *AFp[2];
   long int Nsamp[2], Nchan[2], Start[2];
   long int Nframe, Ns, Nsseg, Nch;
-  long int delayL, delayU, delayM;
+  long int Delay[2], DelayM;
   int NsampND, RAccess, i, Nfiles;
   double Sfreq[2], ScaleF[2];
   struct Stats_F *StatsF;
   struct Stats_T StatsT;
 
 /*  Get the input parameters */
-  CAoptions (argc, argv, &delayL, &delayU, &Nsseg, FI);
+  CAoptions (argc, argv, Delay, &Nsseg, FI);
   if (FI[1].Fname[0] == '\0')
     Nfiles = 1;
   else
@@ -264,7 +263,7 @@ main (int argc, const char *argv[])
 
   /* Find the cross file statistics over the delay range */
   if (Nfiles == 2)
-    CAcomp (AFp, Start, Ns, Nsseg, delayL, delayU, &delayM, &StatsT);
+    CAcomp (AFp, Start, Ns, Nsseg, Delay, &DelayM, &StatsT);
 
 /* File A statistics */
   printf ("\n");
@@ -283,17 +282,17 @@ main (int argc, const char *argv[])
     if (StatsT.Ndiff == 0) {
       /* Identical files */
       printf ("\n");
-      if (delayL < delayU || delayL != 0)
-        printf (CAMF_AeqBdelay, delayM);
+      if (Delay[0] < Delay[1] || Delay[0] != 0)
+        printf (CAMF_AeqBdelay, DelayM);
       else
         printf (CAMF_AeqB);
     }
     else {
       /* File B statistics */
-      if (delayL < delayU)
-        printf (CAMF_BestMatch, delayM);
-      else if (delayL != 0)
-        printf (CAMF_Delay, delayM);
+      if (Delay[0] < Delay[1])
+        printf (CAMF_BestMatch, DelayM);
+      else if (Delay[0] != 0)
+        printf (CAMF_Delay, DelayM);
 
       CAprcorr (&StatsT, ScaleF);
     }

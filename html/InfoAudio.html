@@ -1,0 +1,142 @@
+<html>
+<head>
+<style>
+  body { font-family: Verdana, Arial, Helvetica, sans-serif;
+         font-size: 12px; background-color: #FFFFD7; }
+  h1   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #6699CC;
+         font-size:160%; font-weight:bold; margin: 0px 0px 8px 0px; }
+  h2   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #5588BB;
+         font-size:130%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  h3   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #4477AA;
+         font-size:120%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  pre  { color: #0000A0; }
+</style>
+<title>AFsp - InfoAudio</title>
+</head>
+<body>
+<h2>InfoAudio</h2>
+<hr>
+<h3>Routine:</h3>
+<p>
+InfoAudio [options] AFile1 [AFile2 ... ]
+</p>
+<h3>Purpose:</h3>
+<p>
+Print audio file information
+</p>
+<h3>Description:</h3>
+<p>
+This program prints information about a number of audio files to standard
+output.  The full output consists of the file type and name (indented part of
+the output below), the file data parameters, information records, and if
+appropriate, the chunk structure of the file.
+</p>
+<pre>
+   AIFF-C sound file: --path--/audiofiles/addf8.aifc
+     Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
+     Sampling frequency: 8000 Hz
+     Number of channels: 1 (16-bit integer)
+</pre>
+<pre>
+  --File format--
+  File name: ../../../audiofiles/addf8.aifc
+  Header length: 166
+  Sampling frequency: 8000
+  No. frames: 23808
+  No. channels: 1
+  Data type: integer16
+  File byte order: big-endian
+  Host byte order: little-endian
+</pre>
+<pre>
+  --Information records--
+  date: YYYY-MM-dd hh:mm:ss UTC
+  program: CopyAudio
+</pre>
+<pre>
+  -- Chunk layout--
+   &lt;FORM&gt; 0 -&gt; 47781
+       &lt;AIFC&gt; 8 -&gt; 11
+       &lt;COMM&gt; 12 -&gt; 57
+         ...
+       &lt;FVER&gt; 58 -&gt; 69
+         ...
+       &lt;ANNO&gt; 70 -&gt; 149
+         ...
+       &lt;SSND&gt; 150 -&gt; 47781
+         ...
+   &lt;EoF &gt; 47782
+</pre>
+<p>
+Non-printing characters (as defined by the routine isprint) in the information
+records are replaced by question marks.
+</p>
+<h3>Options:</h3>
+<dl>
+<dt>Input file names, AFile1 [AFile2 ... ]:</dt>
+<dd>
+The environment variable AUDIOPATH specifies a list of directories to be
+searched for the input audio file(s).
+</dd>
+<dt>-i ICODE, --info_code=ICODE</dt>
+<dd>
+Parameter to choose the information to be printed.  The information that
+can be printed consists of four parts.  The ICODE parameter is the sum
+of the codes which control printing of the individual parts.
+</dd>
+<dd>
+<pre>
+  1:  Print the standard information: file name, filetype, no. samples ...
+  2:  Print the file data parameters
+  4:  Print the information records
+  8:  Print the chunk configuration (only for AIFF/WAVE/NSP files)
+</pre>
+</dd>
+<dd>
+The default is to print all of the information (ICODE=15).  For ICODE=0,
+no information is printed, but the program return code indicates if all
+files were opened successfully.
+</dd>
+<dt>-h, --help</dt>
+<dd>
+Print a list of options and exit.
+</dd>
+<dt>-v, --version</dt>
+<dd>
+Print the version number and exit.
+</dd>
+</dl>
+<p>
+See routine CopyAudio for a description of other parameters.
+</p>
+<dl>
+<dt>-t FTYPE, --type=FTYPE</dt>
+<dd>
+Input file type and environment variable AF_FILETYPE
+</dd>
+<dt>-P PARMS, --parameters=PARMS</dt>
+<dd>
+Input file parameters and environment variable AF_INPUTPAR
+</dd>
+</dl>
+<h3>Environment variables:</h3>
+<dl>
+<dt>AUDIOPATH:</dt>
+<dd>
+This environment variable specifies a list of directories to be searched
+when opening the input audio files.  Directories in the list are separated
+by colons (semicolons for Windows).
+</dd>
+</dl>
+<h3>Author / version:</h3>
+<p>
+P. Kabal / v10r2  2018-11-16
+</p>
+<h3>See Also</h3>
+<a href="CompAudio.html">CompAudio</a>,
+<a href="CopyAudio.html">CopyAudio</a>
+<p></p>
+<hr>
+Main Index <a href="AFsp.html">AFsp</a>
+</body>
+</html>

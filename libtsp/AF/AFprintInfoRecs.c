@@ -129,8 +129,8 @@ Parameters:
       is written.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.13 $  $Date: 2017/10/18 18:46:25 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.14 $  $Date: 2018/11/14 14:20:21 $
 
 ----------------------------------------------------------------------*/
 
@@ -229,14 +229,14 @@ AF_procInfoRec (const char Rec[], int Lrec, FILE *fpinfo)
 
 
 /* Find a newline delimiter
-  Newlines are marked by LF, CR, NUL, VT, FF, or CR/LF characters.   Information
+  Newlines are marked by LF, CR, NUL, VT, FF, or CR/LF characters.  Information
   is returned in structure LS with fields nc and skip.
   - ist is the start of the line
   - nc is the number of characters in the line before the delimiter, i.e.
     the line is Rec[ist:ist+nc-1].
   - skip is the number of characters in the delimiter.  The next start of line
     should be set to ist + nc - 1 + skip.  The skip field is set to zero if no
-    newline delimiter is found.    
+    newline delimiter is found.
 */
 
 static struct LS
@@ -265,7 +265,7 @@ AF_findNL (int ist, const char Rec[], int Lrec)
   }
 
   return RLine;
-  
+
 }
 
 #define MINV(a, b)  (((a) < (b)) ? (a) : (b))

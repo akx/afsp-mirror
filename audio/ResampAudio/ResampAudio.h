@@ -8,8 +8,8 @@ Description:
   Declarations for ResampAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.55 $  $Date: 2017/10/18 18:26:53 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.57 $  $Date: 2018/11/16 23:38:32 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define ResampAudio_h_
 
 #define PROGRAM "ResampAudio"
-#define VERSION "v10r1  2017-10-18"
+#define VERSION "v10r2  2018-11-16"
 
 #include <float.h>    /* DBL_MAX */
 
@@ -45,22 +45,22 @@ Author / revision:
 struct Fspec_T {
   char *FFile;    /* Input filter coefficient file name */
   char *WFile;    /* Output filter coefficient file name */
-  int Ir;   /* Interpolation filter ratio */
-  double Del;   /* Filter delay (samples) */
-  double Fc;    /* Filter cutoff */
+  int Ir;         /* Interpolation filter ratio */
+  double Del;     /* Filter delay (samples) */
+  double Fc;      /* Filter cutoff */
   double Gain;    /* Filter passband gain */
   double alpha;   /* Kaiser window parameter */
-  int Ncof;   /* Number of filter coefficients */
+  int Ncof;       /* Number of filter coefficients */
   double Wspan;   /* Kaiser window span (samples) */
   double Woffs;   /* Kaier window offset (samples) */
 };
 
 struct Fpoly_T {
   double **hs;    /* Coefficients in subfilter order, hs[Ir+1][Ncmax] */
-  int *offs;    /* Offset of first coefficient in each subfilter */
-  int *Nc;    /* Number of coefficients in each subfilter */
-  int Ncmax;    /* Maximum number of coefficients in any subfilter */
-  int Ir;   /* Number of subfilters */
+  int *offs;      /* Offset of first coefficient in each subfilter */
+  int *Nc;        /* Number of coefficients in each subfilter */
+  int Ncmax;      /* Maximum number of coefficients in any subfilter */
+  int Ir;         /* Number of subfilters */
 };
 /*
   Note that there is an extra subfilter with the Ir'th one pointing to the
@@ -71,9 +71,9 @@ struct Fpoly_T {
    t = n + (dm + dmr) / M
 */
 struct Tval_T {
-  long int n;   /* Integer value */
+  long int n;     /* Integer value */
   long int dm;    /* Integer value, 0 <= ds < M */
-  double dmr;   /* Fractional value, 0 <= dsr < 1 */
+  double dmr;     /* Fractional value, 0 <= dsr < 1 */
   long int M;
 };
 
@@ -90,31 +90,33 @@ struct Tval_T {
   (p)->Woffs = WOFFS_DEFAULT; }
 
 /* Error messages */
-#define RSM_BadAlign  "Invalid alignment offset"
-#define RSM_BadAtten  "Invalid filter stopband attenuation"
-#define RSM_BadDelay  "Invalid filter delay"
-#define RSM_BadFCutoff  "Invalid filter cutoff frequency"
-#define RSM_BadFGain  "Invalid filter gain"
+#define RSM_BadAlign "Invalid alignment offset"
+#define RSM_BadAtten "Invalid filter stopband attenuation"
+#define RSM_BadDelay "Invalid filter delay"
+#define RSM_BadFCutoff "Invalid filter cutoff frequency"
+#define RSM_BadFGain "Invalid filter gain"
 #define RSM_BadFRatio "Invalid filter ratio"
 #define RSM_BadFilt "Invalid filter type"
 #define RSM_BadInterp "Invalid filter interpolation factor"
-#define RSM_BadKey  "Invalid keyword in filter specification"
-#define RSM_BadNCoef  "Invalid number of coefficients"
-#define RSM_BadNSamp  "Invalid number of samples"
-#define RSM_BadRatio  "Invalid interpolation ratio"
-#define RSM_BadWinOffs  "Invalid window offset value"
+#define RSM_BadKey "Invalid keyword in filter specification"
+#define RSM_BadNCoef "Invalid number of coefficients"
+#define RSM_BadNSamp "Invalid number of samples"
+#define RSM_BadRatio "Invalid interpolation ratio"
+#define RSM_BadSFreqRatio \
+  "Incompatible sampling frequency and interpolation ratio"
+#define RSM_BadWinOffs "Invalid window offset value"
 #define RSM_BadWinPar "Invalid window parameter"
-#define RSM_BadWinSpan  "Invalid window span value"
-#define RSM_MFName  "Too few filenames specified"
-#define RSM_NoCoef  "Empty coefficient file name"
+#define RSM_BadWinSpan "Invalid window span value"
+#define RSM_MFName "Too few filenames specified"
+#define RSM_MRatio "Interpolation ratio not specified"
+#define RSM_NoCoef "Empty coefficient file name"
 #define RSM_NoDelay \
   "Filter delay must be specified for non-symmetric filters"
 #define RSM_NoFName "No coefficient file name"
-#define RSM_NoFRatio  "Filter ratio must be specified"
+#define RSM_NoFRatio "Filter ratio must be specified"
 #define RSM_NoSFreq "Output sampling rate not specified"
-#define RSM_OpenCErr  "Unable to open coefficient file"
-#define RSM_SFreqRatio \
-  "Both sampling frequency and interpolation ratio specified"
+#define RSM_OpenCErr "Unable to open coefficient file"
+
 #define RSM_XFName  "Too many filenames specified"
 
 /* Printout formats */

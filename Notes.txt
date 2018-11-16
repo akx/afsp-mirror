@@ -1,5 +1,5 @@
 Notes on the AFsp programs
-June 2017
+November 2018
 
 1. Information about some of the audio file formats supported by the AFsp 
    programs can be found on-line at

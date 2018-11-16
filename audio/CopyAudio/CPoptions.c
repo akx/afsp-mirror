@@ -3,8 +3,8 @@
 
 Routine:
   void CPoptions (int argc, const char *argv[], int *Mode,
-                  struct CP_FIpar FI[MAXIFILE], int *Nifiles,
-                  struct CP_FOpar *FO)
+                  struct AO_FIpar FI[MAXIFILE], int *Nifiles,
+                  struct AO_FOpar *FO)
 
 Purpose:
   Decode options for CopyAudio
@@ -19,27 +19,30 @@ Parameters:
       Array of pointers to argument strings
   <-  int *Mode
       Combine / concatenate mode
-  <-  struct CP_FIpar FI[MAXIFILES]
+  <-  struct AO_FIpar FI[MAXIFILES]
       Input file parameters
   <-  int *Nifiles
       Number of input file names
-  <-  struct CP_FOpar *FO
+  <-  struct AO_FOpar *FO
       Output file parameters
   <-  struct CP_Chgain *Chgain
       Channel gain matrix
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.83 $  $Date: 2017/09/15 00:37:53 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.84 $  $Date: 2018/11/14 13:57:23 $
 
 ----------------------------------------------------------------------*/
 
 #include "CopyAudio.h"
 
+#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
+
 /* Option table */
 static const char *OptTable[] = {
   "-c", "--com*bine",
   "-C", "--con*catenate",
+  "-l#", "--l*imits=",
   "-cA#", "--chanA=",
   "-cB#", "--chanB=",
   "-cC#", "--chanC=",
@@ -60,12 +63,12 @@ static const char Ch[MAXNCO+1] = "ABCDEFGHIJKL";
 
 void
 CPoptions (int argc, const char *argv[], int *Mode,
-           struct CP_FIpar FI[MAXIFILE], int *Nifiles, struct CP_FOpar *FO,
+           struct AO_FIpar FI[MAXIFILE], int *Nifiles, struct AO_FOpar *FO,
            struct CP_Chgain *Chgain)
 
 {
   const char *OptArg;
-  struct CP_FIpar FIx;
+  struct AO_FIpar FIx;
   int nF, i, n, mode, FIParSet;
   int Chset[MAXNCO];
 
@@ -149,9 +152,19 @@ CPoptions (int argc, const char *argv[], int *Mode,
       /* Concatenate mode */
       mode = M_CONCAT;
       break;
+    case 5:
+    case 6:
+      /* Limits specification */
+      /* Reset the default limits - the option may be called more than once */
+      FIx.Lim[0] = 0;
+      FIx.Lim[1] = AO_LIM_UNDEF;
+      if (STdecLlimits (OptArg, FIx.Lim, 2) ||
+          (FIx.Lim[1] != AO_LIM_UNDEF && FIx.Lim[0] > FIx.Lim[1]))
+        ERRSTOP (CPM_BadLimits, OptArg);
+      break;
     default:
       /* Channel gain expressions */
-      i = (n - 5) / 2;
+      i = (n - 7) / 2;
       CPdecChan (OptArg, i, Chgain);
       Chset[i] = 1;     /* Flag, gain set for output channel i */
       break;

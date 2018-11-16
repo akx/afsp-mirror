@@ -31,7 +31,7 @@ $(LIB): \
 	$(LIB)(STdec1ulong.o) \
 	$(LIB)(STdecDfrac.o) \
 	$(LIB)(STdecIfrac.o) \
-	$(LIB)(STdecLrange.o) \
+	$(LIB)(STdecLlimits.o) \
 	$(LIB)(STdecNdouble.o) \
 	$(LIB)(STdecNfloat.o) \
 	$(LIB)(STfindToken.o) \

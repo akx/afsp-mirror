@@ -1,8 +1,8 @@
-CopyAudio: v10r1  2017-10-18
-CompAudio: v10r1  2017-10-18
-FiltAudio: v10r1  2017-10-18
-InfoAudio: v10r1  2017-10-18
-ResampAudio: v10r1  2017-10-18
+CopyAudio: v10r2  2018-11-16
+CompAudio: v10r2  2018-11-16
+FiltAudio: v10r2  2018-11-16
+InfoAudio: v10r2  2018-11-16
+ResampAudio: v10r2  2018-11-16
 
 ========== CopyAudio: scale by 2, scale by 0.5, expect File A = File B
  AU audio file: --path--/audiofiles/addf8.au
@@ -54,7 +54,7 @@ ResampAudio: v10r1  2017-10-18
 
  File A = File B
 
-========== CopyAudio: apply mu-law, expect max diff 254
+========== CopyAudio: apply mu-law, expect max diff 251
  INRS-Telecom audio file: --path--/audiofiles/catm8.aud
    Samples / channel : 19712 (2.464 s)  11-FEB-81 17:56:44
    Sampling frequency: 8000 Hz
@@ -162,7 +162,7 @@ ResampAudio: v10r1  2017-10-18
    Number of coefficients: 3
 
  AU audio file: --path--/test/tx1.au
-   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
@@ -175,7 +175,7 @@ ResampAudio: v10r1  2017-10-18
    Number of coefficients: 3
 
  WAVE file: --path--/test/tx2.wav
-   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
@@ -212,7 +212,7 @@ ResampAudio: v10r1  2017-10-18
    Number of coefficients: 31
 
  AU audio file: --path--/test/tx5.au
-   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 119040 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 40000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -225,7 +225,7 @@ ResampAudio: v10r1  2017-10-18
    Number of coefficients: 7
 
  AU audio file: --path--/test/tx1.au
-   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (16-bit integer)
 
@@ -256,7 +256,7 @@ ResampAudio: v10r1  2017-10-18
    Number of coefficients: 5  (1 section)
 
  AU audio file: --path--/test/tx1.au
-   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 
@@ -269,7 +269,7 @@ ResampAudio: v10r1  2017-10-18
    Number of coefficients: 5  (1 section)
 
  AU audio file: --path--/test/tx2.au
-   Samples / channel : <N/A>      YYYY-MM-dd hh:mm:ss UTC
+   Samples / channel : 23808 (2.976 s)  YYYY-MM-dd hh:mm:ss UTC
    Sampling frequency: 8000 Hz
    Number of channels: 1 (32-bit float)
 

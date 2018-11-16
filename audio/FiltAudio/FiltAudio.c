@@ -16,7 +16,7 @@ Description:
   Filter Files:
   The first record of a filter file indicates the type of filter.
     !FIR  - FIR filter, direct form
-    !IIR  - IIR filter, cascade of biquad sections
+    !IIR  - IIR filter, cascade of biquad sections (5 coefficients per section)
     !ALL  - All-pole filter, direct form
   Subsequent records contain text lines with filter coefficients.  Comment
   records ('!' in the first position of the record) can be interspersed amongst
@@ -46,8 +46,8 @@ Description:
   and subsampling.  For IIR and all-pole filters, the output can be subsampled.
   Let Ir and Nsub be the interpolation and subsampling factors, respectively.
   Conceptually, the rate change is accomplished as follows.
-   1: Ir-1 zeros are inserted between adjacent samples of the frequency shifted
-      input to increase the sampling rate by a factor of Ir.
+   1: Ir-1 zeros are inserted between samples of the input to increase the
+      sampling rate by a factor of Ir.
    2: The increased rate signal is filtered.
    3: The result of the filtering is subsampled by a factor of Nsub to form the
       output signal.
@@ -80,12 +80,15 @@ Description:
   If the initial filter alignment is not explicitly specified, it is chosen to
   be zero, except for symmetric or anti-symmetric FIR filters.  In those cases
   the default alignment is Ncof/2-1 for even length filters and (Ncof-1)/2 for
-  odd length filters.  If the number of output samples is not explicitly set,
-  it is chosen to be Ir*Nin/Nsub.  For the case of Ir=1 and Nsub=1, this
-  results in the same number of output samples as input samples.  If the
-  initial filter alignment, offs, is explicitly specified, the number of output
-  samples is chosen to be (Ir*Nin-offs)/Nsub.  This value can be overridden by
-  explicitly setting the number of output samples.
+  odd length filters.  For symmetric/anti-symmetric FIR filters, this offset
+  sets the group delay to 0 samples (odd number of coefficients) or to 1/Nsub
+  samples (even number of coefficients).
+
+  If both the offset and the number of output samples is not explicitly set, the
+  number of output samples is floor(Ir*Nin/Nsub).  For the case of Ir=1 and
+  Nsub=1, this results in the same number of output samples as input samples.
+  If the filter alignment offs is explicitly set and the number of samples is
+  not explicitly set, the number of output samples is floor((Ir*Nin-offs)/Nsub.
 
 Options:
   Input file name, AFileI:
@@ -103,26 +106,24 @@ Options:
         ".afc"  - AIFF-C sound file
         ".raw"  - Headerless file (native byte order)
         ".txt"  - Text audio file (with header)
-  -f FILTFILE, --filter_file=FILTFILE
-     Text file containing filter coefficients.  The header of the file indicates
-     the type of filter as described above.
   -i IR/NSUB, --interpolate=IR/NSUB
-      Filter interpolation ratio, default 1.  The interpolation and subsampling
-      factors are specified as a fraction Ir/Nsub.  Interpolation can only be
-      used with FIR filters.
+      Filter interpolation ratio, default 1/1.  The interpolation and
+      subsampling factors are specified as a fraction Ir/Nsub.  Interpolation
+      can only be used with FIR filters.
   -a OFFS, --alignment=OFFS
       Alignment of data relative to the filter.  The first output sample is
       calculated with the beginning of the filter response aligned with the
-      specified sample of the interpolated data sequence.
+      specified sample of the interpolated data sequence.  The default setting
+      is described above.
   -g GAIN, --gain=GAIN
-      A gain factor applied to the data from the INPUT file.  This gain applies
+      A gain factor applied to the data from the input file.  This gain applies
       to all channels in a file.  The gain value can be given as a real number
       (e.g., "0.003") or as a ratio (e.g., "1/256").
   -n NSAMPLE, --number_samples=NSAMPLE
-      Number of samples (per channel) for the OUTPUT file.  If not specified,
-      the number of samples is determined automatically.
+      Number of samples (per channel) for the output file.  If not specified,
+      the number of samples is set as described above.
   -F FTYPE, --file-type=FTYPE
-      OUTPUT file type.  If this option is not specified, the file type is
+      output file type.  If this option is not specified, the file type is
       determined by the output file name extension.
         "AU" or "au"             - AU audio file
         "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
@@ -140,35 +141,6 @@ Options:
         "noheader-big-endian"    - Headerless file (big-endian byte order)
         "noheader-little-endian" - Headerless file (little-endian byte order)
         "text-audio"             - Text audio file (with header)
-  -D DFORMAT, --data-format=DFORMAT
-      Data format for the OUTPUT file.
-        "mu-law8"   - 8-bit mu-law data
-        "A-law8"    - 8-bit A-law data
-        "unsigned8" - offset-binary 8-bit integer data
-        "integer8"  - two's-complement 8-bit integer data
-        "integer16" - two's-complement 16-bit integer data
-        "integer24" - two's-complement 24-bit integer data
-        "integer32" - two's-complement 32-bit integer data
-        "float32"   - 32-bit IEEE floating-point data
-        "float64"   - 64-bit IEEE floating-point data
-        "text16"    - text data, scaled the same as 16-bit integer data
-        "text"      - text data, scaled the same as float/double data
-      The data formats available depend on the output file type.
-        AU audio files:
-          mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
-        WAVE files:
-          mu-law, A-law, offset-binary 8-bit, 16/24/32-bit integer,
-          32/64-bit float
-        AIFF-C sound files:
-          mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
-        AIFF and AIFF-C/sowt sound files:
-          8/16/24/32-bit integer
-        Headerless files:
-          all data formats
-        Text audio files:
-          tex16, text
-  -I INFO, --info=INFO
-      Add an information record to the OUTPUT audio file.
   -h, --help
       Print a list of options and exit.
   -v, --version
@@ -180,7 +152,7 @@ Options:
   -P PARMS, --parameters=PARMS
       Input file parameters and environment variable AF_INPUTPAR
   -D DFORMAT, --data-format=DFORMAT
-      More details on allowed data formats for the output file
+      Details on allowed data formats for the output file
   -I INFO, --info-INFO
       Details on usage and default information records
   -S SPEAKERS, --speakers=SPEAKERS
@@ -193,7 +165,7 @@ Environment variables:
     by colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
+  P. Kabal / v10r2  2018-11-16  Copyright (C) 2018
 
 -------------------------------------------------------------------------*/
 
@@ -208,6 +180,9 @@ Author / version:
 
 #define CHECKSYM(x,N) ((int) (1.00001 * VRdCorSym(x,N)))
 
+static void
+FA_checkBuffer (int FiltType, int Ncof, int Nsub, int Ir);
+
 
 int
 main (int argc, const char *argv[])
@@ -218,9 +193,8 @@ main (int argc, const char *argv[])
   struct FA_FOpar FO;
   AFILE *AFpI, *AFpO;
   FILE *fpinfo;
-  int FiltType, Ncof, Nsec;
-  long int Nsamp, Nchan;
-  double SfreqO;
+  int FiltType, Ncof, Nsec, DoffsFlag;
+  long int Nsamp, Nchan, NframeI;
   double SfreqI;
   double h[MAXCOF];
 
@@ -234,12 +208,15 @@ main (int argc, const char *argv[])
     fpinfo = stdout;
 
 /* Open the input audio file */
-  AOsetFIopt (&FI, 0, 0);
+  AOsetFIopt (&FI, 0, 0);       /* Nsamp must be known */
   FLpathList (FI.Fname, AFPATH_ENV, FI.Fname);
   AFpI = AFopnRead (FI.Fname, &Nsamp, &Nchan, &SfreqI, fpinfo);
   if (Nchan != 1)
     UThalt ("%s: %s", PROGRAM, FAM_XNchan);
   AFpI->ScaleF *= FI.Gain;  /* Gain absorbed into scaling factor */
+
+/* Default number of output samples */
+  NframeI = AOnFrame (&AFpI, &FI, 1, AF_NFRAME_UNDEF);
 
 /* Read the coefficient file */
   FiltType = FIdReadFilt (FF.Fname, MAXCOF, h, &Ncof, fpinfo);
@@ -251,54 +228,108 @@ main (int argc, const char *argv[])
     UThalt ("%s: %s", PROGRAM, FAM_APNoInt);
   if (FiltType == FI_IIR && FF.Ir != 1)
     UThalt ("%s: %s", PROGRAM, FAM_IIRNoInt);
+  if (FO.Sfreq > 0 && FF.Nsub * FO.Sfreq != FF.Ir * SfreqI)
+    UThalt ("%s: %s", PROGRAM, FAM_BadSFreqRatio);
   fprintf (fpinfo, "\n");
 
-/* Open the output audio file */
-  if (FO.SpkrConfig == NULL)
-    FO.SpkrConfig = AFpI->SpkrConfig;
-  SfreqO = (FF.Ir * (double) SfreqI) / FF.Nsub;
-  AOsetDFormat (&FO, &AFpI, 1);
-  AOsetFOopt (&FO);
-  if (strcmp (FO.Fname, "-") != 0)
-    FLbackup (FO.Fname);
-  AFpO = AFopnWrite (FO.Fname, FO.FtypeW, FO.DFormat.Format, 1L, SfreqO, fpinfo);
-
-/* Default alignment */
-  if (FF.Doffs == DOFFS_DEF) {
+/* Set the data offset */
+  DoffsFlag = (FF.Doffs == DOFFS_UNDEF);
+  if (DoffsFlag) {      /* Use default offset */
     if (FiltType == FI_FIR && CHECKSYM (h, Ncof) != 0) {
       if (Ncof % 2 == 0)
-  FF.Doffs = Ncof / 2 - 1;
+        FF.Doffs = Ncof / 2 - 1;
       else
-  FF.Doffs = (Ncof - 1) / 2;
+        FF.Doffs = (Ncof - 1) / 2;
     }
     else
       FF.Doffs = 0;
-    if (FO.Nframe == AF_NFRAME_UNDEF)
-      FO.Nframe = (FF.Ir * Nsamp) / FF.Nsub;
   }
-  else if (FO.Nframe == AF_NFRAME_UNDEF)
-    FO.Nframe = (FF.Ir * Nsamp - FF.Doffs) / FF.Nsub;
+
+/* Set the number of output samples */
+  if (FO.Nframe == AF_NFRAME_UNDEF) {
+    if (DoffsFlag)
+      FO.Nframe = (FF.Ir * NframeI) / FF.Nsub;
+    else
+      FO.Nframe = (FF.Ir * NframeI - FF.Doffs) / FF.Nsub;
+  }
+
+/* Set data format information into FO */
+  AOsetDFormat (&FO, &AFpI, 1);
+  FO.Sfreq = (FF.Ir * SfreqI) / FF.Nsub;
+/* Set AFopt.Nframe, AFopt.Nbs, AFopt.SpkrConfig used by AFpreSetWPar */
+  if (FO.SpkrConfig == NULL)
+    FO.SpkrConfig = AFpI->SpkrConfig;
+  AOsetFOopt (&FO);
+
+/* Check output file parameters */
+   FA_checkBuffer (FiltType, Ncof, FF.Nsub, FF.Ir);
+
+/* Open the output audio file */
+  if (strcmp (FO.Fname, "-") != 0)
+    FLbackup (FO.Fname);
+  AFpO = AFopnWrite (FO.Fname, FO.FtypeW, FO.DFormat.Format, 1L, FO.Sfreq,
+                     fpinfo);
 
 /* Filtering */
-  if (FiltType == FI_FIR) {
-    if (FF.Nsub == 1 && FF.Ir == 1)
-      FAfiltFIR (AFpI, AFpO, FO.Nframe, h, Ncof, FF.Doffs);
-    else
-      FAfiltSI (AFpI, AFpO, FO.Nframe, h, Ncof, FF.Nsub, FF.Ir, FF.Doffs);
+  switch (FiltType) {
+    case FI_FIR:
+      if (FF.Nsub == 1 && FF.Ir == 1)
+        FAfiltFIR (AFpI, AFpO, FO.Nframe, h, Ncof, FF.Doffs);
+      else
+        FAfiltSI (AFpI, AFpO, FO.Nframe, h, Ncof, FF.Nsub, FF.Ir, FF.Doffs);
+      break;
+    case FI_IIR:
+      Nsec = Ncof / 5;
+      FAfiltIIR (AFpI, AFpO, FO.Nframe, (const double (*)[5]) h, Nsec,
+                 FF.Nsub, FF.Doffs);
+      break;
+    case FI_ALL:
+      FAfiltAP (AFpI, AFpO, FO.Nframe, h, Ncof, FF.Nsub, FF.Doffs);
+      break;
+    default:
+      UThalt ("%s: %s", PROGRAM, FAM_BadFiltType);
+     break;
   }
-  else if (FiltType == FI_IIR) {
-    Nsec = Ncof / 5;
-    FAfiltIIR (AFpI, AFpO, FO.Nframe, (const double (*)[5]) h, Nsec,
-         FF.Nsub, FF.Doffs);
-  }
-  else if (FiltType == FI_ALL)
-    FAfiltAP (AFpI, AFpO, FO.Nframe, h, Ncof, FF.Nsub, FF.Doffs);
-  else
-    UThalt ("%s: %s", PROGRAM, FAM_BadFiltType);
 
 /* Close the audio files */
   AFclose (AFpI);
   AFclose (AFpO);
 
   return EXIT_SUCCESS;
+}
+
+static void
+FA_checkBuffer (int FiltType, int Ncof, int Nsub, int Ir)
+
+{
+  int lmem, Nb, Nxmax, Nsec;
+
+  switch (FiltType) {
+    case FI_FIR:
+      lmem = (Ncof-1) / Ir;
+      Nb = NBUF - lmem;
+      if (Nb <= 0)
+        UThalt ("%s: %s", PROGRAM, FAM_XNcof);
+      if (Nsub != 1 || Ir != 1) {
+        Nxmax = ((Nb-1)*Nsub + 1) / (Nsub+Ir);
+        if (Nxmax <= 0)
+          UThalt ("%s: %s", PROGRAM, FAM_XNcofIr);
+      }
+      break;
+    case FI_IIR:
+      Nsec = Ncof / 5;
+      lmem = 2 * (Nsec + 1);
+      if (NBUF - lmem <= 0)
+        UThalt ("%s: %s", PROGRAM, FAM_XIIRSect);
+      break;
+    case FI_ALL:
+      lmem = Ncof - 1;
+      if (NBUF - lmem <= 0)
+        UThalt ("%s: %s", PROGRAM, FAM_XNcof);
+      break;
+    default:
+      UThalt ("%s: %s", PROGRAM, FAM_BadFiltType);
+     break;
+  }
+
 }

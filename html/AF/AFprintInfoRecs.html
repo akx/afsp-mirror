@@ -1,0 +1,224 @@
+<html>
+<head>
+<style>
+  body { font-family: Verdana, Arial, Helvetica, sans-serif;
+         font-size: 12px; background-color: #FFFFD7; }
+  h1   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #6699CC;
+         font-size:160%; font-weight:bold; margin: 0px 0px 8px 0px; }
+  h2   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #5588BB;
+         font-size:130%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  h3   { font-family: Verdana, Arial, Helvetica, sans-serif; color: #4477AA;
+         font-size:120%; font-weight:bold; margin: 0px 0px 12px 0px; }
+  pre  { color: #0000A0; }
+</style>
+<title>AFprintInfoRecs</title>
+</head>
+<body>
+<h2>AFprintInfoRecs</h2>
+<hr>
+<h3>Routine:</h3>
+<p>
+void AFprintInfoRecs (const AFILE *AFp, FILE *fpinfo)
+</p>
+<h3>Purpose:</h3>
+<p>
+Print all information records for an audio file
+</p>
+<h3>Description:</h3>
+<p>
+This formats and prints information records for an audio file.  Non-printing
+control characters are replaced by a scarab ('\xA4') character.  Long lines
+are truncated with a trailing ... to indicate truncation.
+</p>
+<p>
+When an input file containing AFsp information records is opened with
+AFopnRead, information records are read and stored in the audio file parameter
+structure.  The following records affect the audio file information that is
+stored in the audio file parameter structure or printed when the file is
+opened.
+</p>
+<dl>
+<dt>- "date:" or "creation_date:" record</dt>
+<dd>
+The data and time in that record is printed when the file is opened rather
+than the file modification date obtained from the file system.
+</dd>
+<dt>- "sample_rate:" record</dt>
+<dd>
+The sample rate in the record is compared to the sample rate from the file
+header.  If the file header sample rate from the header is an integer value
+and agrees with the rounded value of the value in the record, the value from
+the record used to set the Sfreq variable in the audio file parameter
+structure.
+</dd>
+<dt>- "loudspeakers:" record</dt>
+<dd>
+The loudspeaker locations are decoded and the result is stored in the
+SpkrConfig array in the audio file parameter structure.  The list of speaker
+positions is printed when the file is opened, along with the other file
+information.
+</dd>
+<dt>- "name:", "title:", "comment:", or "display_text:" record</dt>
+<dd>
+This information record printed as "Description: &lt;text&gt;" when the file is
+opened.
+</dd>
+</dl>
+<p>
+Information records found in input audio files are returned in the AFInfo
+structure which is part of the audio file parameter structure.  The
+information records are determined from the audio file as follows.
+</p>
+<dl>
+<dt>AU files:</dt>
+<dd>
+Text information precedes the audio data.  If the "AFsp" identifier is
+present, the remaining text is stored as information records in the audio
+file parameter structure.  Otherwise the text is stored as an "info:"
+information record.
+</dd>
+<dt>AIFF and AIFF-C files:</dt>
+<dd>
+The text information can appear in several different header chunks.  This
+information is extracted and stored as information records in the audio file
+parameter structure.
+</dd>
+<dd>
+<pre>
+ "NAME" chunk text =&gt; "name:" information record
+ "AUTH" chunk text =&gt; "author" information record
+ "(c) " chunk text =&gt; "copyright:" information record
+ "ANNO" chunk text =&gt; "annotation:" information record
+</pre>
+</dd>
+<dd>
+If an "ANNO" chunk text has an "AFsp" tag as a preamble, the remaining text
+is stored as individual information records
+</dd>
+<dt>WAVE files:</dt>
+<dd>
+Information records are generated from "afsp", "DISP", "LIST", or "bext"
+chunks. The information is extracted and stored as information records in
+the audio file parameter structure.
+</dd>
+<dd>
+Text from an "afsp" chunk is extracted and stored as individual information
+records.
+</dd>
+<dd>
+"DISP" chunk text is stored as a "display_text:" information record.
+</dd>
+<dd>
+"LIST" chunk INFO text has further subcategories as follows.
+</dd>
+<dd>
+<pre>
+   "IARL" text =&gt; "archival_location:" information record.
+   "IART" text =&gt; "artist:" information record.
+   "ICMS" text =&gt; "commissioned:" information record.
+   "ICMT" text =&gt; "comment:" information record.
+   "ICOP" text =&gt; "copyright:" information record.
+   "ICRD" text =&gt; "creation_date:" information record.
+   "IENG" text =&gt; "engineer:" information record.
+   "IGNR" text =&gt; "genre:" information record.
+   "IKEY" text =&gt; "keywords:" information record.
+   "IMED" text =&gt; "medium:" information record.
+   "INAM" text =&gt; "name:" information record.
+   "IPRD" text =&gt; "product:" information record.
+   "ISBJ" text =&gt; "subject:" information record.
+   "ISFT" text =&gt; "software:" information record.
+   "ISRC" text =&gt; "source:" information record.
+   "ISRF" text =&gt; "source_form:" information record.
+   "ITCH" text =&gt; "technician:" information record.
+</pre>
+</dd>
+<dd>
+"bext" chunk information (Broadcast WAVE files) is extracted and returned as
+information records.
+</dd>
+<dt>SPPACK files:</dt>
+<dd>
+"comment:" and "command:" information records
+</dd>
+<dt>ESPS sampled data feature files:</dt>
+<dd>
+The following information record identifiers are picked up from the file
+header.
+</dd>
+<dd>
+<pre>
+ "date:"            "header_version:"       "program:"
+ "program_version:" "program_compile_date:" "start_time:"
+ "max_value:"
+</pre>
+</dd>
+<dt>INRS-Telecom files:</dt>
+<dd>
+"date:" information record
+</dd>
+<dt>NSP files:</dt>
+<dd>
+"comment:" information record
+</dd>
+<dt>IRCAM soundfiles:</dt>
+<dd>
+"SF_COMMENT:" information record
+</dd>
+<dt>NIST SPHERE files:</dt>
+<dd>
+Text in the header is parsed and stored as information records. The
+identifier is picked up from the header.  Possible identifiers include,
+</dd>
+<dd>
+<pre>
+ "database_id:"            "database_version:"
+ "utterance_id:"           "sample_min:"
+ "sample_max:"             "conversation_id:"
+ "microphone:"             "prompt_id:"
+ "recording_date:"         "recording_environment:"
+ "recording_site:"         "recording_time:"
+ "sample_checksum:"        "speaker_sentence_number:"
+ "speaker_session_number:" "speaker_utterance_number:"
+ "speaker_id:"             "speaker_id_a:"
+ "speaker_id_b:"           "speaking_mode:"
+ "utterance_id:".
+</pre>
+</dd>
+<dt>Cadence SPW Signal files:</dt>
+<dd>
+A "comment:" information record is generated from the second line of a
+header.  Keyword lines in the header generate information records.
+</dd>
+<dt>Text audio files (with header):</dt>
+<dd>
+A "title:" information record is generated from the second line of the
+header.  Keyword lines in the header generate information records. A
+multi-line description is returned as a "description:" information record.
+</dd>
+</dl>
+<h3>Parameters:</h3>
+<dl>
+<dt>&lt;-  void AFprintInfoRecs</dt>
+<dt> -&gt; const AFILE *AFp</dt>
+<dd>
+Audio file parameter structure
+</dd>
+<dt>&lt;-&gt; FILE *fpinfo</dt>
+<dd>
+Output stream for the file information.  If fpinfo is NULL, no information
+is written.
+</dd>
+</dl>
+<h3>Author / revision:</h3>
+<p>
+P. Kabal
+/ Revision 1.14  2018-11-14
+</p>
+<h3>See Also</h3>
+<a href="AFopnRead.html">AFopnRead</a>,
+<a href="AFsetInfo.html">AFsetInfo</a>
+<p></p>
+<hr>
+Main Index <a href="../libtsp.html">libtsp</a>
+</body>
+</html>

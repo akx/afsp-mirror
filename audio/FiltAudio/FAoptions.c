@@ -24,8 +24,8 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.50 $  $Date: 2017/05/26 17:07:31 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.51 $  $Date: 2018/11/12 18:05:35 $
 
 ----------------------------------------------------------------------*/
 
@@ -116,7 +116,7 @@ FAoptions (int argc, const char *argv[], struct FA_FIpar *FI,
       /* Sampling rate ratio */
       if (STdecIfrac (OptArg, &(FF->Ir), &(FF->Nsub)) ||
         FF->Ir <= 0 || FF->Nsub <= 0)
-  ERRSTOP (FAM_BadRatio, OptArg);
+        ERRSTOP (FAM_BadRatio, OptArg);
       break;
     case 5:
     case 6:
@@ -130,7 +130,7 @@ FAoptions (int argc, const char *argv[], struct FA_FIpar *FI,
     }
   }
 
-/* Checks, add defaults */
+/* Checks */
   if (nF < 2)
     UThalt ("%s: %s", PROGRAM, FAM_MFName);
   if (FF->Fname[0] == '\0')

@@ -6,13 +6,14 @@ Routine:
                      long int Nframe)
 
 Purpose:
-  Find the number of sample frames
+  Find the number of sample frames (maximum over input files)
 
 Description:
   This routine determines the frame limits for a set of input files.  The frame
   limits can be determined in a number of ways.
-    Nframe - Number of output frames.  If the number of frames is
-      AF_NFRAME_UNDEF, this value is undefined.
+    Nframe - Number of frames.  If the number of frames is AF_NFRAME_UNDEF, this
+      value is undefined.  If this value is defined, the output is set to this
+      value.
     FI[i].Lim  - Frame limits for each input file.  The limits consist of two
       values: the start frame and the end frame.  If the end frame is set to
       AO_LIM_UNDEF, then the end frame is undefined.
@@ -54,8 +55,8 @@ Parameters:
       Number of frames.  If this value is AF_NFRAME_UNDEF, it is not used.
  
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.13 $  $Date: 2017/04/26 16:38:50 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.14 $  $Date: 2018/11/14 13:53:03 $
 
 -------------------------------------------------------------------------*/
 

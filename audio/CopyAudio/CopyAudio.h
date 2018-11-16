@@ -8,8 +8,8 @@ Description:
   Declarations for CopyAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.92 $  $Date: 2017/10/18 18:34:21 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.95 $  $Date: 2018/11/16 23:37:16 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define CopyAudio_h_
 
 #define PROGRAM "CopyAudio"
-#define VERSION "v10r1  2017-10-18"
+#define VERSION "v10r2  2018-11-16"
 
 #include <libtsp.h>
 #include <AO.h>
@@ -31,10 +31,6 @@ enum {
   M_COMB   = 0,  /* Combine mode */
   M_CONCAT = 1   /* Concatenate mode */
 };
-
-#define CP_LIM_UNDEF  AO_LIM_UNDEF  /* Undefined Limits */
-#define CP_FIpar  AO_FIpar  /* Input file structure */
-#define CP_FOpar  AO_FOpar  /* Output file structure */
 
 /* y(n,k) = SUM Gain[k][i] * x(n,i) + Offset[k]
              i
@@ -59,9 +55,10 @@ struct CP_Chgain {
 
 /* Error messages */
 #define CPM_BadChanEx  "Invalid channel expression"
+#define CPM_BadLimits  "Invalid limits specification"
+#define CPM_ConfNFrame "Sample limits and number of samples conflict"
 #define CPM_DiffNChan  "Different numbers of input channels"
 #define CPM_EmptyChan  "Empty channel expression"
-#define CPM_ConfNFrame "Sample limits and number of samples conflict"
 #define CPM_LateFPar   "Input file parameter specified after input files"
 #define CPM_MFName     "Too few filenames specified"
 #define CPM_NoChanSpec "No specification for output channel"
@@ -115,7 +112,7 @@ CPcombChan (AFILE *AFp[], const long int StartF[], int Nifiles,
             long int Nframe, const struct CP_Chgain *Chgain,
             long int MaxNframe, AFILE *AFpO);
 void
-CPcopy (int Mode, AFILE *AFp[], const struct CP_FIpar FI[], int Nifiles,
+CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
         const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO);
 long int
 CPcopyChan (AFILE *AFp[], const long int StartF[], int Nifiles,
@@ -123,11 +120,11 @@ CPcopyChan (AFILE *AFp[], const long int StartF[], int Nifiles,
 void
 CPdecChan (const char String[], int Ichan, struct CP_Chgain *Chgain);
 long int
-CPlim (int Mode, AFILE *AFp[], const struct CP_FIpar FI[], int Nifiles,
+CPlim (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
        long int Nframe);
 void
 CPoptions (int argc, const char *argv[], int *Mode,
-           struct CP_FIpar FI[MAXIFILE], int *Nifiles, struct CP_FOpar *FO,
+           struct AO_FIpar FI[MAXIFILE], int *Nifiles, struct AO_FOpar *FO,
            struct CP_Chgain *Chgain);
 
 #ifdef __cplusplus

@@ -16,7 +16,7 @@ Description:
   The input string is processed to change each tab to a space; LF, CR, VT, and
   FF control mark the end of lines; non-printable characters (control characters
   and undefined characters as defined in the  Windows-1252 character map) are
-  converted to the generic currency symbol (scarab).  
+  converted to the generic currency symbol (scarab).
 
   If the input has multiple lines, only the characters from the first line are
   returned, but an ellipsis is printed to indicate that characters in subsequent
@@ -74,8 +74,8 @@ Parameters:
       for the output string (at least 4, at most 1000)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.13 $  $Date: 2017/10/19 15:29:43 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.14 $  $Date: 2018/11/14 14:21:19 $
 
 -------------------------------------------------------------------------*/
 
@@ -101,9 +101,9 @@ STstrDots (const char Si[], int Maxchar)
 {
   int i, k, N, M;
   int MultiLine;
-  const char FillChar = '\xA4';   /* Generic currency symbol */     
+  const char FillChar = '\xA4';   /* Generic currency symbol */
   static char Line[MAXM+1];
-  
+
   enum CharType {
     CT_NL,    /* Control character = > newline */
     CT_CTL,   /* Control character, undefined character => FillChar */
@@ -126,7 +126,7 @@ STstrDots (const char Si[], int Maxchar)
   CT_CTL, CT_HT,  CT_NL,  CT_NL,  CT_NL,  CT_NL,  CT_CTL, CT_CTL, /* 08 - 0F */
   CT_CTL, CT_CTL, CT_CTL, CT_CTL, CT_CTL, CT_CTL, CT_CTL, CT_CTL, /* 10 - 17 */
   CT_CTL, CT_CTL, CT_CTL, CT_CTL, CT_CTL, CT_CTL, CT_CTL, CT_CTL, /* 18 - 1F */
-  
+
   CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, /* 20 - 27 */
   CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, /* 28 - 2F */
   CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, /* 30 - 37 */
@@ -139,7 +139,7 @@ STstrDots (const char Si[], int Maxchar)
   CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, /* 68 - 6F */
   CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, CT_CHR, /* 70 - 77 */
   CT_CHR, CT_CHR, CT_CHR, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_CTL, /* 78 - 7F */
- 
+
   CT_PUN, CT_CTL, CT_PUN, CT_CHR, CT_PUN, CT_PUN, CT_PUN, CT_PUN, /* 80 - 87 */
   CT_PUN, CT_PUN, CT_CHR, CT_PUN, CT_CHR, CT_CTL, CT_CHR, CT_CTL, /* 88 - 8F */
   CT_CTL, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, CT_PUN, /* 90 - 97 */

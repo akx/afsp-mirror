@@ -2,7 +2,7 @@
 
 # Rudimentary tests for audio utility programs
 
-# $Id: txxxAudio 1.18 2017/10/25 AFsp-v10r1a $
+# $Id: txxxAudio 1.1 2018/11/16 AFsp-v10r2 $
 
 AUDIOPATH=audiofiles
 export AUDIOPATH

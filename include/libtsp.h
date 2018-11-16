@@ -8,8 +8,8 @@ Description:
   Function prototypes and declarations for the libtsp library routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 2.117 $  $Date: 2017/06/13 13:22:06 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 2.118 $  $Date: 2018/11/14 13:44:56 $
 
 ----------------------------------------------------------------------*/
 
@@ -369,6 +369,8 @@ int
 STdecIfrac (const char String[], int *Ival1, int *Ival2);
 int
 STdecIrange (const char String[], int *Ival1, int *Ival2);
+int
+STdecLlimits (const char String[], long int Lim[2], int Mode);
 int
 STdecLrange (const char String[], long int *Lval1, long int *Lval2);
 int

@@ -1,5 +1,5 @@
 The AFsp audio file routines are provided free of charge subject to the
-simplified BSD license in the file Copying.
+simplified BSD license in the file Licence.
 
 Windows Executables:
   Windows versions of the filter design routines (executables) are in the
@@ -52,4 +52,4 @@ Mac OS X:
   2. Omit the -s option for the linker,
      make "LDFLAGS=-lm"
 
-$Id: INSTALL.txt 1.33 2017/07/19 AFsp-v10r1a $
+$Id: INSTALL.txt 1.1 2018/11/16 AFsp-v10r2 $

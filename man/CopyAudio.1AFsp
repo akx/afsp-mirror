@@ -1,0 +1,543 @@
+.TH CopyAudio - AFsp (1AFsp)
+.SH Routine:
+CopyAudio [options] AFileA AFileB ... AFileO
+.SH Purpose:
+Copy audio files (combine/concatenate, scale and shift data)
+.SH Description:
+This program copies samples from one or more input audio files to an output
+audio file.  The samples in the output file are linear combinations of the
+samples in the different channels in the input files.  In the combine mode,
+data from multiple input files is combined.  In the concatenate mode, data
+from multiple input files is concatenated.
+.PP
+The output consists of linear combinations of the input data channels.  For
+instance output channel A can be formed as the average of input channel A and
+input channel B.  For multichannel data, the data is organized into sample
+frames, with samples from individual channels making up a frame.
+.PP
+Sample limits may be specified for the input data.  The same sample limits
+apply to each channel in a file.  Sample limits are offset into the file data
+and are numbered from zero.  Negative sample limits may be specified;
+the samples corresponding to negative indices have zero values.  Similarly,
+sample limits beyond the end-of-file may be specified; samples beyond the
+end-of-file are assumed to have zero values.
+.PP
+The combine and concatenate modes differ in how they treat multiple input
+files.  For the combine mode, if there is more than one input file, channels
+assignments cross between input files.  Consider two input files, with the
+first having 3 channels, and the second having 2 channels.  The channels are
+labelled A to E, with channels A, B and C coming from the first input file
+and channels D and E coming from the second input file.  For the combine
+mode, a single sample limits specification applies to all input files.  The
+default sample limits correspond to the length of the longest input file.
+If necessary, the data from the input files is padded with zeros to a common
+length before combining.
+.PP
+In the concatenate mode, the data in the input files is concatenated.  The
+number of channels in each input file must be the same.  For the concatenate
+mode, sample limits can be specified for each input file.  The default sample
+limits for an input file correspond to the length of that file.
+.PP
+For fixed point file data, the data is normalized to the range -1 to +1.  This
+normalization becomes important when files with different data formats are
+combined.
+.PP
+The default data format for the output file is chosen according to a data
+format promotion rule based on the data types of the input files.  For a
+single input file, the output data format will be the same as the input data
+format as long as that data format is compatible with the output file type.
+.SH Options:
+.in +3n
+.ti -3n
+Input file names, AFileI1 [AFileI2 ...]:
+.br
+The environment variable AUDIOPATH specifies a list of directories to be
+searched for the input audio file(s).  Specifying "-" as the input file
+name indicates that input is from standard input.
+.ti -3n
+Output file name, AFileO:
+.br
+The last file name is the output file.  Specifying "-" as the output file
+name indicates that output is to be written to standard output.  If the
+output file type is not explicitly given (-F option), the extension of
+the output file name is used to determine the file type.
+.ft CW
+.nf
+  ".au"   - AU audio file
+  ".wav"  - WAVE file
+  ".aif"  - AIFF sound file
+  ".afc"  - AIFF-C sound file
+  ".raw"  - Headerless file (native byte order)
+  ".txt"  - Text audio file (with header)
+.fi
+.ft P
+.ti -3n
+-c, --combine
+.br
+Use the combine mode for multiple input files (default).  If no channel
+scaling factors are specified, the number of output channels is the sum
+of the numbers of channels in the input files.
+.ti -3n
+-C, --concatenate
+.br
+Use the concatenate mode for multiple input files. If no channel scaling
+factors are specified, each output channel is equal to the concatenation
+of each channel in each input files.
+.ti -3n
+-g GAIN, --gain=GAIN
+.br
+A gain factor applied to the data from the input files.  This gain
+applies to all channels in a file and is applied in addition to the
+channel scaling factors.  The gain value can be given as a real number
+(e.g., "0.003") or as a ratio (e.g., "1/256"). This option may be
+given more than once.  Each invocation applies to the input files that
+follow the option.
+.ti -3n
+-l L:U, --limits=L:U
+.br
+Sample limits for the input files (numbered from zero).  For the combine
+mode, the default sample limits correspond to the limits of the longest
+input audio file.  For the concatenate mode, this option may be given
+more than once.  Each invocation applies to the input files that follow
+the option.  The specification "L:" means from sample L to the end; "N"
+means from sample 0 to sample N-1.
+.ti -3n
+-t FTYPE, --type=FTYPE
+.br
+Input audio file type.  In the default automatic mode, the input file type
+is determined from the file header.  For input from a non-random access
+file (e.g. a pipe), the input file type can be specified explicitly to
+avoid the lookahead needed to read the file header.  This option can be
+specified more than once.  Each invocation applies to the input files
+that follow the option.  See the description of the environment variable
+AF_FILETYPE below for a list of file types.
+.ti -3n
+-P PARMS, --parameters=PARMS
+.br
+Parameters to be used to specify default parameters for INPUT files.
+This option may be given more than once.  Each invocation applies to
+the input files that follow the option.  See the description of the
+environment variable AF_INPUTPAR below for the format of the parameter
+specification.
+.ti -3n
+-s SFREQ, --srate=SFREQ
+.br
+Sampling frequency for the output file, default from the input audio
+file(s).  This option only changes the sampling frequency field in the
+output header; the audio data itself is unaffected.  The sampling rate can
+be expressed as a single value or as a ratio of the form N/D, where each
+of N and D can be a floating point value.
+.ti -3n
+-n NSAMPLE, --number-samples=NSAMPLE
+.br
+Number of samples per channel for the output file.  If not specified, the
+number of samples is equal to the sum of the numbers of samples in the
+input files (concatenate mode) or to the largest number of samples in any
+of the input files (combine mode).
+.ti -3n
+-cA GAINS, --cA=CGAINS
+.br
+The output data for output channel A is created by adding scaled samples
+from the specified input channels.  For specifying channel scaling
+factors, input channels are labelled A, B, ... X, Y, Z.  The scaling
+factor string CGAINS takes the form
+.ft CW
+.nf
+  [+|-] [gain *] chan +|- [gain *] chan ... +|- offset,
+.fi
+.ft P
+where chan is A through Z.  The gains can be expressed as ratios, i.e.
+of the form "n/m" or as a real number.  The offset is in normalized units,
+where an offset of one corresponds to full scale.  Note that that the
+character "*" is a special character in Unix and should appear only within
+single quotes to prevent interpreting it as a wildcard character.
+.ti -3n
+-cB CGAINS, --chanB=CGAINS
+.br
+Channel scaling  factors for output channel B.
+.ti -3n
+...
+.br
+.ti -3n
+-cL CGAINS, --chanL=CGAINS
+.br
+Channel scaling  factors for output channel L.
+.ti -3n
+-F FTYPE, --file-type=FTYPE
+.br
+Output file type.  If this option is not specified, the file type is
+determined by the output file name extension.
+.ft CW
+.nf
+  "AU" or "au"             - AU audio file
+  "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
+                             file extensible format is automatically
+                             determined.
+  "WAVE-EX" or "wave-ex"   - WAVE file. Use the WAVE file extensible
+                             format.
+  "WAVE-NOEX" or "wave-noex" - WAVE file; do not use the WAVE file
+                             extensible format
+  "AIFF-C" or "aiff-c"     - AIFF-C sound file
+  "AIFF-C/sowt" or "aiff-c/sowt" - AIFF-C (byte-swapped data)
+  "AIFF" or "aiff"         - AIFF sound file
+  "noheader" or "noheader-native" - Headerless file (native byte order)
+  "noheader-swap"          - Headerless file (byte swapped)
+  "noheader-big-endian"    - Headerless file (big-endian byte order)
+  "noheader-little-endian" - Headerless file (little-endian byte order)
+  "text-audio"             - Text audio file (with header)
+.fi
+.ft P
+.ti -3n
+-D DFORMAT, --data-format=DFORMAT
+.br
+Data format for the output file.
+.ft CW
+.nf
+  "mu-law8"   - 8-bit mu-law data
+  "mu-lawR8"  - 8-bit bit-reversed mu-law data
+  "A-law8"    - 8-bit A-law data
+  "unsigned8" - offset-binary 8-bit integer data
+  "integer8"  - two's-complement 8-bit integer data
+  "integer16" - two's-complement 16-bit integer data
+  "integer24" - two's-complement 24-bit integer data
+  "integer32" - two's-complement 32-bit integer data
+  "float32"   - 32-bit IEEE floating-point data
+  "float64"   - 64-bit IEEE floating-point data
+  "text16"    - text data, scaled the same as 16-bit integer data
+  "text"      - text data, scaled the same as float/double data
+.fi
+.ft P
+Optionally, the number of "significant" bits may be specified as a
+qualifier to the integer data formats, e.g. "integer16/12".  The number
+of significant bits is for informational purposes only.  The data formats
+available depend on the output file type.
+.ft CW
+.nf
+  AU audio files:
+    mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
+  WAVE files:
+    mu-law, A-law, offset-binary 8-bit, 16/24/32-bit integer,
+    32/64-bit float
+  AIFF-C sound files:
+    mu-law, A-law, 8/16/24/32-bit integer, 32/64-bit float
+  AIFF and AIFF-C/sowt sound files:
+    8/16/24/32-bit integer
+  Headerless files:
+    all data formats
+  Text audio files:
+    text16, text
+.fi
+.ft P
+If the output file data type is not specified, the default data format is
+determined by ranking data types according to precision.  The desired
+output precision is initially set that of integer16.  The desired
+precision is compared to the precision of the data in the input files and
+increased if necessary.  The output data type is determined by a table of
+available precisions for the each file type.  The table is addressed by
+the desired precision.
+.ti -3n
+-S SPEAKERS, --speakers=SPEAKERS
+.br
+Mapping of output channels to speaker positions.  The spatial positions
+of the loudspeakers are specified as a list of white-space or comma
+separated locations from the list below.
+.ft CW
+.nf
+  "FL"    - Front Left            "FR"    - Front Right
+  "FC"    - Front Center          "LFE1"  - Low Frequency Effects-1
+  "BL"    - Back Left             "BR"    - Back Right
+  "FLc"   - Front Left center     "FRc"   - Front Right center
+  "BC"    - Back Center           "LFE2"  - Low Frequency Effects-2
+  "SiL"   - Side Left             "SiR"   - Side Right
+  "TpFL"  - Top Front Left        "TpFR"  - Top Front Right
+  "TpFC"  - Top Front Centre      "TpC"   - Top Centre
+  "TpBL"  - Top Back Left         "TpBR"  - Top Back Right
+  "TpSiL" - Top Side Left         "TpSiR" - Top Side Right
+  "TpBC"  - Top Back Centre       "BtFC"  - Bottom Front Centre
+  "BtFL"  - Bottom Front Left     "BtFR"  - Bottom Front Right
+  "FLw"   - Front Left wide       "FRw"   - Front Right wide
+  "LS"    - Left Surround         "RS"    - Right Surround
+  "LSd"   - Left Surround direct  "RSd"   - Right Surround direct
+  "TpLS"  - Top Left Surround     "TpRS"  - Top Right Surround
+  "-"     - No speaker assigned
+.fi
+.ft P
+A speaker position can be associated with only one channel. For
+compatibility with previous usage, some synonyms are available.  For
+instance,
+.ft CW
+.nf
+  "LF"   -> "LFE1"
+  "SL"   -> "SiL", ...
+  "TpFL" -> "TFL", ...
+.fi
+.ft P
+The following names can be used to set speaker location configurations.
+.ft CW
+.nf
+  "Stereo" -> "FL FR"
+  "Quad"   -> "FL, FR, BL BR"
+  "5.1"    -> FL, FR, FC, LFE1, BR, BL
+  "7.1"    -> FL, FC, FR, LFE1, BR, BL, SiL, SiR"
+.fi
+.ft P
+WAVE extensible files store the speaker locations in the file header if
+certain constraints are in place.  The list of available speaker locations
+are as follows.
+.ft CW
+.nf
+  FL, FR, FC, LFE1, BL, BR FLc, FRc, BC, SiL, SiR, TpC, TpFL, TpFC, TpFR,
+  TpBR, TpBC, TpBR"
+.fi
+.ft P
+Assume M speaker locations are specified. These must be associated with
+the first M audio channels.  The speaker locations must be in the same
+order as the list, but locations can be skipped.  For example, the order
+"FL FR TpC" is valid, but "FL FC FR" is not.
+.ti -3n
+-I INFO, --info=INFO
+.br
+Add an information record to the output audio file.  An empty INFO string
+turns off the generation standard information records (described below).
+The information record option can be repeated, with each invocation adding
+an information record.  The suggested format for information records is an
+identifier followed by text.  The text from an information record of the
+form "title: TITLE" will appear as part of the printout of the file
+information as a file is opened.
+.ti -3n
+-h, --help
+.br
+Print a list of options and exit.
+.ti -3n
+-v, --version
+.br
+Print the version number and exit.
+.in -3n
+This program allows direct specification of the gains for 12 output channels
+and 26 input channels.  The program can handle larger numbers of channels
+for the case that the input channels are in a one-to-one correspondence with
+the output channels.  A gain factor applying to all channels can be specified
+with the -g or --gain option.
+.PP
+By default, the output file contains standard information records. These are
+written to the file header.
+.ft CW
+.nf
+  date: 2001-01-25 19:19:39 UTC   date
+  program: CopyAudio              program name
+  sampling_rate: 8000.5           non-integer sampling rate
+    This record  is generated if the sampling frequency is not an integer
+    value and the output file format does not support non-integer sampling
+    rates in its header.
+  loudspeakers: FL FR             loudspeaker locations
+    This record is generated if the output file format does not support the
+    specification of loudspeaker locations in its header.
+  bits/sample: 12/16              bits per sample
+    This record is generated if the bits per sample is less than the number of
+    bits in the data format and the output file format does not support this
+    specification in its header.
+.fi
+.ft P
+This information can be changed with the header information string which is
+specified as one of the command line options.  Structured information records
+should adhere to the above format with a named field terminated by a colon,
+followed by numeric data or text.  Comments can follow as unstructured
+information.  Within records, lines are delimited by a newline ('\\n') control
+characters.
+.SH Examples:
+.in +3n
+.ti -3n
+ 1: File convert.
+.br
+Copy audio file abc.au to abc.wav.  The output audio file is a WAVE file
+with the same data type (if possible) as the input file.  The number of
+channels in the output file is the same as the number of channels in the
+input file.
+.ft CW
+.nf
+  CopyAudio abc.au abc.wav
+.fi
+.ft P
+.ti -3n
+ 2: Concatenate audio data.
+.br
+Form an audio file which is the concatenation of the data from two input
+files.  Both input files must have the same numnber of channels.
+.ft CW
+.nf
+  CopyAudio -C abc1.au abc2.au abc12.au
+.fi
+.ft P
+.ti -3n
+ 3: Difference between values.
+.br
+Create a two-channel output audio file from two single-channel input
+files.  Each sample in the first output channel is the sum of
+corresponding samples in the input files, and the second output channel is
+the difference between corresponding samples in the input files.
+.ft CW
+.nf
+  CopyAudio --combine abc1.au abc2.au -cA A+B -cB A-B sumdiff.au
+.fi
+.ft P
+.ti -3n
+ 4: Scale sample values.
+.br
+Scale the samples in the input single-channel file by 0.5.
+.ft CW
+.nf
+  CopyAudio --gain=1/2 abc.au scaled.au
+.fi
+.ft P
+The same result can be obtained by specifying the gain for a (single)
+output channel.
+.ft CW
+.nf
+  CopyAudio --chanA="0.5*A" abc.au scaled.au
+.fi
+.ft P
+.ti -3n
+ 5: Byte-swap data values.
+.br
+Let the input audio file be headerless and contain 16-bit data.  Create a
+headerless audio file with byte-swapped data.
+.ft CW
+.nf
+  CopyAudio -P integer16 -F noheader-swap abc.au swap.au
+.fi
+.ft P
+.ti -3n
+ 6: Extract samples.
+.br
+Extract samples 1000 to 1999 inclusive from the input audio file. The
+output audio file will have 1000 samples.
+.ft CW
+.nf
+  CopyAudio -l 1000:1999 abc.au out.au
+.fi
+.ft P
+.ti -3n
+ 7: Create a stereo file.
+.br
+Form a stereo (2-channel) audio file from two single channel audio files.
+.ft CW
+.nf
+  CopyAudio abc1.wav abc2.wav -S "FL FR" stereo.wav
+.fi
+.ft P
+.ti -3n
+ 8: Add a dc value to a file.
+.br
+If the (single channel) input file has a mean value of 8.63/32768, the
+output file will have a zero mean after adding -8.63/32768 to each sample.
+.ft CW
+.nf
+  CopyAudio -cA"-8.63/32768" abc.au zeromean.au
+.fi
+.ft P
+.in -3n
+.SH Environment variables:
+.in +3n
+.ti -3n
+AF_FILETYPE:
+.br
+This environment variable defines the input audio file type.  In the default
+auto mode, the input file type is determined from the file header.
+.ft CW
+.nf
+  "auto"       - determine the input file type from the file header
+  "AU" or "au" - AU audio file
+  "WAVE" or "wave" - WAVE file
+  "AIFF" or "aiff" - AIFF or AIFF-C sound file
+  "noheader"   - headerless (non-standard or no header) audio file
+  "SPHERE"     - NIST SPHERE audio file
+  "ESPS"       - ESPS sampled data feature file
+  "IRCAM"      - IRCAM soundfile
+  "SPPACK"     - SPPACK file
+  "INRS"       - INRS-Telecom audio file
+  "SPW"        - Comdisco SPW Signal file
+  "CSL" or "NSP" - CSL NSP file
+  "text-audio" - Text audio file with header
+.fi
+.ft P
+.ti -3n
+AF_INPUTPAR:
+.br
+This environment variable sets the default data parameters for input audio
+files.  These parameters are used when opening input audio files with
+unrecognized (non-standard) headers or files with no headers (raw audio
+files).  Note that the parameters do not override values specified in the
+file headers of standard input files.
+.PP
+The parameters for AF_INPUTPAR are determined from an input string which
+consists of a list of parameters separated by commas.  The form of the list
+is
+.ft CW
+.nf
+  "Format, Start, Sfreq, Swapb, Nchan, FullScale"
+.fi
+.ft P
+The default values for the audio file parameters correspond to the following
+string.
+.ft CW
+.nf
+  "undefined, 0, 8000., native, 1, default"
+.fi
+.ft P
+Missing parameters (nothing between adjacent commas or a shortened list)
+leave the default values unchanged.
+.ft CW
+.nf
+ Format: File data type
+   "undefined" - Headerless or non-standard files will be rejected
+   "mu-law8"   - 8-bit mu-law data
+   "mu-lawR8"  - 8-bit bit-reversed mu-law data
+   "A-law8"    - 8-bit A-law data
+   "unsigned8" - offset-binary 8-bit integer data
+   "integer8"  - two's-complement 8-bit integer data
+   "integer16" - two's-complement 16-bit integer data
+   "integer24" - two's-complement 24-bit integer data
+   "integer32" - two's-complement 32-bit integer data
+   "float32"   - 32-bit floating-point data
+   "float64"   - 64-bit floating-point data
+   "text"      - text data
+ Start: byte offset to the start of data (integer value)
+ Sfreq: sampling frequency in Hz (floating point number or ratio)
+ Swapb: Data byte swap parameter
+   "native"        - no byte swapping
+   "little-endian" - file data is in little-endian byte order
+   "big-endian"    - file data is in big-endian byte order
+   "swap"          - swap the data bytes as the data is read
+ Nchan: number of channels
+   The data consists of interleaved samples from Nchan channels
+ FullScale: full scale value
+   This vale is used to scale data from the file to fall in the range -1
+   to +1.  If the FullScale value is set to "default", the FullScale value
+   is determined based on the type of data in the file.
+     data type                  FullScale
+     8-bit mu-law:              32768
+     8-bit bit-reversed mu-law: 32768
+     8-bit A-law:               32768
+     8-bit integer:             256
+     16-bit integer:            32768
+     24-bit integer:            256*32768 (838808)
+     32-bit integer:            65536*32768 (2147483648)
+     float data:                1
+     text16 data:               32768
+     text data:                 1
+   The value of FullScale can be specified as a value or ratio of values.
+.fi
+.ft P
+.ti -3n
+AUDIOPATH:
+.br
+This environment variable specifies a list of directories to be searched
+when opening the input audio files.  Directories in the list are separated
+by colons (semicolons for Windows).
+.in -3n
+.SH Author / version:
+P. Kabal / v10r2  2018-11-16
+.SH See Also
+CompAudio,
+InfoAudio,
+AFsp

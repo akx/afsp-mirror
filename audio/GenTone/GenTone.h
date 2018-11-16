@@ -8,8 +8,8 @@ Description:
   Declarations for GenTone
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.26 $  $Date: 2017/10/18 18:28:04 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.28 $  $Date: 2018/11/16 23:38:07 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define GenTone_h_
 
 #define PROGRAM "GenTone"
-#define VERSION "v10r1  2017-10-18"
+#define VERSION "v10r2  2018-11-16"
 
 #define SQRT2 1.41421356237309504880
 #define AMPL_DEF  (0.03 * SQRT2)

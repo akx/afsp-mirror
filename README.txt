@@ -1,4 +1,4 @@
-July 2017
+November 2018
 
 Audio File Programs and Routines
   The AFsp package contains audio file utility programs and a library of
@@ -25,8 +25,9 @@ Audio File Utility Programs:
               a new sequence of samples with a new spacing (sampling rate).
 
 Windows
-  A MS Visual Studio C project and executables (64-bit) for use under Windows
-  (command line) are included in the distribution (directory bin/Windows)
+  A MS Visual Studio C project and executables (32-bit 64-bit) for use under
+  Windows (command line) are included in the distribution (directory bin/Win32
+  or Win64).
 
 Linux
   Linux binaries (64-bit) are available in the bin/Linux folder.  These were
@@ -72,13 +73,19 @@ Audio File Formats:
   - AIFF-C sound files
   - Text audio files (with header)
 
-The AFsp routines are covered by copyright, see the file "Copying" for details
+The AFsp routines are covered by copyright, see the file "Licence" for details
 of the distribution conditions.
 
-AFsp-v10r0.tar.gz
+AFsp-v10r2.tar.gz
 http://www-MMSP.ECE.McGill.CA/MMSP/Documents/
 
 =============
+Changes in v10r2
+- FiltAudio updated to show the number of samples in the output file header
+- Executables for Cygwin, Linux, Win32, Win64
+Changes in v9r1
+- Simplified BSD License
+- Fix Makefile for PQevalAudio to apply mostlyclean to subdirectories
 Changes in v10r0
 - Added new audio file types and data
   - AIFF-C-sowt PCM sound files for reading and writing
@@ -182,4 +189,4 @@ Electrical & Computer Engineering
 McGill University
 Peter.Kabal@McGill.CA
 
-$Id: README.txt 1.87 2017/07/21 AFsp-v10r1a $
+$Id: ReadMe.txt 1.3 2018/11/18 AFsp-v10r2 $

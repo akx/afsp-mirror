@@ -81,7 +81,7 @@ Environment variables:
     by colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
+  P. Kabal / v10r2  2018-11-16  Copyright (C) 2018
 
 -------------------------------------------------------------------------*/
 

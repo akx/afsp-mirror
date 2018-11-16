@@ -2,8 +2,8 @@
                            McGill University
 
 Routine:
-  void CAoptions (int argc, const char *argv[], long int *delayL,
-                  long int *delayU, long int *Nsseg, struct CA_FIpar FI[2])
+  void CAoptions (int argc, const char *argv[], long int Delay[2],
+                  long int *Nsseg, struct AO_FIpar FI[2])
 
 Purpose:
   Decode options for CompAudio
@@ -16,18 +16,16 @@ Parameters:
       Number of command line arguments
    -> const char *argv[]
       Array of pointers to argument strings
-  <-  long int *delayL
-      Starting delay
-  <-  long int *delayU
-      End delay
+  <-  long int Delay[2]
+      Starting/end delay
   <-  long int *Nsseg
       Number of samples per segment (zero if unspecified)
-  <-  struct CA_FIpar FI[2]
+  <-  struct AO_FIpar FI[2]
       Input file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.49 $  $Date: 2017/06/13 15:33:39 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.50 $  $Date: 2018/11/14 13:55:53 $
 
 ----------------------------------------------------------------------*/
 
@@ -40,19 +38,19 @@ Author / revision:
 /* Option table */
 static const char *OptTable[] = {
   "-d#", "--d*elay=",
+  "-l#", "--l*imits=",
   "-s#", "--s*egment=",
   NULL
 };
 
 
 void
-CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
-           long int *Nsseg, struct CA_FIpar FI[2])
+CAoptions (int argc, const char *argv[], long int Delay[2], long int *Nsseg,
+           struct AO_FIpar FI[2])
 
 {
-  struct CA_FIpar FIx;
+  struct AO_FIpar FIx;
   int n, nF, FIParSet;
-  long int delL, delU;
   const char *OptArg;
   long int nsseg;
 
@@ -60,8 +58,8 @@ CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
   FIParSet = 0;
   FIpar_INIT (&FIx);
 
-  delL = 0;
-  delU = 0;
+  Delay[0] = 0;
+  Delay[1] = 0;
   nsseg = 0;
 
 /* Initialization */
@@ -104,11 +102,21 @@ CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
     case 1:
     case 2:
       /* Delay specification */
-      if (STdecLrange (OptArg, &delL, &delU) || delL > delU)
+      if (STdecLlimits (OptArg, Delay, 1) || Delay[0] > Delay[1])
         ERRSTOP (CAM_BadDelay, OptArg);
       break;
     case 3:
     case 4:
+      /* Limits specification */
+      /* Reset the default limits - the option may be called more than once */
+      FIx.Lim[0] = 0;
+      FIx.Lim[1] = AO_LIM_UNDEF;
+      if (STdecLlimits (OptArg, FIx.Lim, 2) ||
+          (FIx.Lim[1] != AO_LIM_UNDEF && FIx.Lim[0] > FIx.Lim[1]))
+        ERRSTOP (CAM_BadLimits, OptArg);
+      break;
+    case 5:
+    case 6:
       /* Segment length */
       if (STdec1long (OptArg, &nsseg) || nsseg < 0)
         ERRSTOP (CAM_BadSegLen, OptArg);
@@ -131,8 +139,6 @@ CAoptions (int argc, const char *argv[], long int *delayL, long int *delayU,
 /* Return values */
   if (nF == 1)
     FI[1].Fname[0] = '\0';
-  *delayL = delL;
-  *delayU = delU;
   *Nsseg = nsseg;
 
   return;

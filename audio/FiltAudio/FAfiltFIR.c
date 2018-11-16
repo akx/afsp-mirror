@@ -3,7 +3,7 @@
 
 Routine:
   void FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, double h[],
-                  int Ncof, long int loffs)
+                  int Ncof, long int noffs)
 
 Purpose:
   Filter an audio file with an FIR filter
@@ -23,12 +23,12 @@ Parameters:
       Array of Ncof FIR filter coefficients
    -> int Ncof
       Number of filter coefficients
-   -> long int loffs
+   -> long int noffs
       Data offset into the input data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.16 $  $Date: 2017/03/28 00:29:40 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.17 $  $Date: 2018/11/12 18:03:36 $
 
 -------------------------------------------------------------------------*/
 
@@ -37,58 +37,53 @@ Author / revision:
 
 #define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
-#define NBUF  5120
-
 
 void
 FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-     int Ncof, long int loffs)
+           int Ncof, long int noffs)
 
 {
   double x[NBUF];
   int lmem, Nxmax, Nx;
-  long int l, k;
+  long int n, k;
 
 /*
-   Notes:
-   - The input signal d(.) is the data in the file, with d(0) corresponding to
-     the first data value in the file.
-   - Indexing: l is an offset into d(), referring to sample d(l).
-   - Each output point is formed as the dot product of the filter vector
-     {h[0],...,h[Ncof-1]} with the data elements {d(l),...,d(l-Ncof+1)}.
+Notes:
+  - The input signal d(.) is the data in the file, with d(0) corresponding to
+    the first data value in the file.
+  - Indexing: n is an offset into d(), referring to sample d(n).
+  - Each output point is formed as the dot product of the filter vector
+    {h[0],...,h[Ncof-1]} with the data elements {d(n),...,d(n-Ncof+1)}.
+
+Batch processing:
+  - The data will be processed in batches by reading into a buffer x(.,.).  The
+    batches of input samples will be of equal size, Nx, except for the last
+    batch.  For batch j,
+      x(j,n') = d(noffs+j*Nx+n'), for 0 <= n' < Nx.
+  - The k'th output point y(k) is calculated at position d(noffs+k).
+      y(k) --> h[0] <==> d(n),    where n=noffs+k
+               h[0] <==> x(j,n').
+  - For batch j=0,
+      n = noffs  - pointer to d(noffs),
+      n' = 0     - pointer to x(0,0) = d(noffs),
+      k = 0      - pointer to y(0).
+  - For each batch, k and n' advance by Nx,
+      k <- k + Nx,
+      n' <- n' + Nx.
+  - When the index n' for x(j,n') advances beyond Nx, we bring n' back into
+    range by subtracting Nx from it and incrementing the batch number,
+
+Buffer allocation:
+  The buffer holds the filter memory (lmem) and the input data (Nx).  The output
+  data overlay the input data.
 */
 
-/* Batch processing
-   - The data will be processed in batches by reading into a buffer x(.,.).
-     The batches of input samples will be of equal size, Nx, except for the
-     last batch.  For batch j,
-       x(j,l') = d(loffs+j*Nx+l'), for 0 <= l' < Nx,
-   - The k'th output point y(k) is calculated at position d(loffs+k).
-       y(k) --> h[0] <==> d(l),    where l=loffs+k
-                h[0] <==> x(j,l').
-   - For batch j=0,
-       l = loffs  - pointer to d(loffs),
-       l' = 0     - pointer to x(0,0) = d(loffs),
-       k = 0      - pointer to y(0).
-   - For each batch, k and l' advance by Nx,
-       k <- k + Nx,
-       l' <- l' + Nx.
-   - When the index l' for x(j,l') advances beyond Nx, we bring l' back
-     into range by subtracting Nx from it and incrementing the batch number,
-*/
-
-/* Buffer allocation
-   Let the total buffer size be Nb.  This is allocated to filter memory (lmem)
-   and the input data (Nx).  The output data will overlay the input data.
-*/
   lmem = Ncof - 1;
   Nxmax = NBUF - lmem;
-  if (Nxmax <= 0)
-    UThalt ("FAfiltFIR: Too many filter coefficients");
 
 /* Prime the array */
-  l = loffs;
-  AFdReadData (AFpI, l - lmem, &x[0], lmem);
+  n = noffs;
+  AFdReadData (AFpI, n - lmem, &x[0], lmem);
 
 /* Main processing loop */
   k = 0;
@@ -96,8 +91,8 @@ FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
 
 /* Read the input data into the input buffer */
     Nx = (int) MINV (Nxmax, NsampO - k);
-    AFdReadData (AFpI, l, &x[lmem], Nx);
-    l = l + Nx;
+    AFdReadData (AFpI, n, &x[lmem], Nx);
+    n = n + Nx;
 
 /* Convolve the input samples with the filter response */
     FIdConvol (x, x, Nx, h, Ncof);

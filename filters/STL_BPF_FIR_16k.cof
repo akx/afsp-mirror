@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_BPF_FIR_16k.cof
 ! See ITU-T G.191 (2005), Software Tools Library (module fir-flat.c)
-! $Id: STL_BPF_FIR_16k.cof 1.4 2006/03/30 AFsp-v10r1a $
+! $Id: STL_BPF_FIR_16k.cof 1.4 2006/03/30 AFsp-v10r2 $
 !
 ! "Flat" filter used in the "Talker Dependency Experiment" of the Selection
 ! Tests of the ITU-TSS 8 kbit/s speech coder.

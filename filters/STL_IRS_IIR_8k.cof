@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_IRS_IIR_8k.cof
 ! See ITU-T G.191 (2000), Software Tools Library (module iir-irs.c)
-! $Id: STL_IRS_IIR_8k.cof 1.3 2002/06/18 AFsp-v10r1a $
+! $Id: STL_IRS_IIR_8k.cof 1.3 2002/06/18 AFsp-v10r2 $
 !
 ! IRS (send) filter, ITU-T Recommendation P.48
 ! Each line gives the 5 coefficients for a second-order section

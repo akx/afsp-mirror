@@ -8,8 +8,8 @@ Description:
   Declarations for GenNoise
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.41 $  $Date: 2017/10/18 18:30:12 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.43 $  $Date: 2018/11/16 23:37:45 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define GenNoise_h_
 
 #define PROGRAM "GenNoise"
-#define VERSION "v10r1  2017-10-18"
+#define VERSION "v10r2  2018-11-16"
 
 #define RMS_DEFAULT 0.03
 

@@ -8,8 +8,8 @@ Description:
   Declarations for InfoAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.53 $  $Date: 2017/10/18 18:27:21 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.55 $  $Date: 2018/11/16 23:38:20 $
 
 ----------------------------------------------------------------------*/
 
@@ -21,7 +21,7 @@ Author / revision:
 #include <AO.h>       /* struct AO_FIpar */
 
 #define PROGRAM "InfoAudio"
-#define VERSION "v10r1  2017-10-18"
+#define VERSION "v10r2  2018-11-16"
 
 #define AFPATH_ENV  "$AUDIOPATH"
 

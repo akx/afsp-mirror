@@ -42,7 +42,7 @@ Description:
     Nx = lmem + ceil((mr+1+(Nout-1)*Nsub)/Ir)
        = lmem + floor((mr+(Nout-1)*Nsub)/Ir) + 1
   Conversely if the input array has Nx elements, the number of output samples
-  that can be calculated as
+  that can be calculated is
     Nout = floor((Ir*(Nx-lmem)-1-mr)/Nsub) + 1
          = ceil((Ir*(Nx-lmem)-mr)/Nsub).
 
@@ -75,8 +75,8 @@ Parameters:
       convolving with the filter coefficients.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.3 $  $Date: 2017/06/12 19:52:15 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.4 $  $Date: 2018/11/12 20:54:17 $
 
 -------------------------------------------------------------------------*/
 

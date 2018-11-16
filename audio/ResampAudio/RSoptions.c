@@ -20,7 +20,7 @@ Parameters:
   <-  struct RS_FIpar *FI
       Input file parameters
   <-  double *Soffs
-      Sampel offset
+      Sample offset
   <-  double *Sratio
       Sampling rate ratio
   <-  struct Fspec_T *Fspec
@@ -29,8 +29,8 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2015
-  $Revision: 1.20 $  $Date: 2015/04/10 12:46:11 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.21 $  $Date: 2018/11/12 20:33:38 $
 
 ----------------------------------------------------------------------*/
 
@@ -141,8 +141,6 @@ RSoptions (int argc, const char *argv[], struct RS_FIpar *FI, double *Soffs,
     UThalt ("%s: %s", PROGRAM, RSM_MFName);
   if (FO->Sfreq <= 0.0 && sratio <= 0.0)
     UThalt ("%s: %s", PROGRAM, RSM_NoSFreq);
-  if (FO->Sfreq > 0.0 && sratio > 0.0)
-    UThalt ("%s: %s", PROGRAM, RSM_SFreqRatio);
 
 /* Set return values */
   *Soffs = soffs;

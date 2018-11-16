@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void CPcopy (int Mode, AFILE *AFp[], const struct CP_FIpar FI[], int Nifiles,
+  void CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
                const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO)
 
 Purpose:
@@ -19,7 +19,7 @@ Parameters:
       Combine / concatenate mode
    -> AFILE *AFp[]
       Array of Nifiles input audio file pointers
-   -> const struct CP_FIpar FI[]
+   -> const struct AO_FIpar FI[]
       Input file parameter structures
    -> int Nifiles
       Number of input files
@@ -31,8 +31,8 @@ Parameters:
       Output audio file pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.9 $  $Date: 2017/05/26 12:48:56 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.10 $  $Date: 2018/11/14 13:57:44 $
 
 -------------------------------------------------------------------------*/
 
@@ -44,7 +44,7 @@ Author / revision:
 #define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
 
 
-void  CPcopy (int Mode, AFILE *AFp[], const struct CP_FIpar FI[], int Nifiles,
+void  CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
               const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO)
 
 {
@@ -58,7 +58,7 @@ void  CPcopy (int Mode, AFILE *AFp[], const struct CP_FIpar FI[], int Nifiles,
   MaxNfr = AF_NFRAME_UNDEF;
   for (i = 0; i < Nifiles; ++i) {
     StartF[i] = FI[i].Lim[0];
-    if (FI[i].Lim[1] != CP_LIM_UNDEF) {
+    if (FI[i].Lim[1] != AO_LIM_UNDEF) {
       Nfr[i] = MAXV (FI[i].Lim[1] - StartF[i] + 1L, 0L);
       if (MaxNfr != AF_NFRAME_UNDEF)
         MaxNfr = MAXV (Nfr[i], MaxNfr);

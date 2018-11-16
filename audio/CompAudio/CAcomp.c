@@ -2,8 +2,8 @@
                           McGill University
 Routine:
   void CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp,
-               long int Nsseg, long int delayL, long int delayU,
-               long int *delayM, struct Stats_T *Stats)
+               long int Nsseg, const long int Delay[2], long int *DelayM,
+               struct Stats_T *Stats)
 
 Purpose:
   Gather correlation statistics for two audio files over a range of delays
@@ -25,20 +25,18 @@ Parameters:
    -> long int Nsseg
       Segment length in samples for segmental SNR computations. If Nsseg is
       zero, a default value is used.
-   -> long int delayL
-      Start delay value.  Normally delayL <= delayU.  If this condition is not
-      satisfied, no statistics are calculated.
-   -> long int delayU
-      End delay value
-  <-  long int *delayM
+   -> const long int Delay[2]
+      Start/end delay value.  Normally Delay[0] <= Delay[1].  If this condition
+      is not satisfied, no statistics are calculated.
+  <-  long int *DelayM
       Delay of file B relative to file A which maximizes the gain adjusted SNR
   <-  struct Stats_T *Stats
       Structure containing the cross-file statistics corresponding to the delay
       value delayM
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.26 $  $Date: 2017/03/24 13:25:45 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.27 $  $Date: 2018/11/14 13:56:10 $
 
 -----------------------------------------------------------------------*/
 
@@ -60,8 +58,7 @@ CA_nsseg (long int Nsseg, double Sfreq);
 
 void
 CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp, long int Nsseg,
-        long int delayL, long int delayU, long int *delayM,
-        struct Stats_T *Stats)
+        const long int Delay[2], long int *DelayM, struct Stats_T *Stats)
 
 {
   struct Stats_T Statst;
@@ -89,12 +86,12 @@ CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp, long int Nsseg,
 /* Loop over the delays */
   SNRGmax = -DBL_MAX;
   SNRG = SNRGmax;
-  for (delay = delayL; delay <= delayU; ++delay) {
+  for (delay = Delay[0]; delay <= Delay[1]; ++delay) {
 
     /* Cross product terms */
     CAcorr (AFp, Start, Nsamp, delay, Nsseg, &Statst);
 
-    if (delayL != delayU) {
+    if (Delay[0] != Delay[1]) {
 
       /* Calculate the SNR values */
       CASNR (&Statst, &SNR, &SNRG, &SF, &SSNR);
@@ -108,15 +105,15 @@ CAcomp (AFILE *AFp[2], long int Start[2], long int Nsamp, long int Nsseg,
       /* Save the best match statistics - if the best match occurs at several
          delays, use the delay with the smallest absolute value */
       if (SNRG > SNRGmax ||
-          (SNRG == SNRGmax && ABSV (delay) <= ABSV (*delayM))) {
+          (SNRG == SNRGmax && ABSV (delay) <= ABSV (*DelayM))) {
         SNRGmax = SNRG;
         *Stats = Statst;
-        *delayM = delay;
+        *DelayM = delay;
       }
     }
     else {
       *Stats = Statst;
-      *delayM = delay;
+      *DelayM = delay;
     }
   }
 

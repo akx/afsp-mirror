@@ -116,8 +116,8 @@ Parameters:
       fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.30 $  $Date: 2017/07/20 16:55:43 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.31 $  $Date: 2018/11/12 20:52:26 $
 
 -------------------------------------------------------------------------*/
 
@@ -158,8 +158,11 @@ AFopnWrite (const char Fname[], enum AF_FTW_T FtypeW, enum AF_FD_T Format,
   FILE *fp;
   struct AF_write AFw;
 
-/* Set up and check the audio file parameters */
-/* Parameters returned in AFw, file type is validated */
+/* Set up and check the audio file parameters
+   - Parameters returned in AFw
+   - File type is validated
+   - Number of frames filled in by AOsetFOopt via AFopt structure
+   */
   if (AFpreSetWPar (FtypeW, Format, Nchan, Sfreq, &AFw)) {
     AF_error (Fname, ERR_MSG);
     return NULL;

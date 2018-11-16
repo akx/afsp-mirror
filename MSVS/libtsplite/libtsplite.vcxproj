@@ -1,0 +1,278 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>libtsplite</ProjectName>
+    <ProjectGuid>{41500F76-2EE7-40F8-9F69-43ACA57632D9}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>15.0.26323.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeaderOutputFile>.\Release/libtsp.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x1009</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>..\lib\libtsplite.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release/libtsplite.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeaderOutputFile>.\Release/libtsp.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x1009</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>..\lib\libtsplite.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release/libtsplite.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libtsp\AF\AFclose.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFdReadData.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFdWriteData.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFfReadData.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFfWriteData.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFopnRead.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFopnWrite.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFprintChunkLims.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFprintInfoRecs.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFsetFileType.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFsetInfo.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFsetInputPar.c" />
+    <ClCompile Include="..\..\libtsp\AF\AFsetSpeaker.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFdRdFx.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFdRdIx.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFdRdTA.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFdRdXlaw.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFdWrFx.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFdWrIx.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFdWrTA.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFdWrXlaw.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFfRdFx.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFfRdIx.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFfRdTA.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFfRdXlaw.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFfWrFx.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFfWrIx.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFfWrTA.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFfWrXlaw.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFgetLine.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFposition.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFseek.c" />
+    <ClCompile Include="..\..\libtsp\AF\dataio\AFtell.c" />
+    <ClCompile Include="..\..\libtsp\AF\deprecated\AFopenRead.c" />
+    <ClCompile Include="..\..\libtsp\AF\deprecated\AFopenWrite.c" />
+    <ClCompile Include="..\..\libtsp\AF\deprecated\AFreadData.c" />
+    <ClCompile Include="..\..\libtsp\AF\deprecated\AFwriteData.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFfindFtype.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdAIhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdAUhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdBLhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdEShead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdInfoText.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdINhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdNShead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdSFhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdSPhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdSWhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdTAhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFrdWVhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFreadHead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFsetChunkLim.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFsetNHread.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFsetNHwrite.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFupdAIhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFupdAUhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFupdHead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFupdWVhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFwrAIhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFwrAUhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFwriteHead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFwrTAhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\header\AFwrWVhead.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFaddInfoChunk.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFaddInfoRec.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFdecInfoVVU.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFdecSpeaker.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFdelInfoRec.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetDelInfoRec.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoBytes.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoChan.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoFrame.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoFullScale.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoNbS.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoRec.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoSfreq.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoSpkr.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFgetInfoSwap.c" />
+    <ClCompile Include="..\..\libtsp\AF\info\AFspeakerNames.c" />
+    <ClCompile Include="..\..\libtsp\AF\nucleus\AFcheckDataPar.c" />
+    <ClCompile Include="..\..\libtsp\AF\nucleus\AFoptions.c" />
+    <ClCompile Include="..\..\libtsp\AF\nucleus\AFpreSetWPar.c" />
+    <ClCompile Include="..\..\libtsp\AF\nucleus\AFprintAFpar.c" />
+    <ClCompile Include="..\..\libtsp\AF\nucleus\AFsetRead.c" />
+    <ClCompile Include="..\..\libtsp\AF\nucleus\AFsetWrite.c" />
+    <ClCompile Include="..\..\libtsp\FI\FIdBiquad.c" />
+    <ClCompile Include="..\..\libtsp\FI\FIdConvol.c" />
+    <ClCompile Include="..\..\libtsp\FI\FIdConvSI.c" />
+    <ClCompile Include="..\..\libtsp\FI\FIdFiltAP.c" />
+    <ClCompile Include="..\..\libtsp\FI\FIdFiltIIR.c" />
+    <ClCompile Include="..\..\libtsp\FI\FIdReadFilt.c" />
+    <ClCompile Include="..\..\libtsp\FI\nucleus\FIxKaiser.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLbackup.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLbaseName.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLdefName.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLdirName.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLextName.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLfileDate.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLfullName.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLgetLine.c" />
+    <ClCompile Include="..\..\libtsp\FL\FLpathList.c" />
+    <ClCompile Include="..\..\libtsp\FL\nucleus\FLdReadTF.c" />
+    <ClCompile Include="..\..\libtsp\FL\nucleus\FLexist.c" />
+    <ClCompile Include="..\..\libtsp\FL\nucleus\FLfileSize.c" />
+    <ClCompile Include="..\..\libtsp\FL\nucleus\FLfReadTF.c" />
+    <ClCompile Include="..\..\libtsp\FL\nucleus\FLjoinNames.c" />
+    <ClCompile Include="..\..\libtsp\FL\nucleus\FLseekable.c" />
+    <ClCompile Include="..\..\libtsp\FN\FNbessI0.c" />
+    <ClCompile Include="..\..\libtsp\FN\FNgcd.c" />
+    <ClCompile Include="..\..\libtsp\FN\FNsinc.c" />
+    <ClCompile Include="..\..\libtsp\MA\MAdAllocMat.c" />
+    <ClCompile Include="..\..\libtsp\MA\MAdFreeMat.c" />
+    <ClCompile Include="..\..\libtsp\MS\MSdNint.c" />
+    <ClCompile Include="..\..\libtsp\MS\MSfGaussRand.c" />
+    <ClCompile Include="..\..\libtsp\MS\MSfUnifRand.c" />
+    <ClCompile Include="..\..\libtsp\MS\MSiCeil.c" />
+    <ClCompile Include="..\..\libtsp\MS\MSratio.c" />
+    <ClCompile Include="..\..\libtsp\SP\SPdQuantL.c" />
+    <ClCompile Include="..\..\libtsp\ST\nucleus\STdec1val.c" />
+    <ClCompile Include="..\..\libtsp\ST\nucleus\STdecNval.c" />
+    <ClCompile Include="..\..\libtsp\ST\nucleus\STdecPair.c" />
+    <ClCompile Include="..\..\libtsp\ST\nucleus\STstrDots.c" />
+    <ClCompile Include="..\..\libtsp\ST\nucleus\STstrstrNM.c" />
+    <ClCompile Include="..\..\libtsp\ST\nucleus\STtrimIws.c" />
+    <ClCompile Include="..\..\libtsp\ST\nucleus\STtrimNMax.c" />
+    <ClCompile Include="..\..\libtsp\ST\nucleus\STtrimTail.c" />
+    <ClCompile Include="..\..\libtsp\ST\STcatMax.c" />
+    <ClCompile Include="..\..\libtsp\ST\STcopyMax.c" />
+    <ClCompile Include="..\..\libtsp\ST\STcopyNMax.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdec1double.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdec1float.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdec1int.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdec1long.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdec1ulong.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdecDfrac.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdecIfrac.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdecLlimits.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdecNdouble.c" />
+    <ClCompile Include="..\..\libtsp\ST\STdecNfloat.c" />
+    <ClCompile Include="..\..\libtsp\ST\STfindToken.c" />
+    <ClCompile Include="..\..\libtsp\ST\STkeyMatch.c" />
+    <ClCompile Include="..\..\libtsp\ST\STkeyXpar.c" />
+    <ClCompile Include="..\..\libtsp\ST\STstrLC.c" />
+    <ClCompile Include="..\..\libtsp\ST\STtrim.c" />
+    <ClCompile Include="..\..\libtsp\ST\STunQuote.c" />
+    <ClCompile Include="..\..\libtsp\UT\nucleus\UTbyteCode.c" />
+    <ClCompile Include="..\..\libtsp\UT\nucleus\UTbyteOrder.c" />
+    <ClCompile Include="..\..\libtsp\UT\nucleus\UTcheckIEEE.c" />
+    <ClCompile Include="..\..\libtsp\UT\nucleus\UTctime.c" />
+    <ClCompile Include="..\..\libtsp\UT\nucleus\UTdecOption.c" />
+    <ClCompile Include="..\..\libtsp\UT\nucleus\UTdIEEE80.c" />
+    <ClCompile Include="..\..\libtsp\UT\nucleus\UTeIEEE80.c" />
+    <ClCompile Include="..\..\libtsp\UT\nucleus\UTswapCode.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTdate.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTerror.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTfree.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTgetOption.c" />
+    <ClCompile Include="..\..\libtsp\UT\UThalt.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTmalloc.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTrealloc.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTsetProg.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTsysMsg.c" />
+    <ClCompile Include="..\..\libtsp\UT\UTwarn.c" />
+    <ClCompile Include="..\..\libtsp\VR\nucleus\VRswapBytes.c" />
+    <ClCompile Include="..\..\libtsp\VR\VRdCorSYm.c" />
+    <ClCompile Include="..\..\libtsp\VR\VRdShift.c" />
+    <ClCompile Include="..\..\libtsp\VR\VRdZero.c" />
+    <ClCompile Include="..\..\libtsp\VR\VRiZero.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

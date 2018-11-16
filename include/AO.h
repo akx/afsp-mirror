@@ -8,8 +8,8 @@ Description:
   Declarations for audio utility program options routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.42 $  $Date: 2017/06/13 12:32:44 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.43 $  $Date: 2018/11/14 13:51:34 $
 
 ----------------------------------------------------------------------*/
 
@@ -94,7 +94,6 @@ struct AO_FOpar {
 #define AOM_BadData   "Invalid data format specification"
 #define AOM_BadFType  "Invalid file type specification"
 #define AOM_BadGain   "Invalid gain value"
-#define AOM_BadLimits "Invalid limits specification"
 #define AOM_BadNFrame "Invalid number of samples"
 #define AOM_BadInputPar  "Error setting input file parameters"
 #define AOM_BadOption "Option error, use -h for a list of options"

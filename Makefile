@@ -7,7 +7,7 @@
 #   make mostlyclean   - remove object files, test logs
 #   make clean         - remove object files, test logs, binaries, libraries
 #
-# $Id: Makefile 1.22 2017/07/20 AFsp-v10r1a $
+# $Id: Makefile 1.1 2018/11/16 AFsp-v10r2 $
 
 SHELL=/bin/sh
 

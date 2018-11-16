@@ -8,8 +8,8 @@ Description:
   Declarations for FiltAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.71 $  $Date: 2017/10/18 18:32:14 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.73 $  $Date: 2018/11/16 23:37:32 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define FiltAudio_h_
 
 #define PROGRAM "FiltAudio"
-#define VERSION "v10r1  2017-10-18"
+#define VERSION "v10r2  2018-11-16"
 
 #include <limits.h>   /* LONG_MIN */
 
@@ -26,13 +26,14 @@ Author / revision:
 
 #define AFPATH_ENV  "$AUDIOPATH"
 
-#define MAXCOF    4000
-#define MAXWUP    1000
-#define DOFFS_DEF LONG_MIN
+#define MAXCOF      4000
+#define MAXWUP      1000            /* Max warm-up points for IIR/ALL filters */
+#define NBUF        5120            /* Buffer size for filter memory, data */
+#define DOFFS_UNDEF LONG_MIN        /* Undefined data offset */
 
 #define FA_LIM_UNDEF  AO_LIM_UNDEF  /* Undefined Limits */
-#define FA_FIpar  AO_FIpar          /* Input file structure */
-#define FA_FOpar  AO_FOpar          /* Output file structure */
+#define FA_FIpar      AO_FIpar      /* Input file structure */
+#define FA_FOpar      AO_FOpar      /* Output file structure */
 
 struct FA_FFpar {
   char Fname[FILENAME_MAX];
@@ -45,20 +46,23 @@ struct FA_FFpar {
   (p)->Fname[0] = '\0'; \
   (p)->Ir = 1; \
   (p)->Nsub = 1; \
-  (p)->Doffs = DOFFS_DEF; }
+  (p)->Doffs = DOFFS_UNDEF; }
 
 /* Error messages */
 #define FAM_APNoInt     "Interpolation not supported for all-pole filters"
 #define FAM_BadAlign    "Invalid alignment offset"
 #define FAM_BadFiltType "Invalid filter type"
 #define FAM_BadRatio    "Invalid interpolation ratio"
+#define FAM_BadSFreqRatio \
+  "Incompatible sampling frequency and interpolation ratio"
 #define FAM_IIRNoInt    "Interpolation not supported for IIR filters"
 #define FAM_MFName      "Too few filenames specified"
 #define FAM_NoCoef      "No coeffients specified"
 #define FAM_NoFFile     "No filter file specified"
-#define FAM_XAPCof      "Too many filter coefficients"
 #define FAM_XFName      "Too many filenames specified"
 #define FAM_XIIRSect    "Too many filter sections"
+#define FAM_XNcof       "Too many filter coefficients"
+#define FAM_XNcofIr     "No. coefficients and/or interpolation ratio too large"
 #define FAM_XNchan      "Multiple input channels not supported"
 
 /* Usage */
@@ -89,13 +93,13 @@ extern "C" {
 /* Prototypes */
 void
 FAfiltAP (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-          int Ncof, int Nsub, long int loffs);
+          int Ncof, int Nsub, long int noffs);
 void
 FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-           int Ncof, long int loffs);
+           int Ncof, long int noffs);
 void
 FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[][5],
-           int Nsec, int Nsub, long int loffs);
+           int Nsec, int Nsub, long int noffs);
 void
 FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
           int Ncof, int Nsub, int Ir, long int moffs);

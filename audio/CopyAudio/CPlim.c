@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  long int CPlim (int Mode, AFILE *AFp[], const struct CP_FIpar FI[],
+  long int CPlim (int Mode, AFILE *AFp[], const struct AO_FIpar FI[],
                   int Nifiles, long int Nframe)
 
 Purpose:
@@ -42,7 +42,7 @@ Parameters:
       M_CONCAT - concatenate mode
    -> AFILE *AFp[]
       Array of Nifiles input audio file pointers
-   -> const struct CP_FIpar FI[]
+   -> const struct AO_FIpar FI[]
       Input file parameters
    -> int Nifiles
       Number of input files
@@ -51,8 +51,8 @@ Parameters:
       AF_NFRAME_UNDEF, it is not used.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.13 $  $Date: 2017/05/15 22:44:03 $
+  P. Kabal  Copyright (C) 2018
+  $Revision: 1.14 $  $Date: 2018/11/14 13:57:33 $
 
 -------------------------------------------------------------------------*/
 
@@ -63,7 +63,7 @@ Author / revision:
 
 
 long int
-CPlim (int Mode, AFILE *AFp[], const struct CP_FIpar FI[], int Nifiles,
+CPlim (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
        long int Nframe)
 
 {

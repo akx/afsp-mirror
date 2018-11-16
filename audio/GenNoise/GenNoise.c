@@ -60,6 +60,7 @@ Options:
   -D DFORMAT, --data-format=DFORMAT
       Data format for the output file.
         "mu-law8"   - 8-bit mu-law data
+        "mu-lawR8"  - 8-bit bit-reversed mu-law data
         "A-law8"    - 8-bit A-law data
         "unsigned8" - offset-binary 8-bit integer data
         "integer8"  - two's-complement 8-bit integer data
@@ -79,13 +80,13 @@ Options:
 
   See routine CopyAudio for a description of other parameters.
   -D DFORMAT, --data-format=DFORMAT
-      More details on allowed data formats for the output file
+      Details on allowed data formats for the output file
   -I INFO, --info-INFO
       Details on usage and default information records
   -S SPEAKERS, --speakers=SPEAKERS
       Loudspeaker configuration
 Author / version:
-  P. Kabal / v10r1  2017-10-18  Copyright (C) 2017
+  P. Kabal / v10r2  2018-11-16  Copyright (C) 2018
 
 -------------------------------------------------------------------------*/
 
