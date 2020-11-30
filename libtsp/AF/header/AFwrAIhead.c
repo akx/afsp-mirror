@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  AFILE * AFwrAIhead (FILE *fp, struct AF_write *AFw)
+  AFILE * AFwrAIhead(FILE *fp, struct AF_write *AFw)
 
 Purpose:
   Write header information to an AIFF or AIFF-C sound file
@@ -34,26 +34,25 @@ Description:
     +16   ...    ...      Audio data
 
   Note: The number of bits per sample can be less than the the number of bits
-  in the data samples, for instance 21 bits in a 24-bit data sample.  The AIFF/
-  AIFF-C standard requires that the data appear in the high order bits and that
-  the low order bits of the container be set to zero. In these routines, this
-  masking is not done on write or read.  This means the bits per sample is
-  informational only.  Masking, if desired, must be done on the data before
+  in the data samples, for instance 21 bits in a 24-bit data sample. The
+  AIFF/AIFF-C standard requires that the data appear in the high order bits and
+  that the low order bits of the container be set to zero. In these routines,
+  this masking is not done on write or read. This means the bits per sample is
+  informational only. Masking, if desired, must be done on the data before
   writing and after reading.
 
 Parameters:
   <-  AFILE *AFwrAIhead
-      Audio file pointer for the audio file.  This routine allocates the
-      space for this structure.  If an error is detected, a NULL pointer is
-      returned.
+      Audio file pointer for the audio file. This routine allocates the space
+      for this structure. If an error is detected, a NULL pointer is returned.
    -> FILE *fp
       File pointer for the audio file
   <-> struct AF_write *AFw
       Structure containing file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.72 $  $Date: 2017/09/22 00:31:47 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.73 $  $Date: 2020/11/25 17:54:50 $
 
 -------------------------------------------------------------------------*/
 
@@ -70,7 +69,7 @@ Author / revision:
 #define AI_INFOREC
 #include <libtsp/AIpar.h>
 
-#define STCOPY(src,dest)        STcopyMax (src, dest, sizeof (dest) - 1)
+#define STCOPY(src,dest)    STcopyMax(src, dest, (int) sizeof(dest) - 1)
 
 #define ALIGN   2          /* Chunks padded out to a multiple of ALIGN */
 
@@ -79,17 +78,17 @@ extern jmp_buf AFW_JMPENV;
 
 /* Local functions */
 static void
-AF_setCOMM (struct AI_CkCOMM *CkCOMM, struct AF_write *AFw);
+AF_setCOMM(struct AI_CkCOMM *CkCOMM, struct AF_write *AFw);
 static void
-AF_wrFORM (FILE *fp, const struct AI_CkFORM *CkFORM);
+AF_wrFORM(FILE *fp, const struct AI_CkFORM *CkFORM);
 static int
-AF_wrPstring (FILE *fp, const char string[]);
+AF_wrPstring(FILE *fp, const char string[]);
 static int
-AF_checkAISpeaker (const unsigned char *SpkrConfig, int Nchan);
+AF_checkAISpeaker(const unsigned char *SpkrConfig, int Nchan);
 
 
 AFILE *
-AFwrAIhead (FILE *fp, struct AF_write *AFw)
+AFwrAIhead(FILE *fp, struct AF_write *AFw)
 
 {
   AFILE *AFp;
@@ -109,10 +108,10 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
   Lw = AF_DL[AFw->DFormat.Format];
   if (AFw->Nframe != AF_NFRAME_UNDEF)
     Ldata = AFw->Nframe * AFw->Nchan * Lw;
-  else if (FLseekable (fp))
+  else if (FLseekable(fp))
     Ldata = 0L;
   else {
-    UTwarn ("AFwrAIhead - %s", AFM_AIFFX_WRAccess);
+    UTwarn("AFwrAIhead - %s", AFM_AIFFX_WRAccess);
     return NULL;
   }
 
@@ -120,16 +119,16 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
      write the header to the file */
 
   /* FORM chunk */
-  MCOPY (FM_IFF, CkFORM.ckID);
+  MCOPY(FM_IFF, CkFORM.ckID);
   /* defer filling in the chunk size */
   if (AFw->FtypeW == FTW_AIFF_C || AFw->FtypeW == FTW_AIFF_C_SOWT)
-    MCOPY (FM_AIFF_C, CkFORM.AIFFID);
+    MCOPY(FM_AIFF_C, CkFORM.AIFFID);
   else
-    MCOPY (FM_AIFF, CkFORM.AIFFID);
+    MCOPY(FM_AIFF, CkFORM.AIFFID);
 
   /* FVER chunk */
   if (AFw->FtypeW == FTW_AIFF_C || AFw->FtypeW == FTW_AIFF_C_SOWT) {
-    MCOPY (ckID_FVER, CkFORM.CkFVER.ckID);
+    MCOPY(ckID_FVER, CkFORM.CkFVER.ckID);
     CkFORM.CkFVER.ckSize = 4;
     CkFORM.CkFVER.timestamp = AIFCVersion1;
   }
@@ -137,7 +136,7 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
     CkFORM.CkFVER.ckSize = 0;   /* Flag to avoid writing the FVER chunk */
 
   /* COMM chunk */
-  AF_setCOMM (&CkFORM.CkCOMM, AFw);
+  AF_setCOMM(&CkFORM.CkCOMM, AFw);
 
   /* Copy the information records to temp storage */
   /* NInfo chars are reserved for Info record structure (modified when records
@@ -146,9 +145,9 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
      string is extracted only once (since the information record in which it
      appears is then deleted), the maximum size required is less than NInfo. */
   NInfo = AFw->WInfo.N;
-  TempBuff = UTmalloc (2 * NInfo);
+  TempBuff = UTmalloc(2 * NInfo);
   TInfo.Info = TempBuff;
-  memcpy (TInfo.Info, AFw->WInfo.Info, NInfo);
+  memcpy(TInfo.Info, AFw->WInfo.Info, NInfo);
   TInfo.N = NInfo;
   TInfo.Nmax = NInfo;
 
@@ -162,24 +161,24 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
   */
 
   /* Name chunk for title */
-  MCOPY (ckID_NAME, CkFORM.CkNAME.ckID);
-  Nc = AFgetDelInfoRec (AI_NAMEid, &TInfo, Text, Nmax);
+  MCOPY(ckID_NAME, CkFORM.CkNAME.ckID);
+  Nc = AFgetDelInfoRec(AI_NAMEid, &TInfo, Text, Nmax);
   CkFORM.CkNAME.ckSize = Nc;
   CkFORM.CkNAME.text = Text;
 
   /* Author chunk for artist */
   Text += Nc;        /* Will overlay the trailing null of the previous text */
   Nmax -= Nc;
-  MCOPY (ckID_AUTH, CkFORM.CkAUTH.ckID);
-  Nc = AFgetDelInfoRec (AI_AUTHid, &TInfo, Text, Nmax);
+  MCOPY(ckID_AUTH, CkFORM.CkAUTH.ckID);
+  Nc = AFgetDelInfoRec(AI_AUTHid, &TInfo, Text, Nmax);
   CkFORM.CkAUTH.ckSize = Nc;
   CkFORM.CkAUTH.text = Text;
 
   /* Copyright chunk */
   Text += Nc;
   Nmax -= Nc;
-  MCOPY (ckID_CPRT, CkFORM.CkCPRT.ckID);
-  Nc = AFgetDelInfoRec (AI_CPRTid, &TInfo, Text, Nmax);
+  MCOPY(ckID_CPRT, CkFORM.CkCPRT.ckID);
+  Nc = AFgetDelInfoRec(AI_CPRTid, &TInfo, Text, Nmax);
   CkFORM.CkCPRT.ckSize = Nc;
   CkFORM.CkCPRT.text = Text;
 
@@ -187,50 +186,50 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
   for (n = 0; n < NANNO_MAX; ++n) {
     Text += Nc;
     Nmax -= Nc;
-    Nc = AFgetDelInfoRec (AI_ANNOid, &TInfo, Text, Nmax);
-    MCOPY (ckID_ANNO, CkFORM.CkANNO[n].ckID);
+    Nc = AFgetDelInfoRec(AI_ANNOid, &TInfo, Text, Nmax);
+    MCOPY(ckID_ANNO, CkFORM.CkANNO[n].ckID);
     CkFORM.CkANNO[n].ckSize = Nc;
     CkFORM.CkANNO[n].text = Text;
   }
 
   /* Special ANNO chunk with AFsp identifier */
   if (TInfo.N > 0) {
-    MCOPY (ckID_ANNO, CkFORM.CkANNOx.ckID);
+    MCOPY(ckID_ANNO, CkFORM.CkANNOx.ckID);
     CkFORM.CkANNOx.ckSize = (4 + TInfo.N);  /* Info records */
-    MCOPY (FM_AFSP, CkFORM.CkANNOx.InfoID);
+    MCOPY(FM_AFSP, CkFORM.CkANNOx.InfoID);
     CkFORM.CkANNOx.text = TInfo.Info;
   }
   else
     CkFORM.CkANNOx.ckSize = 0;
 
   /* SSND chunk */
-  MCOPY (ckID_SSND, CkFORM.CkSSND.ckID);
+  MCOPY(ckID_SSND, CkFORM.CkSSND.ckID);
   CkFORM.CkSSND.ckSize = 8 + Ldata;
   CkFORM.CkSSND.offset = 0;
   CkFORM.CkSSND.blockSize = 0;
 
   /* Calculate and fill in the FORM chunk size */
   size  = 4;    /* "AIFF" or "AIFC" identifier */
-  size += 8 + RNDUPV (CkFORM.CkCOMM.ckSize, ALIGN);
+  size += 8 + RNDUPV(CkFORM.CkCOMM.ckSize, ALIGN);
   if (CkFORM.CkFVER.ckSize > 0)
-    size += 8 + RNDUPV (CkFORM.CkFVER.ckSize, ALIGN);
+    size += 8 + RNDUPV(CkFORM.CkFVER.ckSize, ALIGN);
   if (CkFORM.CkNAME.ckSize > 0)
-    size += 8 + RNDUPV (CkFORM.CkNAME.ckSize, ALIGN);
+    size += 8 + RNDUPV(CkFORM.CkNAME.ckSize, ALIGN);
   if (CkFORM.CkAUTH.ckSize > 0)
-    size += 8 + RNDUPV (CkFORM.CkAUTH.ckSize, ALIGN);
+    size += 8 + RNDUPV(CkFORM.CkAUTH.ckSize, ALIGN);
   if (CkFORM.CkCPRT.ckSize > 0)
-    size += 8 + RNDUPV (CkFORM.CkCPRT.ckSize, ALIGN);
+    size += 8 + RNDUPV(CkFORM.CkCPRT.ckSize, ALIGN);
   for (n = 0; n < NANNO_MAX; ++n) {
     if (CkFORM.CkANNO[n].ckSize > 0)
-      size += 8 + RNDUPV (CkFORM.CkANNO[n].ckSize, ALIGN);
+      size += 8 + RNDUPV(CkFORM.CkANNO[n].ckSize, ALIGN);
   }
   if (CkFORM.CkANNOx.ckSize > 0)
-    size += 8 + RNDUPV (CkFORM.CkANNOx.ckSize, ALIGN);
-  size += 8 + RNDUPV (CkFORM.CkSSND.ckSize, ALIGN);
+    size += 8 + RNDUPV(CkFORM.CkANNOx.ckSize, ALIGN);
+  size += 8 + RNDUPV(CkFORM.CkSSND.ckSize, ALIGN);
   CkFORM.ckSize = (UT_uint4_t) size;
 
 /* Write out the header, leaving the file at the start of data */
-  AF_wrFORM (fp, &CkFORM);
+  AF_wrFORM(fp, &CkFORM);
 
 /* Set the data swap code */
   AFw->DFormat.Swapb = DS_EB;
@@ -250,16 +249,16 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
 */
 
 /* Check the speaker configuration */
-  AF_checkAISpeaker (AFw->SpkrConfig, AFw->Nchan);
+  AF_checkAISpeaker(AFw->SpkrConfig, AFw->Nchan);
 
 /* Recover temporary buffer space */
-  UTfree (TempBuff);
+  UTfree(TempBuff);
 
 /* Create the audio file structure */
   if (AFw->FtypeW == FTW_AIFF_C || AFw->FtypeW == FTW_AIFF_C_SOWT)
-    AFp = AFsetWrite (fp, FT_AIFF_C, AFw);
+    AFp = AFsetWrite(fp, FT_AIFF_C, AFw);
   else
-    AFp = AFsetWrite (fp, FT_AIFF, AFw);
+    AFp = AFsetWrite(fp, FT_AIFF, AFw);
 
   return AFp;
 }
@@ -269,13 +268,13 @@ AFwrAIhead (FILE *fp, struct AF_write *AFw)
 
 
 static void
-AF_setCOMM (struct AI_CkCOMM *CkCOMM, struct AF_write *AFw)
+AF_setCOMM(struct AI_CkCOMM *CkCOMM, struct AF_write *AFw)
 
 {
   int ncP, Res, NbS;
 
-  MCOPY (ckID_COMM, CkCOMM->ckID);
-  Res = 8  * AF_DL[AFw->DFormat.Format];
+  MCOPY(ckID_COMM, CkCOMM->ckID);
+  Res = 8 * AF_DL[AFw->DFormat.Format];
   NbS = AFw->DFormat.NbS;
 
 /* Set up the encoding parameters */
@@ -285,47 +284,46 @@ AF_setCOMM (struct AI_CkCOMM *CkCOMM, struct AF_write *AFw)
   case FD_INT24:
   case FD_INT32:
     if (AFw->FtypeW == FTW_AIFF_C_SOWT) {
-      MCOPY (CT_SOWT, CkCOMM->compressionType);
-      STCOPY (CN_SOWT, CkCOMM->compressionName);
+      MCOPY(CT_SOWT, CkCOMM->compressionType);
+      STCOPY(CN_SOWT, CkCOMM->compressionName);
     }
     else {
-      MCOPY (CT_NONE, CkCOMM->compressionType);
-      STCOPY (CN_NONE, CkCOMM->compressionName);
+      MCOPY(CT_NONE, CkCOMM->compressionType);
+      STCOPY(CN_NONE, CkCOMM->compressionName);
     }
-    if (RNDUPV (NbS, 8) != Res) {
-      UTwarn (AFMF_AIFFX_InvNbS, "AFwrAIhead -", NbS, Res);
+    if (RNDUPV(NbS, 8) != Res) {
+      UTwarn(AFMF_AIFFX_InvNbS, "AFwrAIhead -", NbS, Res);
       NbS = Res;
       AFw->DFormat.NbS = NbS;   /* Fix number bits / sample */
     }
     CkCOMM->sampleSize = NbS;
     break;
-  /* There are two codes for each of mu-law and A-law coding.  The codes
-     "ULAW" and "ALAW" originated with SGI software.  The Apple QuickTime
-     software only recognizes "ulaw" and "alaw". Here we use the QuickTime
-     conventions.
+  /* There are two codes for each of mu-law and A-law coding. The codes "ULAW"
+     and "ALAW" originated with SGI software. The Apple QuickTime software only
+     recognizes "ulaw" and "alaw". Here we use the QuickTime conventions.
   */
   case FD_MULAW8:
-    MCOPY (CT_ULAW, CkCOMM->compressionType);
-    STCOPY (CN_ULAW, CkCOMM->compressionName);
+    MCOPY(CT_ULAW, CkCOMM->compressionType);
+    STCOPY(CN_ULAW, CkCOMM->compressionName);
     CkCOMM->sampleSize = 16;    /* Uncompressed data size in bits */
     break;
   case FD_ALAW8:
-    MCOPY (CT_ALAW, CkCOMM->compressionType);
-    STCOPY (CN_ALAW, CkCOMM->compressionName);
+    MCOPY(CT_ALAW, CkCOMM->compressionType);
+    STCOPY(CN_ALAW, CkCOMM->compressionName);
     CkCOMM->sampleSize = 16;    /* Uncompressed data size in bits */
     break;
   case FD_FLOAT32:
-    MCOPY (CT_FLOAT32, CkCOMM->compressionType);
-    STCOPY (CN_FLOAT32, CkCOMM->compressionName);
+    MCOPY(CT_FLOAT32, CkCOMM->compressionType);
+    STCOPY(CN_FLOAT32, CkCOMM->compressionName);
     CkCOMM->sampleSize = Res;
     break;
   case FD_FLOAT64:
-    MCOPY (CT_FLOAT64, CkCOMM->compressionType);
-    STCOPY (CN_FLOAT64, CkCOMM->compressionName);
+    MCOPY(CT_FLOAT64, CkCOMM->compressionType);
+    STCOPY(CN_FLOAT64, CkCOMM->compressionName);
     CkCOMM->sampleSize = Res;
     break;
   default:
-    assert (0);
+    assert(0);
   }
 
   CkCOMM->numChannels = (UT_uint2_t) AFw->Nchan;
@@ -334,19 +332,19 @@ AF_setCOMM (struct AI_CkCOMM *CkCOMM, struct AF_write *AFw)
   else
     CkCOMM->numSampleFrames = (UT_uint4_t) AFw->Nframe;
   /* CkCOMM.sampleSize filled in above */
-  UTeIEEE80 (AFw->Sfreq, CkCOMM->sampleRate);
+  UTeIEEE80(AFw->Sfreq, CkCOMM->sampleRate);
   /* CkCOMM.compressionType filled in above */
   /* CkCOMM.compressionName filled in above */
 
   if (AFw->FtypeW == FTW_AIFF_C || AFw->FtypeW == FTW_AIFF_C_SOWT) {
-    ncP = AF_wrPstring (NULL, CkCOMM->compressionName);
+    ncP = AF_wrPstring(NULL, CkCOMM->compressionName);
     CkCOMM->ckSize = 22 + ncP;
   }
   else {
-    assert (AFw->DFormat.Format == FD_INT8 ||
-            AFw->DFormat.Format == FD_INT16 ||
-            AFw->DFormat.Format == FD_INT24 ||
-            AFw->DFormat.Format == FD_INT32);
+    assert(AFw->DFormat.Format == FD_INT8 ||
+           AFw->DFormat.Format == FD_INT16 ||
+           AFw->DFormat.Format == FD_INT24 ||
+           AFw->DFormat.Format == FD_INT32);
     CkCOMM->ckSize = 18;
   }
 
@@ -357,81 +355,79 @@ AF_setCOMM (struct AI_CkCOMM *CkCOMM, struct AF_write *AFw)
 
 
 static void
-AF_wrFORM (FILE *fp, const struct AI_CkFORM *CkFORM)
+AF_wrFORM(FILE *fp, const struct AI_CkFORM *CkFORM)
 
 {
   int n;
 
-  WHEAD_S (fp, CkFORM->ckID);
-  WHEAD_V (fp, CkFORM->ckSize, DS_EB);
-  WHEAD_S (fp, CkFORM->AIFFID);
+  WHEAD_S(fp, CkFORM->ckID);
+  WHEAD_V(fp, CkFORM->ckSize, DS_EB);
+  WHEAD_S(fp, CkFORM->AIFFID);
 
   /* FVER chunk */
   if (CkFORM->CkFVER.ckSize > 0) {
-    WHEAD_S (fp, CkFORM->CkFVER.ckID);
-    WHEAD_V (fp, CkFORM->CkFVER.ckSize, DS_EB);
-    WHEAD_V (fp, CkFORM->CkFVER.timestamp, DS_EB);
+    WHEAD_S(fp, CkFORM->CkFVER.ckID);
+    WHEAD_V(fp, CkFORM->CkFVER.ckSize, DS_EB);
+    WHEAD_V(fp, CkFORM->CkFVER.timestamp, DS_EB);
   }
 
   /* COMM chunk */
-  WHEAD_S (fp, CkFORM->CkCOMM.ckID);
-  WHEAD_V (fp, CkFORM->CkCOMM.ckSize, DS_EB);
-  WHEAD_V (fp, CkFORM->CkCOMM.numChannels, DS_EB);
-  WHEAD_V (fp, CkFORM->CkCOMM.numSampleFrames, DS_EB);
-  WHEAD_V (fp, CkFORM->CkCOMM.sampleSize, DS_EB);
-  WHEAD_S (fp, CkFORM->CkCOMM.sampleRate);
+  WHEAD_S(fp, CkFORM->CkCOMM.ckID);
+  WHEAD_V(fp, CkFORM->CkCOMM.ckSize, DS_EB);
+  WHEAD_V(fp, CkFORM->CkCOMM.numChannels, DS_EB);
+  WHEAD_V(fp, CkFORM->CkCOMM.numSampleFrames, DS_EB);
+  WHEAD_V(fp, CkFORM->CkCOMM.sampleSize, DS_EB);
+  WHEAD_S(fp, CkFORM->CkCOMM.sampleRate);
   if (CkFORM->CkCOMM.ckSize > 18) {
-    WHEAD_S (fp, CkFORM->CkCOMM.compressionType);
-    AF_wrPstring (fp, CkFORM->CkCOMM.compressionName);
-    WRPAD (fp, CkFORM->CkCOMM.ckSize, ALIGN);
+    WHEAD_S(fp, CkFORM->CkCOMM.compressionType);
+    AF_wrPstring(fp, CkFORM->CkCOMM.compressionName);
+    WRPAD(fp, CkFORM->CkCOMM.ckSize, ALIGN);
   }
 
   /* NAME chunk */
   if (CkFORM->CkNAME.ckSize > 0) {
-    WHEAD_S (fp, CkFORM->CkNAME.ckID);
-    WHEAD_V (fp, CkFORM->CkNAME.ckSize, DS_EB);
-    WHEAD_SN (fp, CkFORM->CkNAME.text, CkFORM->CkNAME.ckSize);
-    WRPAD (fp, CkFORM->CkNAME.ckSize, ALIGN);
+    WHEAD_S(fp, CkFORM->CkNAME.ckID);
+    WHEAD_V(fp, CkFORM->CkNAME.ckSize, DS_EB);
+    WHEAD_SN(fp, CkFORM->CkNAME.text, CkFORM->CkNAME.ckSize);
+    WRPAD(fp, CkFORM->CkNAME.ckSize, ALIGN);
   }
   /* AUTH chunk */
   if (CkFORM->CkAUTH.ckSize > 0) {
-    WHEAD_S (fp, CkFORM->CkAUTH.ckID);
-    WHEAD_V (fp, CkFORM->CkAUTH.ckSize, DS_EB);
-    WHEAD_SN (fp, CkFORM->CkAUTH.text, CkFORM->CkAUTH.ckSize);
-    WRPAD (fp, CkFORM->CkAUTH.ckSize, ALIGN);
+    WHEAD_S(fp, CkFORM->CkAUTH.ckID);
+    WHEAD_V(fp, CkFORM->CkAUTH.ckSize, DS_EB);
+    WHEAD_SN(fp, CkFORM->CkAUTH.text, CkFORM->CkAUTH.ckSize);
+    WRPAD(fp, CkFORM->CkAUTH.ckSize, ALIGN);
   }
   /* Copyright chunk */
   if (CkFORM->CkCPRT.ckSize > 0) {
-    WHEAD_S (fp, CkFORM->CkCPRT.ckID);
-    WHEAD_V (fp, CkFORM->CkCPRT.ckSize, DS_EB);
-    WHEAD_SN (fp, CkFORM->CkCPRT.text, CkFORM->CkCPRT.ckSize);
-    WRPAD (fp, CkFORM->CkCPRT.ckSize, ALIGN);
+    WHEAD_S(fp, CkFORM->CkCPRT.ckID);
+    WHEAD_V(fp, CkFORM->CkCPRT.ckSize, DS_EB);
+    WHEAD_SN(fp, CkFORM->CkCPRT.text, CkFORM->CkCPRT.ckSize);
+    WRPAD(fp, CkFORM->CkCPRT.ckSize, ALIGN);
   }
   /* ANNO chunks */
   for (n = 0; n < NANNO_MAX; ++n) {
     if (CkFORM->CkANNO[n].ckSize > 0) {
-      WHEAD_S (fp, CkFORM->CkANNO[n].ckID);
-      WHEAD_V (fp, CkFORM->CkANNO[n].ckSize, DS_EB);
-      WHEAD_SN (fp, CkFORM->CkANNO[n].text, CkFORM->CkANNO[n].ckSize);
-      WRPAD (fp, CkFORM->CkANNO[n].ckSize, ALIGN);
+      WHEAD_S(fp, CkFORM->CkANNO[n].ckID);
+      WHEAD_V(fp, CkFORM->CkANNO[n].ckSize, DS_EB);
+      WHEAD_SN(fp, CkFORM->CkANNO[n].text, CkFORM->CkANNO[n].ckSize);
+      WRPAD(fp, CkFORM->CkANNO[n].ckSize, ALIGN);
     }
   }
   /* Special ANNO-AFsp chunk */
   if (CkFORM->CkANNOx.ckSize > 0) {
-    WHEAD_S (fp, CkFORM->CkANNOx.ckID);
-    WHEAD_V (fp, CkFORM->CkANNOx.ckSize, DS_EB);
-    WHEAD_S (fp, CkFORM->CkANNOx.InfoID);        /* AFsp identifier */
-    WHEAD_SN (fp, CkFORM->CkANNOx.text, CkFORM->CkANNOx.ckSize - 4);
-    WRPAD (fp, CkFORM->CkANNOx.ckSize, ALIGN);
+    WHEAD_S(fp, CkFORM->CkANNOx.ckID);
+    WHEAD_V(fp, CkFORM->CkANNOx.ckSize, DS_EB);
+    WHEAD_S(fp, CkFORM->CkANNOx.InfoID);        /* AFsp identifier */
+    WHEAD_SN(fp, CkFORM->CkANNOx.text, CkFORM->CkANNOx.ckSize - 4);
+    WRPAD(fp, CkFORM->CkANNOx.ckSize, ALIGN);
   }
 
   /* SSND chunk preamble */
-  WHEAD_S (fp, CkFORM->CkSSND.ckID);
-  WHEAD_V (fp, CkFORM->CkSSND.ckSize, DS_EB);
-  WHEAD_V (fp, CkFORM->CkSSND.offset, DS_EB);
-  WHEAD_V (fp, CkFORM->CkSSND.blockSize, DS_EB);
-
-  return;
+  WHEAD_S(fp, CkFORM->CkSSND.ckID);
+  WHEAD_V(fp, CkFORM->CkSSND.ckSize, DS_EB);
+  WHEAD_V(fp, CkFORM->CkSSND.offset, DS_EB);
+  WHEAD_V(fp, CkFORM->CkSSND.blockSize, DS_EB);
 }
 
 /* Write a P-string, returning the full length */
@@ -446,20 +442,20 @@ AF_wrFORM (FILE *fp, const struct AI_CkFORM *CkFORM)
 
 
 static int
-AF_wrPstring (FILE *fp, const char string[])
+AF_wrPstring(FILE *fp, const char string[])
 
 {
   unsigned char slen;
   int nc, Nbytes;
 
-  nc = (int) strlen (string);
-  Nbytes = RNDUPV (nc+1, ALIGN);
+  nc = (int) strlen(string);
+  Nbytes = RNDUPV(nc+1, ALIGN);
 
   if (fp != NULL) {
     slen = nc;
-    WHEAD_V (fp, slen, DS_EB);
-    WHEAD_SN (fp, string, nc);
-    WRPAD (fp, nc + 1, ALIGN);
+    WHEAD_V(fp, slen, DS_EB);
+    WHEAD_SN(fp, string, nc);
+    WRPAD(fp, nc + 1, ALIGN);
   }
 
   return Nbytes;
@@ -469,7 +465,7 @@ AF_wrPstring (FILE *fp, const char string[])
 
 
 static int
-AF_checkAISpeaker (const unsigned char *SpkrConfig, int Nchan)
+AF_checkAISpeaker(const unsigned char *SpkrConfig, int Nchan)
 
 {
   int Nspkr, i, Nconfig, Err;
@@ -486,7 +482,7 @@ AF_checkAISpeaker (const unsigned char *SpkrConfig, int Nchan)
   if (SpkrConfig[0] == '\0')
     Nspkr = 0;
   else
-    Nspkr = (int) strlen ((const char *) SpkrConfig);
+    Nspkr = (int) strlen((const char *) SpkrConfig);
 
   if (Nchan == 1 || Nspkr == 0)
     Err = 0;
@@ -504,7 +500,7 @@ AF_checkAISpeaker (const unsigned char *SpkrConfig, int Nchan)
   }
 
   if (Err)
-    UTwarn ("AFwrAIhead - %s", AFM_AIFFX_BadSpkr);
+    UTwarn("AFwrAIhead - %s", AFM_AIFFX_BadSpkr);
 
   return Err;
 }

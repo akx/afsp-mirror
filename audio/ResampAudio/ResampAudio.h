@@ -8,8 +8,8 @@ Description:
   Declarations for ResampAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.57 $  $Date: 2018/11/16 23:38:32 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.64 $  $Date: 2020/11/30 12:32:46 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define ResampAudio_h_
 
 #define PROGRAM "ResampAudio"
-#define VERSION "v10r2  2018-11-16"
+#define VERSION "v10r3  2020-11-30"
 
 #include <float.h>    /* DBL_MAX */
 
@@ -26,7 +26,7 @@ Author / revision:
 
 #define AFPATH_ENV  "$AUDIOPATH"
 
-#define MAXCOF    8001    /* Max number coeffs from a file */
+#define MAXCOF  8001    /* Max number coeffs from a file */
 #define MAXIR   24
 
 #define RS_FIpar  AO_FIpar  /* Input file structure */
@@ -160,7 +160,8 @@ Options:\n\
                               \"float32\", \"float64\", \"text16\", \"text\".\n\
   -I INFO, --info=INFO        Add a header information record.\n\
   -h, --help                  Print a list of options and exit.\n\
-  -v, --version               Print the version number and exit."
+  -v, --version               Print the version number and exit.\n\
+   Additional options [-t -P -S], see CopyAudio."
 
 #ifdef __cplusplus
 extern "C" {
@@ -168,39 +169,41 @@ extern "C" {
 
 /* Prototypes */
 void
-RSKaiserLPF (double h[], int N, double Fc, double alpha, double Gain,
-       double Woffs, double Wspan);
-double
-RSKalphaXatt (double alpha);
-double
-RSKalphaXD (double alpha);
-double
-RSKattenXalpha (double atten);
+RSKaiserLPF(double h[], int N, double Fc, double alpha, double Gain,
+            double Woffs, double Wspan);
 void
-RSexpTime (double t, long int M, struct Tval_T *T);
+RSexpTime(double t, long int M, struct Tval_T *T);
 void
-RSfiltSpec (const char String[], struct Fspec_T *Fspec);
+RSfiltSpec(const char String[], struct Fspec_T *Fspec);
 void
-RSincTime (struct Tval_T *T, double di);
+RSincTime(struct Tval_T *T, double di);
 void
-RSintFilt (double Sratio, double Soffs, const struct Fspec_T *Fspec,
-     struct Fpoly_T *PF, double *FDel, FILE *fpinfo);
+RSintFilt(double Sratio, double Soffs, const struct Fspec_T *Fspec,
+          struct Fpoly_T *PF, double *FDel, FILE *fpinfo);
 void
-RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
-    const struct Tval_T *T, const struct Fpoly_T *PF);
+RSinterp(const double x[], int Nxm, double y[], int Ny, double Ds,
+         const struct Tval_T *T, const struct Fpoly_T *PF);
 void
-RSoptions (int argc, const char *argv[], struct RS_FIpar *FI, double *Soffs,
-     double *Sratio, struct Fspec_T *Fspec, struct RS_FOpar *FO);
+RSoptions(int argc, const char *argv[], struct RS_FIpar *FI, double *Soffs,
+          double *Sratio, struct Fspec_T *Fspec, struct RS_FOpar *FO);
 void
-RSratio (double Sratio, int Ir, long int *Ns, double *Ds, long int NsMax,
-   long int DsMax, FILE *fpinfo);
+RSratio(double Sratio, int Ir, long int *Ns, double *Ds, long int NsMax,
+        long int DsMax, FILE *fpinfo);
 int
-RSrefresh (AFILE *AFpI, long int offs, double x[], int Nx);
+RSrefresh(AFILE *AFpI, long int offs, double x[], int Nx);
 void
-RSresamp (AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout,
-    double Soffs, const struct Fpoly_T *PF, FILE *fpinfo);
+RSresamp(AFILE *AFpI, AFILE *AFpO, double Sratio, long int Nout,
+         double Soffs, const struct Fpoly_T *PF, FILE *fpinfo);
 void
-RSwriteCof (const char Fname[], const struct Fspec_T *Fs, const double h[]);
+RSwriteCof(const char Fname[], const struct Fspec_T *Fs, const double h[]);
+
+/* Functions in file RSuKaiser.c */
+double
+RSKalphaXatt(double alpha);
+double
+RSKalphaXD(double alpha);
+double
+RSKattenXalpha(double atten);
 
 #ifdef __cplusplus
 }

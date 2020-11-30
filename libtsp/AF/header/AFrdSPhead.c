@@ -2,15 +2,15 @@
                              McGill University
 
 Routine:
-  AFILE *AFrdSPhead (FILE *fp)
+  AFILE *AFrdSPhead(FILE *fp)
 
 Purpose:
   Get file format information from a NIST SPHERE audio file
 
 Description:
-  This routine reads the header for a NIST SPHERE audio file.  The header
-  information is used to set the file data format information in the audio
-  file pointer structure.
+  This routine reads the header for a NIST SPHERE audio file. The header
+  information is used to set the file data format information in the audio file
+  pointer structure.
 
   NIST SPHERE audio file header:
    Offset Length Type    Contents
@@ -30,8 +30,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.102 $  $Date: 2017/07/03 12:20:21 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.104 $  $Date: 2020/11/26 11:29:47 $
 
 -------------------------------------------------------------------------*/
 
@@ -53,9 +53,9 @@ Author / revision:
 #define SPH_hend   "end_head\n"
 
 #define LHEAD   1024
-#define SPH_LI   ((sizeof (SPH_ident)) - 1)
-#define SPH_LH   ((sizeof (SPH_hsize)) - 1)
-#define SPH_LE   ((sizeof (SPH_hend)) - 1)
+#define SPH_LI   (((int) sizeof(SPH_ident)) - 1)
+#define SPH_LH   (((int) sizeof(SPH_hsize)) - 1)
+#define SPH_LE   (((int) sizeof(SPH_hend)) - 1)
 
 #define SPH_TYPE_INVALID  0
 #define SPH_TYPE_INTEGER  1
@@ -68,10 +68,10 @@ NIST_1A\n
    1024\n
 
 The first line specifies the header type and the second line specifies the
-header length.  Each of these lines are 8 bytes long.
+header length. Each of these lines are 8 bytes long.
 
-The remaining object-oriented variable portion is composed of
-object-type-value "triple" lines which have the following format:
+The remaining object-oriented variable portion is composed of object-type-value
+"triple" lines which have the following format:
 
 <LINE> --> <TRIPLE>\n |
            <COMMENT>\n |
@@ -131,8 +131,8 @@ The following fields are conditionally required:
 
   Field_name         Field_type   Required if:
   ----------         ----------   ------------
-  sample_rate            -i       (the 'sample_coding' field is missing,
-                                   or contains 'pcm' or 'ulaw')
+  sample_rate            -i       (the 'sample_coding' field is missing, or
+                                   contains 'pcm' or 'ulaw')
 
 Possible values for these fields are:
 
@@ -149,8 +149,7 @@ Possible values for these fields are:
                    pcm,embedded-shortpack-X.X
 
 The single object "end_head" marks the end of the active header and the
-remaining unused header space is undefined. A sample header is included
-below.
+remaining unused header space is undefined. A sample header is included below.
 
 Example SPHERE header from the TIMIT corpus (NIST Speech Disc 1-1.1):
 NIST_1A
@@ -171,12 +170,12 @@ end_head
 */
 /* To decode the NIST SPHERE header information, this routine first squirrels
    away all of the information as information records in the audio file
-   parameter structure.  The OBJECT becomes the information record identifier,
-   after adding a terminating ':'.  For real and integer VALUE's, the text is
-   placed in the record text.  String VALUE's can in theory contain any of the
-   256 possible characters.  The limitations of the text record format means
-   some modifications occur.  For instance NUL characters are changed to
-   line-feed characters.  Also trailing white-space is eliminated in the record
+   parameter structure. The OBJECT becomes the information record identifier,
+   after adding a terminating ':'. For real and integer VALUE's, the text is
+   placed in the record text. String VALUE's can in theory contain any of the
+   256 possible characters. The limitations of the text record format means
+   some modifications occur. For instance NUL characters are changed to
+   line-feed characters. Also trailing white-space is eliminated in the record
    text.
 
   The records that describe the data format are extracted and used to set the
@@ -188,25 +187,25 @@ extern jmp_buf AFR_JMPENV;
 
 /* Local function prototypes */
 static int
-SPH_checkID (const char Header[]);
+SPH_checkID(const char Header[]);
 static int
-SPH_dataFormat (FILE *fp, struct AF_read *AFr);
+SPH_dataFormat(FILE *fp, struct AF_read *AFr);
 static char *
-SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo);
+SPH_decTriple(char *p_st, char *p_last, struct AF_info *AFInfo);
 static int
-SPH_decType (char *p_typ, int Ltyp, int *Lval);
+SPH_decType(char *p_typ, int Ltyp, int *Lval);
 static int
-SPH_EoH (char *p_st, char *p_NL);
+SPH_EoH(char *p_st, char *p_NL);
 static char *
-SPH_findNL (char *p_st, char *p_last);
+SPH_findNL(char *p_st, char *p_last);
 static char *
-SPH_findSP (char *p_st, char *p_last);
+SPH_findSP(char *p_st, char *p_last);
 
 AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 
 AFILE *
-AFrdSPhead (FILE *fp)
+AFrdSPhead(FILE *fp)
 
 {
   AFILE *AFp;
@@ -218,7 +217,7 @@ AFrdSPhead (FILE *fp)
   int EoH, hEoF, hend;
 
 /* Set the long jump environment; on error return a NULL */
-  if (setjmp (AFR_JMPENV))
+  if (setjmp(AFR_JMPENV))
     return NULL;  /* Return from a header read error */
 
 /* Defaults and initial values */
@@ -229,18 +228,18 @@ AFrdSPhead (FILE *fp)
 
 /* Read the header ID strings */
   poffs = 0;
-  offs  = RHEAD_SN (fp, &Header[0], SPH_LI);
-  offs += RHEAD_SN (fp, &Header[SPH_LI], SPH_LH);
-  AFsetChunkLim ("NIST", poffs, offs, &AFr.ChunkInfo);
+  offs  = RHEAD_SN(fp, &Header[0], SPH_LI);
+  offs += RHEAD_SN(fp, &Header[SPH_LI], SPH_LH);
+  AFsetChunkLim("NIST", poffs, offs, &AFr.ChunkInfo);
   poffs = offs;
 
 /* Check the file identifier / header length */
-  if (SPH_checkID (Header))
+  if (SPH_checkID(Header))
     return NULL;
 
 /* Read the rest of the header */
-  offs += RHEAD_SN (fp, &Header[SPH_LI + SPH_LH], LHEAD - offs);
-  assert (offs == LHEAD);
+  offs += RHEAD_SN(fp, &Header[SPH_LI + SPH_LH], LHEAD - offs);
+  assert(offs == LHEAD);
 
 /* Pick off information records in the header */
   p_st = &Header[SPH_LI + SPH_LH];
@@ -249,7 +248,7 @@ AFrdSPhead (FILE *fp)
   while (p_st <= p_last) {
 
     /* Find the next NL */
-    p_NL = SPH_findNL (p_st, p_last);
+    p_NL = SPH_findNL(p_st, p_last);
     if (p_NL == NULL)
       break;
 
@@ -260,38 +259,38 @@ AFrdSPhead (FILE *fp)
     }
 
     /* Look for an end of header line */
-    EoH = SPH_EoH (p_st, p_NL);
+    EoH = SPH_EoH(p_st, p_NL);
     if (EoH)
       break;
 
     /* Decode Triple, store as an Info Record */
-    p_NL = SPH_decTriple (p_st, p_last, &AFr.RInfo);
+    p_NL = SPH_decTriple(p_st, p_last, &AFr.RInfo);
     if (p_NL == NULL)
       break;
 
     p_st = p_NL + 1;                /* Skip over NL */
   }
 
-  if (! EoH) {
-    UTwarn ("AFrdSPhead - %s", AFM_SP_BadHead);
+  if (!EoH) {
+    UTwarn("AFrdSPhead - %s", AFM_SP_BadHead);
     return NULL;
   }
 
 /* Mark the header chunks */
   hEoF = (int) (p_st - &Header[0]);   /* Offset into Header */
-  AFsetChunkLim ("fmt ", poffs, hEoF, &AFr.ChunkInfo);
+  AFsetChunkLim("fmt ", poffs, hEoF, &AFr.ChunkInfo);
   p_st = p_NL + 1;                    /* Skip over NL */
   hend = (int) (p_st - &Header[0]);
-  AFsetChunkLim ("EoH ", hEoF, hend, &AFr.ChunkInfo);
-  AFsetChunkLim ("skip", hend, offs, &AFr.ChunkInfo);
+  AFsetChunkLim("EoH ", hEoF, hend, &AFr.ChunkInfo);
+  AFsetChunkLim("skip", hend, offs, &AFr.ChunkInfo);
 
 /* Decode the data format, Fill in AFr data specs */
-  if (SPH_dataFormat (fp, &AFr))
+  if (SPH_dataFormat(fp, &AFr))
     return NULL;
-  AFsetChunkLim ("data", offs, offs + AFr.NData.Ldata, &AFr.ChunkInfo);
+  AFsetChunkLim("data", offs, offs + AFr.NData.Ldata, &AFr.ChunkInfo);
 
 /* Set the parameters for file access */
-  AFp = AFsetRead (fp, FT_SPHERE, &AFr, AF_NOFIX);
+  AFp = AFsetRead(fp, FT_SPHERE, &AFr, AF_NOFIX);
 
   return AFp;
 }
@@ -305,17 +304,17 @@ AFrdSPhead (FILE *fp)
   Notes:
    1. Only 1-byte mu-law and 2 byte PCM (uncompressed) formats are supported.
    2. Having a swap code default of "native" for multi-byte data is not
-      reasonable.  This routine enforces specification of the byte order for
-      PCM data.
-   3. Both "ulaw" and "mu-law" are accepted.  The "pculaw" code appears in some
-      SPHERE files.  It is a bit reversed version of mu-law.
+      reasonable. This routine enforces specification of the byte order for PCM
+      data.
+   3. Both "ulaw" and "mu-law" are accepted. The "pculaw" code appears in some
+      SPHERE files. It is a bit reversed version of mu-law.
    4. Some multi-channel NIST SPHERE files have "channels_interleaved -s4 TRUE".
       The AFsp routines do not support a non-interleaved multi-channel input.
    5. Some NIST SPHERE files use the sample_format record to specify the
-      compression type.  This record is normally used to specify the byte order.
+      compression type. This record is normally used to specify the byte order.
    6. Some NIST files (switchboard data base, for instance) have a sample_count
       which is the total number of samples, not the samples/channel as specified
-      in the NIST SPHERE documentation.  Here we check for a sample_count which
+      in the NIST SPHERE documentation. Here we check for a sample_count which
       is too large for the file size and fix it.
 */
 
@@ -324,7 +323,7 @@ static const char *RecIDSF[] = {"sample_byte_format:", NULL};
 static const char *RecIDCI[] = {"channels_interleaved:", NULL};
 
 static int
-SPH_dataFormat (FILE *fp, struct AF_read *AFr)
+SPH_dataFormat(FILE *fp, struct AF_read *AFr)
 {
  int DF;
  enum UT_DS_T SwapCode;
@@ -336,60 +335,61 @@ SPH_dataFormat (FILE *fp, struct AF_read *AFr)
 /* Decode the sample format */
 /* Special case: "shortpack-v0" appears in "sample_format" */
   DF = 1;       /* PCM as default */
-  p = AFgetInfoRec (RecIDSF, &AFr->RInfo);
+  p = AFgetInfoRec(RecIDSF, &AFr->RInfo);
   if (p != NULL && strcmp (p, "shortpack-v0") == 0)
     DF = 0;   /* Not supported */
   else {
-    p = AFgetInfoRec (RecIDSC, &AFr->RInfo);
+    p = AFgetInfoRec(RecIDSC, &AFr->RInfo);
     if (p != NULL) {
       if (strcmp("pcm", p) == 0)
         DF = 1;
-      else if (strcmp ("ulaw", p) == 0 || strcmp ("mu-law", p) == 0)
+      else if (strcmp("ulaw", p) == 0 || strcmp("mu-law", p) == 0)
         DF = 2;   /* mu-law */
-      else if (strcmp ("pculaw", p) == 0)
+      else if (strcmp("pculaw", p) == 0)
         DF = 3;   /* bit-reversed mu-law */
       else
         DF = 0;
     }
   }
   if (DF == 0) {      /* p is not NULL */
-    UTwarn ("AFrdSPhead - %s: \"%s\"", AFM_SP_UnsData, p);
+    UTwarn("AFrdSPhead - %s: \"%s\"", AFM_SP_UnsData, p);
     return 1;
   }
 
 /* Required for PCM and/or mu-law */
-  SwapCode = AFgetInfoSwap (&AFr->RInfo);
-  Lw     = AFgetInfoBytes (&AFr->RInfo);
-  Nchan  = AFgetInfoChan  (&AFr->RInfo);
-  Sfreq  = AFgetInfoSfreq (&AFr->RInfo);
-  Nframe = AFgetInfoFrame (&AFr->RInfo);
+  SwapCode = AFgetInfoSwap(&AFr->RInfo);
+  Lw     = AFgetInfoBytes(&AFr->RInfo);
+  Nchan  = AFgetInfoChan(&AFr->RInfo);
+  Sfreq  = AFgetInfoSfreq(&AFr->RInfo);
+  Nframe = AFgetInfoFrame(&AFr->RInfo);
 
   if (Nchan == 0 || Nframe == AF_NFRAME_UNDEF ||
-      Sfreq == AF_SFREQ_UNDEF  || (DF == 1 && (SwapCode == DS_UNDEF || Lw == 0))) {
-    UTwarn ("AFrdSPhead - %s", AFM_SP_IncFmt);
+      Sfreq == AF_SFREQ_UNDEF  || (DF == 1 &&
+                                  (SwapCode == DS_UNDEF || Lw == 0))) {
+    UTwarn("AFrdSPhead - %s", AFM_SP_IncFmt);
     return 1;
   }
 
   if (DF == 1 && Lw != 2) {
-    UTwarn ("AFrdSPhead - %s", AFM_SP_UnsPCM);
+    UTwarn("AFrdSPhead - %s", AFM_SP_UnsPCM);
     return 1;
   }
   if ((DF == 2 || DF == 3) && Lw > 1) {      /* Allow Lw == 0 */
-    UTwarn ("AFrdSPhead - %s", AFM_SP_UnsMulaw);
+    UTwarn("AFrdSPhead - %s", AFM_SP_UnsMulaw);
     return 1;
   }
 
   /* Check for "channels_interleaved" */
   if (Nchan > 1) {
-    p = AFgetInfoRec (RecIDCI, &AFr->RInfo);
+    p = AFgetInfoRec(RecIDCI, &AFr->RInfo);
     if (p != NULL && strcmp (p, "TRUE") != 0)
-      UTwarn ("AFrdSPhead - %s", AFM_SP_NoInter);
+      UTwarn("AFrdSPhead - %s", AFM_SP_NoInter);
   }
 
   /* sample_count should return samples/channel, but in some cases is too large
      by a factor of Nchan */
-  if (Nchan > 1 && FLseekable (fp) &&
-      Lw * Nframe * Nchan + LHEAD > FLfileSize (fp) && Nframe % Nchan == 0)
+  if (Nchan > 1 && FLseekable(fp) &&
+      Lw * Nframe * Nchan + LHEAD > FLfileSize(fp) && Nframe % Nchan == 0)
     Nframe = Nframe / Nchan;
 
   /* Fill in the AFr data specs */
@@ -420,11 +420,11 @@ SPH_dataFormat (FILE *fp, struct AF_read *AFr)
 
 
 static int
-SPH_checkID (const char Header[])
+SPH_checkID(const char Header[])
 {
-  if (memcmp (Header, SPH_ident, SPH_LI) != 0 ||
-      memcmp (&Header[SPH_LI], SPH_hsize, SPH_LH) != 0) {
-    UTwarn ("AFrdSPhead - %s", AFM_SP_BadId);
+  if (memcmp(Header, SPH_ident, SPH_LI) != 0 ||
+      memcmp(&Header[SPH_LI], SPH_hsize, SPH_LH) != 0) {
+    UTwarn("AFrdSPhead - %s", AFM_SP_BadId);
     return 1;
   }
 
@@ -435,12 +435,12 @@ SPH_checkID (const char Header[])
 
 
 static int
-SPH_EoH (char *p_st, char *p_NL)
+SPH_EoH(char *p_st, char *p_NL)
 {
   int nc;
 
   nc = (int) (p_NL - p_st + 1);
-  if (nc == SPH_LE && memcmp (SPH_hend, p_st, nc) == 0)
+  if (nc == SPH_LE && memcmp(SPH_hend, p_st, nc) == 0)
     return 1;
 
   return 0;
@@ -450,12 +450,12 @@ SPH_EoH (char *p_st, char *p_NL)
 
 
 static char *
-SPH_findNL (char *p_st, char *p_last)
+SPH_findNL(char *p_st, char *p_last)
 
 {
   char *p_NL;
 
-  p_NL = memchr (p_st, '\n', (int) (p_last - p_st + 1));
+  p_NL = memchr(p_st, '\n', (int) (p_last - p_st + 1));
 
   return p_NL;
 }
@@ -465,7 +465,7 @@ SPH_findNL (char *p_st, char *p_last)
 /* Modifies the header, inserting '\0' and ':' to create substrings */
 
 static char *
-SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo)
+SPH_decTriple(char *p_st, char *p_last, struct AF_info *AFInfo)
 
 {
   char *p_SP, *p_NL;
@@ -473,12 +473,12 @@ SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo)
   int Lobj, Ltyp, Type, Lval;
 
   /* Find the next NL (again) */
-  p_NL = SPH_findNL (p_st, p_last);
+  p_NL = SPH_findNL(p_st, p_last);
   if (p_NL == NULL)
     return NULL;
 
   /* Find the first space */
-  p_SP = SPH_findSP (p_st, p_NL);
+  p_SP = SPH_findSP(p_st, p_NL);
   if (p_SP == NULL)
     return NULL;
 
@@ -490,7 +490,7 @@ SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo)
   p_st = p_SP + 1;
 
   /* Find the next space */
-  p_SP = SPH_findSP (p_st, p_NL);
+  p_SP = SPH_findSP(p_st, p_NL);
   if (p_SP == NULL)
     return NULL;
 
@@ -503,21 +503,21 @@ SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo)
   p_st = p_SP + 1;
 
   /* Decode the type code, Lval is zero, except for string values */
-  Type = SPH_decType (p_typ, Ltyp, &Lval);
+  Type = SPH_decType(p_typ, Ltyp, &Lval);
   if (Type == SPH_TYPE_INVALID)
     return NULL;
 
   /* Find a trailing comment on integer/real values */
   if (Type != SPH_TYPE_STRING) {
     Lval = (int) (p_NL - p_st);
-    p_sc = memchr (p_st, ';', Lval);
+    p_sc = memchr(p_st, ';', Lval);
     if (p_sc != NULL)
       Lval = (int) (p_sc - p_st);     /* AFaddInfoRec trims white-space */
   }
 
   /* Handle the case of a string value which overlaps the new-line */
   while (p_st + Lval > p_NL) {
-    p_NL = SPH_findNL (p_NL + 1, p_last);
+    p_NL = SPH_findNL(p_NL + 1, p_last);
     if (p_NL == NULL)
       return NULL;
   }
@@ -527,7 +527,7 @@ SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo)
   *(p_obj + Lobj + 1) = '\0';     /* Overwrites '-' */
 
   /* Add an information record */
-  AFaddInfoRec (p_obj, p_st, Lval, AFInfo);
+  AFaddInfoRec(p_obj, p_st, Lval, AFInfo);
 
   return p_NL;
 }
@@ -536,11 +536,11 @@ SPH_decTriple (char *p_st, char *p_last, struct AF_info *AFInfo)
 
 
 static char *
-SPH_findSP (char *p_st, char *p_last)
+SPH_findSP(char *p_st, char *p_last)
 
 {
   char *p_SP;
-  p_SP = memchr (p_st, ' ', (int) (p_last - p_st + 1));
+  p_SP = memchr(p_st, ' ', (int) (p_last - p_st + 1));
 
   return p_SP;
 }
@@ -552,7 +552,7 @@ SPH_findSP (char *p_st, char *p_last)
 
 
 static int
-SPH_decType (char *p_typ, int Ltyp, int *Lval)
+SPH_decType(char *p_typ, int Ltyp, int *Lval)
 
 {
   int Type, Lv;
@@ -560,13 +560,13 @@ SPH_decType (char *p_typ, int Ltyp, int *Lval)
 
   Type = SPH_TYPE_INVALID;
   Lv = 0;
-  if (Ltyp == 2 && memcmp ("-i", p_typ, 2) == 0)
+  if (Ltyp == 2 && memcmp("-i", p_typ, 2) == 0)
     Type = SPH_TYPE_INTEGER;
-  else if (Ltyp == 2 && memcmp ("-r", p_typ, 2) == 0)
+  else if (Ltyp == 2 && memcmp("-r", p_typ, 2) == 0)
     Type = SPH_TYPE_REAL;
-  else if (Ltyp > 2 && memcmp ("-s", p_typ, 2) == 0) {
+  else if (Ltyp > 2 && memcmp("-s", p_typ, 2) == 0) {
     p_sl = p_typ + 2;
-    Lv = (int) strtol (p_sl, &p, 10);
+    Lv = (int) strtol(p_sl, &p, 10);
     if (*p == '\0' && Lv > 0)   /* Check for successful conversion */
       Type = SPH_TYPE_STRING;
   }

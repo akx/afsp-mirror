@@ -2,17 +2,16 @@
                              McGill University
 
 Routine:
-  AFILE *AFsetNHread (FILE *fp, const char Fname[])
+  AFILE *AFsetNHread FILE *fp, const char Fname[])
 
 Purpose:
   Get file format information for a headerless audio file
 
 Description:
   This routine gets file information for an audio file with a non-standard
-  header or with no header.  File format information is passed to this routine
-  by calling AFsetInputPar before calling this routine.  This information
-  used to set the file data format information in the audio file pointer
-  structure.
+  header or with no header. File format information is passed to this routine by
+  calling AFsetInputPar before calling this routine. This information used to
+  set the file data format information in the audio file pointer structure.
 
 Parameters:
   <-  AFILE *AFsetNHread
@@ -23,8 +22,8 @@ Parameters:
       File name
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.82 $  $Date: 2017/06/09 15:06:22 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.83 $  $Date: 2020/11/25 17:54:50 $
 
 -------------------------------------------------------------------------*/
 
@@ -39,7 +38,7 @@ AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 
 AFILE *
-AFsetNHread (FILE *fp)
+AFsetNHread(FILE *fp)
 
 {
   AFILE *AFp;
@@ -54,12 +53,12 @@ AFsetNHread (FILE *fp)
 
 /* Check the data format */
   if (InputPar->Format == FD_UNDEF) {
-    UTwarn ("AFsetNHread - %s", AFM_NH_NoFormat);
+    UTwarn("AFsetNHread - %s", AFM_NH_NoFormat);
     return NULL;
   }
 
 /* Position at the start of data */
-  if (RSKIP (fp, InputPar->Start) != InputPar->Start)
+  if (RSKIP(fp, InputPar->Start) != InputPar->Start)
     return NULL;
 
 /* Set the parameters for file access */
@@ -73,7 +72,7 @@ AFsetNHread (FILE *fp)
   AFr.NData.Nchan = InputPar->Nchan;
 
   /* Set up the audio file structure */
-  AFp = AFsetRead (fp, FT_NH, &AFr, AF_NOFIX);
+  AFp = AFsetRead(fp, FT_NH, &AFr, AF_NOFIX);
 
   return AFp;
 }

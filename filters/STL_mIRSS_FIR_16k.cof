@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_mIRSS_FIR_16k.cof
 ! See ITU-T G.191 (2005), Software Tools Library (module fir-irs.c)
-! $Id: STL_mIRSS_FIR_16k.cof 1.4 2006/03/30 AFsp-v10r2 $
+! $Id: STL_mIRSS_FIR_16k.cof 1.5 2018/11/20 AFsp-v10r3 $
 !
 ! Modified IRS (send) filter, ITU-T Recommendation P.48 (SRAEN response
 ! removed)
@@ -12,6 +12,7 @@
 !  - Designed for 16 kHz sampling
 !  - The coefficients can be represented as 16-bit values, i.e.
 !    2^15 * h(i) is an integer.
+!  - Main lobe has negative values
  3.0517578e-05
  3.0517578e-05
  3.0517578e-05

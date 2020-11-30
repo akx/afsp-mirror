@@ -2,14 +2,14 @@
                              McGill University
 
 Routine:
-  AFILE *AFrdAUhead (FILE *fp)
+  AFILE *AFrdAUhead(FILE *fp)
 
 Purpose:
   Get file format information from an AU audio file
 
 Description:
-  This routine reads the header for an AU audio file.  The header information
-  is used to set the file data format information in the audio file pointer
+  This routine reads the header for an AU audio file. The header information is
+  used to set the file data format information in the audio file pointer
   structure.
 
   AU audio file header:
@@ -24,7 +24,7 @@ Description:
      28    ...    --    Additional header information
       -    ...    --    Audio data
 
-  For AU files, text information immediately precedes the audio data.  If the
+  For AU files, text information immediately precedes the audio data. If the
   "AFsp" identifier is present, the remaining text is stored as information
   records in the audio file parameter structure.
 
@@ -35,8 +35,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.101 $  $Date: 2017/06/22 11:36:32 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.103 $  $Date: 2020/11/26 11:29:47 $
 
 -------------------------------------------------------------------------*/
 
@@ -57,7 +57,7 @@ AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 
 AFILE *
-AFrdAUhead (FILE *fp)
+AFrdAUhead(FILE *fp)
 
 {
   AFILE *AFp;
@@ -74,31 +74,31 @@ AFrdAUhead (FILE *fp)
   AFr = AFr_default;
   AFr.RInfo.Info = Info;
   AFr.RInfo.N = 0;
-  AFr.RInfo.Nmax = sizeof (Info);
+  AFr.RInfo.Nmax = sizeof(Info);
 
 /* Check the file magic */
   poffs = 0;
-  offs = RHEAD_S (fp, Fhead.Magic);
-  if (! SAME_CSTR (Fhead.Magic, FM_AU)) {
-    UTwarn ("AFrdAUhead - %s", AFM_AU_BadId);
+  offs = RHEAD_S(fp, Fhead.Magic);
+  if (!SAME_CSTR(Fhead.Magic, FM_AU)) {
+    UTwarn("AFrdAUhead - %s", AFM_AU_BadId);
     return NULL;
   }
-  AFsetChunkLim (".snd", poffs, offs, &AFr.ChunkInfo);
+  AFsetChunkLim(".snd", poffs, offs, &AFr.ChunkInfo);
 
 /* Read the data parameters */
   poffs = offs;
-  offs += RHEAD_V (fp, Fhead.Lhead, DS_EB);
-  offs += RHEAD_V (fp, Fhead.Ldata, DS_EB);
-  offs += RHEAD_V (fp, Fhead.Dencod, DS_EB);
-  offs += RHEAD_V (fp, Fhead.Srate, DS_EB);
-  offs += RHEAD_V (fp, Fhead.Nchan, DS_EB);
-  AFsetChunkLim ("fmt ", poffs, offs, &AFr.ChunkInfo);
+  offs += RHEAD_V(fp, Fhead.Lhead, DS_EB);
+  offs += RHEAD_V(fp, Fhead.Ldata, DS_EB);
+  offs += RHEAD_V(fp, Fhead.Dencod, DS_EB);
+  offs += RHEAD_V(fp, Fhead.Srate, DS_EB);
+  offs += RHEAD_V(fp, Fhead.Nchan, DS_EB);
+  AFsetChunkLim("fmt ", poffs, offs, &AFr.ChunkInfo);
 
 /* Pick up AFsp information records */
   poffs = offs;
-  offs += AFrdInfoAFspIdentText (fp, (int) (Fhead.Lhead - offs), "info:",
-                                 &AFr.RInfo, 1);
-  AFsetChunkLim ("info", poffs, offs, &AFr.ChunkInfo);
+  offs += AFrdInfoAFspIdentText(fp, (int) (Fhead.Lhead - offs), "info:",
+                                &AFr.RInfo, 1);
+  AFsetChunkLim("info", poffs, offs, &AFr.ChunkInfo);
 
 /* Set up the decoding parameters */
   switch (Fhead.Dencod) {
@@ -122,21 +122,20 @@ AFrdAUhead (FILE *fp)
     break;
   case AU_FLOAT32:
     AFr.DFormat.Format = FD_FLOAT32;
-    if (! UTcheckIEEE ())
-      UTwarn ("AFrdAUhead - %s", AFM_NoIEEE);
+    if (!UTcheckIEEE())
+      UTwarn("AFrdAUhead - %s", AFM_NoIEEE);
     break;
   case AU_DOUBLE64:
     AFr.DFormat.Format = FD_FLOAT64;
-    if (! UTcheckIEEE ())
-      UTwarn ("AFrdAUhead - %s", AFM_NoIEEE);
+    if (!UTcheckIEEE())
+      UTwarn("AFrdAUhead - %s", AFM_NoIEEE);
     break;
   case AU_G721:
-    UTwarn ("AFrdAUhead - %s: \"%s\"", AFM_AU_UnsData, "G.721 ADPCM");
+    UTwarn("AFrdAUhead - %s: \"%s\"", AFM_AU_UnsData, "G.721 ADPCM");
     AFr.DFormat.Format = FD_UNDEF;
     return NULL;
   default:
-    UTwarn ("AFrdAUhead - %s: \"%ld\"", AFM_AU_UnsData,
-            (long int) Fhead.Dencod);
+    UTwarn("AFrdAUhead - %s: \"%ld\"", AFM_AU_UnsData, (long int) Fhead.Dencod);
     AFr.DFormat.Format = FD_UNDEF;
     return NULL;
   }
@@ -146,13 +145,13 @@ AFrdAUhead (FILE *fp)
   AFr.Sfreq = (double) Fhead.Srate;
   if (Fhead.Ldata != AU_NOSIZE) {
     AFr.NData.Ldata = (long int) Fhead.Ldata;
-    AFsetChunkLim ("data", offs, offs + AFr.NData.Ldata, &AFr.ChunkInfo);
+    AFsetChunkLim("data", offs, offs + AFr.NData.Ldata, &AFr.ChunkInfo);
   }
   else
-    AFsetChunkLim ("data", offs, AF_EoF, &AFr.ChunkInfo);
+    AFsetChunkLim("data", offs, AF_EoF, &AFr.ChunkInfo);
   AFr.NData.Nchan = (long int) Fhead.Nchan;
 
-  AFp = AFsetRead (fp, FT_AU, &AFr, AF_FIX_LDATA_HIGH);
+  AFp = AFsetRead(fp, FT_AU, &AFr, AF_FIX_LDATA_HIGH);
 
   return AFp;
 }

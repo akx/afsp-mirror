@@ -2,13 +2,13 @@
                              McGill University
 
 Routine:
-  AFILE *AFrdSWhead (FILE *fp)
+  AFILE *AFrdSWhead(FILE *fp)
 
 Purpose:
   Get file format information from a Cadence SPW Signal file
 
 Description:
-  This routine reads the header for a Cadence SPW Signal file.  The header
+  This routine reads the header for a Cadence SPW Signal file. The header
   information is used to set the file data format information in the audio file
   pointer structure.
 
@@ -16,8 +16,8 @@ Description:
    Offset Length Type    Contents
       0     15   char   File identifier ("$SIGNAL_FILE 9\n")
   The remaining header consists of lines of text data, with each line terminated
-  by a newline character.  The header is divided into sections with a section
-  header marked by a string starting with a "$" character.  An example header is
+  by a newline character. The header is divided into sections with a section
+  header marked by a string starting with a "$" character. An example header is
   shown below.
       $SIGNAL_FILE 9
       $USER_COMMENT
@@ -36,9 +36,9 @@ Description:
   This routine does not support ASCII data with embedded comments.
 
   Text in the comment field of a Cadence SPW Signal file is returned as a
-  "comment:" information record in the audio file parameter structure.  All
-  lines between section markers are stored as information records.  For instance,
-  the "SPW Version" line in the example is stored as "SPW Version: 3.10".
+  "comment:" information record in the audio file parameter structure. All lines
+  between section markers are stored as information records. For instance, the
+  "SPW Version" line in the example is stored as "SPW Version: 3.10".
 
 Parameters:
   <-  AFILE *AFrdSWhead
@@ -47,8 +47,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.54 $  $Date: 2017/07/13 20:12:43 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.56 $  $Date: 2020/11/26 11:29:47 $
 
 -------------------------------------------------------------------------*/
 
@@ -124,11 +124,11 @@ AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 /* Local functions */
 static int
-AF_procSWhead (FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr);
+AF_procSWhead(FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr);
 
 
 AFILE *
-AFrdSWhead (FILE *fp)
+AFrdSWhead(FILE *fp)
 
 {
   AFILE *AFp;
@@ -146,16 +146,16 @@ AFrdSWhead (FILE *fp)
   AFr = AFr_default;
   AFr.RInfo.Info = Info;
   AFr.RInfo.N = 0;
-  AFr.RInfo.Nmax = sizeof (Info);
+  AFr.RInfo.Nmax = sizeof(Info);
 
 /* Process the header, creating info records */
-  Err = AF_procSWhead (fp, &BinData, DataOffs, &AFr);
+  Err = AF_procSWhead(fp, &BinData, DataOffs, &AFr);
   if (Err)
     return NULL;
 
-  text = AFgetInfoRec (RecID_UnsOpt, &AFr.RInfo);
+  text = AFgetInfoRec(RecID_UnsOpt, &AFr.RInfo);
   if (text != NULL) {
-    UTwarn ("AFrSWhead - %s", AFM_SW_UnsOpt);
+    UTwarn("AFrSWhead - %s", AFM_SW_UnsOpt);
     return NULL;
   }
 
@@ -163,30 +163,30 @@ AFrdSWhead (FILE *fp)
   Nchan = 1;
 
 /* Get the number of sample frames (can remain undefined) */
-  Nframe = AFgetInfoFrame (&AFr.RInfo);
+  Nframe = AFgetInfoFrame(&AFr.RInfo);
 
 /* Get the sampling frequency */
-  Sfreq = AFgetInfoSfreq (&AFr.RInfo);
+  Sfreq = AFgetInfoSfreq(&AFr.RInfo);
   if (Sfreq == AF_SFREQ_UNDEF) {
     Sfreq = AFopt.InputPar.Sfreq;
-    UTwarn (AFMF_SfreqInPar, "AFrdSWhead -", Sfreq);
+    UTwarn(AFMF_SfreqInPar, "AFrdSWhead -", Sfreq);
   }
 
 /* Set the byte swap code */
   Fbo = DS_EB;
   if (BinData) {
-    text = AFgetInfoRec (RecID_SysType, &AFr.RInfo);
-    if (text != NULL && ! (strcmp (text, "sun4") == 0 ||
-                           strcmp (text, "hp700") == 0))
-      UTwarn (AFMF_SW_UnsSys, "AFrdSWhead -", text);
+    text = AFgetInfoRec(RecID_SysType, &AFr.RInfo);
+    if (text != NULL && !(strcmp(text, "sun4") == 0 ||
+                          strcmp(text, "hp700") == 0))
+      UTwarn(AFMF_SW_UnsSys, "AFrdSWhead -", text);
   }
 
 /* Set the data type */
   FullScale = AF_FULLSCALE_DEFAULT;
-  text = AFgetInfoRec (RecID_SigType, &AFr.RInfo);
-  n = STkeyMatch (text, SW_DTtab);
+  text = AFgetInfoRec(RecID_SigType, &AFr.RInfo);
+  n = STkeyMatch(text, SW_DTtab);
   if (n < 0) {
-    UTwarn (AFMF_SW_UnsSigType, "AFrdSWhead:", text);
+    UTwarn(AFMF_SW_UnsSigType, "AFrdSWhead:", text);
     return NULL;
   }
   Format = FD_UNDEF;
@@ -211,16 +211,16 @@ AFrdSWhead (FILE *fp)
   }
 
 /* Modify the FullScale value if "Fixed Point Fomat" is set */
-  text = AFgetInfoRec (RecID_FPFormat, &AFr.RInfo);
+  text = AFgetInfoRec(RecID_FPFormat, &AFr.RInfo);
   if (text != NULL) {
-    if (strcmp (text, "<16,15,t>") == 0) {
+    if (strcmp(text, "<16,15,t>") == 0) {
       Format = FD_TEXT16;
       FullScale = AF_FULLSCALE_INT16;   /* Sign + 15 bits for integer part */
     }
-    else if (strcmp (text, "<16,0,t>") == 0)
+    else if (strcmp(text, "<16,0,t>") == 0)
       FullScale = 1;                    /* Sign + 15 bits for fractional part */
     else {
-      UTwarn (AFMF_SW_UnsFixFormat, "AFrdSWhead:", text);
+      UTwarn(AFMF_SW_UnsFixFormat, "AFrdSWhead:", text);
       return NULL;
     }
   }
@@ -239,19 +239,19 @@ AFrdSWhead (FILE *fp)
   if (BinData && AFr.NData.Nsamp != AF_NSAMP_UNDEF)
     FLsize = DataOffs[1] + AFr.NData.Nsamp * AF_DL[Format];
   if (BinData)
-    AFsetChunkLim ("DBIN", DataOffs[0], FLsize, &AFr.ChunkInfo);
+    AFsetChunkLim("DBIN", DataOffs[0], FLsize, &AFr.ChunkInfo);
   else
-    AFsetChunkLim ("DASC", DataOffs[0], FLsize, &AFr.ChunkInfo);
-  AFsetChunkLim ("data", DataOffs[1], FLsize, &AFr.ChunkInfo);
+    AFsetChunkLim("DASC", DataOffs[0], FLsize, &AFr.ChunkInfo);
+  AFsetChunkLim("data", DataOffs[1], FLsize, &AFr.ChunkInfo);
 
-  AFp = AFsetRead (fp, FT_SPW, &AFr, AF_NOFIX);
+  AFp = AFsetRead(fp, FT_SPW, &AFr, AF_NOFIX);
   return AFp;
 }
 
 /* Process the header - write records to the info record structure */
 
 static int
-AF_procSWhead (FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr)
+AF_procSWhead(FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr)
 
 {
   char *line;
@@ -264,12 +264,12 @@ AF_procSWhead (FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr)
 /* Check for the file identifier */
   soffs = 0;
   ErrCode = AF_NOERR;
-  line = AFgetLine (fp, &ErrCode);
-  if (line == NULL || ! SAME_CSTR (SW_ID, line)) {
-    UTwarn ("AFrdSWhead - %s", AFM_SW_BadId);
+  line = AFgetLine(fp, &ErrCode);
+  if (line == NULL || !SAME_CSTR(SW_ID, line)) {
+    UTwarn("AFrdSWhead - %s", AFM_SW_BadId);
     return 1;
   }
-  ioffs = (int) strlen (line) + 1;      /* Past '\n' */
+  ioffs = (int) strlen(line) + 1;       /* Past '\n' */
 
 /* Check the header information, line by line */
   Err = 0;
@@ -279,22 +279,22 @@ AF_procSWhead (FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr)
     poffs = ioffs;    /* Line start */
 
     /* Read a line */
-    line = AFgetLine (fp, &ErrCode);
+    line = AFgetLine(fp, &ErrCode);
     if (ErrCode)
       break;
-    ioffs += (int) strlen (line) + 1;   /* line length + '\n' */
+    ioffs += (int) strlen(line) + 1;    /* line length + '\n' */
 
     /* Trim trailing white-space */
-    nc = STtrimTail (line);
+    nc = STtrimTail(line);
 
     if (line[0] == '$') {
 
       /* Finish a section */
-      AFsetChunkLim (SW_ckID[iSec], soffs, poffs, &AFr->ChunkInfo);
+      AFsetChunkLim(SW_ckID[iSec], soffs, poffs, &AFr->ChunkInfo);
 
       /* Identify a new section */
       soffs = poffs;
-      iSec = STkeyMatch (line, SW_SectTab);
+      iSec = STkeyMatch(line, SW_SectTab);
       if (iSec < 0) {
         Err = 1;
         break;
@@ -307,19 +307,19 @@ AF_procSWhead (FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr)
 
     if (iSec == SW_USER_COMMENT) {
       if (nc > 0)
-        AFaddInfoRec ("comment:", line, nc, &AFr->RInfo);
+        AFaddInfoRec("comment:", line, nc, &AFr->RInfo);
     }
     else if (iSec == SW_COMMON_INFO || iSec == SW_DATA_INFO) {
       /* Check for an equal sign separator */
-      p = STfindToken (line, "=", "", Token, 1, SW_MAXLHEAD);
+      p = STfindToken(line, "=", "", Token, 1, SW_MAXLHEAD);
       if (p != NULL) {
-        STcatMax (":", Token, SW_MAXLHEAD);
-        nc = (int) strlen (p);
-        AFaddInfoRec (Token, p, nc, &AFr->RInfo);
+        STcatMax(":", Token, SW_MAXLHEAD);
+        nc = strlen(p);
+        AFaddInfoRec(Token, p, nc, &AFr->RInfo);
       }
       /* No equal sign */
       else
-        AFaddInfoRec (Token, NULL, 0, &AFr->RInfo);
+        AFaddInfoRec(Token, NULL, 0, &AFr->RInfo);
     }
   }
 
@@ -328,14 +328,14 @@ AF_procSWhead (FILE *fp, int *BinData, int DataOffs[2], struct AF_read *AFr)
   DataOffs[0] = soffs;
   DataOffs[1] = ioffs;
 
-  if (! (iSec == SW_DATA_ASCII || iSec == SW_DATA_BINARY) ||
+  if (!(iSec == SW_DATA_ASCII || iSec == SW_DATA_BINARY) ||
       Err == 1 || ioffs >= SW_MAXLHEAD) {
-    UTwarn ("AFrdSWhead - %s", AFM_SW_UnsHead);
+    UTwarn("AFrdSWhead - %s", AFM_SW_UnsHead);
     return 1;
   }
 
-  if (FLseekable (fp) && ioffs != (int) AFtell (fp, &ErrCode)) {
-    UTwarn ("AFrdSWhead  - %s", AFM_SW_PosErr);
+  if (FLseekable(fp) && ioffs != (int) AFtell(fp, &ErrCode)) {
+    UTwarn("AFrdSWhead  - %s", AFM_SW_PosErr);
     return 1;
   }
 

@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  AFILE *AFrdINhead (FILE *fp)
+  AFILE *AFrdINhead(FILE *fp)
 
 Purpose:
   Get file format information from an INRS-Telecommunications audio file
@@ -23,7 +23,7 @@ Description:
   The number of speech samples is checked against the total extent of the file.
   If unspecified, the file size is used to determine the number of samples.
 
-  For INRS-Telecom files date information is embedded in the header.  This
+  For INRS-Telecom files date information is embedded in the header. This
   information is stored as a "date:" information record in the audio file
   information record structure.
 
@@ -34,8 +34,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.82 $  $Date: 2017/07/12 17:27:51 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.83 $  $Date: 2020/11/25 17:54:49 $
 
 -------------------------------------------------------------------------*/
 
@@ -82,7 +82,7 @@ AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 
 AFILE *
-AFrdINhead (FILE *fp)
+AFrdINhead(FILE *fp)
 
 {
   AFILE *AFp;
@@ -94,14 +94,14 @@ AFrdINhead (FILE *fp)
   static char *RecIDdate[] = AF_INFOID_DATE;
 
 /* Set the long jump environment; on error return a NULL */
-  if (setjmp (AFR_JMPENV))
+  if (setjmp(AFR_JMPENV))
     return NULL;  /* Return from a header read error */
 
 /* Notes:
   - Very old INRS-Telecom audio files (generated on a PDP-11) have ~0 values
     for unwritten bytes in the header.
-  - Old INRS-Telecom audio files used the Fhead.Nsamp field.  These files were
-    an integral number of disk blocks long (512 bytes per disk block), with
+  - Old INRS-Telecom audio files used the Fhead.Nsamp field. These files were an
+    integral number of disk blocks long (512 bytes per disk block), with
     possibly part of the last block being unused.
   - Old INRS-Telecom audio files (generated on a PDP-11) have only an 18 byte
     date and time, followed by two 0 or two ~0 bytes.
@@ -111,34 +111,34 @@ AFrdINhead (FILE *fp)
   AFr = AFr_default;
   AFr.RInfo.Info = Info;
   AFr.RInfo.N = 0;
-  AFr.RInfo.Nmax = sizeof (Info);
+  AFr.RInfo.Nmax = sizeof(Info);
 
 /* Read in first part of the header */
   poffs = 0;
-  offs  = RHEAD_S (fp, Fhead.Sfreq);
+  offs  = RHEAD_S(fp, Fhead.Sfreq);
 
 /* Use the sampling frequency as a file magic value */
   for (iSF = 0; iSF < NINRS; iSF++) {
-    if (SAME_CSTR (Fhead.Sfreq, FM_INRS[iSF]))
+    if (SAME_CSTR(Fhead.Sfreq, FM_INRS[iSF]))
       break;
   }
   if (iSF >= NINRS) {
-    UTwarn ("AFrdINhead - %s", AFM_INRS_BadId);
+    UTwarn("AFrdINhead - %s", AFM_INRS_BadId);
     return NULL;
   }
-  AFsetChunkLim (ID[iSF], poffs, offs, &AFr.ChunkInfo);
+  AFsetChunkLim(ID[iSF], poffs, offs, &AFr.ChunkInfo);
   poffs = offs;
 
   /* Read the rest of the header */
-  offs += RSKIP (fp, 6L - offs);
-  offs += AFrdInfoIdentText (fp, NDT, RecIDdate[0], &AFr.RInfo, 1);
-  offs += RHEAD_V (fp, Fhead.Nsamp, DS_EL);
-  AFsetChunkLim ("fmt ", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, 6L - offs);
+  offs += AFrdInfoIdentText(fp, NDT, RecIDdate[0], &AFr.RInfo, 1);
+  offs += RHEAD_V(fp, Fhead.Nsamp, DS_EL);
+  AFsetChunkLim("fmt ", poffs, offs, &AFr.ChunkInfo);
 
 /* Position at the start of data */
   poffs = offs;
-  offs += RSKIP (fp, LHEAD - offs);
-  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, LHEAD - offs);
+  AFsetChunkLim("skip", poffs, offs, &AFr.ChunkInfo);
 
 /* Set the parameters for file access */
   AFr.Sfreq = VSfreq[iSF];
@@ -147,12 +147,12 @@ AFrdINhead (FILE *fp)
   if (Fhead.Nsamp != 0 && Fhead.Nsamp != IN_NOSIZE) {
     AFr.NData.Nsamp = (long int) Fhead.Nsamp;
     Ldata = AFr.NData.Nsamp * AF_DL[AFr.DFormat.Format];
-    AFsetChunkLim ("data", offs, offs + Ldata, &AFr.ChunkInfo);
+    AFsetChunkLim("data", offs, offs + Ldata, &AFr.ChunkInfo);
   }
   else
-    AFsetChunkLim ("data", offs, AF_EoF, &AFr.ChunkInfo);
+    AFsetChunkLim("data", offs, AF_EoF, &AFr.ChunkInfo);
 
-  AFp = AFsetRead (fp, FT_INRS, &AFr, AF_NOFIX);
+  AFp = AFsetRead(fp, FT_INRS, &AFr, AF_NOFIX);
 
   return AFp;
 }

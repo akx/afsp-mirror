@@ -2,21 +2,21 @@
                              McGill University
 
 Routine:
-  void RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
-                 const struct Tval_T *T, const struct Fpoly_T *PF)
+  void RSinterp(const double x[], int Nxm, double y[], int Ny, double Ds,
+                const struct Tval_T *T, const struct Fpoly_T *PF)
 
 Purpose:
   Interpolate data values in an array using an interpolation filter
 
 Description:
   This procedure generates output points at equally spaced (fractional) sample
-  points.  The input array contains Nxm samples, including lmem filter memory
-  samples, where lmem = PF->Ncmax-1.  The output points correspond to times
+  points. The input array contains Nxm samples, including lmem filter memory
+  samples, where lmem = PF->Ncmax-1. The output points correspond to times
     t(i) = lmem + (dsr + ds + Ds*i) / Ns
-  This procedure generates interpolated values which bracket the desired
-  time point.  The bracketing points are separated by 1/PF->Ir.  Linear
-  interpolation is used between the bracketing points to generate the output
-  value corresponding to one time value.
+  This procedure generates interpolated values which bracket the desired time
+  point. The bracketing points are separated by 1/PF->Ir. Linear interpolation
+  is used between the bracketing points to generate the output value
+  corresponding to one time value.
 
 Parameters:
    -> const double x[]
@@ -35,8 +35,8 @@ Parameters:
       Structure with the filter coefficients in a polyphase form
 
 Author / revision:
-  P. Kabal  Copyright (C) 2015
-  $Revision: 1.13 $  $Date: 2015/04/10 12:46:11 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.14 $  $Date: 2020/11/23 18:31:59 $
 
 -------------------------------------------------------------------------*/
 
@@ -47,12 +47,12 @@ Author / revision:
 #define EPS 1E-10
 
 static double
-RS_conv (const double *xp, const double h[], int Nc);
+RS_conv(const double *xp, const double h[], int Nc);
 
 
 void
-RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
-          const struct Tval_T *T, const struct Fpoly_T *PF)
+RSinterp(const double x[], int Nxm, double y[], int Ny, double Ds,
+         const struct Tval_T *T, const struct Fpoly_T *PF)
 
 {
   double yl, yh;
@@ -81,50 +81,48 @@ RSinterp (const double x[], int Nxm, double y[], int Ny, double Ds,
     p =  Ir * tir - mr;
 
     n = To.n;
-    assert (n < Nxm);   /* Invalid time position */
+    assert(n < Nxm);   /* Invalid time position */
 
 /*
-  The polyphase filter has an extra subfilter, subfilter Ir.  If the lower
-  bracket to a time position uses subfilter Ir-1, then normally we would have
-  to use subfilter 0 for the upper bracket, and appropriately shift the filter
-  position.  Here we avoid this arithmetic by creating an extra subfilter,
-  which is the same as subfilter 0.  The offset for this extra filter is that
-  for subfilter 0 less one.
+  The polyphase filter has an extra subfilter, subfilter Ir. If the lower
+  bracket to a time position uses subfilter Ir-1, then normally we would have to
+  use subfilter 0 for the upper bracket, and appropriately shift the filter
+  position. Here we avoid this arithmetic by creating an extra subfilter, which
+  is the same as subfilter 0. The offset for this extra filter is that for
+  subfilter 0 less one.
 */
     /* Sample point at the lower end of the bracketed range */
     if (p <= EPS)
-      y[i] = RS_conv (&x[n-offs[mr]], hs[mr], Nc[mr]);
+      y[i] = RS_conv(&x[n-offs[mr]], hs[mr], Nc[mr]);
 
     /* Sample point at the upper end of the bracketed range */
     else if (p >= 1.0-EPS)
-      y[i] = RS_conv (&x[n-offs[mr+1]], hs[mr+1], Nc[mr+1]);
+      y[i] = RS_conv(&x[n-offs[mr+1]], hs[mr+1], Nc[mr+1]);
 
     /* Sample point in the middle of the bracketed range */
     else {
-      yl = RS_conv (&x[n-offs[mr]], hs[mr], Nc[mr]);
-      yh = RS_conv (&x[n-offs[mr+1]], hs[mr+1], Nc[mr+1]);
+      yl = RS_conv(&x[n-offs[mr]], hs[mr], Nc[mr]);
+      yh = RS_conv(&x[n-offs[mr+1]], hs[mr+1], Nc[mr+1]);
       y[i] = (1.0 - p) * yl + p * yh;
     }
 
     /* Update the sample pointer (n, ds, dsr) - dsr remains unchanged */
-    RSincTime (&To, Ds);
+    RSincTime(&To, Ds);
   }
-
-  return;
 }
 
 /*-------------- Telecommunications & Signal Processing Lab ---------------
                              McGill University
 
 Routine:
-  static double RS_conv (const double *xp, const double h[], int Nc)
+  static double RS_conv(const double *xp, const double h[], int Nc)
 
 Purpose:
   Generate one filtered value
 
 Description:
   The procedure convolves a set of filter coefficients with an array of data.
-  The input array is x[.].  The first N-1 samples of x[.] are past inputs.
+  The input array is x[.]. The first N-1 samples of x[.] are past inputs.
         N-1
     y = SUM h[j] x[N-1-j]
         j=0
@@ -140,13 +138,13 @@ Parameters:
       Number of filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2015
-  $Revision: 1.13 $  $Date: 2015/04/10 12:46:11 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.14 $  $Date: 2020/11/23 18:31:59 $
 
 -------------------------------------------------------------------------*/
 
 static double
-RS_conv (const double *xp, const double h[], int Nc)
+RS_conv(const double *xp, const double h[], int Nc)
 
 {
   int l, j;
@@ -155,9 +153,9 @@ RS_conv (const double *xp, const double h[], int Nc)
 
 /*
   There are many different ways to write this tight loop, including using
-  indices (as here) or using pointers with decrement and increment.  Tests
-  have shown that for all compilers tested, these different idioms result in
-  equally fast execution.
+  indices (as here) or using pointers with decrement and increment. Tests have
+  shown that for all compilers tested, these different idioms result in equally
+  fast execution.
 */
 
   /* Convolution with filter */

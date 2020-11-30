@@ -2,13 +2,13 @@
                              McGill University
 
 Routine:
-  AFILE *AFrdSFhead (FILE *fp)
+  AFILE *AFrdSFhead(FILE *fp)
 
 Purpose:
   Get file format information from an IRCAM soundfile
 
 Description:
-  This routine reads the header for an IRCAM soundfile.  The header information
+  This routine reads the header for an IRCAM soundfile. The header information
   is used to set the file data format information in the audio file pointer
   structure.
 
@@ -31,8 +31,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.89 $  $Date: 2017/06/28 23:52:14 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.90 $  $Date: 2020/11/25 17:54:50 $
 
 -------------------------------------------------------------------------*/
 
@@ -95,11 +95,11 @@ AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 /* Local function */
 static int
-AF_getComment (FILE *fp, int Size, int Fbo, struct AF_info *RInfo);
+AF_getComment(FILE *fp, int Size, int Fbo, struct AF_info *RInfo);
 
 
 AFILE *
-AFrdSFhead (FILE *fp)
+AFrdSFhead(FILE *fp)
 
 {
   AFILE *AFp;
@@ -109,58 +109,58 @@ AFrdSFhead (FILE *fp)
   struct AF_read AFr;
 
 /* Set the long jump environment; on error return a NULL */
-  if (setjmp (AFR_JMPENV))
+  if (setjmp(AFR_JMPENV))
     return NULL;  /* Return from a header read error */
 
 /* Defaults and initial values */
   AFr = AFr_default;
   AFr.RInfo.Info = Info;
   AFr.RInfo.N = 0;
-  AFr.RInfo.Nmax = sizeof (Info);
+  AFr.RInfo.Nmax = sizeof(Info);
 
 /* Check the file magic */
   poffs = 0;
-  offs = RHEAD_S (fp, Fhead.Magic);
+  offs = RHEAD_S(fp, Fhead.Magic);
 
-  if (SAME_CSTR (Fhead.Magic, FM_SF_VAX_L) ||
-      SAME_CSTR (Fhead.Magic, FM_SF_SUN_L) ||
-      SAME_CSTR (Fhead.Magic, FM_SF_MIPS_L)) {
+  if (SAME_CSTR(Fhead.Magic, FM_SF_VAX_L) ||
+      SAME_CSTR(Fhead.Magic, FM_SF_SUN_L) ||
+      SAME_CSTR(Fhead.Magic, FM_SF_MIPS_L)) {
     AFr.DFormat.Swapb = DS_EL;
-    AFsetChunkLim ("SF-l", poffs, offs, &AFr.ChunkInfo);
+    AFsetChunkLim("SF-l", poffs, offs, &AFr.ChunkInfo);
   }
-  else if (SAME_CSTR (Fhead.Magic, FM_SF_VAX_B) ||
-           SAME_CSTR (Fhead.Magic, FM_SF_SUN_B) ||
-           SAME_CSTR (Fhead.Magic, FM_SF_MIPS_B) ||
-           SAME_CSTR (Fhead.Magic, FM_SF_NEXT)) {
+  else if (SAME_CSTR(Fhead.Magic, FM_SF_VAX_B) ||
+           SAME_CSTR(Fhead.Magic, FM_SF_SUN_B) ||
+           SAME_CSTR(Fhead.Magic, FM_SF_MIPS_B) ||
+           SAME_CSTR(Fhead.Magic, FM_SF_NEXT)) {
     AFr.DFormat.Swapb = DS_EB;
-    AFsetChunkLim ("SF-b", poffs, offs, &AFr.ChunkInfo);
+    AFsetChunkLim("SF-b", poffs, offs, &AFr.ChunkInfo);
   }
   else {
-    UTwarn ("AFrdSFhead - %s", AFM_SF_BadId);
+    UTwarn("AFrdSFhead - %s", AFM_SF_BadId);
     return NULL;
   }
   poffs = offs;
 
 /* Notes:
-   - IRCAM files can be written by a number of different hosts.  The data is
+   - IRCAM files can be written by a number of different hosts. The data is
      normally written out in native format (byte order and float format).
    - Early IRCAM software ran on VAX computers (little-endian) with float data
      (sampling frequency) in VAX float format.
-   - Subsequent IRCAM software ran on Sun computers (big-endian).  The file data
+   - Subsequent IRCAM software ran on Sun computers (big-endian). The file data
      including the header values is byte-swapped with respect to the native VAX
-     format.  The float format is IEEE.
-   - The file magic for the VAX files is "\144\243\001\0".  The file magic for
+     format. The float format is IEEE.
+   - The file magic for the VAX files is "\144\243\001\0". The file magic for
      the corresponding Sun files is the byte reversal of this.
    - The MIT csound, the Princeton cmix and earlier sox systems support files as
      described above.
    - Subsequently, the magic in IRCAM files was been updated to indicate the
-     host type used to create the file.  In file byte order the magic values
+     host type used to create the file. In file byte order the magic values
      and the corresponding host type are:
         "\144\243\001\0"   vax   little-endian data
         "\144\243\002\0"   sun   big-endian data
         "\144\243\003\0"   mips  little-endian data
         "\144\243\004\0"   next  big-endian data
-   - The sox utility (as of version 11) has a compile time flag.  In the IRCAM
+   - The sox utility (as of version 11) has a compile time flag. In the IRCAM
      mode (default), it writes files with either of two magic values depending
      on whether the host is big- or little-endian (shown in file byte order),
         "\144\243\001\0"   little-endian
@@ -172,36 +172,36 @@ AFrdSFhead (FILE *fp)
         "\144\243\003\0"   mips  little-endian data
         "\144\243\004\0"   next  big-endian data
      The choice of machine is on the basis of the definition of the
-     pre-processor symbols "vax", "sun", "mips" or "NeXT".  The mips choice
+     pre-processor symbols "vax", "sun", "mips" or "NeXT". The mips choice
      is predicated on the machine being little-endian (DEC mips machines).
      However, SGI mips machines also set the mips symbol, but are big-endian
      and so will generate a byte swapped version of a "mips" file.
    - There are incompatibilities between the IRCAM data format codes and those
-     used by the MIT Media lab csound package.  For instance, the csound program
+     used by the MIT Media lab csound package. For instance, the csound program
      uses SF_ULAW as 0x00001.
    - There are examples of IRCAM files (bicsf files) with float data which have
      been scaled to +/-1.
 */
 
 /* Read in the rest of the header */
-  offs += RHEAD_V (fp, Fhead.sf_srate, AFr.DFormat.Swapb);
-  offs += RHEAD_V (fp, Fhead.sf_chans, AFr.DFormat.Swapb);
-  offs += RHEAD_V (fp, Fhead.sf_packmode, AFr.DFormat.Swapb);
-  AFsetChunkLim ("fmt ", poffs, offs, &AFr.ChunkInfo);
+  offs += RHEAD_V(fp, Fhead.sf_srate, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, Fhead.sf_chans, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, Fhead.sf_packmode, AFr.DFormat.Swapb);
+  AFsetChunkLim("fmt ", poffs, offs, &AFr.ChunkInfo);
 
 /* Pick up comments */
   poffs = offs;
-  offs += AF_getComment (fp, (int) (LHEAD - offs), AFr.DFormat.Swapb,
-                         &AFr.RInfo);
-  AFsetChunkLim ("text", poffs, offs, &AFr.ChunkInfo);
+  offs += AF_getComment(fp, (int) (LHEAD - offs), AFr.DFormat.Swapb,
+                        &AFr.RInfo);
+  AFsetChunkLim("text", poffs, offs, &AFr.ChunkInfo);
 
 /* Position at the start of data */
   poffs = offs;
-  offs += RSKIP (fp, LHEAD - offs);
-  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, LHEAD - offs);
+  AFsetChunkLim("skip", poffs, offs, &AFr.ChunkInfo);
 
 /* Set up the decoding parameters */
-  switch (Fhead.sf_packmode) {
+  switch(Fhead.sf_packmode) {
   case SF_CHAR:
     AFr.DFormat.Format = FD_INT8;
     break;
@@ -227,7 +227,7 @@ AFrdSFhead (FILE *fp)
     AFr.DFormat.Format = FD_FLOAT64;
     break;
   default:
-    UTwarn ("AFrdSFhead - %s: \"%ld\"", AFM_SF_UnsData, Fhead.sf_packmode);
+    UTwarn("AFrdSFhead - %s: \"%ld\"", AFM_SF_UnsData, Fhead.sf_packmode);
     return NULL;
   }
 
@@ -235,9 +235,9 @@ AFrdSFhead (FILE *fp)
   AFr.Sfreq = (double) Fhead.sf_srate;
   AFr.NData.Nchan = (long int) Fhead.sf_chans;
 
-  AFsetChunkLim ("data", offs, AF_EoF, &AFr.ChunkInfo);
+  AFsetChunkLim("data", offs, AF_EoF, &AFr.ChunkInfo);
 
-  AFp = AFsetRead (fp, FT_SF, &AFr, AF_NOFIX);
+  AFp = AFsetRead(fp, FT_SF, &AFr, AF_NOFIX);
 
   return AFp;
 }
@@ -246,7 +246,7 @@ AFrdSFhead (FILE *fp)
 
 
 static int
-AF_getComment (FILE *fp, int Size, int Fbo, struct AF_info *RInfo)
+AF_getComment(FILE *fp, int Size, int Fbo, struct AF_info *RInfo)
 
 {
   int offs, nc;
@@ -254,15 +254,15 @@ AF_getComment (FILE *fp, int Size, int Fbo, struct AF_info *RInfo)
 
   offs = 0;
   while (offs < Size) {
-    offs += RHEAD_V (fp, SFcode.code, Fbo);
+    offs += RHEAD_V(fp, SFcode.code, Fbo);
     if (SFcode.code == SF_END)
       break;
-    offs += RHEAD_V (fp, SFcode.bsize, Fbo);
+    offs += RHEAD_V(fp, SFcode.bsize, Fbo);
     nc = SFcode.bsize - (sizeof SFcode.code) - (sizeof SFcode.bsize);
     if (SFcode.code == SF_COMMENT)
-      offs += AFrdInfoIdentText (fp, nc, "SF_COMMENT:", RInfo, 1);
+      offs += AFrdInfoIdentText(fp, nc, "SF_COMMENT:", RInfo, 1);
     else
-      offs += RSKIP (fp, nc);
+      offs += RSKIP(fp, nc);
   }
 
   return offs;

@@ -8,8 +8,8 @@ Description:
   Declarations for audio utility program options routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.3 $  $Date: 2017/03/28 00:24:12 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.4 $  $Date: 2020/11/23 18:35:50 $
 
 ----------------------------------------------------------------------*/
 
@@ -30,13 +30,13 @@ extern "C" {
 
 /* Prototypes */
 struct AO_CmdArg *
-AOArgs (void);
+AOArgs(void);
 int
-AOdecHelp (const char Version[], const char Usage[]);
+AOdecHelp(const char Version[], const char Usage[]);
 int
-AOdecOpt (const char *OptTable[], const char **OptArg);
+AOdecOpt(const char *OptTable[], const char **OptArg);
 void
-AOinitOpt (const int argc, const char *argv[]);
+AOinitOpt(const int argc, const char *argv[]);
 
 #ifdef __cplusplus
 }

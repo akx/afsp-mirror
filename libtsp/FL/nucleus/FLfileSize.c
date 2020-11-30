@@ -2,15 +2,15 @@
                              McGill University
 
 Routine:
-  long int FLfileSize (FILE *fp)
+  long int FLfileSize(FILE *fp)
 
 Purpose:
   Find the size of a file
 
 Description:
-  This routine finds the size of a binary file.  The size of the file is
+  This routine finds the size of a binary file. The size of the file is
   determined by positioning to end-of-file and returning the end-of-file
-  position.  On exit, the file position is restored to the original position.
+  position. On exit, the file position is restored to the original position.
 
 Parameters:
   <-  long int FLfileSize
@@ -19,8 +19,8 @@ Parameters:
       File pointer associated with the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.23 $  $Date: 2017/05/01 20:19:05 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.24 $  $Date: 2020/11/29 23:10:47 $
 
 -------------------------------------------------------------------------*/
 
@@ -32,7 +32,7 @@ Author / revision:
 
 
 long int
-FLfileSize (FILE *fp)
+FLfileSize(FILE *fp)
 
 {
   long int pos;
@@ -40,20 +40,20 @@ FLfileSize (FILE *fp)
 
 /*
    The ANSI C standard does not guarantee that this method of determining the
-   file size will work on all systems.  It works on Unix systems and probably a
-   lot of other systems.  The alternative is to use stat, but that is probably
+   file size will work on all systems. It works on Unix systems and probably a
+   lot of other systems. The alternative is to use fstat, but that is probably
    even less portable.
 */
   errno = 0;
-  pos = ftell (fp);
+  pos = ftell(fp);
   if (pos == -1L && errno)
-    UTerror ("FLfileSize: %s", FLM_NoFilePos);
+    UTerror("FLfileSize: %s", FLM_NoFilePos);
 
-  if (fseek (fp, 0L, SEEK_END) != 0)
-    UThalt ("FLfileSize: %s", FLM_FilePosErr);
+  if (fseek(fp, 0L, SEEK_END) != 0)
+    UThalt("FLfileSize: %s", FLM_FilePosErr);
 
-  endpos = ftell (fp);
-  fseek (fp, pos, SEEK_SET);
+  endpos = ftell(fp);
+  fseek(fp, pos, SEEK_SET);
 
   return endpos;
 }

@@ -2,8 +2,8 @@
                              McGill University
 
 Routine:
-  void FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-                 int Ncof, int Nsub, int Ir, long int moffs)
+  void FAfiltSI(AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+                int Ncof, int Nsub, int Ir, long int moffs)
 
 Purpose:
   Filter an audio file with an FIR filter (sample rate change)
@@ -11,7 +11,7 @@ Purpose:
 Description:
   This routine convolves a filter response with a rate-increased data sequence.
   Conceptually Ir-1 zeros are inserted between each sample from the input audio
-  file to form this rate-increased data sequence.  The filtered output is
+  file to form this rate-increased data sequence. The filtered output is
   subsampled by a factor Nsub - only every Nsub'th output sample is calculated
   and stored into the output audio file.
 
@@ -34,8 +34,8 @@ Parameters:
       Data offset into the rate-increased data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.23 $  $Date: 2018/11/14 14:18:53 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.24 $  $Date: 2020/11/23 18:31:11 $
 
 -------------------------------------------------------------------------*/
 
@@ -48,8 +48,8 @@ Author / revision:
 
 
 void
-FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-          int Ncof, int Nsub, int Ir, long int moffs)
+FAfiltSI(AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+         int Ncof, int Nsub, int Ir, long int moffs)
 
 {
   double Fbuf[NBUF];
@@ -75,21 +75,20 @@ Notes:
   - Each output point is formed as the dot product of the filter vector
     {h[0],...,h[Ncof-1]} with the data elements {di(m),...,di(m-Ncof+1)}.
     Because of the zeros in di(.), the dot product can use the vectors
-    {h[mrn],h[mrn+Ir],...} and {d(n),d(n-1),...}.  This dot product involves at
+    {h[mrn],h[mrn+Ir],...} and {d(n),d(n-1),...}. This dot product involves at
     most lmem+1 terms, where lmem=floor((Ncof-1)/Ir).
-  - Only a subsampled set of the output values will be calculated.
-    The first output sample y(0) will calculated with
+  - Only a subsampled set of the output values will be calculated. The first
+    output sample y(0) will calculated with
       y(0) -->   h[0] <==> di(moffs)
                h[mro] <==> d(noffs), where noffs=floor(moffs/Ir),
-                                             mro=moffs-noffs*Ir.             (1)
+                                             mro=moffs-noffs*Ir.            (1)
   - The k'th output sample will be calculated at position di(moffs+k*Nsub),
       y(k) -->   h[0] <==> di(mk), with mk=moffs+k*Nsub
                h[mrk] <==> d(nk),  with nk=floor(mk/Ir), mrk=mk-nk*Ir.
 
 Batch processing:
-  The data will be processed in frames by reading into a buffer x(j,n').
-  The frames of input samples will be of equal size Nx, except for the last
-  batch.
+  The data will be processed in frames by reading into a buffer x(j,n'). The
+  frames of input samples will be of equal size Nx, except for the last batch.
   - For batch j,
       x(j,n') = d(j*Nx+n'+noffs), for 0 <= n' < Nx
   - Define a virtual buffer at the interpolated sampling rate indexed by batch
@@ -131,7 +130,7 @@ Alignment for the first frame:
 
 Last frame:
   For the last frame, Ny will be set to the number of remaining output samples.
-  Nx will then be chosen to input only the required input samples.  Rewriting
+  Nx will then be chosen to input only the required input samples. Rewriting
   (2) to express Nx in terms of Ny,
     Nx >= ((Ny-1)*Nsub+m'+1) / Ir
   Choosing the smallest value that satisfies this inequality,
@@ -139,17 +138,17 @@ Last frame:
 
 Buffer Allocation:
   The allocated buffer will contain the filter memory (length lmem), and has
-  room for Nxmax input samples and Nymax output samples.  Let the buffer
-  size be Nb,
+  room for Nxmax input samples and Nymax output samples. Let the buffer size be
+  Nb,
     Nxmax + Nymax <= Nb
   The goal is to choose Nxmax and Nymax to allow the largest number of output
-  samples to be processed in each frame.  The fraction of the data buffer space
+  samples to be processed in each frame. The fraction of the data buffer space
   allocated to Nxmax is about Nsub/(Nsub+Ir) and the fraction to Nymax is about
-  Ir/(Nsub+Ir).  Nxmax goes to zero for large Ir/Nsub ratios and Nymax goes
+  Ir/(Nsub+Ir). Nxmax goes to zero for large Ir/Nsub ratios and Nymax goes
   towards zero for large Nsub/Ir ratios.
 
   Let Ny be chosen to be the largest value of Ny for the largest number of input
-  samples Nxmax.  Then from (3)
+  samples Nxmax. Then from (3)
     Nxmax + Ny <= Nb, where Ny = ceil((Nxmax*Ir-m')/Nsub).
   The largest value of Ny occurs for m'=0
     Nymax = ceil((Nxmax*Ir)/Nsub)
@@ -163,8 +162,8 @@ Buffer Allocation:
                                     Nxmax <= ((Nb-1)*Nsub+1)/(Nsub+Ir)
 
   The filtering will be processed in chunks of Nx input samples, except for a
-  partial last frame.  Let m' be first output position in the frame (mro for the
-  first frame).  After filtering a frame of Ny output values, the value of m' is
+  partial last frame. Let m' be first output position in the frame (mro for the
+  first frame). After filtering a frame of Ny output values, the value of m' is
   reset,
     m' <- m' + Ny*Nsub - Nx*Ir
   Choosing the largest value of Ny given in (3), the updated value of m' is
@@ -190,8 +189,8 @@ Buffer Allocation:
   lmem = (NCOF-1) / IR;       /* floor */
   Nb = NBUF - lmem;           /* space for xmem, x and y */
   Nxmax = ((Nb-1)*NSUB + 1) / (NSUB+IR); /* floor if Nxmax > 0 */
-  Nymax = ICEILV (Nxmax*IR, NSUB);
-  assert (Nxmax + Nymax <= Nb);
+  Nymax = ICEILV(Nxmax*IR, NSUB);
+  assert(Nxmax + Nymax <= Nb);
 
   /* Set up the buffer pointers */
   xmem = Fbuf;
@@ -208,7 +207,7 @@ Buffer Allocation:
 
 /* Prime the input data array with the filter memory */
   n = noffs;
-  AFdReadData (AFpI, n - lmem, xmem, (int) lmem);
+  AFdReadData(AFpI, n - lmem, xmem, (int) lmem);
 
 /* Main processing loop */
   k = 0;
@@ -217,15 +216,15 @@ Buffer Allocation:
 
 /* Choose Nx and Ny */
    Nx = Nxmax;
-   Ny = ICEILV (Nx*IR - mp, NSUB);
+   Ny = ICEILV(Nx*IR - mp, NSUB);
    if (Ny > NsampO - k) {     /* Last partial frame */
      Ny = NsampO - k;
-     Nx = ICEILV ((Ny-1)*NSUB + mp + 1, IR);
+     Nx = ICEILV((Ny-1)*NSUB + mp + 1, IR);
    }
-   assert ( Ny >= 0 && Ny <= Nymax);
+   assert( Ny >= 0 && Ny <= Nymax);
 
 /* Read the input data into the input buffer */
-    AFdReadData (AFpI, n, x, (int) Nx);
+    AFdReadData(AFpI, n, x, (int) Nx);
     n = n + Nx;
 
 /* Set up the filter offset */
@@ -234,21 +233,19 @@ Buffer Allocation:
 
 /* Convolve the input samples with the filter response */
 /* &xmem[np] = &x[np-lmem] */
-    FIdConvSI (&xmem[np], y, (int) Ny, h, Ncof, (int) mrn, Nsub, Ir);
+    FIdConvSI(&xmem[np], y, (int) Ny, h, Ncof, (int) mrn, Nsub, Ir);
 
 /* Write the output buffer to the output audio file */
-    AFdWriteData (AFpO, y, (int) Ny);
+    AFdWriteData(AFpO, y, (int) Ny);
     k = k + Ny;
     if (k == NsampO)
       break;
 
 /* Update the filter memory */
-    VRdShift (xmem, (int) lmem, (int) Nxmax);
+    VRdShift(xmem, (int) lmem, (int) Nxmax);
 
 /* Update the pointer mp */
     mp = mp + Ny*NSUB - Nxmax*IR;
-    assert (mp >= 0 && mp < NSUB);
+    assert(mp >= 0 && mp < NSUB);
   }
-
-  return;
 }

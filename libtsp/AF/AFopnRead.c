@@ -2,22 +2,22 @@
                              McGill University
 
 Routine:
-  AFILE *AFopnRead (const char Fname[], long int *Nsamp, long int *Nchan,
-                    double *Sfreq, FILE *fpinfo)
+  AFILE *AFopnRead(const char Fname[], long int *Nsamp, long int *Nchan,
+                   double *Sfreq, FILE *fpinfo)
 
 Purpose:
   Open an audio file for reading
 
 Description:
-  This routine opens an audio file for reading.  The companion routine
-  AFdReadData reads data from the file.  Routine AFclose should be used to
+  This routine opens an audio file for reading. The companion routine
+  AFdReadData reads data from the file. Routine AFclose should be used to
   close the file.
 
   This routine reads the audio file header and optionally prints the header
-  information.  Several file header formats are supported.  For files with
-  no header or an unrecognized header, the file format can be declared by
-  calling routine AFsetInputPar.  A banner identifying the audio file and its
-  parameters is printed.
+  information. Several file header formats are supported. For files with no
+  header or an unrecognized header, the file format can be declared by calling
+  routine AFsetInputPar. A banner identifying the audio file and its parameters
+  is printed.
 
   AU audio file:
     8-bit mu-law, 8-bit A-law, 8-bit integer, 16-bit integer, 24-bit integer,
@@ -30,7 +30,7 @@ Description:
   AIFF sound file:
     1-bit to 32-bit integer data formats are supported.
   AIFF-C sound file:
-     8-bit mu-law, 8-bit A-law, 1-bit to 32-bit integer, 32-bit IEEE
+    8-bit mu-law, 8-bit A-law, 1-bit to 32-bit integer, 32-bit IEEE
     floating-point, and 64-bit IEEE floating-point data formats are supported.
   NIST SPHERE audio file:
     8-bit mu-law, 8-bit bit-reversed mu-law, and 16-bit integer data formats are
@@ -51,14 +51,14 @@ Description:
   CSL NSP file:
     16-bit integer format is supported.
   Text audio file:
-    Data in character format.  This type of file has a header with data
-    specifications.  Any missing specifications are taken from the values that
+    Data in character format. This type of file has a header with data
+    specifications. Any missing specifications are taken from the values that
     can be set using routine AFsetInputPar.
   Headerless audio file:
     The data format is specified by calling routine AFsetInputPar.
 
   For the fixed point file data representations, read operations return data
-  values as follows.  The scaling factor shown below is applied to the data in
+  values as follows. The scaling factor shown below is applied to the data in
   the file to give an output in the default range [-1, +1).
      data format     file data values              scaling factor
     8-bit mu-law    [-32,124, +32,124]              1/32768
@@ -67,14 +67,14 @@ Description:
     16-bit integer  [-32,768, +32,767]              1/32768
     24-bit integer  [-8,388,608, +8,388,607]        1/8388608
     32-bit integer  [-2,147,483,648, 2,147,483,647] 1/2147483648
-  Floating-point formats in the input audio file are scaled by unity.  Text data
+  Floating-point formats in the input audio file are scaled by unity. Text data
   is scaled by unity or the same as 16-bit integers. The ScaleV parameter (see
   routine AFoptions) can be set to change the nominal range for program data
   (default -1 to +1).
 
   File type determination:
     The default behaviour is to determine the file type from the header of the
-    input file.  However this requires look-ahead and is not possible with
+    input file. However this requires look-ahead and is not possible with
     files that are not random access (for instance a file stream from a pipe).
     For both random access and sequential access files, the file type can be
     specified explicitly with a call to routine AFsetFileType, obviating the
@@ -82,8 +82,8 @@ Description:
 
   Number of samples:
     In some types of audio file types, the number of samples is specified in
-    the file header.  In others, the number of samples is known only if the
-    file size can be determined, specifically if the file random access.  For
+    the file header. In others, the number of samples is known only if the
+    file size can be determined, specifically if the file random access. For
     input from a stream which does not allow random access (for instance a file
     stream from a pipe), the file size cannot be determined for those files
     without that information in the file header.
@@ -125,13 +125,13 @@ Parameters:
   <-  double *Sfreq
       Sampling frequency
    -> FILE *fpinfo
-      File pointer for printing audio file information.  If fpinfo is not NULL,
+      File pointer for printing audio file information. If fpinfo is not NULL,
       information about the audio file is printed on the stream selected by
       fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.20 $  $Date: 2017/06/26 23:56:21 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.22 $  $Date: 2020/11/26 11:21:31 $
 
 -------------------------------------------------------------------------*/
 
@@ -161,23 +161,23 @@ Author / revision:
 
 /* Local functions */
 static void
-AF_error (const char Fname[], int sysFlag);
+AF_error(const char Fname[], int sysFlag);
 static FILE*
-AF_open_read_bin (const char Fname[]);
+AF_open_read_bin(const char Fname[]);
 
 /* If AFopt->ErrorHalt is clear, execution continues after an error */
 
 
 AFILE *
-AFopnRead (const char Fname[], long int *Nsamp, long int *Nchan, double *Sfreq,
-           FILE *fpinfo)
+AFopnRead(const char Fname[], long int *Nsamp, long int *Nchan, double *Sfreq,
+          FILE *fpinfo)
 {
   FILE *fp;
   AFILE *AFp;
   enum AF_FT_T Ftype;
 
 /* Open the file for reading (binary mode) */
-  fp = AF_open_read_bin (Fname);
+  fp = AF_open_read_bin(Fname);
   if (fp == NULL)
     return NULL;
 
@@ -185,47 +185,47 @@ AFopnRead (const char Fname[], long int *Nsamp, long int *Nchan, double *Sfreq,
 /* - pre-set file type from options structure
    - if none, check the file header
 */
-  Ftype = AFfindFtype (fp);
+  Ftype = AFfindFtype(fp);
 
 /* Read the header information */
   switch (Ftype) {
   case FT_NH:
-    AFp = AFsetNHread (fp);
+    AFp = AFsetNHread(fp);
     break;
   case FT_AU:
-    AFp = AFrdAUhead (fp);
+    AFp = AFrdAUhead(fp);
     break;
   case FT_WAVE:
   case FT_WAVE_EX:
-    AFp = AFrdWVhead (fp);
+    AFp = AFrdWVhead(fp);
     break;
   case FT_AIFF:
   case FT_AIFF_C:
-    AFp = AFrdAIhead (fp);
+    AFp = AFrdAIhead(fp);
     break;
   case FT_SPHERE:
-    AFp = AFrdSPhead (fp);
+    AFp = AFrdSPhead(fp);
     break;
   case FT_SF:
-    AFp = AFrdSFhead (fp);
+    AFp = AFrdSFhead(fp);
     break;
   case FT_ESPS:
-    AFp = AFrdEShead (fp);
+    AFp = AFrdEShead(fp);
     break;
   case FT_SPPACK:
-    AFp = AFrdBLhead (fp);
+    AFp = AFrdBLhead(fp);
     break;
   case FT_INRS:
-    AFp = AFrdINhead (fp);
+    AFp = AFrdINhead(fp);
     break;
   case FT_SPW:
-    AFp = AFrdSWhead (fp);
+    AFp = AFrdSWhead(fp);
     break;
   case FT_NSP:
-    AFp = AFrdNShead (fp);
+    AFp = AFrdNShead(fp);
     break;
   case FT_TXAUD:
-    AFp = AFrdTAhead (fp);
+    AFp = AFrdTAhead(fp);
     break;
   default:
     AFp = NULL; /* Error or unknown / unsupported file type */
@@ -234,16 +234,16 @@ AFopnRead (const char Fname[], long int *Nsamp, long int *Nchan, double *Sfreq,
 
 /* Error messages */
   if (AFp == NULL) {
-    fclose (fp);
-    AF_error (Fname, ERR_MSG);
+    fclose(fp);
+    AF_error(Fname, ERR_MSG);
     return NULL;
   }
 
 /* Reset read options */
-  (void) AFoptions (AF_OPT_INPUT);
+  (void) AFoptions(AF_OPT_INPUT);
 
 /* Print the header information */
-  AFprintAFpar (AFp, Fname, fpinfo);
+  AFprintAFpar(AFp, Fname, fpinfo);
 
 /* Return the file parameters */
   *Nsamp = AFp->Nsamp;
@@ -257,36 +257,36 @@ AFopnRead (const char Fname[], long int *Nsamp, long int *Nchan, double *Sfreq,
 
 
 static FILE *
-AF_open_read_bin (const char Fname[])
+AF_open_read_bin(const char Fname[])
 
 {
   FILE *fp;
 
-  if (strcmp (Fname, "-") == 0) {
+  if (strcmp(Fname, "-") == 0) {
 
     /* Input from standard input */
     fp = stdin;
 #if (SY_OS != SY_OS_UNIX)
-    if (setmode (fileno (fp), O_BINARY) == -1)
-      UTwarn ("AFopnRead - %s", AFM_NoRBinMode);
+    if (setmode(fileno(fp), O_BINARY) == -1)
+      UTwarn("AFopnRead - %s", AFM_NoRBinMode);
 #endif
   }
 
   else
 
     /* Input from a file */
-    fp = fopen (Fname, "rb"); /* binary mode */
+    fp = fopen(Fname, "rb"); /* binary mode */
 
   if (fp == NULL) {
-    AF_error (Fname, SYS_MSG);
+    AF_error(Fname, SYS_MSG);
     return NULL;
   }
 
 /* Check whether the file must be random access */
-  if (AFopt.RAccess != 0 && ! FLseekable (fp)) {
-    UTwarn ("AFopnRead: %s", AFM_RRAccess);
-    fclose (fp);
-    AF_error (Fname, ERR_MSG);
+  if (AFopt.RAccess != 0 && !FLseekable(fp)) {
+    UTwarn("AFopnRead: %s", AFM_RRAccess);
+    fclose(fp);
+    AF_error(Fname, ERR_MSG);
     return NULL;
   }
 
@@ -297,23 +297,21 @@ AF_open_read_bin (const char Fname[])
 
 
 static void
-AF_error (const char Fname[], int sysFlag)
+AF_error(const char Fname[], int sysFlag)
 
 {
   const char *fn;
 
-  if (strcmp (Fname, "-") == 0)
+  if (strcmp(Fname, "-") == 0)
     fn = "<stdin>";
   else
     fn = Fname;
 
   if (sysFlag)
-    UTsysMsg ("AFopnRead: %s \"%s\"", AFM_OpenRErr, fn);
+    UTsysMsg("AFopnRead: %s \"%s\"", AFM_OpenRErr, fn);
   else
-    UTwarn ("AFopnRead: %s \"%s\"", AFM_OpenRErr, fn);
+    UTwarn("AFopnRead: %s \"%s\"", AFM_OpenRErr, fn);
 
   if (AFopt.ErrorHalt)
-    exit (EXIT_FAILURE);
-
-  return;
+    exit(EXIT_FAILURE);
 }

@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void UTeIEEE80 (double V, unsigned char b[10])
+  void UTeIEEE80(double V, unsigned char b[10])
 
 Purpose:
   Convert a double to an 80-bit IEEE double-extended value
@@ -16,12 +16,12 @@ Parameters:
    -> double V
       Input double value
   <-  unsigned char b[10]
-      Output byte array containing the 80-bit representation.  The first byte
+      Output byte array containing the 80-bit representation. The first byte
       contains the sign bit and the first part of the exponent.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.15 $  $Date: 2017/06/12 19:08:11 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.16 $  $Date: 2020/11/12 18:13:22 $
 
 -------------------------------------------------------------------------*/
 
@@ -41,13 +41,13 @@ Author / revision:
    1-bit    15-bits      64-bits
    sign     exponent     mantissa
    Notes:
-   1) The mantissa is a normalized value with no hidden bit.  The implicit
+   1) The mantissa is a normalized value with no hidden bit. The implicit
       decimal point is after the first bit of the mantissa.
-   2) The exponent code is a biased value.  Consider the exponent code to be
-      an unsigned 15-bit quantity, with values from 0 to 32767.  The exponent
-      code is the true exponent + 16383.  However, exponent code 32767 has a
-      special meaning.  The exponent can take on values in the range
-      [emin, emax], where emin = -16383 and emax = +16383.
+   2) The exponent code is a biased value. Consider the exponent code to be an
+      unsigned 15-bit quantity, with values from 0 to 32767. The exponent code
+      is the exponent + 16383.  However, exponent code 32767 has a special
+      meaning. The exponent can take on values in the range [emin, emax], where
+      emin = -16383 and emax = +16383.
    3) Special values:
        exponent          mantissa           represents
        e = emin          m == 0      +/- 0            zero
@@ -57,12 +57,12 @@ Author / revision:
        e = emax+1        m != 0      NaN              not-a-number
 
    Notes:
-   1. The routine frexp normally returns a mantissa, 0.5 <= dmant < 1.  The
-      IEEE standard deals with a normalized mantissa, 1 <= m < 2.  The value
-      can be expressed in either form,
+   1. The routine frexp normally returns a mantissa, 0.5 <= dmant < 1. The IEEE
+      standard deals with a normalized mantissa, 1 <= m < 2. The value can be
+      expressed in either form,
         m = 2 * d,   e = t - 1,
   VN = m * 2^e = d * 2^t.
-      The value e determines the exponent to be stored.  The 64-bit integer
+      The value e determines the exponent to be stored. The 64-bit integer
       representation of the mantissa can be determined from d,
         M = d * 2^64.
       In practice M is composed of two 32-bit components,
@@ -71,24 +71,24 @@ Author / revision:
         MU = int (d * 2^32)
         ML = 2^32 * (d * 2^32 - MU)
    2. For double precision input values, the exponent range is generally less
-      than that for the double-extended IEEE format.  For instance, IEEE
-      double format has an exponent range of [ -1022, +1023 ], while the
+      than that for the double-extended IEEE format.  For instance, IEEE double
+      format has an exponent range of [ -1022, +1023 ], while the
       double-extended IEEE format has an exponent range of [ -16383, +16383 ].
-      Even with denormalized double values, frexp will never return a value
-      even near the lower limit of the the double-extended exponent range -
+      Even with denormalized double values, frexp will never return a value even
+      near the lower limit of the the double-extended exponent range -
       denormalized double-extended values will never occur.
-   3. For frexp, an input of infinity gives a mantissa of infinity.  On some
+   3. For frexp, an input of infinity gives a mantissa of infinity. On some
       machines the exponent is returned as zero, on others it is equal to the
       largest positive integer.
    4. The DEC cc2.1 version of frexp has problems for tiny values.  For
       VN = 4e-308, frexp gives the correct values: dmant = 0.898847 and
-      texp = -1021.  But halve VN and the mantissa remains unchanged but texp
+      texp = -1021. But halve VN and the mantissa remains unchanged but texp
       jumps to -1024.
 */
 
 
 void
-UTeIEEE80 (double V, unsigned char b[10])
+UTeIEEE80(double V, unsigned char b[10])
 
 {
   UT_uint4_t mantH, mantL;
@@ -114,7 +114,7 @@ UTeIEEE80 (double V, unsigned char b[10])
 
 
     /* Decompose VN as d * 2^t */
-    dmant = frexp (VN, &texp);
+    dmant = frexp(VN, &texp);
     /* expc = texp + EXP_BIAS - 1 */
 
                    /* expc > EXPC_INF */
@@ -134,27 +134,27 @@ UTeIEEE80 (double V, unsigned char b[10])
    where tmin = emin + 1.
       */
                          /* expc + 32 */
-      Umant = ldexp (dmant, texp + EXP_BIAS - 1 + 32);
+      Umant = ldexp(dmant, texp + EXP_BIAS - 1 + 32);
       mantH = (UT_uint4_t) Umant;
-      mantL = (UT_uint4_t) ldexp (Umant - floor (Umant), 32);
+      mantL = (UT_uint4_t) ldexp(Umant - floor (Umant), 32);
       expc = EXPC_DENORM;
     }
 
     else {
 
       /* Normalized value */
-      Umant = ldexp (dmant, 32);
+      Umant = ldexp(dmant, 32);
       mantH = (UT_uint4_t) Umant;
-      mantL = (UT_uint4_t) ldexp (Umant - floor (Umant), 32);
+      mantL = (UT_uint4_t) ldexp(Umant - floor (Umant), 32);
       expc = texp + EXP_BIAS - 1;
     }
   }
 
   else {      /* NaN */
 
-/* For NaN's, there is machine-dependent information in the mantissa value
-   which we cannot interpret.  Here we set the most significant bit of the
-   exponent to be non-zero.
+/* For NaN's, there is machine-dependent information in the mantissa value which
+   we cannot interpret. Here we set the most significant bit of the exponent to
+   be non-zero.
 */
     mantH = (UT_uint4_t) 0x80000000;
     mantL = 0;

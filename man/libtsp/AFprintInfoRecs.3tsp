@@ -1,0 +1,184 @@
+.TH AFprintInfoRecs - libtsp (3tsp)
+.SH Routine:
+void AFprintInfoRecs(const AFILE *AFp, FILE *fpinfo)
+.SH Purpose:
+Print all information records for an audio file
+.SH Description:
+This formats and prints information records for an audio file. Non-printing
+control characters are replaced by a scarab ('\\xA4') character. Long lines
+are truncated with a trailing ... to indicate truncation.
+.PP
+When an input file containing AFsp information records is opened with
+AFopnRead, information records are read and stored in the audio file parameter
+structure. The following records affect the audio file information that is
+stored in the audio file parameter structure or printed when the file is
+opened.
+.in +3n
+.ti -3n
+- "date:" or "creation_date:" record
+.br
+The data and time in that record is printed when the file is opened rather
+than the file modification date obtained from the file system.
+.ti -3n
+- "sample_rate:" record
+.br
+The sample rate in the record is compared to the sample rate from the file
+header. If the file header sample rate from the header is an integer value
+and agrees with the rounded value of the value in the record, the value from
+the record used to set the Sfreq variable in the audio file parameter
+structure.
+.ti -3n
+- "loudspeakers:" record
+.br
+The loudspeaker locations are decoded and the result is stored in the
+SpkrConfig array in the audio file parameter structure. The list of speaker
+positions is printed when the file is opened, along with the other file
+information.
+.ti -3n
+- "name:", "title:", "comment:", or "display_text:" record
+.br
+This information record printed as "Description: <text>" when the file is
+opened.
+.in -3n
+Information records found in input audio files are returned in the AFInfo
+structure which is part of the audio file parameter structure. The
+information records are determined from the audio file as follows.
+.in +3n
+.ti -3n
+AU files:
+.br
+Text information precedes the audio data. If the "AFsp" identifier is
+present, the remaining text is stored as information records in the audio
+file parameter structure. Otherwise the text is stored as an "info:"
+information record.
+.ti -3n
+AIFF and AIFF-C files:
+.br
+The text information can appear in several different header chunks. This
+information is extracted and stored as information records in the audio file
+parameter structure.
+.ft CW
+.nf
+ "NAME" chunk text => "name:" information record
+ "AUTH" chunk text => "author" information record
+ "(c) " chunk text => "copyright:" information record
+ "ANNO" chunk text => "annotation:" information record
+.fi
+.ft P
+If an "ANNO" chunk text has an "AFsp" tag as a preamble, the remaining text
+is stored as individual information records
+.ti -3n
+WAVE files:
+.br
+Information records are generated from "afsp", "DISP", "LIST", or "bext"
+chunks. The information is extracted and stored as information records in
+the audio file parameter structure.
+.ft CW
+.nf
+ "afsp" chunk - Text is extracted and stored as individual information
+    records.
+ "DISP" chunk - text is stored as a "display_text:" information record.
+ "LIST" chunk - INFO text has further subcategories as follows.
+   "IARL" text => "archival_location:" information record.
+   "IART" text => "artist:" information record.
+   "ICMS" text => "commissioned:" information record.
+   "ICMT" text => "comment:" information record.
+   "ICOP" text => "copyright:" information record.
+   "ICRD" text => "creation_date:" information record.
+   "IENG" text => "engineer:" information record.
+   "IGNR" text => "genre:" information record.
+   "IKEY" text => "keywords:" information record.
+   "IMED" text => "medium:" information record.
+   "INAM" text => "name:" information record.
+   "IPRD" text => "product:" information record.
+   "ISBJ" text => "subject:" information record.
+   "ISFT" text => "software:" information record.
+   "ISRC" text => "source:" information record.
+   "ISRF" text => "source_form:" information record.
+   "ITCH" text => "technician:" information record.
+ "bext" chunk - information (Broadcast WAVE files) is extracted and
+   returned as information records.
+.fi
+.ft P
+.ti -3n
+SPPACK files:
+.br
+"comment:" and "command:" information records
+.ti -3n
+ESPS sampled data feature files:
+.br
+The following information record identifiers are picked up from the file
+header.
+.ft CW
+.nf
+ "date:"            "header_version:"       "program:"
+ "program_version:" "program_compile_date:" "start_time:"
+ "max_value:"
+.fi
+.ft P
+.ti -3n
+INRS-Telecom files:
+.br
+"date:" information record
+.ti -3n
+NSP files:
+.br
+"comment:" information record
+.ti -3n
+IRCAM soundfiles:
+.br
+"SF_COMMENT:" information record
+.ti -3n
+NIST SPHERE files:
+.br
+Text in the header is parsed and stored as information records. The
+identifier is picked up from the header. Possible identifiers include,
+.ft CW
+.nf
+ "database_id:"            "database_version:"
+ "utterance_id:"           "sample_min:"
+ "sample_max:"             "conversation_id:"
+ "microphone:"             "prompt_id:"
+ "recording_date:"         "recording_environment:"
+ "recording_site:"         "recording_time:"
+ "sample_checksum:"        "speaker_sentence_number:"
+ "speaker_session_number:" "speaker_utterance_number:"
+ "speaker_id:"             "speaker_id_a:"
+ "speaker_id_b:"           "speaking_mode:"
+ "utterance_id:".
+.fi
+.ft P
+.ti -3n
+Cadence SPW Signal files:
+.br
+A "comment:" information record is generated from the second line of a
+header. Keyword lines in the header generate information records.
+.ti -3n
+Text audio files (with header):
+.br
+A "title:" information record is generated from the second line of the
+header. Keyword lines in the header generate information records. A
+multi-line description is returned as a "description:" information record.
+.in -3n
+.SH Parameters:
+.in +3n
+.ti -3n
+<-  void AFprintInfoRecs
+.br
+.ti -3n
+ -> const AFILE *AFp
+.br
+Audio file parameter structure
+.ti -3n
+<-> FILE *fpinfo
+.br
+Output stream for the file information. If fpinfo is NULL, no information
+is written.
+.in -3n
+.SH Author / revision:
+P. Kabal
+/ Revision 1.16  2020-11-30
+.SH See Also
+AFopnRead,
+AFsetInfo,
+libtsp

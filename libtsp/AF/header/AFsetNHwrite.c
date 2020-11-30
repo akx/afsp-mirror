@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  AFILE *AFsetNHwrite (FILE *fp, struct AF_write *AFw)
+  AFILE *AFsetNHwrite(FILE *fp, struct AF_write *AFw)
 
 Purpose:
   Set file format information for a headerless audio file
@@ -12,17 +12,16 @@ Description:
 
 Parameters:
   <-  AFILE *AFsetNHwrite
-      Audio file pointer for the audio file.  This routine allocates the
-      space for this structure.  If an error is detected, a NULL pointer is
-      returned.
+      Audio file pointer for the audio file. This routine allocates the space
+      for this structure. If an error is detected, a NULL pointer is returned.
    -> FILE *fp
       File pointer for the audio file
   <-> struct AF_write *AFw
       Structure containing file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.42 $  $Date: 2017/05/08 03:34:21 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.43 $  $Date: 2020/11/25 17:54:50 $
 
 -------------------------------------------------------------------------*/
 
@@ -38,7 +37,7 @@ Author / revision:
 
 
 AFILE *
-AFsetNHwrite (FILE *fp, struct AF_write *AFw)
+AFsetNHwrite(FILE *fp, struct AF_write *AFw)
 
 {
   AFILE *AFp;
@@ -58,14 +57,14 @@ AFsetNHwrite (FILE *fp, struct AF_write *AFw)
     Swapb = DS_SWAP;
     break;
   default:
-    assert (0);
+    assert(0);
   }
 
   /* Check the swap code */
   AFw->DFormat.Swapb = UTswapCode(Swapb);  /* Now DS_NATIVE or DS_SWAP */
 
   /* Create the audio file structure */
-  AFp = AFsetWrite (fp, FT_NH, AFw);
+  AFp = AFsetWrite(fp, FT_NH, AFw);
 
   return AFp;
 }

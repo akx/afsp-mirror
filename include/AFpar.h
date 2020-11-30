@@ -8,8 +8,8 @@ Description:
   Declarations for the AFsp audio file routines.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.117 $  $Date: 2017/09/22 00:30:47 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.119 $  $Date: 2020/11/25 17:55:50 $
 
 ----------------------------------------------------------------------*/
 
@@ -29,14 +29,14 @@ Author / revision:
 
 /* ------ ------ ----- Loudspeaker location definitions */
 
-#define AF_MAXN_SPKR        (50) /* Maximum number of speaker locations */
-#define AF_MAXNC_SPKRNAMES (172) /* Max chars, 136 + 2*(N-32) */
+#define AF_MAXN_SPKR        (50)   /* Maximum number of speaker locations */
+#define AF_MAXNC_SPKRNAMES  (172)   /* Max chars, 136 + 2*(N-32) */
 
 /* AF_SPKR_AUX must be the last entry in the speaker name array */
 #define AF_SPKR_AUX   ('\x21')  /* Location not specified */
                                 /* Equal to AF_N_SPKR_NAMES, see assert in
                                    AFspeakerNames */
-#define AF_N_SPKR_NAMES AF_SPKR_AUX  /* Number of speaker location names */
+#define AF_N_SPKR_NAMES  AF_SPKR_AUX  /* Number of speaker location names */
 
 /* Declaration of loudspeaker location names */
 /* Initialized in AFspeakerNames */
@@ -74,7 +74,7 @@ enum AF_FT_T {
   FT_UNSUP = 256  /* Unsupported audio file type */
 };
 
-#define AF_NFT (FT_TXAUD+1)
+#define AF_NFT  (FT_TXAUD+1)
 
 /* File type names */
 /* Initialized in AFprintAFpar */
@@ -128,20 +128,20 @@ extern const enum AF_FDL_T AF_DL[AF_NFD];
 /* For the fixed-point formats, data is returned in the range [-1, +1). An
    exception is 8-bit data which gives values [-1/2, 1/2).
 */
-#define AF_FULLSCALE_UNDEF   (-1)
-#define AF_FULLSCALE_ALAW8   (32768.)
-#define AF_FULLSCALE_MULAW8  (32768.)
-#define AF_FULLSCALE_MULAWR8 (32768.)
-#define AF_FULLSCALE_UINT8   (32768./128.)
-#define AF_FULLSCALE_INT8    (32768./128.)
-#define AF_FULLSCALE_INT16   (32768.)
-#define AF_FULLSCALE_INT24   (256.*32768.)
-#define AF_FULLSCALE_INT32   (65536.*32768.)
-#define AF_FULLSCALE_FLOAT32 (1.)
-#define AF_FULLSCALE_FLOAT64 (1.)
-#define AF_FULLSCALE_TEXT16  (32768.)
-#define AF_FULLSCALE_TEXT    (1.)
-#define AF_FULLSCALE_DEFAULT (-(DBL_MAX))
+#define AF_FULLSCALE_UNDEF    (-1)
+#define AF_FULLSCALE_ALAW8    (32768.)
+#define AF_FULLSCALE_MULAW8   (32768.)
+#define AF_FULLSCALE_MULAWR8  (32768.)
+#define AF_FULLSCALE_UINT8    (32768./128.)
+#define AF_FULLSCALE_INT8     (32768./128.)
+#define AF_FULLSCALE_INT16    (32768.)
+#define AF_FULLSCALE_INT24    (256.*32768.)
+#define AF_FULLSCALE_INT32    (65536.*32768.)
+#define AF_FULLSCALE_FLOAT32  (1.)
+#define AF_FULLSCALE_FLOAT64  (1.)
+#define AF_FULLSCALE_TEXT16   (32768.)
+#define AF_FULLSCALE_TEXT     (1.)
+#define AF_FULLSCALE_DEFAULT  (-(DBL_MAX))
 
 /* FullScale values for different data types */
 static const double AF_FULLSCALE[AF_NFD] = {
@@ -223,7 +223,7 @@ struct AF_ndata {
 /* Special values for Ldata, Nsamp and Nframe */
 /* (There is a redundant relation ship between these values.
     Normally Nsamp = Nchan * Nframe and Ldata = Nsamp * LW where LW is the size
-    of each sample in bytes.  The following flags determine which one of Ldata,
+    of each sample in bytes. The following flags determine which one of Ldata,
     Nsamp, and Nframe should be calculated from the others. */
 #define AF_LDATA_UNDEF  -1
 #define AF_NSAMP_UNDEF  -1
@@ -231,7 +231,7 @@ struct AF_ndata {
 
 /* Header data length fixup flags */
 /* Flag to determine if fixes should be applied if Nsamp and Ldata are
-   inconsistent.  The fixes used are file type specific - a warning is issued if
+   inconsistent. The fixes used are file type specific - a warning is issued if
    the fix has to be applied.
 */
 enum AF_FIX_T {
@@ -288,13 +288,13 @@ struct AF_write {
 
 /* Structure for NbS/Res bits/sample values */
 /* Consider NbS = 12 bit samples (for instance from a 12-bit A/D) stored in a
-   Res = 16 bit word.  By convention, the 12 bit samples occupy the most
+   Res = 16 bit word. By convention, the 12 bit samples occupy the most
    significant bits in a 16 bit container. */
 struct AF_NbS {
   int NbS;                /* Number of (significant) bits per sample */
   int Res;                /* Number of bits in the sample container */
 };
-#define AF_RES_MAX (64)   /* Maximum number of bits/sample */
+#define AF_RES_MAX  (64)  /* Maximum number of bits/sample */
 
 /* Default values for AF_NbS structure */
 #define AF_NBS_INIT(x) static const struct AF_NbS x = {0, 0}
@@ -340,7 +340,7 @@ Input files:
   the program data occupy the range [-ScaleV, +ScaleV] (normally [-1, +1]).
     ScaleF = ScaleV / FullScale
   So for example 16-bit file data has FullScale = 32768. Then to map to [-1, +1]
-  ScaleF = 1/32768.  Note however, that ScaleF may differ from this if the input
+  ScaleF = 1/32768. Note however, that ScaleF may differ from this if the input
   values have a gain applied to them.
 Output files:
   Program data in the range [-ScaleV, +ScaleV] are scaled by ScaleF so that the

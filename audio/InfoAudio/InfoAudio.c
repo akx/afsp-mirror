@@ -9,7 +9,7 @@ Purpose:
 
 Description:
   This program prints information about a number of audio files to standard
-  output.  The full output consists of the file type and name (indented part of
+  output. The full output consists of the file type and name (indented part of
   the output below), the file data parameters, information records, and if
   appropriate, the chunk structure of the file.
 
@@ -20,7 +20,7 @@ Description:
 
     --File format--
     File name: ../../../audiofiles/addf8.aifc
-    Header length: 166
+    Offset to data: 166
     Sampling frequency: 8000
     No. frames: 23808
     No. channels: 1
@@ -53,14 +53,14 @@ Options:
       The environment variable AUDIOPATH specifies a list of directories to be
       searched for the input audio file(s).
   -i ICODE, --info_code=ICODE
-      Parameter to choose the information to be printed.  The information that
-      can be printed consists of four parts.  The ICODE parameter is the sum
-      of the codes which control printing of the individual parts.
+      Parameter to choose the information to be printed. The information that
+      can be printed consists of four parts. The ICODE parameter is the sum of
+      the codes which control printing of the individual parts.
         1:  Print the standard information: file name, filetype, no. samples ...
         2:  Print the file data parameters
         4:  Print the information records
         8:  Print the chunk configuration (only for AIFF/WAVE/NSP files)
-      The default is to print all of the information (ICODE=15).  For ICODE=0,
+      The default is to print all of the information (ICODE=15). For ICODE=0,
       no information is printed, but the program return code indicates if all
       files were opened successfully.
   -h, --help
@@ -68,7 +68,7 @@ Options:
   -v, --version
       Print the version number and exit.
 
-  See routine CopyAudio for a description of other parameters.
+  See routine CopyAudio for a description of other options.
   -t FTYPE, --type=FTYPE
      Input file type and environment variable AF_FILETYPE
   -P PARMS, --parameters=PARMS
@@ -77,11 +77,11 @@ Options:
 Environment variables:
   AUDIOPATH:
     This environment variable specifies a list of directories to be searched
-    when opening the input audio files.  Directories in the list are separated
-    by colons (semicolons for Windows).
+    when opening the input audio files. Directories in the list are separated by
+    colons (semicolons for Windows).
 
 Author / version:
-  P. Kabal / v10r2  2018-11-16  Copyright (C) 2018
+  P. Kabal / v10r3  2020-11-30  Copyright (C) 2020
 
 -------------------------------------------------------------------------*/
 
@@ -93,7 +93,7 @@ Author / version:
 
 
 int
-main (int argc, const char *argv[])
+main(int argc, const char *argv[])
 
 {
   struct IA_FIpar FI[MAXFILE];
@@ -104,43 +104,43 @@ main (int argc, const char *argv[])
   double Sfreq;
 
 /* Option handling */
-  IAoptions (argc, argv, &Icode, FI, &Nfiles);
+  IAoptions(argc, argv, &Icode, FI, &Nfiles);
 
 /* Loop over the input files */
   for (i = 0; i < Nfiles; ++i) {
 
-    if (EXTCODE (Icode, 1) != 0)
+    if (EXTCODE(Icode, 1) != 0)
       fpinfo = stdout;
     else
       fpinfo = NULL;
 
     /* Open the audio file */
-    AOsetFIopt (&FI[i], 0, 1);
-    FLpathList (FI[i].Fname, AFPATH_ENV, FI[i].Fname);
-    AFp = AFopnRead (FI[i].Fname, &Nsamp, &Nchan, &Sfreq, fpinfo);
+    AOsetFIopt(&FI[i], 0, 1);
+    FLpathList(FI[i].Fname, AFPATH_ENV, FI[i].Fname);
+    AFp = AFopnRead(FI[i].Fname, &Nsamp, &Nchan, &Sfreq, fpinfo);
     fpinfo = stdout;
 
     /* Print the audio file parameter information */
-    if (EXTCODE (Icode, 2) != 0) {
-      fprintf (fpinfo, IAM_FFormat);
-      IAfileInfo (AFp, FI[i].Fname, fpinfo);
+    if (EXTCODE(Icode, 2) != 0) {
+      fprintf(fpinfo, IAM_FFormat);
+      IAfileInfo(AFp, FI[i].Fname, fpinfo);
     }
 
     /* Print the information strings */
-    if (EXTCODE (Icode, 4) != 0 && AFp->AFInfo.N > 0) {
-      fprintf (fpinfo, IAM_InfoRec);
-      AFprintInfoRecs (AFp, fpinfo);
+    if (EXTCODE(Icode, 4) != 0 && AFp->AFInfo.N > 0) {
+      fprintf(fpinfo, IAM_InfoRec);
+      AFprintInfoRecs(AFp, fpinfo);
     }
 
     /* Print chunk information */
-    if (EXTCODE (Icode, 8) != 0 && AFp->ChunkInfo.N > 0) {
-      fprintf (fpinfo, IAM_ChunkInfo);
-      AFprintChunkLims (AFp, fpinfo);
+    if (EXTCODE(Icode, 8) != 0 && AFp->ChunkInfo.N > 0) {
+      fprintf(fpinfo, IAM_ChunkInfo);
+      AFprintChunkLims(AFp, fpinfo);
     }
 
-    AFclose (AFp);
+    AFclose(AFp);
     if (i < Nfiles-1)
-      fprintf (fpinfo, "\n");
+      fprintf(fpinfo, "\n");
 
   }
   return EXIT_SUCCESS;

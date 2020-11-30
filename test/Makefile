@@ -5,6 +5,6 @@
 .PHONY:	test
 
 test:
-	./txxxAudio | ./filter_log > txxxAudio.log
+	./txxxAudio | ./FilterLog > txxxAudio.log
 	diff txxxAudio.log txxxAudio.ref
 	rm -f txxxAudio.log

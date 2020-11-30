@@ -43,15 +43,15 @@ Description:
 Parameters:
   <-  double VRdCorSym
       Correlation coefficient in the range -1 to +1.  If the vector has all
-      zero coefficients, the value 0 is returned.
+      zero elements, the value 0 is returned.
    -> const double x[]
       vector of doubles (N elements)
    -> int N
       Number of elements in the input array
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.8 $  $Date: 2017/03/28 00:11:18 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.9 $  $Date: 2020/09/18 11:54:36 $
 
 -------------------------------------------------------------------------*/
 

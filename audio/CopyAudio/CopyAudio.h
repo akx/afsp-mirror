@@ -8,8 +8,8 @@ Description:
   Declarations for CopyAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.95 $  $Date: 2018/11/16 23:37:16 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.101 $  $Date: 2020/11/30 12:32:00 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define CopyAudio_h_
 
 #define PROGRAM "CopyAudio"
-#define VERSION "v10r2  2018-11-16"
+#define VERSION "v10r3  2020-11-30"
 
 #include <libtsp.h>
 #include <AO.h>
@@ -46,9 +46,9 @@ struct CP_Chgain {
   int i__; \
   (p)->NCI = 0; \
   (p)->NCO = 0; \
-  VRdZero ((p)->Offset, MAXNCO); \
+  VRdZero((p)->Offset, MAXNCO); \
   for (i__ = 0; i__ < MAXNCO; ++i__) \
-    VRdZero ((p)->Gain[i__], MAXNCI); }
+    VRdZero((p)->Gain[i__], MAXNCI); }
 
 /* Warning messages */
 #define CPM_DiffSFreq "Input sampling frequencies differ"
@@ -108,24 +108,22 @@ extern "C" {
 
 /* Prototypes */
 long int
-CPcombChan (AFILE *AFp[], const long int StartF[], int Nifiles,
-            long int Nframe, const struct CP_Chgain *Chgain,
-            long int MaxNframe, AFILE *AFpO);
+CPcombChan(AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
+           const struct CP_Chgain *Chgain, long int MaxNframe, AFILE *AFpO);
 void
-CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
-        const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO);
+CPcopy(int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
+       const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO);
 long int
-CPcopyChan (AFILE *AFp[], const long int StartF[], int Nifiles,
-            long int Nframe, long int MaxNframe, AFILE *AFpO);
+CPcopyChan(AFILE *AFp[], const long int StartF[], int Nifiles, long int Nframe,
+           long int MaxNframe, AFILE *AFpO);
 void
-CPdecChan (const char String[], int Ichan, struct CP_Chgain *Chgain);
+CPdecChan(const char String[], int Ichan, struct CP_Chgain *Chgain);
 long int
-CPlim (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
-       long int Nframe);
+CPlim(int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
+      long int Nframe);
 void
-CPoptions (int argc, const char *argv[], int *Mode,
-           struct AO_FIpar FI[MAXIFILE], int *Nifiles, struct AO_FOpar *FO,
-           struct CP_Chgain *Chgain);
+CPoptions(int argc, const char *argv[], int *Mode, struct AO_FIpar FI[MAXIFILE],
+          int *Nifiles, struct AO_FOpar *FO, struct CP_Chgain *Chgain);
 
 #ifdef __cplusplus
 }

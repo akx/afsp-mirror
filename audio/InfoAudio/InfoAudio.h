@@ -8,8 +8,8 @@ Description:
   Declarations for InfoAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.55 $  $Date: 2018/11/16 23:38:20 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.61 $  $Date: 2020/11/30 12:32:35 $
 
 ----------------------------------------------------------------------*/
 
@@ -21,7 +21,7 @@ Author / revision:
 #include <AO.h>       /* struct AO_FIpar */
 
 #define PROGRAM "InfoAudio"
-#define VERSION "v10r2  2018-11-16"
+#define VERSION "v10r3  2020-11-30"
 
 #define AFPATH_ENV  "$AUDIOPATH"
 
@@ -43,7 +43,7 @@ Author / revision:
 #define IAM_stdin       "File name: <stdin>\n"
 
 #define IAMF_FName      "File name: %s\n"
-#define IAMF_Header     "Header length: %ld\n" \
+#define IAMF_Header     "Offset to data: %ld\n" \
                         "Sampling frequency: %.5g\n" \
                         "No. frames: %ld\n" \
                         "No. channels: %ld\n" \
@@ -56,9 +56,14 @@ Author / revision:
 Usage: %s [options] AFile\n\
 Options:\n\
   -i ICODE, --info_code=ICODE Information to be printed (ICODE: 1+2+4).\n\
+  -t FTYPE, --type=FTYPE      Input file type,\n\
+                              \"auto\", \"AIFF\", \"AU\", \"WAVE\", \"text-audio\"\n\
+                              \"noheader\", \"IRCAM\", \"SPHERE\", \"ESPS\", \"INRS\",\n\
+                              \"SPPACK\", \"SPW\", \"NSP\".\n\
+  -P PARMS, --parameters=PARMS  Parameters for input files,\n\
+                              \"Format,Start,Sfreq,Swapb,Nchan,FullScale\".\n\
   -h, --help                  Print a list of options and exit.\n\
   -v, --version               Print the version number and exit."
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,10 +72,10 @@ extern "C" {
 /* Prototypes */
 
 void
-IAoptions (int argc, const char *argv[], int *Icode,
-           struct IA_FIpar FI[MAXFILE], int *Nfiles);
+IAoptions(int argc, const char *argv[], int *Icode,
+          struct IA_FIpar FI[MAXFILE], int *Nfiles);
 void
-IAfileInfo (const AFILE *AFp, const char Fname[], FILE *fpinfo);
+IAfileInfo(const AFILE *AFp, const char Fname[], FILE *fpinfo);
 
 #ifdef __cplusplus
 }

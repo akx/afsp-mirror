@@ -2,13 +2,13 @@
                              McGill University
 
 Routine:
-  void CPdecChan (const char String, int Ichan, struct CP_Chgain Chgain)
+  void CPdecChan(const char String, int Ichan, struct CP_Chgain Chgain)
 
 Purpose:
   Decode channel gain specifications
 
 Description:
-  This routine decodes gain factor strings.  The gain factor string takes the
+  This routine decodes gain factor strings. The gain factor string takes the
   form
     [+/-] [gain *] chan +/- [gain *] chan +/- gain ...)
   where gain is a number or ratio and chan is A, B, C, ... .
@@ -22,8 +22,8 @@ Parameters:
       Structure with channel gains and offsets
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.23 $  $Date: 2017/05/26 12:48:31 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.24 $  $Date: 2020/11/23 18:30:55 $
 
 -------------------------------------------------------------------------*/
 
@@ -36,29 +36,27 @@ Author / revision:
 #define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
 
 static void
-CP_decChan (const char String[], int *NCI, double Gain[MAXNCI], double *Offset);
+CP_decChan(const char String[], int *NCI, double Gain[MAXNCI], double *Offset);
 static char *
-CP_chan (char String[], int *NCI);
+CP_chan(char String[], int *NCI);
 
 
 void
-CPdecChan (const char String[], int Ichan, struct CP_Chgain *Chgain)
+CPdecChan(const char String[], int Ichan, struct CP_Chgain *Chgain)
 
 {
-  assert (Ichan >= 0 && Ichan < MAXNCO);
+  assert(Ichan >= 0 && Ichan < MAXNCO);
 
-  CP_decChan (String, &Chgain->NCI, Chgain->Gain[Ichan],
-              &Chgain->Offset[Ichan]);
-  Chgain->NCO = MAXV (Chgain->NCO, Ichan+1);
-
-  return;
+  CP_decChan(String, &Chgain->NCI, Chgain->Gain[Ichan],
+             &Chgain->Offset[Ichan]);
+  Chgain->NCO = MAXV(Chgain->NCO, Ichan+1);
 }
 
 /* Decode one channel expression */
 
 
 static void
-CP_decChan (const char String[], int *NCI, double Gain[MAXNCI], double *Offset)
+CP_decChan(const char String[], int *NCI, double Gain[MAXNCI], double *Offset)
 
 {
   int nc, n, sign, nsign;
@@ -69,20 +67,20 @@ CP_decChan (const char String[], int *NCI, double Gain[MAXNCI], double *Offset)
   double DN, DD;
 
 /* Allocate temporary space */
-  nc = (int) strlen (String);
+  nc = (int) strlen(String);
   if (nc == 0)
-    UThalt ("%s: %s", PROGRAM, CPM_EmptyChan);
-  token = (char *) UTmalloc (nc + 1);
+    UThalt("%s: %s", PROGRAM, CPM_EmptyChan);
+  token = (char *) UTmalloc(nc + 1);
 
 /* Loop over subexpressions */
-  VRdZero (Gain, MAXNCI);
+  VRdZero(Gain, MAXNCI);
   *Offset = 0.0;
   p = String;
   nsign = 1;
   while (p != NULL) {
 
     /* Separate the string at + or - signs, p-1 points to the delimiter */
-    p = STfindToken (p, "+-", "", token, 1, nc);
+    p = STfindToken(p, "+-", "", token, 1, nc);
 
     /* Save the sign of the delimiter for the next iteration */
     sign = nsign;
@@ -93,34 +91,32 @@ CP_decChan (const char String[], int *NCI, double Gain[MAXNCI], double *Offset)
     /* Special handling for a + or - followed by another + or - */
     if (token[0] == '\0') {
       if (p == NULL)
-        UThalt ("%s: %s: \"%s\"", PROGRAM, CPM_BadChanEx, String);
+        UThalt("%s: %s: \"%s\"", PROGRAM, CPM_BadChanEx, String);
       nsign = sign * nsign;
       continue;
     }
 
 /* Decode the channel (n == MAXNCI means the offset) */
-    gp = CP_chan (token, &n);
+    gp = CP_chan(token, &n);
     if (n < 0)
-      UThalt ("%s: %s: \"%s\"", PROGRAM, CPM_BadChanEx, String);
+      UThalt("%s: %s: \"%s\"", PROGRAM, CPM_BadChanEx, String);
 
 /* Decode the gain */
     DN = 1.0;
     DD = 1.0;
-    if (gp != NULL && STdecDfrac (gp, &DN, &DD))
-      UThalt ("%s: %s: \"%s\"", PROGRAM, CPM_BadChanEx, String);
+    if (gp != NULL && STdecDfrac(gp, &DN, &DD))
+      UThalt("%s: %s: \"%s\"", PROGRAM, CPM_BadChanEx, String);
     gain = sign * DN / DD;
     if (n < MAXNCI) {
       Gain[n] += gain;
-      *NCI = MAXV (*NCI, n+1);
+      *NCI = MAXV(*NCI, n+1);
     }
     else
       *Offset += gain;
   }
 
   /* Deallocate the storage */
-  UTfree (token);
-
-  return;
+  UTfree(token);
 }
 
 static const char *Chtab[] = {
@@ -130,12 +126,12 @@ static const char *Chtab[] = {
 
 /* Return a pointer to the gain string (NULL if none) */
 /* Return the input channel number for the expression, MAXNCI if none,
-   -1 for an error.  The input string may be modified.
+   -1 for an error. The input string may be modified.
 */
 
 
 static char *
-CP_chan (char String[], int *NCI)
+CP_chan(char String[], int *NCI)
 
 {
   char *q, *gp, *cp;
@@ -147,19 +143,19 @@ CP_chan (char String[], int *NCI)
    25.2      gain (assumes an offset)
 */
 
-  assert (MAXNCI == (sizeof Chtab / sizeof Chtab[0] - 1));
+  assert(MAXNCI == (sizeof Chtab / sizeof Chtab[0] - 1));
 
   /* Set up the pointers to the gain and channel strings */
-  q = strchr (String, '*');
+  q = strchr(String, '*');
   if (q != NULL) {
     *q = '\0';    /* Overwrite the '*' */
     gp = String;
-    cp = STtrimIws (q+1);
-    n = STkeyMatch (cp, Chtab);
+    cp = STtrimIws(q+1);
+    n = STkeyMatch(cp, Chtab);
   }
   else {
     gp = NULL;
-    n = STkeyMatch (String, Chtab);
+    n = STkeyMatch(String, Chtab);
     if (n < 0) {  /* No match, must be an offset */
       gp = String;
       n = MAXNCI;

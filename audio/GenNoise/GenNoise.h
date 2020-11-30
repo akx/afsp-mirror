@@ -8,8 +8,8 @@ Description:
   Declarations for GenNoise
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.43 $  $Date: 2018/11/16 23:37:45 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.48 $  $Date: 2020/11/30 12:32:20 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define GenNoise_h_
 
 #define PROGRAM "GenNoise"
-#define VERSION "v10r2  2018-11-16"
+#define VERSION "v10r3  2020-11-30"
 
 #define RMS_DEFAULT 0.03
 
@@ -59,8 +59,8 @@ extern "C" {
 
 /* Prototypes */
 void
-GNoptions (int argc, const char *argv[], double *rms, int *seed,
-     struct GN_FOpar *FO);
+GNoptions(int argc, const char *argv[], double *rms, int *seed,
+          struct GN_FOpar *FO);
 
 #ifdef __cplusplus
 }

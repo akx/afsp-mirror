@@ -8,17 +8,16 @@ Purpose:
   Generate an audio file containing uncorrelated Gaussian noise samples
 
 Description:
-  This program generates zero-mean uncorrelated pseudo-random Gaussian
-  deviates.  These white noise samples are written to an audio file.  Each
-  invocation of this program generates a different random sequence unless the
-  random number generator seed is specified.  Options are available to specify
-  the number of samples, the sampling frequency and the data format of the
-  output file.
+  This program generates zero-mean uncorrelated pseudo-random Gaussian deviates.
+  These white noise samples are written to an audio file. Each invocation of
+  this program generates a different random sequence unless the random number
+  generator seed is specified. Options are available to specify the number of
+  samples, the sampling frequency and the data format of the output file.
 
 Options:
   Output file name, AFile:
       Specifying "-" as the output file indicates that output is to be written
-      to standard output.  If the output file type is not explicitly given (-F
+      to standard output. If the output file type is not explicitly given (-F
       option), the extension of the output file name is used to determine the
       file type.
         ".au"   - AU audio file
@@ -39,7 +38,7 @@ Options:
   -s SFREQ, --srate=SFREQ
       Sampling frequency for the output audio file, default 8000.
   -F FTYPE, --file-type=FTYPE
-      Output file type.  If this option is not specified, the file type is
+      Output file type. If this option is not specified, the file type is
       determined by the output file name extension.
         "AU" or "au"             - AU audio file
         "WAVE" or "wave"         - WAVE file. Whether or not to use the WAVE
@@ -86,7 +85,7 @@ Options:
   -S SPEAKERS, --speakers=SPEAKERS
       Loudspeaker configuration
 Author / version:
-  P. Kabal / v10r2  2018-11-16  Copyright (C) 2018
+  P. Kabal / v10r3  2020-11-30  Copyright (C) 2020
 
 -------------------------------------------------------------------------*/
 
@@ -103,7 +102,7 @@ Author / version:
 
 
 int
-main (int argc, const char *argv[])
+main(int argc, const char *argv[])
 
 {
   struct GN_FOpar FO;
@@ -115,34 +114,35 @@ main (int argc, const char *argv[])
   double x[MAXBUF];
 
 /* Get the input parameters */
-  GNoptions (argc, argv, &rms, &seed, &FO);
+  GNoptions(argc, argv, &rms, &seed, &FO);
 
 /* If output is to stdout, use stderr for informational messages */
-  if (strcmp (FO.Fname, "-") == 0)
+  if (strcmp(FO.Fname, "-") == 0)
     fpinfo = stderr;
   else
     fpinfo = stdout;
 
 /* Open the output file */
-  AOsetDFormat (&FO, NULL, 0);
-  AOsetFOopt (&FO);
-  if (strcmp (FO.Fname, "-") != 0)
-    FLbackup (FO.Fname);
-  AFp = AFopnWrite (FO.Fname, FO.FtypeW, FO.DFormat.Format, 1L, FO.Sfreq, fpinfo);
+  AOsetDFormat(&FO, NULL, 0);
+  AOsetFOopt(&FO);
+  if (strcmp(FO.Fname, "-") != 0)
+    FLbackup(FO.Fname);
+  AFp = AFopnWrite(FO.Fname, FO.FtypeW, FO.DFormat.Format, 1L, FO.Sfreq,
+                   fpinfo);
 
 /* Generate the noise samples */
-  MSrandSeed (seed);
+  MSrandSeed(seed);
   k = 0;
   while (k < FO.Nframe) {
-    n = (int) MINV (FO.Nframe - k, MAXBUF);
+    n = (int) MINV(FO.Nframe - k, MAXBUF);
     for (i = 0; i < n; ++i)
-      x[i] = MSfGaussRand (rms);
+      x[i] = MSfGaussRand(rms);
     k += n;
-    AFdWriteData (AFp, x, n);
+    AFdWriteData(AFp, x, n);
   }
 
 /* Close the audio file */
-  AFclose (AFp);
+  AFclose(AFp);
 
   return EXIT_SUCCESS;
 }

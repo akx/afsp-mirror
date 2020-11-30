@@ -2,18 +2,18 @@
                              McGill University
 
 Routine:
-  double RSKalphaXatt (double alpha)
-  double RSKalphaXD (double alpha)
-  double RSKattenXalpha (double atten)
+  double RSKalphaXatt(double alpha)
+  double RSKalphaXD(double alpha)
+  double RSKattenXalpha(double atten)
 
 Purpose:
   Calculate specification values for a Kaiser windowed lowpass filter design
 
 Description:
   This module contains routines to calculate and convert specification values
-  for a Kaiser windowed lowpass filter design.  The window shape parameter
-  alpha, the stopband attenuation, and the normalized transition width are
-  related by empirical formulas.
+  for a Kaiser windowed lowpass filter design. The window shape parameter alpha,
+  the stopband attenuation, and the normalized transition width are related by
+  empirical formulas.
 
   References:
   J. F. Kaiser, "Nonrecursive digital filter design using the I0-sinh window
@@ -41,8 +41,8 @@ Parameters:
 
 
 Author / revision:
-  P. Kabal  Copyright (C) 2015
-  $Revision: 1.7 $  $Date: 2015/04/10 12:46:11 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.8 $  $Date: 2020/11/23 18:31:59 $
 
 -------------------------------------------------------------------------*/
 
@@ -61,7 +61,7 @@ Author / revision:
 
 
 double
-RSKattenXalpha (double atten)
+RSKattenXalpha(double atten)
 
 {
   double alpha;
@@ -69,7 +69,7 @@ RSKattenXalpha (double atten)
   if (atten <= 21.0)
     alpha = 0.0;
   else if (atten <= 50.0)
-    alpha = K1 * pow (atten-21.0, 0.4) + K2 * (atten-21.0);
+    alpha = K1 * pow(atten-21.0, 0.4) + K2 * (atten-21.0);
   else
     alpha = K3 * (atten - 8.7);
 
@@ -79,21 +79,21 @@ RSKattenXalpha (double atten)
 /* Convert alpha to attenuation in dB */
 
 double
-RSKalphaXatt (double alpha)
+RSKalphaXatt(double alpha)
 
 {
   double attenL, attenU, atten;
   int i;
 
-  alpha = fabs (alpha);
+  alpha = fabs(alpha);
 
-  if (alpha < RSKattenXalpha (50.0)) {
+  if (alpha < RSKattenXalpha(50.0)) {
     /* Binary search for the attenuation value */
     attenL = 21.0;
     attenU = 50.0;
     for (i = 0; i <15; ++i) {
       atten = 0.5 * (attenL + attenU);
-      if (alpha > RSKattenXalpha (atten))
+      if (alpha > RSKattenXalpha(atten))
         attenL = atten;
       else
         attenU = atten;
@@ -110,12 +110,12 @@ RSKalphaXatt (double alpha)
 /* Convert alpha to normalized transition width D */
 
 double
-RSKalphaXD (double alpha)
+RSKalphaXD(double alpha)
 
 {
   double atten, D;
 
-  atten = RSKalphaXatt (alpha);
+  atten = RSKalphaXatt(alpha);
 
   if (atten <= 21.0)
     D = 0.9222;

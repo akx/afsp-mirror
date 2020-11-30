@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void AOsetFtypeW (struct AO_FOpar *FO)
+  void AOsetFtypeW(struct AO_FOpar *FO)
 
 Purpose:
   Determine / check the output file type
@@ -13,7 +13,7 @@ Description:
   Otherwise the file type is determined by the output file name extension.
   If the file name extension is non-standard, a default file type is used.
 
-  The mapping from file name extensions to file types is as follows.  The
+  The mapping from file name extensions to file types is as follows. The
   asterisk indicates that a shortened form can be used.
     .wav*e        - FTW_WAVE, Wave file
     .au           - FTW_AU, AU audio file
@@ -31,8 +31,8 @@ Parameters:
       Output file parameters. The output file type is updated if appropriate.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.10 $  $Date: 2017/06/22 11:48:41 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.11 $  $Date: 2020/11/23 18:35:28 $
 
 -------------------------------------------------------------------------*/
 
@@ -65,7 +65,7 @@ static const int FtypeW_values[] = {
 
 
 void
-AOsetFtypeW (struct AO_FOpar *FO)
+AOsetFtypeW(struct AO_FOpar *FO)
 
 {
   int n;
@@ -74,11 +74,11 @@ AOsetFtypeW (struct AO_FOpar *FO)
   switch (FO->FtypeW) {
   case FTW_UNDEF:
     /* Get the file name extension */
-    FLextName (FO->Fname, Ename);
-    STstrLC (Ename, Ename);
+    FLextName(FO->Fname, Ename);
+    STstrLC(Ename, Ename);
 
     /* Check for a match to the extension */
-    n = STkeyMatch (Ename, Ext_keys);
+    n = STkeyMatch(Ename, Ext_keys);
     if (n >= 0)
       FO->FtypeW = FtypeW_values[n];
     else
@@ -98,8 +98,6 @@ AOsetFtypeW (struct AO_FOpar *FO)
   case FTW_TXAUD:
     break;
   default:
-    UThalt ("%s: %s", PGM, AOM_InvFTypeC);
+    UThalt("%s: %s", PGM, AOM_InvFTypeC);
   }
-
-  return;
 }

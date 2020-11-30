@@ -8,8 +8,8 @@ Description:
   Message texts for the AFsp audio file routines.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.69 $  $Date: 2017/07/13 15:26:27 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.70 $  $Date: 2020/11/29 23:44:56 $
 
 ----------------------------------------------------------------------*/
 
@@ -135,7 +135,9 @@ Author / revision:
 #define AFM_AIFFC_BadVer  "AIFF-C file: Unrecognized version number"
 #define AFM_AIFFC_FixCOMM "AIFF-C file: Fixup for invalid COMM chunk size"
 #define AFM_AIFFX_FixFORM "AIFF/AIFF-C file: Fixup for invalid FORM chunk size"
+#define AFM_AIFFX_FixSSND "AIFF/AIFF-C file: Fixup for invalid data offset"
 #define AFM_AIFFX_NoSSND  "AIFF/AIFF-C file: Missing SSND chunk"
+#define AFM_AIFFX_Pipe    "AIFF/AIFF-C data not at end for input from a pipe"
 #define AFM_AIFFC_UnsComp "AIFF-C file: Unsupported compression type"
 #define AFM_AIFF_UnsData  "AIFF file: Unsupported data format"
 #define AFM_AIFFC_UnsData "AIFF-C file: Unsupported data format"

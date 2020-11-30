@@ -1,0 +1,32 @@
+.TH AFclose - libtsp (3tsp)
+.SH Routine:
+void AFclose(AFILE *AFp)
+.SH Purpose:
+Close an audio file
+.SH Description:
+This routine closes an audio file opened with AFopnRead or AFopnWrite. If the
+file was opened for write, the file header is updated with the number of
+samples in the file. For both read and write operations, the audio file
+parameter structure associated with the file pointer is deallocated and the
+file is closed.
+.PP
+If the file was opened for write, the number of overloads detected during
+write operations is reported.
+.SH Parameters:
+.in +3n
+.ti -3n
+<-  void AFclose
+.br
+.ti -3n
+ -> AFILE *AFp
+.br
+Audio file pointer for the audio file. This structure is deallocated
+by this routine.
+.in -3n
+.SH Author / revision:
+P. Kabal
+/ Revision 1.58  2020-11-26
+.SH See Also
+AFopnRead,
+AFopnWrite,
+libtsp

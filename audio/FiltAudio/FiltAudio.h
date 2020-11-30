@@ -8,8 +8,8 @@ Description:
   Declarations for FiltAudio
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.73 $  $Date: 2018/11/16 23:37:32 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.80 $  $Date: 2020/11/30 12:32:12 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ Author / revision:
 #define FiltAudio_h_
 
 #define PROGRAM "FiltAudio"
-#define VERSION "v10r2  2018-11-16"
+#define VERSION "v10r3  2020-11-30"
 
 #include <limits.h>   /* LONG_MIN */
 
@@ -84,7 +84,8 @@ Options:\n\
                               \"float32\", \"float64\", \"text16\", \"text\".\n\
   -I INFO, --info=INFO        Add a header information record.\n\
   -h, --help                  Print a list of options and exit.\n\
-  -v, --version               Print the version number and exit."
+  -v, --version               Print the version number and exit.\n\
+   Additional options [-t -P -S], see CopyAudio."
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,20 +93,20 @@ extern "C" {
 
 /* Prototypes */
 void
-FAfiltAP (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-          int Ncof, int Nsub, long int noffs);
+FAfiltAP(AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+         int Ncof, int Nsub, long int noffs);
 void
-FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-           int Ncof, long int noffs);
+FAfiltFIR(AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+          int Ncof, long int noffs);
 void
-FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[][5],
-           int Nsec, int Nsub, long int noffs);
+FAfiltIIR(AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[][5],
+          int Nsec, int Nsub, long int noffs);
 void
-FAfiltSI (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-          int Ncof, int Nsub, int Ir, long int moffs);
+FAfiltSI(AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+         int Ncof, int Nsub, int Ir, long int moffs);
 void
-FAoptions (int argc, const char *argv[], struct FA_FIpar *FI,
-           struct FA_FFpar *FF, struct FA_FOpar *FO);
+FAoptions(int argc, const char *argv[], struct FA_FIpar *FI,
+          struct FA_FFpar *FF, struct FA_FOpar *FO);
 
 #ifdef __cplusplus
 }

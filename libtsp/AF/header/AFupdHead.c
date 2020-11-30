@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  int AFupdHead (AFILE *AFp)
+  int AFupdHead(AFILE *AFp)
 
 Purpose:
   Update the header for an audio file
@@ -17,8 +17,8 @@ Parameters:
       Audio file pointer for the audio file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.13 $  $Date: 2017/05/15 15:42:48 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.14 $  $Date: 2020/11/25 17:54:50 $
 
 -------------------------------------------------------------------------*/
 
@@ -33,15 +33,15 @@ Author / revision:
 
 
 int
-AFupdHead (AFILE *AFp)
+AFupdHead(AFILE *AFp)
 
 {
   long int pos, Nframe;
   int Changed;
   int (*AF_upd)(AFILE *AFp);
 
-  assert (AFp->Op == FO_WO);
-  assert (! AFp->Error);
+  assert(AFp->Op == FO_WO);
+  assert(!AFp->Error);
 
   /* Set up the appropriate routine */
   AF_upd = NULL;
@@ -61,29 +61,29 @@ AFupdHead (AFILE *AFp)
   case FT_TXAUD:
     break;
   default:
-    assert (0);
+    assert(0);
   }
 
   /* Check if the header needs updating */
   Nframe = AFp->Nsamp / AFp->Nchan;
   if (Nframe * AFp->Nchan != AFp->Nsamp)
-    UTwarn ("AFupdhead - %s", AFM_NsampNchan);
+    UTwarn("AFupdhead - %s", AFM_NsampNchan);
   Changed = (AFp->Nframe != AF_NFRAME_UNDEF && AFp->Nframe != Nframe);
   if (Changed)
-    UTwarn ("AFupdHead - %s", AFM_NsampMis);
+    UTwarn("AFupdHead - %s", AFM_NsampMis);
 
   /* If an update function is enabled: Save the file position, update the
      header, restore the position */
   if (AF_upd != NULL && FLseekable (AFp->fp)) {
-    pos = AFtell (AFp->fp, &AFp->Error);
-    if (! AFp->Error) {
+    pos = AFtell(AFp->fp, &AFp->Error);
+    if (!AFp->Error) {
       AFp->Error = (*AF_upd) (AFp);         /* Update the header */
-      AFseek (AFp->fp, pos, &AFp->Error);
+      AFseek(AFp->fp, pos, &AFp->Error);
     }
   }
 
   if (AFp->Error)
-    UTwarn ("AFupdHead: %s", AFM_UpdHeadErr);
+    UTwarn("AFupdHead: %s", AFM_UpdHeadErr);
 
   return AFp->Error;
 }

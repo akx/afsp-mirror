@@ -8,8 +8,8 @@ Description:
   Information record identifiers
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 2.13 $  $Date: 2017/09/14 14:50:27 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 2.15 $  $Date: 2020/11/25 17:56:06 $
 
 ----------------------------------------------------------------------*/
 
@@ -22,11 +22,13 @@ Author / revision:
 extern "C" {
 #endif
 
-/* Info record ID's, canonical ID first, NULL terminated */
-/* Info record Key's, NULL terminated */
-/*   Info record Key values */
-/* Info record Units, use an empty last entry "" if the Units field is optional */
-/*   Info record Unit scaling values */
+/*
+  Info record ID's, canonical ID first, NULL terminated
+  Info record Key's, NULL terminated
+  Info record Key values
+  Info record Units, use an empty last entry "" if the Units field is optional
+  Info record Unit scaling values
+*/
 
 #define AF_INFOID_BYTES     {"bytes/sample:", "sample_n_bytes:", NULL}
 #define AF_INFOID_DATE      {"date:", "creation_date:", "recording_date:", \
@@ -58,40 +60,40 @@ extern "C" {
 
 /* AF/info function prototypes */
 int
-AFaddInfoChunk (const char Recs[], int Nc, struct AF_info *AFInfo);
+AFaddInfoChunk(const char Recs[], int Nc, struct AF_info *AFInfo);
 void
-AFaddInfoRec (const char Ident[], const char text[], int Size,
-              struct AF_info *AFInfo);
+AFaddInfoRec(const char Ident[], const char text[], int Size,
+             struct AF_info *AFInfo);
 int
-AFdecSpeaker (const char String[], unsigned char *SpkrConfig, int MaxN);
+AFdecSpeaker(const char String[], unsigned char *SpkrConfig, int MaxN);
 int
-AFdecInfoVVU (const char *String, int Type, void *Val,
-              const char *UnitsTable[], int *Key);
+AFdecInfoVVU(const char *String, int Type, void *Val, const char *UnitsTable[],
+             int *Key);
 int
-AFdelInfoRec (const char Ident[], struct AF_info *AFInfo);
+AFdelInfoRec(const char Ident[], struct AF_info *AFInfo);
 int
-AFgetDelInfoRec (const char *Ident[],  struct AF_info *WInfo, char text[],
-                 int NcMax);
+AFgetDelInfoRec(const char *Ident[],  struct AF_info *WInfo, char text[],
+                int NcMax);
 int
-AFgetInfoBytes (const struct AF_info *AFInfo);
+AFgetInfoBytes(const struct AF_info *AFInfo);
 long int
-AFgetInfoChan (const struct AF_info *AFInfo);
+AFgetInfoChan(const struct AF_info *AFInfo);
 long int
-AFgetInfoFrame (const struct AF_info *AFInfo);
+AFgetInfoFrame(const struct AF_info *AFInfo);
 double
-AFgetInfoFullScale (const struct AF_info *AFInfo);
+AFgetInfoFullScale(const struct AF_info *AFInfo);
 struct AF_NbS
-AFgetInfoNbS (const struct AF_info *AFInfo);
+AFgetInfoNbS(const struct AF_info *AFInfo);
 const char *
-AFgetInfoRec (const char *RecID[], const struct AF_info *AFInfo);
+AFgetInfoRec(const char *RecID[], const struct AF_info *AFInfo);
 double
-AFgetInfoSfreq (const struct AF_info *AFInfo);
+AFgetInfoSfreq(const struct AF_info *AFInfo);
 enum UT_DS_T
 AFgetInfoSwap(const struct AF_info *AFInfo);
 int
-AFspeakerNames (const unsigned char *SpkrConfig, char *SpkrNames, int MaxNc);
+AFspeakerNames(const unsigned char *SpkrConfig, char *SpkrNames, int MaxNc);
 unsigned char *
-AFgetInfoSpkr (const struct AF_info *AFInfo);
+AFgetInfoSpkr(const struct AF_info *AFInfo);
 
 #ifdef __cplusplus
 }

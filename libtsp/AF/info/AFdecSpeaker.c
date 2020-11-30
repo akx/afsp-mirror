@@ -25,18 +25,18 @@ Parameters:
       values starting at 1.  SpkrConfig must be of size MaxN+1.  In case of an
       error, SpkrConfig is empty.
    -> int MaxN
-      Maximum number of speaker locations. This value should normally be equal
+      Maximum number of speaker locations.  This value should normally be equal
       to or larger than the number of channels.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.22 $  $Date: 2017/06/09 15:06:34 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.25 $  $Date: 2020/09/17 20:01:48 $
 
 -------------------------------------------------------------------------*/
 
 #include <libtsp/sysOS.h>
 #if (SY_OS == SY_OS_WINDOWS)
-#  define _CRT_SECURE_NO_WARNINGS     /* Allow strncpy */
+#  define _CRT_SECURE_NO_WARNINGS     /* Allow strcpy */
 #endif
 
 #include <string.h>
@@ -134,7 +134,7 @@ AFdecSpeaker(const char String[], unsigned char *SpkrConfig, int MaxN)
 
     m = (int) strlen (AF_Spkr_KeyVal[n]);
     if (k + m < MaxN) {    /* Make sure there is enough space */
-      strncpy ((char *) &SpkrConfig[k], AF_Spkr_KeyVal[n], m);
+      strcpy ((char *) &SpkrConfig[k], AF_Spkr_KeyVal[n]);
       k = k + m;
     }
     else {

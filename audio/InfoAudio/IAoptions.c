@@ -2,8 +2,8 @@
                            McGill University
 
 Routine:
-  void IAoptions (int argc, const char *argv[], int *Icode,
-                  struct IA_FIpar FI[MAXFILE], int *Nfiles)
+  void IAoptions(int argc, const char *argv[], int *Icode,
+                 struct IA_FIpar FI[MAXFILE], int *Nfiles)
 
 Purpose:
   Decode options for InfoAudio
@@ -25,8 +25,8 @@ Parameters:
       Number of input file names
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.33 $  $Date: 2017/05/07 02:53:27 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.34 $  $Date: 2020/11/23 18:31:41 $
 
 ----------------------------------------------------------------------*/
 
@@ -36,7 +36,7 @@ Author / revision:
 #include <AO.h>
 #include "InfoAudio.h"
 
-#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
+#define ERRSTOP(text,par) UThalt("%s: %s: \"%s\"", PROGRAM, text, par)
 
 /* Option table  */
 static const char *OptTable[] = {
@@ -46,8 +46,8 @@ static const char *OptTable[] = {
 
 
 void
-IAoptions (int argc, const char *argv[], int *Icode,
-           struct IA_FIpar FI[MAXFILE], int *Nfiles)
+IAoptions(int argc, const char *argv[], int *Icode,
+          struct IA_FIpar FI[MAXFILE], int *Nfiles)
 
 {
   struct IA_FIpar FIx;
@@ -56,71 +56,69 @@ IAoptions (int argc, const char *argv[], int *Icode,
 
 /* Default values */
   FIParSet = 0;
-  FIpar_INIT (&FIx);
+  FIpar_INIT(&FIx);
 
   icode = 15;
 
 /* Initialization */
-  UTsetProg (PROGRAM);
+  UTsetProg(PROGRAM);
   nF = 0;
 
 /* Decode options */
-  AOinitOpt (argc, argv);
+  AOinitOpt(argc, argv);
   while (1) {
 
     /* Decode input file options */
-    n = AOdecFI (&FIx);
+    n = AOdecFI(&FIx);
     if (n >= 1) {
       FIParSet = nF;
       continue;
     }
 
     /* Decode help options */
-    n = AOdecHelp (VERSION, IAMF_Usage);
+    n = AOdecHelp(VERSION, IAMF_Usage);
     if (n >= 1)
       continue;
 
     /* Decode program options */
-    n = AOdecOpt (OptTable, &OptArg);
+    n = AOdecOpt(OptTable, &OptArg);
     if (n == -1)
       break;
 
     switch (n) {
     case -2:
-      UThalt (IAMF_Usage, PROGRAM);
+      UThalt(IAMF_Usage, PROGRAM);
       break;
     case 0:
       /* Filename argument */
       ++nF;
       if (nF > MAXFILE)
-        UThalt ("%s: %s", PROGRAM, IAM_XFName);
-      STcopyMax (OptArg, FIx.Fname, FILENAME_MAX-1);
+        UThalt("%s: %s", PROGRAM, IAM_XFName);
+      STcopyMax(OptArg, FIx.Fname, FILENAME_MAX-1);
       FI[nF-1] = FIx;
       break;
     case 1:
     case 2:
       /* Info code parameter */
-      if (STdec1int (OptArg, &icode) || icode < 0 || icode > 15)
-        ERRSTOP (IAM_BadInfoCode, OptArg);
+      if (STdec1int(OptArg, &icode) || icode < 0 || icode > 15)
+        ERRSTOP(IAM_BadInfoCode, OptArg);
       break;
     default:
-      assert (0);
+      assert(0);
       break;
     }
   }
 
 /* Error checks */
   if (nF <= 0)
-    UThalt ("%s: %s", PROGRAM, IAM_NoFName);
+    UThalt("%s: %s", PROGRAM, IAM_NoFName);
   if (FIParSet >= nF)
-    UThalt ("%s: %s", PROGRAM, IAM_LateFPar);
+    UThalt("%s: %s", PROGRAM, IAM_LateFPar);
 
   /* Check for too many stdin specs */
-  AOstdin (FI, nF);
+  AOstdin(FI, nF);
 
 /* Return parameter */
   *Icode = icode;
   *Nfiles = nF;
-
-  return;
 }

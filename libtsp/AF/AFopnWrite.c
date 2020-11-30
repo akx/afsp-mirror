@@ -2,22 +2,22 @@
                              McGill University
 
 Routine:
-  AFILE *AFopnWrite (const char Fname[], enum AF_FTW_T FtypeW,
-                     enum AF_FD_T Format, long int Nchan, double Sfreq,
-                     FILE *fpinfo)
+  AFILE *AFopnWrite(const char Fname[], enum AF_FTW_T FtypeW,
+                    enum AF_FD_T Format, long int Nchan, double Sfreq,
+                    FILE *fpinfo)
 
 Purpose:
   Open an audio file for writing
 
 Description:
-  This routine opens an audio file for writing.  This routine sets up the audio
-  file parameters to write data of the given format to the audio file.  After
+  This routine opens an audio file for writing. This routine sets up the audio
+  file parameters to write data of the given format to the audio file. After
   writing data to the file, the routine AFclose should be called to update the
   file header information and close the file.
 
   By default, information records consisting, for instance, the date and the
   program creating the file (see UTsetProg) are written to the audio file header
-  or trailer.  The routine AFsetInfo can be called before calling this routine
+  or trailer. The routine AFsetInfo can be called before calling this routine
   to specify additional information to be written to the file.
 
   This routine can write AU audio files, AIFF, AIFF-C files, WAVE files, text
@@ -35,7 +35,7 @@ Description:
     8-bit mu-law, 8-bit A-law, 8/16/24/32-bit integer, and 32/64-bit IEEE
     floating-point data formats are supported.
   Text audio file:
-    text format data, one value to a line.  The data is written as a floating
+    text format data, one value to a line. The data is written as a floating
     point value with 6 digits of precision (%g format).
   Headerless file:
     8-bit mu-law, 8-bit A-law, offset-binary 8-bit integer, 8/16/24/32-bit
@@ -98,26 +98,25 @@ Parameters:
   <-  AFILE *AFopnWrite
       Audio file pointer for the audio file
    -> const char Fname[]
-      Character string specifying the file name.  The file name "-" means
+      Character string specifying the file name. The file name "-" means
       standard output.
    -> enum AF_FTW_T FtypeW
       File type code for the output file (distinguishes between subtypes)
-        FTW_AU, FTW_WAVE, ..., FTW_WAVE_NOEX, ...
+      (FTW_AU, FTW_WAVE, ..., FTW_WAVE_NOEX, ...)
    -> enum AF_FD_T Format
-      Data format code
-        FD_MULAW8, ..., FD_TEXT
+      Data format code (FD_MULAW8, ..., FD_TEXT)
    -> long int Nchan
       Number of channels
    -> double Sfreq
       Sampling frequency
    -> FILE *fpinfo
-      File pointer for printing audio file information.  If fpinfo is not NULL,
+      File pointer for printing audio file information. If fpinfo is not NULL,
       information about the audio file is printed on the stream selected by
       fpinfo.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.31 $  $Date: 2018/11/12 20:52:26 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.33 $  $Date: 2020/11/30 12:28:08 $
 
 -------------------------------------------------------------------------*/
 
@@ -142,16 +141,16 @@ Author / revision:
 
 /* Local functions */
 static void
-AF_error (const char Fname[], int sysFlag);
+AF_error(const char Fname[], int sysFlag);
 static FILE*
-AF_open_write (const char Fname[]);
+AF_open_write(const char Fname[]);
 
 /* If ErrorHalt is clear, execution continues after an error */
 
 
 AFILE *
-AFopnWrite (const char Fname[], enum AF_FTW_T FtypeW, enum AF_FD_T Format,
-            long int Nchan, double Sfreq,  FILE *fpinfo)
+AFopnWrite(const char Fname[], enum AF_FTW_T FtypeW, enum AF_FD_T Format,
+           long int Nchan, double Sfreq,  FILE *fpinfo)
 
 {
   AFILE *AFp;
@@ -163,13 +162,13 @@ AFopnWrite (const char Fname[], enum AF_FTW_T FtypeW, enum AF_FD_T Format,
    - File type is validated
    - Number of frames filled in by AOsetFOopt via AFopt structure
    */
-  if (AFpreSetWPar (FtypeW, Format, Nchan, Sfreq, &AFw)) {
-    AF_error (Fname, ERR_MSG);
+  if (AFpreSetWPar(FtypeW, Format, Nchan, Sfreq, &AFw)) {
+    AF_error(Fname, ERR_MSG);
     return NULL;
   }
 
 /* Open the file for writing */
-  fp = AF_open_write (Fname);
+  fp = AF_open_write(Fname);
   if (fp == NULL)
     return NULL;
 
@@ -181,36 +180,36 @@ AFopnWrite (const char Fname[], enum AF_FTW_T FtypeW, enum AF_FD_T Format,
   AFp = NULL;
   switch (AFw.FtypeW) {
   case FTW_AU:
-    AFp = AFwrAUhead (fp, &AFw);
+    AFp = AFwrAUhead(fp, &AFw);
     break;
   case FTW_WAVE:
   case FTW_WAVE_EX:
   case FTW_WAVE_NOEX:
-    AFp = AFwrWVhead (fp, &AFw);
+    AFp = AFwrWVhead(fp, &AFw);
     break;
   case FTW_AIFF:
   case FTW_AIFF_C:
   case FTW_AIFF_C_SOWT:
-    AFp = AFwrAIhead (fp, &AFw);
+    AFp = AFwrAIhead(fp, &AFw);
     break;
   case FTW_NH_NATIVE:
   case FTW_NH_SWAP:
   case FTW_NH_EL:
   case FTW_NH_EB:
-    AFp = AFsetNHwrite (fp, &AFw);
+    AFp = AFsetNHwrite(fp, &AFw);
     break;
   case FTW_TXAUD:
-    AFp = AFwrTAhead (fp, &AFw);
+    AFp = AFwrTAhead(fp, &AFw);
     break;
   default:
-    UTwarn ("AFopnWrite: %s", AFM_BadFtypeC);
+    UTwarn("AFopnWrite: %s", AFM_BadFtypeC);
     break;
   }
 
 /* Error messages */
   if (AFp == NULL) {
-    fclose (fp);
-    AF_error (Fname, ERR_MSG);
+    fclose(fp);
+    AF_error(Fname, ERR_MSG);
     return NULL;
   }
 
@@ -218,7 +217,7 @@ AFopnWrite (const char Fname[], enum AF_FTW_T FtypeW, enum AF_FD_T Format,
   (void) AFoptions(AF_OPT_OUTPUT);
 
 /* Print the header information */
-  AFprintAFpar (AFp, Fname, fpinfo);
+  AFprintAFpar(AFp, Fname, fpinfo);
 
 return AFp;
 }
@@ -232,25 +231,25 @@ return AFp;
 #endif
 
 static FILE *
-AF_open_write (const char Fname[])
+AF_open_write(const char Fname[])
 
 {
   FILE *fp;
 
-  if (strcmp (Fname, "-") == 0) {
+  if (strcmp(Fname, "-") == 0) {
     /* Output to standard output */
     fp = stdout;
 #ifdef O_BINARY
-    if (setmode (fileno(fp), O_BINARY) == -1)
-      UTwarn ("AFopnWrite - %s", AFM_NoWBinMode);
+    if (setmode(fileno(fp), O_BINARY) == -1)
+      UTwarn("AFopnWrite - %s", AFM_NoWBinMode);
 #endif
   }
   else
     /* Output to a file */
-    fp = fopen (Fname, "wb");
+    fp = fopen(Fname, "wb");
 
   if (fp == NULL) {
-    AF_error (Fname, SYS_MSG);
+    AF_error(Fname, SYS_MSG);
     return NULL;
   }
 
@@ -261,25 +260,23 @@ AF_open_write (const char Fname[])
 
 
 static void
-AF_error (const char Fname[], int sysFlag)
+AF_error(const char Fname[], int sysFlag)
 
 {
   const char *fn;
 
-  if (strcmp (Fname, "-") == 0)
+  if (strcmp(Fname, "-") == 0)
     fn = "<stdout>";
   else
     fn = Fname;
 
   if (sysFlag)
-    UTsysMsg ("AFopnWrite: %s \"%s\"", AFM_OpenWErr, fn);
+    UTsysMsg("AFopnWrite: %s \"%s\"", AFM_OpenWErr, fn);
   else
-    UTwarn ("AFopnWrite: %s \"%s\"", AFM_OpenWErr, fn);
+    UTwarn("AFopnWrite: %s \"%s\"", AFM_OpenWErr, fn);
   if (AFopt.ErrorHalt)
-    exit (EXIT_FAILURE);
+    exit(EXIT_FAILURE);
 
   /* Reset options */
-  (void) AFoptions (AF_OPT_OUTPUT);
-
-  return;
+  (void) AFoptions(AF_OPT_OUTPUT);
 }

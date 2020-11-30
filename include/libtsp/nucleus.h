@@ -8,8 +8,8 @@ Description:
   Function prototypes for the TSP library internal (nucleus) routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 2.72 $  $Date: 2017/06/27 00:03:26 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 2.73 $  $Date: 2020/11/23 20:48:53 $
 
 ----------------------------------------------------------------------*/
 
@@ -41,120 +41,120 @@ extern "C" {
 /* ----- AF Prototypes ----- */
 /* nucleus */
 int
-AFcheckDataPar (FILE *fp, int Lw, long int *Dstart, struct AF_ndata *NData,
-                enum AF_FIX_T Fix);
+AFcheckDataPar(FILE *fp, int Lw, long int *Dstart, struct AF_ndata *NData,
+               enum AF_FIX_T Fix);
 struct AF_opt *
-AFoptions (enum AF_OPT_T Cat);
+AFoptions(enum AF_OPT_T Cat);
 int
-AFpreSetWPar (enum AF_FTW_T FtypeW, enum AF_FD_T Dformat, long int Nchan,
-              double Sfreq, struct AF_write *AFw);
+AFpreSetWPar(enum AF_FTW_T FtypeW, enum AF_FD_T Dformat, long int Nchan,
+             double Sfreq, struct AF_write *AFw);
 void
-AFprintAFpar (AFILE *AFp, const char Fname[], FILE *fpinfo);
+AFprintAFpar(AFILE *AFp, const char Fname[], FILE *fpinfo);
 AFILE *
-AFsetRead (FILE *fp, enum AF_FT_T Ftype, const struct AF_read *AFr,
-           enum AF_FIX_T Fix);
+AFsetRead(FILE *fp, enum AF_FT_T Ftype, const struct AF_read *AFr,
+          enum AF_FIX_T Fix);
 AFILE *
-AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw);
+AFsetWrite(FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw);
 
 /* ----- FI Prototypes ----- */
 double
-FIrCosF (double x, double alpha);
+FIrCosF(double x, double alpha);
 double
-FIxKaiser (double x, double alpha);
+FIxKaiser(double x, double alpha);
 
 /* ----- FL Prototypes ----- */
 int
-FLdReadTF (FILE *fp, int MaxNval, int cc, double x[]);
+FLdReadTF(FILE *fp, int MaxNval, int cc, double x[]);
 int
-FLexist (const char Fname[]);
+FLexist(const char Fname[]);
 int
-FLfReadTF (FILE *fp, int MaxNval, int cc, float x[]);
+FLfReadTF(FILE *fp, int MaxNval, int cc, float x[]);
 long int
-FLfileSize (FILE *fp);
+FLfileSize(FILE *fp);
 int
-FLjoinNames (const char Dname[], const char Bname[], char Fname[]);
+FLjoinNames(const char Dname[], const char Bname[], char Fname[]);
 int
-FLseekable (FILE *fp);
+FLseekable(FILE *fp);
 int
-FLterm (FILE *fp);
+FLterm(FILE *fp);
 
 /* ----- MA Prototypes ----- */
 int
-MAfChFactor (const float *A[], float *L[], int N);
+MAfChFactor(const float *A[], float *L[], int N);
 void
-MAfLTSolve (const float *L[], const float b[], float x[], int N);
+MAfLTSolve(const float *L[], const float b[], float x[], int N);
 void
-MAfTTSolve (const float *L[], const float b[], float x[], int N);
+MAfTTSolve(const float *L[], const float b[], float x[], int N);
 
 /* ----- MS Prototypes ----- */
 double *
-MScoefMC (double x1, double x2, double y1, double y2, double d1, double d2);
+MScoefMC(double x1, double x2, double y1, double y2, double d1, double d2);
 double
-MSdSlopeMC (int k, const double x[], const double y[], int N);
+MSdSlopeMC(int k, const double x[], const double y[], int N);
 double
-MSevalMC (double x, double x1, double x2, double y1, double y2, double d1,
+MSevalMC(double x, double x1, double x2, double y1, double y2, double d1,
           double d2);
 double
-MSfSlopeMC (int k, const float x[], const float y[], int N);
+MSfSlopeMC(int k, const float x[], const float y[], int N);
 
 /* ----- SP Prototypes ----- */
 void
-SPdPreFFT (double x[], double y[], int N, int Ifn);
+SPdPreFFT(double x[], double y[], int N, int Ifn);
 void
-SPdTrMat2 (double A[], int N, int Ifn);
+SPdTrMat2(double A[], int N, int Ifn);
 void
-SPfPreFFT (float x[], float y[], int N, int Ifn);
+SPfPreFFT(float x[], float y[], int N, int Ifn);
 void
-SPfTrMat2 (float A[], int N, int Ifn);
+SPfTrMat2(float A[], int N, int Ifn);
 
 /* ----- ST Prototypes ----- */
 int
-STdec1val (const char String[], int Type, void *Val);
+STdec1val(const char String[], int Type, void *Val);
 int
-STdecNval (const char String[], int Nmin, int Nmax, int Type, void *Val,
+STdecNval(const char String[], int Nmin, int Nmax, int Type, void *Val,
            int *N);
 int
-STdecPair (const char String[], const char Delim[], int Type, void *Val1,
+STdecPair(const char String[], const char Delim[], int Type, void *Val1,
            void *Val2);
 int
-STdecSpair (const char String[], const char Delim[], int *I1, int *I2,
+STdecSpair(const char String[], const char Delim[], int *I1, int *I2,
             const char *SymTab[]);
 char *
-STstrDots (const char Si[], int Maxchar);
+STstrDots(const char Si[], int Maxchar);
 char *
-STstrstrNM (const char Si[], const char Ti[], int N, int M);
+STstrstrNM(const char Si[], const char Ti[], int N, int M);
 char *
-STtrimIws (const char Si[]);
+STtrimIws(const char Si[]);
 int
-STtrimNMax (const char Si[], char So[], int N, int Maxchar);
+STtrimNMax(const char Si[], char So[], int N, int Maxchar);
 int
-STtrimTail (char Si[]);
+STtrimTail(char Si[]);
 
 /* ----- UT Prototypes ----- */
 enum UT_DS_T
-UTbyteCode (enum UT_DS_T Dbo);
+UTbyteCode(enum UT_DS_T Dbo);
 enum UT_DS_T
-UTbyteOrder (void);
+UTbyteOrder(void);
 int
-UTcheckIEEE (void);
+UTcheckIEEE(void);
 char *
-UTctime (time_t *timer, int format);
+UTctime(time_t *timer, int format);
 double
-UTdIEEE80 (const unsigned char b[10]);
+UTdIEEE80(const unsigned char b[10]);
 int
-UTdecOption (const char String[], const char Option[], const char **Arg);
+UTdecOption(const char String[], const char Option[], const char **Arg);
 void
-UTeIEEE80 (double V, unsigned char b[10]);
+UTeIEEE80(double V, unsigned char b[10]);
 char *
-UTgetHost (void);
+UTgetHost(void);
 enum UT_DS_T
-UTswapCode (enum UT_DS_T Dbo);
+UTswapCode(enum UT_DS_T Dbo);
 char *
-UTgetUser (void);
+UTgetUser(void);
 
 /* ----- VR Prototypes ----- */
 void
-VRswapBytes (const void *BuffI, void *BuffO, int Size, int Nelem);
+VRswapBytes(const void *BuffI, void *BuffO, int Size, int Nelem);
 
 #ifdef __cplusplus
 }

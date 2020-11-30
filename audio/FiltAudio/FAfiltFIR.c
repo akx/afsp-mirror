@@ -2,8 +2,8 @@
                              McGill University
 
 Routine:
-  void FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, double h[],
-                  int Ncof, long int noffs)
+  void FAfiltFIR(AFILE *AFpI, AFILE *AFpO, long int NsampO, double h[],
+                 int Ncof, long int noffs)
 
 Purpose:
   Filter an audio file with an FIR filter
@@ -27,8 +27,8 @@ Parameters:
       Data offset into the input data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.17 $  $Date: 2018/11/12 18:03:36 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.18 $  $Date: 2020/11/23 18:31:10 $
 
 -------------------------------------------------------------------------*/
 
@@ -39,8 +39,8 @@ Author / revision:
 
 
 void
-FAfiltFIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
-           int Ncof, long int noffs)
+FAfiltFIR(AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[],
+          int Ncof, long int noffs)
 
 {
   double x[NBUF];
@@ -56,9 +56,9 @@ Notes:
     {h[0],...,h[Ncof-1]} with the data elements {d(n),...,d(n-Ncof+1)}.
 
 Batch processing:
-  - The data will be processed in batches by reading into a buffer x(.,.).  The
+  - The data will be processed in batches by reading into a buffer x(.,.). The
     batches of input samples will be of equal size, Nx, except for the last
-    batch.  For batch j,
+    batch. For batch j,
       x(j,n') = d(noffs+j*Nx+n'), for 0 <= n' < Nx.
   - The k'th output point y(k) is calculated at position d(noffs+k).
       y(k) --> h[0] <==> d(n),    where n=noffs+k
@@ -71,10 +71,10 @@ Batch processing:
       k <- k + Nx,
       n' <- n' + Nx.
   - When the index n' for x(j,n') advances beyond Nx, we bring n' back into
-    range by subtracting Nx from it and incrementing the batch number,
+    range by subtracting Nx from it and incrementing the batch number.
 
 Buffer allocation:
-  The buffer holds the filter memory (lmem) and the input data (Nx).  The output
+  The buffer holds the filter memory (lmem) and the input data (Nx). The output
   data overlay the input data.
 */
 
@@ -83,27 +83,25 @@ Buffer allocation:
 
 /* Prime the array */
   n = noffs;
-  AFdReadData (AFpI, n - lmem, &x[0], lmem);
+  AFdReadData(AFpI, n - lmem, &x[0], lmem);
 
 /* Main processing loop */
   k = 0;
   while (k < NsampO) {
 
 /* Read the input data into the input buffer */
-    Nx = (int) MINV (Nxmax, NsampO - k);
-    AFdReadData (AFpI, n, &x[lmem], Nx);
+    Nx = (int) MINV(Nxmax, NsampO - k);
+    AFdReadData(AFpI, n, &x[lmem], Nx);
     n = n + Nx;
 
 /* Convolve the input samples with the filter response */
-    FIdConvol (x, x, Nx, h, Ncof);
+    FIdConvol(x, x, Nx, h, Ncof);
 
 /* Write the output data to the output audio file */
-    AFdWriteData (AFpO, x, Nx);
+    AFdWriteData(AFpO, x, Nx);
     k = k + Nx;
 
 /* Update the filter memory */
-    VRdShift (x, lmem, Nx);
+    VRdShift(x, lmem, Nx);
   }
-
-  return;
 }

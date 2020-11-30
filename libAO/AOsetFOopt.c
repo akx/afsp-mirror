@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void AOsetFOopt (const struct AO_FOpar *FO)
+  void AOsetFOopt(const struct AO_FOpar *FO)
 
 Purpose:
   Set output file options
@@ -17,8 +17,8 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.12 $  $Date: 2017/06/13 12:29:03 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.14 $  $Date: 2020/11/26 11:55:45 $
 
 -------------------------------------------------------------------------*/
 
@@ -28,7 +28,7 @@ Author / revision:
 
 
 void
-AOsetFOopt (const struct AO_FOpar *FO)
+AOsetFOopt(const struct AO_FOpar *FO)
 
 {
   int N;
@@ -36,12 +36,10 @@ AOsetFOopt (const struct AO_FOpar *FO)
   AFopt.Nframe = FO->Nframe;
   AFopt.NbS = FO->DFormat.NbS;
 
-  UTfree (AFopt.SpkrConfig);
+  UTfree(AFopt.SpkrConfig);
   if (FO->SpkrConfig != NULL) {
-    N = (int) strlen ((const char *) FO->SpkrConfig);
-    AFopt.SpkrConfig = (unsigned char *) UTmalloc (N+1);
-    STcopyMax ((const char *) FO->SpkrConfig, (char *) AFopt.SpkrConfig, N);
+    N = (int) strlen((const char *) FO->SpkrConfig);
+    AFopt.SpkrConfig = (unsigned char *) UTmalloc(N+1);
+    STcopyMax((const char *) FO->SpkrConfig, (char *) AFopt.SpkrConfig, N);
   }
-
-  return;
 }

@@ -2,18 +2,18 @@
                              McGill University
 
 Routine:
-  void AFsetInfo (const char InfoRec[])
+  void AFsetInfo(const char InfoRec[])
 
 Purpose:
   Add an audio file information record
 
 Description:
   This routine adds an information string to be written to an audio file header
-  or trailer.  By default standard information records (see below) are used.
+  or trailer. By default standard information records (see below) are used.
   This routine allows the user to specify information records that are used in
-  addition to, or in place of, the standard information records.  This routine
-  must be called before the audio file is opened using AFopnWrite.  After the
-  file has been opened the information records are reset.  In addition, the
+  addition to, or in place of, the standard information records. This routine
+  must be called before the audio file is opened using AFopnWrite. After the
+  file has been opened the information records are reset. In addition, the
   default condition (use both the standard information records and the user
   information records) is re-established.
 
@@ -45,7 +45,7 @@ Description:
   records.
 
   User supplied information records should follow the format of a named field
-  terminated by a colon followed by text.  Each time AFsetInfo is called, a user
+  terminated by a colon followed by text. Each time AFsetInfo is called, a user
   supplied information record is appended to the user information.
 
   Notes:
@@ -74,11 +74,11 @@ Description:
        "technician:"               => ITCH field of a LIST/INFO chunk
     When the audio file is opened with AFopnRead, the information records will
     have the identifier of the first identifier if multiple identifiers are
-    available.  For instance a record stored in the INAM field will have an
+    available. For instance a record stored in the INAM field will have an
     identifier "title:".
   - AIFF and AIFF-C files
     These files have provision for storing text informant in a NAME, AUTH, (c) ,
-    or ANNO chunk.  Text from the information with the following named fields is
+    or ANNO chunk. Text from the information with the following named fields is
     transferred as follows:
         "title:" or "name:"        => NAME chunk
         "artist:" or "author:"     => AUTH chunk
@@ -87,22 +87,22 @@ Description:
                                    => ANNO chunk
     When the audio file is opened with AFopnRead, the information records will
     have the identifier of the first identifier if multiple identifiers are
-    available.  For instance a record stored in the NAME chunk will be returned
+    available. For instance a record stored in the NAME chunk will be returned
     with an identifier "title:".
-  - AFsetInfo ("")
+  - AFsetInfo("")
     This form contains an empty record which signals that the standard
-    information records are not created.  Subsequent user supplied records will
+    information records are not created. Subsequent user supplied records will
     be used.
-  - AFsetInfo ("<record>")
-    Append a user information record.  Note that the information from a record
+  - AFsetInfo("<record>")
+    Append a user information record. Note that the information from a record
     with "title:", "name:", "comment:", "comments", "utterance_id:, or
     "display_text:" as an identifier is printed along with file information when
-    that file is opened for writing.  Subsequently opening the file for reading
+    that file is opened for writing. Subsequently opening the file for reading
     with AFopnRead will also display this description.
 
   The information records are stored in the header of the output file.
   AU files:
-    The information records appear just before the start of audio data.  The
+    The information records appear just before the start of audio data. The
     identifier tag "AFsp" marks the beginning of the information records.
   AIFF and AIFF-C files:
     The collection of information records which have not been reallocated to the
@@ -122,8 +122,8 @@ Parameters:
       user information records will be discarded.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.62 $  $Date: 2017/09/20 01:07:34 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.63 $  $Date: 2020/11/23 20:48:09 $
 
 -------------------------------------------------------------------------*/
 
@@ -134,7 +134,7 @@ Author / revision:
 
 
 void
-AFsetInfo (const char InfoRec[])
+AFsetInfo(const char InfoRec[])
 
 {
   struct AF_info *UInfo;
@@ -144,7 +144,7 @@ AFsetInfo (const char InfoRec[])
   UInfo = &AFopt.UInfo;
 
   if (InfoRec == NULL || InfoRec[0] == '\0')  {
-    UTfree ((void *) UInfo->Info);  /* Discard user info records */
+    UTfree((void *) UInfo->Info);  /* Discard user info records */
     AFopt.StdInfo = AF_STDINFO_OFF; /* Turn off standard info records */
     UInfo->Info = NULL;
     UInfo->N = 0;
@@ -153,24 +153,22 @@ AFsetInfo (const char InfoRec[])
 
   /* Copy the information string to an allocated buffer */
   else {
-    Nc = (int) strlen (InfoRec);
+    Nc = (int) strlen(InfoRec);
 
     /* Allocate or reallocate the buffer */
     Nt = UInfo->N + Nc;
     if (UInfo->Nmax == 0) {
-      UTfree ((void *) UInfo->Info);
-      UInfo->Info = (char *) UTmalloc (Nt+1);
+      UTfree((void *) UInfo->Info);
+      UInfo->Info = (char *) UTmalloc(Nt+1);
       UInfo->Nmax = Nt+1;
     }
     else if (Nt+1 > UInfo->Nmax) {
-      UInfo->Info = (char *) UTrealloc (UInfo->Info, Nt+1);
+      UInfo->Info = (char *) UTrealloc(UInfo->Info, Nt+1);
       UInfo->Nmax = Nt+1;
     }
 
     /* Copy / Append the string */
-    STcopyMax (InfoRec, &(UInfo->Info[UInfo->N]), Nc);
+    STcopyMax(InfoRec, &(UInfo->Info[UInfo->N]), Nc);
     UInfo->N = Nt+1;    /* Move past the terminating null */
   }
-
-  return;
 }

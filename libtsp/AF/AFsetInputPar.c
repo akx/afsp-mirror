@@ -2,20 +2,20 @@
                              McGill University
 
 Routine:
-  int AFsetInputPar (const char String[])
+  int AFsetInputPar(const char String[])
 
 Purpose:
   Set defaults for input audio files from a string specification
 
 Description:
-  This routine sets the default audio file data parameters.  These parameters
-  are used when opening input audio files with unrecognized (non-standard)
-  headers or files with no headers (raw audio files).  Note that the parameters
-  do not override values specified in the file headers of standard input files.
+  This routine sets the default audio file data parameters. These parameters are
+  used when opening input audio files with unrecognized (non-standard) headers
+  or files with no headers (raw audio files). Note that the parameters do not
+  override values specified in the file headers of standard input files.
 
-  This routine must be called before opening the file with AFopnRead.  The
+  This routine must be called before opening the file with AFopnRead. The
   parameters for AFsetInputPar are determined from an input string which
-  consists of a list of parameters separated by commas.  The form of the list is
+  consists of a list of parameters separated by commas. The form of the list is
     "Format, Start, Sfreq, Swapb, Nchan, FullScale"
   Format: File data format
        "undefined" - Headerless files will be rejected
@@ -44,9 +44,9 @@ Description:
     The data consists of interleaved samples from Nchan channels
   FullScale: full scale value for the data in the file.
     This value is used to scale data from the file to fall in the range -1 to
-    +1.  If the FullScale value is set to "default", the FullScale value is
+    +1. If the FullScale value is set to "default", the FullScale value is
     determined based on the type of data in the file as shown below.
-         data type     FullScale
+         data type            FullScale
        8-bit A-law:               32768
        8-bit mu-law:              32768
        8-bit bit-reversed mu-law: 32768
@@ -62,14 +62,14 @@ Description:
   string.
     "undefined, 0, 8000., native, 1, default"
 
-  Leading and trailing white-space is removed from each item.  Any of the
+  Leading and trailing white-space is removed from each item. Any of the
   parameters may be omitted, in which case whatever value has been previously
-  set remains in effect for that parameter.  The string ",512, 10000." would set
+  set remains in effect for that parameter. The string ",512, 10000." would set
   the Start and Sfreq parameters and leave the other parameters unchanged.
 
   If the input string contains has a leading '$', the string is assumed to
-  specify the name of an environment variable after the '$'.  This routine uses
-  the value of this environment variable to determine the parameters.  If this
+  specify the name of an environment variable after the '$'. This routine uses
+  the value of this environment variable to determine the parameters. If this
   routine is called as AFsetInputPar("$AF_SETINPUTPAR"), this routine would look
   for the parameter string in environment variable AF_SETINPUTPAR.
 
@@ -81,8 +81,8 @@ Parameters:
       of an environment variable (with a leading $)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.76 $  $Date: 2017/07/03 22:14:14 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.79 $  $Date: 2020/11/30 12:28:08 $
 
 -------------------------------------------------------------------------*/
 
@@ -135,7 +135,7 @@ static const int Swapb_values[] = {
 
 
 int
-AFsetInputPar (const char String[])
+AFsetInputPar(const char String[])
 
 {
   char cbuf[NCBUF+1];
@@ -152,7 +152,7 @@ AFsetInputPar (const char String[])
 
 /* Check for an environment variable */
   if (String[0] == '$') {
-    p = getenv (&String[1]);
+    p = getenv(&String[1]);
     if (p == NULL)
       p = "";
   }
@@ -160,68 +160,68 @@ AFsetInputPar (const char String[])
     p = String;
 
 /* Set up the token buffer */
-  nc = (int) strlen (p);
+  nc = (int) strlen(p);
   if (nc <= NCBUF)
     token = cbuf;
   else
-    token = (char *) UTmalloc (nc + 1);
+    token = (char *) UTmalloc(nc + 1);
 
 /* Separate the parameters */
   Err = 0;
   WSFlag = 1;   /* Comma separator, remove white-space around tokens */
   for (k = 0; k < N_NHPAR && p != NULL; ++k) {
-    p = STfindToken (p, ",", "", token, WSFlag, nc);
+    p = STfindToken(p, ",", "", token, WSFlag, nc);
     if (token[0] != '\0') {
 
       /* Decode the parameter values */
       switch (k) {
       case 0:
-        n = STkeyMatch (token, Format_keys);
+        n = STkeyMatch(token, Format_keys);
         if (n < 0) {
-          UTwarn ("AFsetInputPar - %s: \"%.10s\"", AFM_BadFormat, token);
+          UTwarn("AFsetInputPar - %s: \"%.10s\"", AFM_BadFormat, token);
           Err = 1;
         }
         else
           InputPar.Format = Format_values[n];
         break;
       case 1:
-        if (STdec1long (token, &LV) || LV < 0 ) {
-          UTwarn ("AFsetInputPar - %s: \"%.10s\"", AFM_BadStart, token);
+        if (STdec1long(token, &LV) || LV < 0 ) {
+          UTwarn("AFsetInputPar - %s: \"%.10s\"", AFM_BadStart, token);
           Err = 1;
         }
         else
           InputPar.Start = LV;
         break;
       case 2:
-        if (STdecDfrac (token, &DN, &DD) || DD == 0 || DN / DD <= 0) {
-          UTwarn ("AFsetInputPar - %s: \"%.10s\"", AFM_BadSfreq, token);
+        if (STdecDfrac(token, &DN, &DD) || DD == 0 || DN / DD <= 0) {
+          UTwarn("AFsetInputPar - %s: \"%.10s\"", AFM_BadSfreq, token);
           Err = 1;
         }
         InputPar.Sfreq = DN / DD;
         break;
       case 3:
-        n = STkeyMatch (token, Swapb_keys);
+        n = STkeyMatch(token, Swapb_keys);
         if (n < 0) {
-          UTwarn ("AFsetInputPar - %s: \"%.10s\"", AFM_BadSwap, token);
+          UTwarn("AFsetInputPar - %s: \"%.10s\"", AFM_BadSwap, token);
           Err = 1;
         }
         else
           InputPar.Swapb = Swapb_values[n];
         break;
       case 4:
-        if (STdec1long (token, &LV) || LV < 0) {
-          UTwarn ("AFsetInputPar - %s: \"%.10s\"", AFM_BadNchan, token);
+        if (STdec1long(token, &LV) || LV < 0) {
+          UTwarn("AFsetInputPar - %s: \"%.10s\"", AFM_BadNchan, token);
           Err = 1;
         }
         else
           InputPar.Nchan = LV;
         break;
       case 5:
-        if (STkeyMatch (token, Def_key) == 0)
+        if (STkeyMatch(token, Def_key) == 0)
           InputPar.FullScale = AF_FULLSCALE_DEFAULT;
         else {
-          if (STdecDfrac (token, &DN, &DD) || DD == 0) {
-            UTwarn ("AFsetInputPar - %s: \"%.10s\"", AFM_BadFullScale, token);
+          if (STdecDfrac(token, &DN, &DD) || DD == 0) {
+            UTwarn("AFsetInputPar - %s: \"%.10s\"", AFM_BadFullScale, token);
             Err = 1;
           }
           else
@@ -232,16 +232,16 @@ AFsetInputPar (const char String[])
     }
   }
   if (p != NULL) {
-    UTwarn ("AFsetNHpar - %s", AFM_TooManyPar);
+    UTwarn("AFsetNHpar - %s", AFM_TooManyPar);
     Err = 1;
   }
 
 /* Deallocate the buffer */
   if (nc > NCBUF)
-    UTfree ((void *) token);
+    UTfree((void *) token);
 
 /* Set the parameters */
-  if (! Err)
+  if (!Err)
     AFopt.InputPar = InputPar;
 
   return Err;

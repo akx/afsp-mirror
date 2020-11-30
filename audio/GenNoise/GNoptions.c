@@ -2,8 +2,8 @@
                            McGill University
 
 Routine:
-  void GNoptions (int argc, const char *argv[], double *rms, int *seed,
-                  struct GN_FOpar *FO)
+  void GNoptions(int argc, const char *argv[], double *rms, int *seed,
+                 struct GN_FOpar *FO)
 
 Purpose:
   Decode options for GenNoise
@@ -24,8 +24,8 @@ Parameters:
       Output file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.37 $  $Date: 2017/05/26 20:24:11 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.38 $  $Date: 2020/11/23 18:31:18 $
 
 ----------------------------------------------------------------------*/
 
@@ -36,7 +36,7 @@ Author / revision:
 #include <AO.h>
 #include "GenNoise.h"
 
-#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PROGRAM, text, par)
+#define ERRSTOP(text,par) UThalt("%s: %s: \"%s\"", PROGRAM, text, par)
 
 /* Option table */
 static const char *OptTable[] = {
@@ -47,8 +47,8 @@ static const char *OptTable[] = {
 
 
 void
-GNoptions (int argc, const char *argv[], double *rms, int *seed,
-           struct GN_FOpar *FO)
+GNoptions(int argc, const char *argv[], double *rms, int *seed,
+          struct GN_FOpar *FO)
 
 {
   const char *OptArg;
@@ -57,7 +57,7 @@ GNoptions (int argc, const char *argv[], double *rms, int *seed,
   int seedx;
 
 /* Output file defaults */
-  FOpar_INIT (FO);
+  FOpar_INIT(FO);
   FO->Sfreq = AF_SFREQ_DEFAULT;
 
 /* Defaults */
@@ -65,67 +65,65 @@ GNoptions (int argc, const char *argv[], double *rms, int *seed,
   seedx = 0;
 
 /* Initialization */
-  UTsetProg (PROGRAM);
+  UTsetProg(PROGRAM);
   nF = 0;
 
 /* Decode options */
-  AOinitOpt (argc, argv);
+  AOinitOpt(argc, argv);
   while (1) {
 
     /* Decode output file options */
-    n = AOdecFO (FO);
+    n = AOdecFO(FO);
     if (n >= 1)
       continue;
 
     /* Decode help options */
-    n = AOdecHelp (VERSION, GNMF_Usage);
+    n = AOdecHelp(VERSION, GNMF_Usage);
     if (n >= 1)
       continue;
 
     /* Decode program options */
-    n = AOdecOpt (OptTable, &OptArg);
+    n = AOdecOpt(OptTable, &OptArg);
     if (n == -1)
       break;
 
     switch (n) {
     case -2:
-      UThalt (GNMF_Usage, PROGRAM);
+      UThalt(GNMF_Usage, PROGRAM);
       break;
     case 0:
       /* Filename argument */
       ++nF;
       if (nF > 1)
-        UThalt ("%s: %s", PROGRAM, GNM_XFName);
-      STcopyMax (OptArg, FO->Fname, FILENAME_MAX-1);
+        UThalt("%s: %s", PROGRAM, GNM_XFName);
+      STcopyMax(OptArg, FO->Fname, FILENAME_MAX-1);
       break;
     case 1:
     case 2:
       /* Standard deviation */
-      if (STdecDfrac (OptArg, &Nv, &Dv) || Nv / Dv < 0.0)
-        ERRSTOP (GNM_BadStdDev, OptArg);
+      if (STdecDfrac(OptArg, &Nv, &Dv) || Nv / Dv < 0.0)
+        ERRSTOP(GNM_BadStdDev, OptArg);
       rmsx = Nv / Dv;
       break;
     case 3:
     case 4:
       /* Seed */
-      if (STdec1int (OptArg, &seedx) || seedx < 0)
-        ERRSTOP (GNM_BadSeed, OptArg);
+      if (STdec1int(OptArg, &seedx) || seedx < 0)
+        ERRSTOP(GNM_BadSeed, OptArg);
       break;
     default:
-      assert (0);
+      assert(0);
       break;
     }
   }
 
 /* Checks */
   if (nF < 1)
-    UThalt ("%s: %s", PROGRAM, GNM_NoFName);
+    UThalt("%s: %s", PROGRAM, GNM_NoFName);
   if (FO->Nframe == AF_NFRAME_UNDEF)
-    UThalt ("%s: %s", PROGRAM, GNM_NoNsamp);
+    UThalt("%s: %s", PROGRAM, GNM_NoNsamp);
 
 /* Set return values */
   *rms = rmsx;
   *seed = seedx;
-
-  return;
 }

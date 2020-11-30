@@ -1,4 +1,4 @@
-Notes on the AFsp programs
+Notes on the AFsp program
 November 2018
 
 1. Information about some of the audio file formats supported by the AFsp 
@@ -9,19 +9,19 @@ November 2018
    on-line at
      http://WWW-MMSP.ECE.McGill.CA/Documents/Software
 
-3. Some external programs assume that WAVE files always have 44 byte headers
-   and that the data can be accessed by skipping over the header.  This is not
-   in general a safe assumption.
+3. Some external programs assume that WAVE files always have 44 byte headers and
+   that the data can be accessed by skipping over the header. This is not in
+   general a safe assumption.
    - The AFsp programs will by default add header chunk containing information
-     text.  This chunk can be suppressed if the user explicitly specifies an
-     empty information string (-I "").  Other WAVE files (not created by
-     the AFsp programs) can also contain header/trailer information, using for
-     instance, DISP and INFO chunks.
-   - WAVE files specifying more than 2 channels, speaker locations, or a
-     number of valid bits which is not the same as the number of bits in
-     each sample, will be written by default as WAVE_FORMAT_EXTENSIBLE files.
-   - The WAVE-NOEX file type can be specified so that the AFsp Programs will
-     not use the WAVE_FORMAT_EXTENSIBLE format.
+     text. This chunk can be suppressed if the user explicitly specifies an
+     empty information string (-I ""). Other WAVE files (not created by the AFsp
+     programs) can also contain header/trailer information, using for instance,
+     DISP and INFO chunks.
+   - WAVE files specifying more than 2 channels, speaker locations, or a number
+     of valid bits which is not the same as the number of bits in each sample,
+     will be written by default as WAVE_FORMAT_EXTENSIBLE files.
+   - The WAVE-NOEX file type can be specified so that the AFsp Programs will not
+     use the WAVE_FORMAT_EXTENSIBLE format.
    - The header lengths for WAVE files (if standard info is turned off) are as
      follows:
        PCM                   44 byte header
@@ -30,51 +30,50 @@ November 2018
        non-PCM extensible    80 byte header (e.g. 4 channel mu-law data)
 
 4. The AFsp programs can be used as a front end to other programs that do not
-   know how to parse certain file headers.  In one scenario, CopyAudio can
-   be used to copy the input file to a canonical format (perhaps raw data).
-   Alternately, InfoAudio can be used to determine the data type, data
-   starting point (header length) and data length.  These value can then be
-   passed to a program that can handle raw files with an offset to the data.
+   know how to parse certain file headers. In one scenario, CopyAudio can be
+   used to copy the input file to a canonical format (perhaps raw data).
+   Alternately, InfoAudio can be used to determine the data type, data starting
+   point (header length) and data length. These value can then be passed to a
+   program that can handle raw files with an offset to the data.
 
-5. For Matlab use, CopyAudio can convert data from an input audio file to
-   text format.  The output text file can then be imported into Matlab with
-   a "load xxx.txt" command.
+5. For Matlab use, CopyAudio can convert data from an input audio file to text
+   format.  The output text file can then be imported into Matlab with a "load
+   xxx.txt" command.
 
 ----------------------------------------------
 Notes on Scaling
 
-In order to be able to treat data from files with differing data formats in 
-a uniform way, the data returned by the AFsp routines are normalized.  For 
-integer-valued data, this means that the full scale occupies the range 
--1 to +1.  An exception is made for 8-bit data.  Full scale for that case is 
--0.5 to +0.5.
+In order to be able to treat data from files with differing data formats in a
+uniform way, the data returned by the AFsp routines are normalized. For
+integer-valued data, this means that the full scale occupies the range -1 to +1.
+An exception is made for 8-bit data. Full scale for that case is -0.5 to +0.5.
 
-On reading data from a file, the data are normalized.  For integer data, this 
-means dividing by the largest representable integer number.  For instance for 
-16-bit data, the data are multiplied by 1/32768 to get the normalized values.  
-When writing to a file, the inverse scaling is used.  Thus normalized values 
-of -1 to +1 will appear as values from -32768 to +32767 in a file which
-contains 16-bit integer data format.
+On reading data from a file, the data are normalized. For integer data, this
+means dividing by the largest representable integer number. For instance for
+16-bit data, the data are multiplied by 1/32768 to get the normalized values.
+When writing to a file, the inverse scaling is used. Thus normalized values of
+-1 to +1 will appear as values from -32768 to +32767 in a file which contains
+16-bit integer data format.
 
 For floating-point data, the data are not scaled.  When converting from 
 fixed-point to floating-point, the floating point values will be in the range 
 -1 to +1.
 
 The CopyAudio routine allows for a linear combination of the input channels 
-together with an offset value.  The offset value is a normalized value.
+together with an offset value. The offset value is a normalized value.
 
 Ratios of Values
 
 For the AFsp programs, a ratio can be used in many places where a 
-floating-point number is allowed.  Thus a value "0.25" can also be specified 
+floating-point number is allowed. Thus a value "0.25" can also be specified 
 as "1/4" or "2/8".
 
 -------------------------------------------------------------------
 AFsp routines: Error Handling in the libtsp Routines:
 
-The general error handing philosophy for the libtsp routines is that all
-errors are reported and execution is halted.  This approach allows for the
-simplest programming style, avoiding constant checking for errors.
+The general error handing philosophy for the libtsp routines is that all errors
+are reported and execution is halted. This approach allows for the simplest
+programming style, avoiding constant checking for errors.
 
 Audio Routines:
 
@@ -89,20 +88,20 @@ AFopnRead:
 AFopnWrite
   Returns a NULL pointer in case of error
 AFdWriteData:
-  Returns the number of samples written.  This is less than the number
-  requested in case of an error.  AFp->Error is set in case of an error.
+  Returns the number of samples written. This is less than the number requested
+  in case of an error. AFp->Error is set in case of an error.
 AFdReadData:
-  Returns the number of samples read.  If smaller than requested, either
+  Returns the number of samples read. If smaller than requested, either
   end-of-file or an error has occurred.  Checking AFp->Error will distinguish
   the two cases.
 
 The routine AFclose can be used to "close" the file, either for the case that
-an error occurred while opening the file (NULL audio file pointer), or an
-error occurred while reading or writing the file.
+an error occurred while opening the file (NULL audio file pointer), or an error
+occurred while reading or writing the file.
 
 Notes:
-  Some deeply imbedded routines can cause termination.  For instance some
-  string comparison routines allocate temporary memory while processing the
-  string.  If this allocation fails (UTmalloc), execution is stopped.  Since
-  all these routines allocate at most modest amounts of storage, these errors
-  should not be encountered in practice.
+  Some deeply embedded routines can cause termination. For instance some string
+  comparison routines allocate temporary memory while processing the string. If
+  this allocation fails (UTmalloc), execution is stopped. Since all these
+  routines allocate at most modest amounts of storage, these errors should not
+  be encountered in practice.

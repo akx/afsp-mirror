@@ -8,8 +8,8 @@ Routine:
 
 Purpose:
   Write 8-bit A-law data to an audio file (float input values)
-  Write 8-bit ,i-law data to an audio file (float input values)
-  Write bit-reversed 8-bit A-law data to an audio file (float input values)
+  Write 8-bit mu-law data to an audio file (float input values)
+  Write bit-reversed 8-bit mu-law data to an audio file (float input values)
 
 Description:
   These routines write a specified number of 8-bit A-law mu-law, or bit-reversed
@@ -48,8 +48,8 @@ Parameters:
       Number of samples to be written
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.2 $  $Date: 2017/06/27 18:31:57 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.3 $  $Date: 2020/09/09 21:19:05 $
 
 -------------------------------------------------------------------------*/
 

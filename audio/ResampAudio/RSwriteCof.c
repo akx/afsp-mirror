@@ -2,20 +2,20 @@
                              McGill University
 
 Routine:
-  void RSwriteCof (const char Fname[], const struct Fspec_T *Fs,
-                   const double h[]);
+  void RSwriteCof(const char Fname[], const struct Fspec_T *Fs,
+                  const double h[]);
 
 Purpose:
   Write a filter coefficient file
 
 Description:
-  This routine writes a coefficient file for an interpolating filter.  The data
-  written to the file includes a header.  If an input file name (Fs->FFile) is
+  This routine writes a coefficient file for an interpolating filter. The data
+  written to the file includes a header. If an input file name (Fs->FFile) is
   specified, then the filter ratio and delay are written as comments to the
-  file header.  Otherwise the parameters for a Kaiser windowed lowpass filter
+  file header. Otherwise the parameters for a Kaiser windowed lowpass filter
   filter used as an interpolating filter are written as comments to the file
-  header.  This header is followed by the filter coefficients.  The file name
-  is also printed on standard output.
+  header. This header is followed by the filter coefficients. The file name is
+  also printed on standard output.
 
 Parameters:
    -> const char Fname[]
@@ -26,8 +26,8 @@ Parameters:
       Filter coefficients
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.13 $  $Date: 2017/06/09 12:57:12 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.14 $  $Date: 2020/11/23 18:34:26 $
 
 -------------------------------------------------------------------------*/
 
@@ -40,7 +40,7 @@ Author / revision:
 
 
 void
-RSwriteCof (const char Fname[], const struct Fspec_T *Fs, const double h[])
+RSwriteCof(const char Fname[], const struct Fspec_T *Fs, const double h[])
 
 {
   FILE *fp;
@@ -48,27 +48,26 @@ RSwriteCof (const char Fname[], const struct Fspec_T *Fs, const double h[])
   int i;
 
 /* Open the coefficient file, print the name to stdout */
-  FLbackup (Fname);
-  fp = fopen (Fname, "w");
+  FLbackup(Fname);
+  fp = fopen(Fname, "w");
   if (fp == NULL)
-    UTerror ("%s: %s", PROGRAM, RSM_OpenCErr);
-  FLfullName (Fname, Fullname);
-  printf (RSMF_CoefFile, Fullname);
+    UTerror("%s: %s", PROGRAM, RSM_OpenCErr);
+  FLfullName(Fname, Fullname);
+  printf(RSMF_CoefFile, Fullname);
 
 /* Header */
   if (Fs->FFile == NULL)
-    fprintf (fp, RSMF_KWFile,
-             Fs->Ir, Fs->Fc, Fs->alpha, Fs->Gain,
-             Fs->Del, Fs->Woffs, Fs->Wspan);
+    fprintf(fp, RSMF_KWFile, Fs->Ir, Fs->Fc, Fs->alpha, Fs->Gain, Fs->Del,
+            Fs->Woffs, Fs->Wspan);
   else
-    fprintf (fp, RSMF_IntFile, Fs->Ir, Fs->Del);
+    fprintf(fp, RSMF_IntFile, Fs->Ir, Fs->Del);
 
 /* Coefficient values */
   for (i = 0; i < Fs->Ncof; ++i) {
-    fprintf (fp, "%15.7g", h[i]);
+    fprintf(fp, "%15.7g", h[i]);
     if ((i + 1) % 5 == 0 || i + 1 == Fs->Ncof)
-      fprintf (fp, "\n");
+      fprintf(fp, "\n");
   }
 
-  fclose (fp);
+  fclose(fp);
 }

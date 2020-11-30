@@ -1,0 +1,272 @@
+.TH CompAudio - AFsp (1AFsp)
+.SH Routine:
+CompAudio [options] AFileA [AFileB]
+.SH Purpose:
+Compare audio files, printing statistics
+.SH Description:
+This program gathers and prints statistics for one or two input audio files.
+With one input file, this program prints the statistics for that file. With
+two input files, the signal-to-noise ratio (SNR) of the second file relative
+to the first file is also printed. For this calculation, the first audio
+file is used as the reference signal. The "noise" is the difference between
+sample values in the files.
+.PP
+For SNR comparisons between multi-channel audio files, the data are treated as
+as a single channel. For stereo files, the SNR calculated is the same as if
+the two channels contain the real and imaginary components of complex samples.
+.PP
+For each file, the following statistical quantities are calculated and printed
+for each channel.
+.in +3n
+.ti -3n
+Mean:
+.br
+.ft CW
+.nf
+ Xm = SUM x(i) / N
+.fi
+.ft P
+.ti -3n
+Standard deviation:
+.br
+.ft CW
+.nf
+ sd = sqrt[ (SUM x(i)^2 - Xm^2) / (N-1) ]
+.fi
+.ft P
+.ti -3n
+Max value:
+.br
+.ft CW
+.nf
+ Xmax = max(x(i))
+.fi
+.ft P
+.ti -3n
+Min value:
+.br
+.ft CW
+.nf
+ Xmin = min(x(i))
+.fi
+.ft P
+.in -3n
+The above values are reported as a percent of full scale. For instance for
+a file with 16-bit integer data, full scale is 32768.
+.in +3n
+.ti -3n
+Number of Overloads:
+.br
+Count of values at or exceeding the full scale value. For integer data
+from a saturating A/D converter, the presence of such values is an
+indication of a clipped signal.
+.ti -3n
+Number of Anomalous Transitions:
+.br
+An anomalous transition is defined as a transition from a normalized
+sample value greater than +0.5 directly to a sample value less than -0.5
+or vice versa. A large number of such transitions is an indication of
+corrupted data.
+.ti -3n
+Active Level:
+.br
+This measurement calculates the active speech level using Method B of
+ITU-T Recommendation P.56. The smoothed envelope of the signal is used
+to segment the signal into active and non-active regions. The active
+level is the average envelope value for the active region. The activity
+factor in percent is also reported. The speech activity measurements are
+calculated only for mono or stereo files with sampling rates appropriate
+for recording speech.
+.in -3n
+An optional delay range can be specified when comparing files. The samples
+in file B are delayed or advanced relative to those in file A by each of the
+delay values in the delay range. For each delay, the SNR with optimized gain
+factor (see below) is calculated. For the delay corresponding to the largest
+SNR (with optimized gain), the full regalia of file comparison values is
+reported.
+.PP
+In calculating the SNR for stereo files, the channels are considered to
+represent the real and imaginary parts of a complex signal. For multi-channel
+files, the comparisons are carried out on samples in each channel, unless the
+number of channels is large. In that case, the samples in the files are
+considered to be a single channel.
+.in +3n
+.ti -3n
+Conventional SNR:
+.br
+.ft CW
+.nf
+            SUM |xa(i)|^2
+  SNR = --------------------- .
+        SUM |xa(i) - xb(i)|^2
+.fi
+.ft P
+The corresponding value in dB is printed.
+.ti -3n
+SNR with the optimized gain factor:
+.br
+.ft CW
+.nf
+  SNR = 1 / (1 - r^2) ,
+.fi
+.ft P
+where r is the (normalized) correlation coefficient,
+.ft CW
+.nf
+                SUM xa(i)*xb'(i)
+  r = ------------------------------------- .
+      sqrt[ SUM |xa(i)|^2 * SUM |xb(i)|^2 ]
+.fi
+.ft P
+The SNR value in dB is printed. This SNR calculation corresponds to using
+an optimized gain factor Sf for file B,
+.ft CW
+.nf
+       SUM xa(i)*xb'(i)
+  Sf = ---------------- .
+        SUM |xb(i)|^2
+.fi
+.ft P
+.ti -3n
+Segmental SNR:
+.br
+This is the average of SNR values calculated for segments of data. The
+default segment length corresponds to 16 ms (128 samples at a sampling
+rate of 8000 Hz). However if the sampling rate is such that the segment
+length is outside the range of 64 to 768 samples, the segment is set to
+the appropriate edge value. For each segment, the SNR is calculated as
+.ft CW
+.nf
+                    SUM xa(i)^2
+  SS(k) = 1 + ------------------------- .
+              eps + SUM [xa(i)-xb(i)]^2
+.fi
+.ft P
+The term eps in the denominator prevents division by zero. The additive
+unity term discounts segments with SNR's less than unity. The final
+average segmental SNR in dB is calculated as
+.ft CW
+.nf
+  SSNR = 10 * log10( 10^[SUM log10(SS(k)) / N] - 1 ) dB.
+.fi
+.ft P
+The first term in the bracket is the geometric mean of SS(k). The
+subtraction of the unity term tends to compensate for the unity term in
+SS(k).
+.in -3n
+If any of these SNR values is infinite, only the optimal gain factor is
+printed as part of the message (Sf is the optimized gain factor),
+.ft CW
+.nf
+  "File A = Sf * File B".
+.fi
+.ft P
+The comparison between the files also include maximum absolute difference
+between samples of the files and the number of samples that differ as a
+percentage of the number of samples in all channels.
+.PP
+An example of the output for stereo files with integer 16-bit data over a
+range of delays is shown below.
+.ft CW
+.nf
+  Delay:  20,  SNR = 5.25    dB  (File B Gain = 0.558)
+  Delay:  21,  SNR = 65.4    dB  (File B Gain = 0.667)
+  Delay:  22,  SNR = 5.25    dB  (File B Gain = 0.558)
+.fi
+.ft P
+.ft CW
+.nf
+  File A:
+   Channel 1:
+     Number of Samples: 23829
+     Std Dev = 855.02 (2.609%),  Mean = -9.9431 (-0.03034%)
+     Maximum = 4774 (14.57%),  Minimum = -6156 (-18.79%)
+     Active Level: 946.7 (2.889%), Activity Factor: 81.6%
+   Channel 2:
+     Number of Samples: 23829
+     Std Dev = 427.5 (1.305%),  Mean = -4.9737 (-0.01518%)
+     Maximum = 2387 (7.285%),  Minimum = -3078 (-9.393%)
+     Active Level: 473.34 (1.445%), Activity Factor: 81.6%
+  File B:
+   Channel 1:
+     Number of Samples: 23829
+     Std Dev = 1282.4 (3.914%),  Mean = -14.886 (-0.04543%)
+     Maximum = 7160 (21.85%),  Minimum = -9233 (-28.18%)
+     Active Level: 1418.6 (4.329%), Activity Factor: 81.7%
+   Channel 2:
+     Number of Samples: 23829
+     Std Dev = 641.2 (1.957%),  Mean = -7.4417 (-0.02271%)
+     Maximum = 3580 (10.93%),  Minimum = -4617 (-14.09%)
+     Active Level: 709.29 (2.165%), Activity Factor: 81.7%
+  Best match at delay = 21
+  SNR      = 6.023   dB
+  SNR      = 65.39   dB  (File B Gain = 0.667)
+  Seg. SNR = 6.02    dB  (256 sample segments)
+  Max Diff = 3077 (9.39%),  No. Diff = 46127 (573 runs)
+.fi
+.ft P
+.SH Options:
+.in +3n
+.ti -3n
+Input file(s), AFileA [AFileB]:
+.br
+The environment variable AUDIOPATH specifies a list of directories to be
+searched for the input audio file(s). One or two input files can be
+specified. For a single input file, specifying "-" as the input file
+indicates that input is from standard input (use the "-t" option to
+specify the format of the input data).
+.ti -3n
+-d DL:DU, --delay=DL:DU
+.br
+Specify a delay range (in samples). Each delay in the delay range
+represents a delay of file B relative to file A. A single delay value can
+also be specified. The default range is 0:0.
+.ti -3n
+-g GAIN, --gain=GAIN
+.br
+A gain factor applied to the data from the input files. This gain applies
+to all channels in a file. The gain value can be given as a real number
+(e.g., "0.003") or as a ratio (e.g., "1/256"). This option may be given
+more than once. Each invocation applies to the input files that follow
+the option.
+.ti -3n
+-l L:U, --limits=L:U
+.br
+Sample limits for the input files (numbered from zero). Each invocation
+applies to the input files that follow the option. The specification "L:"
+means from sample L to the end; "N" means from sample 0 to sample N-1.
+.ti -3n
+-h, --help
+.br
+Print a list of options and exit.
+.ti -3n
+-v, --version
+.br
+Print the version number and exit.
+.in -3n
+See routine CopyAudio for a description of other options.
+.in +3n
+.ti -3n
+-t FTYPE, --type=FTYPE
+.br
+Input file type and environment variable AF_FILETYPE
+.ti -3n
+-P PARMS, --parameters=PARMS
+.br
+Input file parameters and environment variable AF_INPUTPAR
+.in -3n
+.SH Environment variables:
+.in +3n
+.ti -3n
+AUDIOPATH:
+.br
+This environment variable specifies a list of directories to be searched
+when opening the input audio files. Directories in the list are separated by
+colons (semicolons for Windows).
+.in -3n
+.SH Author / version:
+P. Kabal / v10r3  2020-11-30
+.SH See Also
+CopyAudio,
+InfoAudio,
+AFsp

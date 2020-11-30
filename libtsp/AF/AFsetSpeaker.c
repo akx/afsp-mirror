@@ -2,13 +2,13 @@
                              McGill University
 
 Routine:
-  int AFsetSpeaker (const char String[])
+  int AFsetSpeaker(const char String[])
 
 Purpose:
   Set loudspeaker spatial positions
 
 Description:
-  This routine sets the mapping of output channels to speaker positions.  The
+  This routine sets the mapping of output channels to speaker positions. The
   spatial positions of the loudspeakers are specified as a list of comma and/or
   white-space separated locations from the list below.
             Name                    IEC 62574  AES 22.2 WAVE Ext
@@ -52,7 +52,6 @@ Description:
     "SL"   -> "SiL", ...
     "TpFL" -> "TFL", ...
 
-  Configuration Names:
   The following names can be used to set a speaker location configuration.
     "Stereo" : "FL FR"
     "Quad"   : "FL, FR, BL BR"
@@ -62,14 +61,16 @@ Description:
   WAVE extensible files:
   These files can store the speaker locations in the file header if certain
   constraints are in place.
-  - The list of available speaker locations are:
-    FL, FR, FC, LFE1, BL, BR FLc, FRc, BC, SiL, SiR, TpC, TpFL, TpFC, TpFR,
-    TpBR, TpBC, TpBR
-  - Assume M speaker locations are specified. These must be associated with the
-    first M audio channels.
-  - The speaker locations must be in the same order as the list, but specific
-    locations can be skipped.
-  - As an example, the order "FL FR TpC" is valid, but "FL FC FR" is not.
+    Available speaker locations:
+      FL, FR, FC, LFE1, BL, BR FLc, FRc, BC, SiL, SiR, TpC, TpFL, TpFC, TpFR,
+      TpBR, TpBC, TpBR
+    Channels:
+      If M speaker locations are specified, they must be associated with the
+      first M audio channels.
+    Speaker Location Order:
+      The speaker locations must be in the same order as the list, but locations
+      can be skipped. As an example, the order "FL FR TpC" is valid, but
+      "FL FC FR" is not.
 
   AIFF-C files:
   Speaker locations are implicit in AIFC-C audio files.
@@ -93,8 +94,8 @@ Parameters:
       positions
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.18 $  $Date: 2017/06/12 19:55:26 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.21 $  $Date: 2020/11/30 12:28:08 $
 
 -------------------------------------------------------------------------*/
 
@@ -106,24 +107,24 @@ Author / revision:
 
 
 int
-AFsetSpeaker (const char String[])
+AFsetSpeaker(const char String[])
 
 {
   unsigned char SpkrConfig[AF_MAXN_SPKR+1];
   int Err, Nspkr;
 
  /* Set the parameters */
-  Err = AFdecSpeaker (String, SpkrConfig, AF_MAXN_SPKR);
-  if (! Err)
-    Nspkr = (int) strlen ((const char *) SpkrConfig);
+  Err = AFdecSpeaker(String, SpkrConfig, AF_MAXN_SPKR);
+  if (!Err)
+    Nspkr = (int) strlen((const char *) SpkrConfig);
   else
     Nspkr = 0;
 
-  UTfree (AFopt.SpkrConfig);
+  UTfree(AFopt.SpkrConfig);
   AFopt.SpkrConfig = NULL;
-  if (! Err && Nspkr > 0) {
-    AFopt.SpkrConfig = (unsigned char *) UTmalloc (Nspkr + 1);
-    STcopyMax ((const char *) SpkrConfig, (char *) AFopt.SpkrConfig, Nspkr);
+  if (!Err && Nspkr > 0) {
+    AFopt.SpkrConfig = (unsigned char *) UTmalloc(Nspkr + 1);
+    STcopyMax((const char *) SpkrConfig, (char *) AFopt.SpkrConfig, Nspkr);
   }
 
   return Err;

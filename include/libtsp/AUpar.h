@@ -8,8 +8,8 @@ Description:
   Declarations for AU audio file headers
 
 Author / revision:
-  P. Kabal  Copyright (C) 2015
-  $Date: 2015/03/18 14:39:17 $
+  P. Kabal  Copyright (C) 2020
+  $Date: 2020/11/25 17:56:06 $
 
 ----------------------------------------------------------------------*/
 
@@ -19,7 +19,7 @@ Author / revision:
 #include <libtsp/UTtypes.h>   /* typedef for uint4_t */
 
 /* The AU header size is mandated to be at least 28 bytes long (the last 4
-   bytes being comments).  However there are files extant which have only 24
+   bytes being comments). However there are files extant which have only 24
    byte headers.
 */
 #define AU_LHMIN  24
@@ -43,7 +43,7 @@ enum {
   AU_ALAW8   = 27   /* A-law 8-bit data */
 };
 
-#define AU_NOSIZE (~((UT_uint4_t) 0))  /* Indeterminate data length */
+#define AU_NOSIZE   (~((UT_uint4_t) 0))  /* Indeterminate data length */
 
 struct AU_head {
   char Magic[4];     /* File magic */

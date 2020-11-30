@@ -2,17 +2,17 @@
                              McGill University
 
 Routine:
-  void CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
-               const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO)
+  void CPcopy(int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
+              const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO)
 
 Purpose:
   Copy audio file samples to an output file (linear combinations of values)
 
 Description:
   This routine copies samples from input audio files and writes them to an
-  output audio file.  The samples in the output file are linear combinations
-  of the input channels.  The input channels are spread out over one or more
-  input files.
+  output audio file. The samples in the output file are linear combinations of
+  the input channels. The input channels are spread out over one or more input
+  files.
 
 Parameters:
    -> int Mode
@@ -31,8 +31,8 @@ Parameters:
       Output audio file pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.10 $  $Date: 2018/11/14 13:57:44 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.11 $  $Date: 2020/11/23 18:30:55 $
 
 -------------------------------------------------------------------------*/
 
@@ -44,8 +44,8 @@ Author / revision:
 #define MAXV(a, b)  (((a) > (b)) ? (a) : (b))
 
 
-void  CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
-              const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO)
+void  CPcopy(int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
+             const struct CP_Chgain *Chgain, long int Nframe, AFILE *AFpO)
 
 {
   int i, DiffLim, Conflict;
@@ -59,9 +59,9 @@ void  CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
   for (i = 0; i < Nifiles; ++i) {
     StartF[i] = FI[i].Lim[0];
     if (FI[i].Lim[1] != AO_LIM_UNDEF) {
-      Nfr[i] = MAXV (FI[i].Lim[1] - StartF[i] + 1L, 0L);
+      Nfr[i] = MAXV(FI[i].Lim[1] - StartF[i] + 1L, 0L);
       if (MaxNfr != AF_NFRAME_UNDEF)
-        MaxNfr = MAXV (Nfr[i], MaxNfr);
+        MaxNfr = MAXV(Nfr[i], MaxNfr);
       else
         MaxNfr = Nfr[i];
     }
@@ -84,10 +84,10 @@ void  CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
     if (MaxNfr != AF_NFRAME_UNDEF && Nframe != AF_NFRAME_UNDEF)
       MaxNfr = Nframe;
     if (Chgain->NCO == 0)
-      Nfw = CPcopyChan (AFp, StartF, Nifiles, Nframe, MaxNfr, AFpO);
+      Nfw = CPcopyChan(AFp, StartF, Nifiles, Nframe, MaxNfr, AFpO);
     else
-      Nfw = CPcombChan (AFp, StartF, Nifiles, Nframe, Chgain, MaxNfr, AFpO);
-    assert (Nframe == AF_NFRAME_UNDEF || Nfw == Nframe);
+      Nfw = CPcombChan(AFp, StartF, Nifiles, Nframe, Chgain, MaxNfr, AFpO);
+    assert(Nframe == AF_NFRAME_UNDEF || Nfw == Nframe);
   }
 
   else {
@@ -104,10 +104,10 @@ void  CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
 
       /* Concatenate, process one file at a time */
       if (Chgain->NCO == 0)
-        Nfw = CPcopyChan (&AFp[i], &StartF[i], 1, Nfx, NfL, AFpO);
+        Nfw = CPcopyChan(&AFp[i], &StartF[i], 1, Nfx, NfL, AFpO);
       else
-        Nfw = CPcombChan (&AFp[i], &StartF[i], 1, Nfx, Chgain, NfL, AFpO);
-      assert (Nfx == AF_NFRAME_UNDEF || Nfw == Nfx);
+        Nfw = CPcombChan(&AFp[i], &StartF[i], 1, Nfx, Chgain, NfL, AFpO);
+      assert(Nfx == AF_NFRAME_UNDEF || Nfw == Nfx);
 
       if (Nfr[i] != AF_NFRAME_UNDEF && NfL != AF_NFRAME_UNDEF &&
           (NfL < Nfr[i] || (i == Nifiles && NfL != Nfr[i])))
@@ -116,12 +116,10 @@ void  CPcopy (int Mode, AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
       if (NfL != AF_NFRAME_UNDEF)
         NfL -= Nfw;
     }
-    assert (NfL == AF_NFRAME_UNDEF || NfL == 0L);
+    assert(NfL == AF_NFRAME_UNDEF || NfL == 0L);
   }
 
   /* Warning message (different limits message has been given earlier) */
   if (! DiffLim && Conflict)
-    UTwarn ("%s - %s", PROGRAM, CPM_ConfNFrame);
-
-  return;
+    UTwarn("%s - %s", PROGRAM, CPM_ConfNFrame);
 }

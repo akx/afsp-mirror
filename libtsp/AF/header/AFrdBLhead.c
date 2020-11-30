@@ -2,14 +2,14 @@
                              McGill University
 
 Routine:
-  AFILE *AFrdBLhead (FILE *fp)
+  AFILE *AFrdBLhead(FILE *fp)
 
 Purpose:
   Get file format information from an SPPACK file
 
 Description:
-  This routine reads the header for an SPPACK file.  The header information
-  is used to set the file data format information in the audio file pointer
+  This routine reads the header for an SPPACK file. The header information is
+  used to set the file data format information in the audio file pointer
   structure.
 
   SPPACK sampled data file:
@@ -27,7 +27,7 @@ Description:
     500     6    int    DAT-Link information (3 * 2)
     512   ...    --     Audio data
 
-  For SPPACK files, text information is embedded in the header.  This
+  For SPPACK files, text information is embedded in the header. This
   information (if not null) is stored as "comment:" and"command:" information
   records in the audio file parameter structure.
 
@@ -38,8 +38,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.68 $  $Date: 2017/06/29 13:20:57 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.69 $  $Date: 2020/11/25 17:54:49 $
 
 -------------------------------------------------------------------------*/
 
@@ -55,16 +55,16 @@ Author / revision:
 #include <libtsp/UTtypes.h>
 
 #define SWAPB(value) \
-  VRswapBytes ((const void *) &(value), \
-               (void *) &(value), sizeof (value), 1)
+  VRswapBytes((const void *) &(value), \
+              (void *) &(value), sizeof(value), 1)
 
 #define LHEAD         512L
 #define FM_SPPACK_BE  "\100\303"  /* Magic value in file byte order */
 #define FM_SPPACK_LE  "\303\100"
 
-#define S_SAMPLEDDATA ((UT_uint2_t) 0xFC0E) /* Sampled data file */
-#define DLMAGIC       4567
-#define BL_MAXINFO    LHEAD
+#define S_SAMPLEDDATA   ((UT_uint2_t) 0xFC0E) /* Sampled data file */
+#define DLMAGIC         4567
+#define BL_MAXINFO      LHEAD
 
 enum {
   C_UNIFORM = 1,  /* uniform */
@@ -105,7 +105,7 @@ AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 
 AFILE *
-AFrdBLhead (FILE *fp)
+AFrdBLhead(FILE *fp)
 
 {
   AFILE *AFp;
@@ -116,81 +116,81 @@ AFrdBLhead (FILE *fp)
   struct AF_read AFr;
 
 /* Set the long jump environment; on error return a NULL */
-  if (setjmp (AFR_JMPENV))
+  if (setjmp(AFR_JMPENV))
     return NULL;  /* Return from a header read error */
 
 /* Defaults and initial values */
   AFr = AFr_default;
   AFr.RInfo.Info = Info;
   AFr.RInfo.N = 0;
-  AFr.RInfo.Nmax = sizeof (Info);
+  AFr.RInfo.Nmax = sizeof(Info);
 
 /* Read the first part of the header */
   poffs = 0;
-  offs  = AFrdInfoIdentText (fp, 80, "comment:", &AFr.RInfo, 1);
-  AFsetChunkLim ("cs1 ", poffs, offs, &AFr.ChunkInfo);
+  offs  = AFrdInfoIdentText(fp, 80, "comment:", &AFr.RInfo, 1);
+  AFsetChunkLim("cs1 ", poffs, offs, &AFr.ChunkInfo);
   poffs = offs;
-  offs += AFrdInfoIdentText (fp, 80, "comment:", &AFr.RInfo, 1);
-  AFsetChunkLim ("cs2 ", poffs, offs, &AFr.ChunkInfo);
+  offs += AFrdInfoIdentText(fp, 80, "comment:", &AFr.RInfo, 1);
+  AFsetChunkLim("cs2 ", poffs, offs, &AFr.ChunkInfo);
   poffs = offs;
-  offs += AFrdInfoIdentText (fp, 80, "command:", &AFr.RInfo, 1);
-  AFsetChunkLim ("cmd ", poffs, offs, &AFr.ChunkInfo);
+  offs += AFrdInfoIdentText(fp, 80, "command:", &AFr.RInfo, 1);
+  AFsetChunkLim("cmd ", poffs, offs, &AFr.ChunkInfo);
 
   poffs = offs;
-  offs += RHEAD_V (fp, Fhead.Domain, DS_NATIVE);
-  offs += RSKIP (fp, 2);  /* skip FrameSize */
-  offs += RHEAD_V (fp, Fhead.Sfreq, DS_NATIVE);
-  offs += RSKIP (fp, 4);  /* skip two fill values */
-  AFsetChunkLim ("info", poffs, offs, &AFr.ChunkInfo);
+  offs += RHEAD_V(fp, Fhead.Domain, DS_NATIVE);
+  offs += RSKIP(fp, 2);  /* skip FrameSize */
+  offs += RHEAD_V(fp, Fhead.Sfreq, DS_NATIVE);
+  offs += RSKIP(fp, 4);  /* skip two fill values */
+  AFsetChunkLim("info", poffs, offs, &AFr.ChunkInfo);
   poffs = offs;
 
   /* Check the preamble file magic */
-  offs += RHEAD_S (fp, Fhead.Magic);
-  if (SAME_CSTR (Fhead.Magic, FM_SPPACK_BE)) {
+  offs += RHEAD_S(fp, Fhead.Magic);
+  if (SAME_CSTR(Fhead.Magic, FM_SPPACK_BE)) {
     AFr.DFormat.Swapb = DS_EB;
-    AFsetChunkLim ("BL-b", poffs, offs, &AFr.ChunkInfo);
+    AFsetChunkLim("BL-b", poffs, offs, &AFr.ChunkInfo);
   }
-  else if (SAME_CSTR (Fhead.Magic, FM_SPPACK_LE)) {
+  else if (SAME_CSTR(Fhead.Magic, FM_SPPACK_LE)) {
     AFr.DFormat.Swapb = DS_EL;
-    AFsetChunkLim ("BL-l", poffs, offs, &AFr.ChunkInfo);
+    AFsetChunkLim("BL-l", poffs, offs, &AFr.ChunkInfo);
   }
   else {
-    UTwarn ("AFrdBLhead - %s", AFM_BL_BadId);
+    UTwarn("AFrdBLhead - %s", AFM_BL_BadId);
     return NULL;
   }
   poffs = offs;
 
 /* Fix up the values we have already read */
-  if (UTswapCode (AFr.DFormat.Swapb) == DS_SWAP) {
-    SWAPB (Fhead.Domain);
-    SWAPB (Fhead.Sfreq);
+  if (UTswapCode(AFr.DFormat.Swapb) == DS_SWAP) {
+    SWAPB(Fhead.Domain);
+    SWAPB(Fhead.Sfreq);
   }
 
 /* Continue reading the header */
-  offs += RHEAD_V (fp, Fhead.Dtype, AFr.DFormat.Swapb);
-  offs += RHEAD_V (fp, Fhead.Resolution, AFr.DFormat.Swapb);
-  offs += RHEAD_V (fp, Fhead.Compand, AFr.DFormat.Swapb);
-  AFsetChunkLim ("fmt ", poffs, offs, &AFr.ChunkInfo);
+  offs += RHEAD_V(fp, Fhead.Dtype, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, Fhead.Resolution, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, Fhead.Compand, AFr.DFormat.Swapb);
+  AFsetChunkLim("fmt ", poffs, offs, &AFr.ChunkInfo);
 
   poffs = offs;
-  offs += RSKIP (fp, 80);
-  AFsetChunkLim ("lst1", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, 80);
+  AFsetChunkLim("lst1", poffs, offs, &AFr.ChunkInfo);
   poffs = offs;
-  offs += RSKIP (fp, 80);
-  AFsetChunkLim ("lst2", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, 80);
+  AFsetChunkLim("lst2", poffs, offs, &AFr.ChunkInfo);
   poffs = offs;
-  offs += RSKIP (fp, 80);
-  AFsetChunkLim ("lst3", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, 80);
+  AFsetChunkLim("lst3", poffs, offs, &AFr.ChunkInfo);
 
   poffs = offs;
-  offs += RHEAD_V (fp, Fhead.dl_magic, AFr.DFormat.Swapb);
-  offs += RHEAD_V (fp, Fhead.left, AFr.DFormat.Swapb);
-  offs += RHEAD_V (fp, Fhead.right, AFr.DFormat.Swapb);
-  AFsetChunkLim ("chan", poffs, offs, &AFr.ChunkInfo);
+  offs += RHEAD_V(fp, Fhead.dl_magic, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, Fhead.left, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, Fhead.right, AFr.DFormat.Swapb);
+  AFsetChunkLim("chan", poffs, offs, &AFr.ChunkInfo);
 
   poffs = offs;
-  offs += RSKIP (fp, (LHEAD - offs));
-  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, (LHEAD - offs));
+  AFsetChunkLim("skip", poffs, offs, &AFr.ChunkInfo);
 
 /* Set up the data format parameters */
   if (Fhead.Dtype == S_SAMPLEDDATA) {
@@ -208,22 +208,22 @@ AFrdBLhead (FILE *fp)
       AFr.DFormat.Format = FD_INT16;
       break;
     default:
-      UTwarn ("AFrdBLhead - %s: \"%d\"", AFM_BL_UnsComp, (int) Fhead.Compand);
+      UTwarn("AFrdBLhead - %s: \"%d\"", AFM_BL_UnsComp, (int) Fhead.Compand);
       return NULL;
     }
   }
   else {
-    UTwarn ("AFrdBLhead - %s: \"%d\"", AFM_BL_UnsData, (int) Fhead.Dtype);
+    UTwarn("AFrdBLhead - %s: \"%d\"", AFM_BL_UnsData, (int) Fhead.Dtype);
     return NULL;
   }
 
   /* Error checks */
   if (Fhead.Resolution != Lb) {
-    UTwarn ("AFrdBLhead - %s: \"%d\"", AFM_BL_UnsWLen, (int) Fhead.Resolution);
+    UTwarn("AFrdBLhead - %s: \"%d\"", AFM_BL_UnsWLen, (int) Fhead.Resolution);
     return NULL;
   }
   if (Fhead.Domain != D_TIME) {
-    UTwarn ("AFrdBLhead - %s: \"%d\"", AFM_BL_UnsDomain, (int) Fhead.Domain);
+    UTwarn("AFrdBLhead - %s: \"%d\"", AFM_BL_UnsDomain, (int) Fhead.Domain);
     return NULL;
   }
   if (Fhead.dl_magic == DLMAGIC) {
@@ -237,9 +237,9 @@ AFrdBLhead (FILE *fp)
 /* Set the parameters for file access */
   AFr.Sfreq = (double) Fhead.Sfreq;
 
-  AFsetChunkLim ("data", offs, AF_EoF, &AFr.ChunkInfo);
+  AFsetChunkLim("data", offs, AF_EoF, &AFr.ChunkInfo);
 
-  AFp = AFsetRead (fp, FT_SPPACK, &AFr, AF_NOFIX);
+  AFp = AFsetRead(fp, FT_SPPACK, &AFr, AF_NOFIX);
 
   return AFp;
 }

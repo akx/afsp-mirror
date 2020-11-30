@@ -1,4 +1,4 @@
-November 2018
+November 2020
 
 Audio File Programs and Routines
   The AFsp package contains audio file utility programs and a library of
@@ -11,42 +11,43 @@ Audio File Utility Programs:
               ratio figures.
   CopyAudio - copy audio files.  This program combines samples from input audio
               files (an arbitrary linear combination) and writes them to the
-              output file in a user selectable format.  One application is to
+              output file in a user selectable format. One application is to
               provide format conversion for an audio file; another is to
               manipulate samples from multi-channel files.
-  FiltAudio - filter audio files.  This program filters an audio file with an
+  FiltAudio - filter audio files. This program filters an audio file with an
               FIR, IIR or all-pole filter.
-  GenNoise  - generate noise.  This program generates an audio file containing
+  GenNoise  - generate noise. This program generates an audio file containing
               Gaussian white noise.
-  GenTone   - generae a tone.  This program generates an audio file containing
+  GenTone   - generae a tone. This program generates an audio file containing
               samples from a sinusoid.
-  ResampAudio - resample data from an audio file.  This process involves
+  ResampAudio - resample data from an audio file. This process involves
               interpolating between the samples in the original file to create
               a new sequence of samples with a new spacing (sampling rate).
 
 Windows
-  A MS Visual Studio C project and executables (32-bit 64-bit) for use under
-  Windows (command line) are included in the distribution (directory bin/Win32
-  or Win64).
+  Windows executables (32-bit and 64-bit) which can be run from a Windows
+  command prompt are included in the distribution (directory bin/Win32 or
+  bin/Win64). These were built using Microsoft Visual Study Community 2019
+  (available for free).
 
 Linux
-  Linux binaries (64-bit) are available in the bin/Linux folder.  These were
+  Linux binaries (64-bit) are available in the bin/Linux folder. These were
   built using the Windows 10 Subsystem for Linux.
 
 Cygwin
   Cygwin binaries (64-bit) are available in the bin/Cygwin folder.
 
 Filters:
-  The package includes the filters from the ITU-T Software Tool Library
-  (G.191) in a form that can be used directly with the FiltAudio program.
+  The package includes the filters from the ITU-T Software Tool Library (G.191)
+  in a form that can be used directly with the FiltAudio program.
 
 Audio File I/O Routines:
-  The library supports reading and writing of audio files.  The routines have
+  The library supports reading and writing of audio files. The routines have
   been designed to be easy to use, yet provide transparent support the reading
-  of several audio file formats.  The audio file open routine automatically
-  determines the input file type.  Based on the file format, the audio file
+  of several audio file formats. The audio file open routine automatically
+  determines the input file type. Based on the file format, the audio file
   reading routine does byte swapping and format conversion on the fly as the
-  file is read.  The user sees double data without needing to worry about the
+  file is read. The user sees double data without needing to worry about the
   underlying data format.
 
 Audio File Formats:
@@ -76,10 +77,14 @@ Audio File Formats:
 The AFsp routines are covered by copyright, see the file "Licence" for details
 of the distribution conditions.
 
-AFsp-v10r2.tar.gz
+AFsp-v10r3.tar.gz
 http://www-MMSP.ECE.McGill.CA/MMSP/Documents/
 
 =============
+Changes in v10r3
+- CompAudio allows more channels to be displayed. Option to try a range of
+  delays has been revamped.
+- Apply a fix to Traktion AIFF files with a misformed header
 Changes in v10r2
 - FiltAudio updated to show the number of samples in the output file header
 - Executables for Cygwin, Linux, Win32, Win64
@@ -92,8 +97,8 @@ Changes in v10r0
   - Read/Write bit-reversed mu-law format
   - Text data file (with header) for importing / exporting data
 - InfoAudio prints the header/data structure for audio files
-- Executables built using Cygwin, Linux, and Microsoft Visual Studio 2017
-  are included
+- Executables built using Cygwin, Linux, and Microsoft Visual Studio 2017 are
+  included
 - CopyAudio supports a larger number of channels
 - Information record subsystem is more consistent across file types. Additional
   text fields in file headers are now returned as information records (includes
@@ -189,4 +194,4 @@ Electrical & Computer Engineering
 McGill University
 Peter.Kabal@McGill.CA
 
-$Id: ReadMe.txt 1.3 2018/11/18 AFsp-v10r2 $
+$Id: ReadMe.txt 1.5 2020/11/30 AFsp-v10r3 $

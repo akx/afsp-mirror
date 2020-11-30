@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  AFILE *AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
+  AFILE *AFsetWrite(FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
 
 Purpose:
   Set up the parameters in an audio file structure for writing
@@ -13,7 +13,7 @@ Description:
 
 Parameters:
   <-  AFILE *AFsetWrite
-      Audio file pointer for the audio file.  This routine allocates the space
+      Audio file pointer for the audio file. This routine allocates the space
       for this structure.
    -> FILE *fp
       File pointer for the audio file
@@ -23,8 +23,8 @@ Parameters:
       Structure with data and file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.65 $  $Date: 2017/05/24 16:19:40 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.66 $  $Date: 2020/11/26 11:33:35 $
 
 -------------------------------------------------------------------------*/
 
@@ -40,36 +40,36 @@ Author / revision:
 
 /* Local functions */
 static void
-AF_setInfo (const struct AF_info *WInfo, struct AF_info *AFInfo);
+AF_setInfo(const struct AF_info *WInfo, struct AF_info *AFInfo);
 static int
-AF_setWNbS (int NbS, int Format);
+AF_setWNbS(int NbS, int Format);
 
 
 AFILE *
-AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
+AFsetWrite(FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
 
 {
   AFILE *AFp;
   long int DStart;
   int Nspkr;
   enum AF_ERR_T ErrCode;
-  AF_CHUNKINFO_INIT (AF_chunkInfo_init);
+  AF_CHUNKINFO_INIT(AF_chunkInfo_init);
 
-  assert (Ftype == FT_WAVE || Ftype == FT_WAVE_EX ||
-          Ftype == FT_AU   ||
-          Ftype == FT_AIFF || Ftype == FT_AIFF_C  ||
-          Ftype == FT_NH   || Ftype == FT_TXAUD);
-  assert (AFw->DFormat.Format > 0 && AFw->DFormat.Format < AF_NFD);
-  assert (AFw->Nchan > 0);
+  assert(Ftype == FT_WAVE || Ftype == FT_WAVE_EX ||
+         Ftype == FT_AU   ||
+         Ftype == FT_AIFF || Ftype == FT_AIFF_C  ||
+         Ftype == FT_NH   || Ftype == FT_TXAUD);
+  assert(AFw->DFormat.Format > 0 && AFw->DFormat.Format < AF_NFD);
+  assert(AFw->Nchan > 0);
 
 /* Warnings */
   if (AFw->Sfreq <= 0.0)
-    UTwarn ("AFsetWrite - %s", AFM_NPSfreq);
+    UTwarn("AFsetWrite - %s", AFM_NPSfreq);
 
 /* Set the start of data */
-  if (FLseekable (fp)) {
+  if (FLseekable(fp)) {
     ErrCode = AF_NOERR;
-    DStart = AFtell (fp, &ErrCode);
+    DStart = AFtell(fp, &ErrCode);
     if (ErrCode)
       return NULL;
   }
@@ -77,7 +77,7 @@ AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
     DStart = 0;
 
 /* Set the parameters for file access */
-  AFp = (AFILE *) UTmalloc (sizeof (AFILE));
+  AFp = (AFILE *) UTmalloc(sizeof(AFILE));
 
   /* File pointers and parameters */
   AFp->fp = fp;
@@ -85,7 +85,7 @@ AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
   if (AF_DL[AFw->DFormat.Format] <= 1)
     AFp->Swapb = DS_NATIVE;
   else
-    AFp->Swapb = UTswapCode (AFw->DFormat.Swapb);
+    AFp->Swapb = UTswapCode(AFw->DFormat.Swapb);
   AFp->Novld = 0;
   AFp->Start = DStart;
   AFp->Isamp = 0;
@@ -103,7 +103,7 @@ AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
 
   /* File data parameters */
   AFp->Sfreq = AFw->Sfreq;
-  AFp->NbS = AF_setWNbS (AFw->DFormat.NbS, AFp->Format);
+  AFp->NbS = AF_setWNbS(AFw->DFormat.NbS, AFp->Format);
   AFp->FullScale = AFw->DFormat.FullScale;
 
   /* Program data parameters */
@@ -112,18 +112,16 @@ AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
 
   /* Data descriptors */
   /* Set up the information record structure */
-  AF_setInfo (&AFw->WInfo, &AFp->AFInfo);
+  AF_setInfo(&AFw->WInfo, &AFp->AFInfo);
   /* Set up empty chunk info structure - not used for write */
   AFp->ChunkInfo = AF_chunkInfo_init;
   /* Set up the loudspeaker configuration */
   AFp->SpkrConfig = NULL;
-  Nspkr = (int) strlen ((const char *) AFw->SpkrConfig);
+  Nspkr = (int) strlen((const char *) AFw->SpkrConfig);
   if (Nspkr > 0) {
-    AFp->SpkrConfig = (unsigned char *) UTmalloc (Nspkr + 1);
-    STcopyMax ((const char *) AFw->SpkrConfig, (char *) AFp->SpkrConfig, Nspkr);
+    AFp->SpkrConfig = (unsigned char *) UTmalloc(Nspkr + 1);
+    STcopyMax((const char *) AFw->SpkrConfig, (char *) AFp->SpkrConfig, Nspkr);
   }
-
-
 
   return AFp;
 }
@@ -132,7 +130,7 @@ AFsetWrite (FILE *fp, enum AF_FT_T Ftype, const struct AF_write *AFw)
 
 
 static void
-AF_setInfo (const struct AF_info *WInfo, struct AF_info *InfoOut)
+AF_setInfo(const struct AF_info *WInfo, struct AF_info *InfoOut)
 
 {
   int N;
@@ -143,26 +141,24 @@ AF_setInfo (const struct AF_info *WInfo, struct AF_info *InfoOut)
   }
   else {
     N = WInfo->N;
-    InfoOut->Info = (char *) UTmalloc (N);
-    memcpy (InfoOut->Info, WInfo->Info, N);
+    InfoOut->Info = (char *) UTmalloc(N);
+    memcpy(InfoOut->Info, WInfo->Info, N);
     InfoOut->N = N;
   }
-
-  return;
 }
 
 /* Set the bits/sample value */
 
 
 static int
-AF_setWNbS (int NbS, int Format)
+AF_setWNbS(int NbS, int Format)
 
 {
   int Res;
 
   Res = 8 * AF_DL[Format];
   if (NbS < 0 || NbS > Res)
-    UTwarn (AFMF_InvNbS, "AFsetWrite -", NbS, Res);
+    UTwarn(AFMF_InvNbS, "AFsetWrite -", NbS, Res);
   else if (NbS != 0)
     Res = NbS;
 

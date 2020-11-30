@@ -1,0 +1,77 @@
+.TH AFdReadData - libtsp (3tsp)
+.SH Routine:
+int AFdReadData(AFILE *AFp, long int offs, double Dbuff[], int Nreq)
+.SH Purpose:
+Read data from an audio file (return double values)
+.SH Description:
+This routine returns a specified number of samples at a given sample offset
+in an audio file. The data in the file is converted to double format on
+output. The sample data in the file is considered to be preceded and followed
+by zero-valued samples. Thus if the sample offset is negative or points to
+beyond the number of samples in the file, the appropriate number of
+zero-valued samples is returned. The file must have been opened using
+routine AFopnRead.
+.PP
+The following program fragment illustrates the use of this routine to read
+overlapping blocks of data. For the simpler case of sequential access to the
+data without overlap, the variable Lmem should be set to zero.
+.ft CW
+.nf
+    double Dbuff[320];
+     ...
+    AFp = AFopnRead(...);
+     ...
+    Lmem = 80;
+    Lblock = 320;
+    Nadv = Lblock - Lmem;
+    offs = -Lmem;
+    while (1) {
+      Nout = AFdReadData(AFp, offs, Dbuff, Lblock);
+      offs = offs + Nadv;
+      if (Nout <= 0)
+        break;
+       ...
+    }
+.fi
+.ft P
+On encountering an error, the default behaviour is to print an error message
+and halt execution.
+.SH Parameters:
+.in +3n
+.ti -3n
+<-  int AFdReadData
+.br
+Number of data values transferred from the file. On reaching the end of
+the file, this value may be less than Nreq, in which case the last
+elements are set to zero. This value can be used by the calling routine to
+determine when the data from the file has been exhausted.
+.ti -3n
+ -> AFILE *AFp
+.br
+Audio file pointer for an audio file opened by AFopnRead
+.ti -3n
+ -> long int offs
+.br
+Offset into the file in samples. If offs is positive, the first value
+returned is offs samples from the beginning of the data. The file data is
+considered to be preceded by zeros. Thus if offs is negative, the
+appropriate number of zeros will be returned. These zeros before the
+beginning of the data are counted as part of the count returned in Nout.
+.ti -3n
+<-  double Dbuff[]
+.br
+Array of doubles to receive Nreq samples. The data is organized as
+sequential frames of samples, where each frame contains samples for each
+of the channels.
+.ti -3n
+ -> int Nreq
+.br
+Number of samples requested. Nreq may be zero.
+.in -3n
+.SH Author / revision:
+P. Kabal
+/ Revision 1.15  2020-11-26
+.SH See Also
+AFfReadData,
+AFopnRead,
+libtsp

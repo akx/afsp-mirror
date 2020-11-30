@@ -2,16 +2,16 @@
                            McGill University
 
 Routine:
-  int AOdecHelp (const char Version[], const char Usage[])
+  int AOdecHelp(const char Version[], const char Usage[])
 
 Purpose:
   Decode help and version options for audio utilities
 
 Description:
-  This routine decodes a help or version option.  The routine AOinitOpt must be
-  called first to initialize the option arguments.  If this routine fails to
+  This routine decodes a help or version option. The routine AOinitOpt must be
+  called first to initialize the option arguments. If this routine fails to
   find an input audio file option, the argument pointer is reset to allow
-  another routine to try to decode the option.  For the help or version options,
+  another routine to try to decode the option. For the help or version options,
   a message is printed and execution is halted.
 
 Parameters:
@@ -22,12 +22,12 @@ Parameters:
    -> const char Version[]
       Program verion identification
    -> const char Usage[]
-      Usage message for the program.  This is a format that normally contains
+      Usage message for the program. This is a format that normally contains
       a "%s" for substitution of the program name.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.7 $  $Date: 2017/03/28 00:23:59 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.9 $  $Date: 2020/11/23 18:35:18 $
 
 ----------------------------------------------------------------------*/
 
@@ -37,8 +37,8 @@ Author / revision:
 #include <AObase.h>
 
 #define ROUTINE          "AOdecHelp"
-#define PGM              ((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
-#define ERRSTOP(text,par) UThalt ("%s: %s: \"%s\"", PGM, text, par)
+#define PGM              ((UTgetProg())[0] == '\0' ? ROUTINE : UTgetProg())
+#define ERRSTOP(text,par) UThalt("%s: %s: \"%s\"", PGM, text, par)
 
 #define RET_ERROR -2
 #define RET_END   -1
@@ -53,7 +53,7 @@ static const char *OThelp[] = {
 
 
 int
-AOdecHelp (const char Version[], const char Usage[])
+AOdecHelp(const char Version[], const char Usage[])
 
 {
   const char *OptArg;
@@ -61,14 +61,14 @@ AOdecHelp (const char Version[], const char Usage[])
   struct AO_CmdArg *Carg;
 
   /* Get the argument pointers */
-  Carg = AOArgs ();
-  
+  Carg = AOArgs();
+
   if (Carg->EndOptions)
     return 0;
 
   /* Decode help options */
   Sindex = Carg->Index;
-  n = UTgetOption (&Carg->Index, Carg->Argc, Carg->Argv, OThelp, &OptArg);
+  n = UTgetOption(&Carg->Index, Carg->Argc, Carg->Argv, OThelp, &OptArg);
 
   switch (n) {
   case RET_END:
@@ -76,14 +76,14 @@ AOdecHelp (const char Version[], const char Usage[])
   case 1:
   case 2:
     /* Help */
-    UTwarn (Usage, PGM);
-    exit (EXIT_SUCCESS);
+    UTwarn(Usage, PGM);
+    exit(EXIT_SUCCESS);
     break;
   case 3:
   case 4:
     /* Version */
-    printf ("%s: %s\n", PGM, Version);
-    exit (EXIT_SUCCESS);
+    printf("%s: %s\n", PGM, Version);
+    exit(EXIT_SUCCESS);
     break;
   case 5:
     /* End of options */

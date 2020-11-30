@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void AOsetFIopt (const struct AO_FIpar *FI, int NsampND, int RAccess)
+  void AOsetFIopt(const struct AO_FIpar *FI, int NsampND, int RAccess)
 
 Purpose:
   Set input file options
@@ -12,7 +12,7 @@ Description:
   from the input file parameter structure.
 
   Calling this routine as
-    AOsetFIopt (FI, 0, 0)
+    AOsetFIopt(FI, 0, 0)
   will leave NsampND and RAccess at their default settings.
 
 Parameters:
@@ -30,8 +30,8 @@ Parameters:
       1 - File must be random access
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.9 $  $Date: 2017/06/13 12:28:53 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.10 $  $Date: 2020/11/23 18:35:18 $
 
 -------------------------------------------------------------------------*/
 
@@ -39,13 +39,11 @@ Author / revision:
 
 
 void
-AOsetFIopt (const struct AO_FIpar *FI, int NsampND, int RAccess)
+AOsetFIopt(const struct AO_FIpar *FI, int NsampND, int RAccess)
 
 {
   AFopt.NsampND = NsampND;
   AFopt.RAccess = RAccess;
   AFopt.FtypeI = FI->Ftype;
   AFopt.InputPar = FI->InputPar;
-
-  return;
 }

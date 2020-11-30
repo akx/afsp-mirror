@@ -8,8 +8,8 @@ Description:
   Declarations for GenTone
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.28 $  $Date: 2018/11/16 23:38:07 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.33 $  $Date: 2020/11/30 12:32:28 $
 
 ----------------------------------------------------------------------*/
 
@@ -17,9 +17,9 @@ Author / revision:
 #define GenTone_h_
 
 #define PROGRAM "GenTone"
-#define VERSION "v10r2  2018-11-16"
+#define VERSION "v10r3  2020-11-30"
 
-#define SQRT2 1.41421356237309504880
+#define SQRT2 (1.41421356237309504880)
 #define AMPL_DEF  (0.03 * SQRT2)
 
 
@@ -74,8 +74,8 @@ extern "C" {
 
 /* Prototypes */
 void
-GToptions (int argc, const char *argv[], struct GT_Sine *Sine,
-           struct GT_FOpar *FO);
+GToptions(int argc, const char *argv[], struct GT_Sine *Sine,
+          struct GT_FOpar *FO);
 
 #ifdef __cplusplus
 }

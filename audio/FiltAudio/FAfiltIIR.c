@@ -2,8 +2,8 @@
                              McGill University
 
 Routine:
-  void FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO,
-                  const double h[][5], int Nsec, int Nsub, long int noffs)
+  void FAfiltIIR(AFILE *AFpI, AFILE *AFpO, long int NsampO,
+                 const double h[][5], int Nsec, int Nsub, long int noffs)
 
 Purpose:
   Filter an audio file with an IIR filter
@@ -29,8 +29,8 @@ Parameters:
       Data offset into the input data for the first output point
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.19 $  $Date: 2018/11/12 18:03:43 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.20 $  $Date: 2020/11/23 18:31:10 $
 
 -------------------------------------------------------------------------*/
 
@@ -42,12 +42,12 @@ Author / revision:
 #define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
 static void
-FA_writeSubData (AFILE *AFp0, long int k, int Nsub, const double x[], int Nx);
+FA_writeSubData(AFILE *AFp0, long int k, int Nsub, const double x[], int Nx);
 
 
 void
-FAfiltIIR (AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[][5],
-           int Nsec, int Nsub, long int noffs)
+FAfiltIIR(AFILE *AFpI, AFILE *AFpO, long int NsampO, const double h[][5],
+          int Nsec, int Nsub, long int noffs)
 
 {
   double x[NBUF];
@@ -61,9 +61,9 @@ Notes:
   - Indexing: n is an offset into d(), referring to sample d(n).
 
 Batch processing:
-  - The data will be processed in batches by reading into a buffer x(.,.).  The
+  - The data will be processed in batches by reading into a buffer x(.,.). The
     batches of input samples will be of equal size, Nx, except for the last
-    batch.  For batch j,
+    batch. For batch j,
       x(j,n') = d(noffs+j*Nx+n'), for 0 <= n' < Nx,
   - The k'th output point y(k) is calculated at position d(noffs+k) - the start
     of the impulse response, h(0), is aligned with d(noffs+k).
@@ -80,7 +80,7 @@ Batch processing:
     range by subtracting Nx from it and incrementing the batch number,
 
 Buffer allocation:
-  The buffer holds the filter memory (lmem) and the input data (Nx).  The output
+  The buffer holds the filter memory (lmem) and the input data (Nx). The output
   output data overlay the input data.
 */
 
@@ -90,40 +90,38 @@ Buffer allocation:
 
 /* Main processing loop */
   /* if (n < noffs), processing warm-up points, no output */
-  VRdZero (x, lmem);
-  n = MINV (noffs, MAXV (0, noffs - MAXWUP));
+  VRdZero(x, lmem);
+  n = MINV(noffs, MAXV(0, noffs - MAXWUP));
   k = 0;
   while (k < NyO) {
 
 /* Read the input data into the input buffer */
     if (n < noffs)
-      Nx = (int) MINV (Nxmax, noffs - n);
+      Nx = (int) MINV(Nxmax, noffs - n);
     else
-      Nx = (int) MINV (Nxmax, NyO - k);
-    AFdReadData (AFpI, n, &x[lmem], Nx);
+      Nx = (int) MINV(Nxmax, NyO - k);
+    AFdReadData(AFpI, n, &x[lmem], Nx);
 
 /* Convolve the input samples with the filter response */
-    FIdFiltIIR (&x[lmem-2], x, Nx, h, Nsec);
+    FIdFiltIIR(&x[lmem-2], x, Nx, h, Nsec);
 
 /* Write the output data to the output audio file */
     if (n >= noffs) {
       if (Nsub == 1)
-        AFdWriteData (AFpO, &x[2], Nx);
+        AFdWriteData(AFpO, &x[2], Nx);
       else
-        FA_writeSubData (AFpO, k, Nsub, &x[2], Nx);
+        FA_writeSubData(AFpO, k, Nsub, &x[2], Nx);
       k = k + Nx;
     }
     n = n + Nx;
 
 /* Update the filter memory */
-    VRdShift (x, lmem, Nx);
+    VRdShift(x, lmem, Nx);
   }
-
-  return;
 }
 
 static void
-FA_writeSubData (AFILE *AFp0, long int k, int Nsub, const double x[], int Nx)
+FA_writeSubData(AFILE *AFp0, long int k, int Nsub, const double x[], int Nx)
 
 {
   double xs[(NBUF+1)/2];  /* Only used for sub-sampling, i.e. when Nsub > 1 */
@@ -133,7 +131,5 @@ FA_writeSubData (AFILE *AFp0, long int k, int Nsub, const double x[], int Nx)
   for (m = 0, i = ist; i < Nx; ++m, i += Nsub) {
     xs[m] = x[i];
   }
-  AFdWriteData (AFp0, xs, m);
-
-  return;
+  AFdWriteData(AFp0, xs, m);
 }

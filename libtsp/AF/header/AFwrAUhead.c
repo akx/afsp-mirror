@@ -2,14 +2,14 @@
                              McGill University
 
 Routine:
-AFILE *AFwrAUhead (FILE *fp, struct AF_write *AFw)
+AFILE *AFwrAUhead(FILE *fp, struct AF_write *AFw)
 
 Purpose:
   Write header information to an AU audio file
 
 Description:
-  This routine writes header information to an AU audio file.  The information
-  in the file header is shown below.
+  This routine writes header information to an AU audio file. The information in
+  the file header is shown below.
 
   AU audio file header:
       Bytes     Type    Contents
@@ -24,17 +24,16 @@ Description:
 
 Parameters:
   <-  AFILE *AFwrAUhead
-      Audio file pointer for the audio file.  This routine allocates the
-      space for this structure.  If an error is detected, a NULL pointer is
-      returned.
+      Audio file pointer for the audio file. This routine allocates the space
+      for this structure. If an error is detected, a NULL pointer is returned.
    -> FILE *fp
       File pointer for the audio file
   <-> struct AF_write *AFw
       Structure containing file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.90 $  $Date: 2017/05/08 03:35:03 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.91 $  $Date: 2020/11/25 17:54:50 $
 
 -------------------------------------------------------------------------*/
 
@@ -56,11 +55,11 @@ extern jmp_buf AFW_JMPENV;
 
 /* Local function */
 static int
-AF_setDencod (int Format);
+AF_setDencod(int Format);
 
 
 AFILE *
-AFwrAUhead (FILE *fp, struct AF_write *AFw)
+AFwrAUhead(FILE *fp, struct AF_write *AFw)
 
 {
   AFILE *AFp;
@@ -68,46 +67,46 @@ AFwrAUhead (FILE *fp, struct AF_write *AFw)
   int Lhead;
 
 /* Set the long jump environment; on error return a NULL */
-  if (setjmp (AFW_JMPENV))
+  if (setjmp(AFW_JMPENV))
     return NULL; /* Return from a header write error */
 
 /* Leave room for the header information */
   if (AFw->WInfo.N > 0)
-    Lhead = RNDUPV (AU_LHMIN + (sizeof FM_AFSP) - 1 + AFw->WInfo.N, ALIGN);
+    Lhead = RNDUPV(AU_LHMIN + sizeof(FM_AFSP) - 1 + AFw->WInfo.N, ALIGN);
   else
-    Lhead = RNDUPV (AU_LHMIN + 4L, ALIGN);
+    Lhead = RNDUPV(AU_LHMIN + 4L, ALIGN);
 
 /* Set up the fixed header parameters */
-  MCOPY (FM_AU, Fhead.Magic);
+  MCOPY(FM_AU, Fhead.Magic);
   Fhead.Lhead = Lhead;
   if (AFw->Nframe == AF_NFRAME_UNDEF)
     Fhead.Ldata = AU_NOSIZE;
   else
     Fhead.Ldata = AFw->Nframe * AFw->Nchan * AF_DL[AFw->DFormat.Format];
-  Fhead.Dencod = AF_setDencod (AFw->DFormat.Format);
+  Fhead.Dencod = AF_setDencod(AFw->DFormat.Format);
   Fhead.Srate = (UT_uint4_t) (AFw->Sfreq + 0.5);  /* Rounding */
   Fhead.Nchan = (UT_uint4_t) AFw->Nchan;
 
 /* Write out the header */
   AFw->DFormat.Swapb = DS_EB;
-  WHEAD_S (fp, Fhead.Magic);
-  WHEAD_V (fp, Fhead.Lhead, DS_EB);
-  WHEAD_V (fp, Fhead.Ldata, DS_EB);
-  WHEAD_V (fp, Fhead.Dencod, DS_EB);
-  WHEAD_V (fp, Fhead.Srate, DS_EB);
-  WHEAD_V (fp, Fhead.Nchan, DS_EB);
+  WHEAD_S(fp, Fhead.Magic);
+  WHEAD_V(fp, Fhead.Lhead, DS_EB);
+  WHEAD_V(fp, Fhead.Ldata, DS_EB);
+  WHEAD_V(fp, Fhead.Dencod, DS_EB);
+  WHEAD_V(fp, Fhead.Srate, DS_EB);
+  WHEAD_V(fp, Fhead.Nchan, DS_EB);
 
 /* AFsp information records */
   if (AFw->WInfo.N > 0) {
-    WHEAD_SN (fp, FM_AFSP, (sizeof FM_AFSP) - 1); /* Omit null char */
-    WHEAD_SN (fp, AFw->WInfo.Info, AFw->WInfo.N);
-    WRPAD (fp, AFw->WInfo.N, ALIGN);
+    WHEAD_SN(fp, FM_AFSP, sizeof(FM_AFSP) - 1); /* Omit null char */
+    WHEAD_SN(fp, AFw->WInfo.Info, AFw->WInfo.N);
+    WRPAD(fp, AFw->WInfo.N, ALIGN);
   }
   else
-    WHEAD_SN (fp, "\0\0\0\0", 4);
+    WHEAD_SN(fp, "\0\0\0\0", 4);
 
 /* Set the parameters for file access */
-  AFp = AFsetWrite (fp, FT_AU, AFw);
+  AFp = AFsetWrite(fp, FT_AU, AFw);
 
   return AFp;
 }
@@ -116,7 +115,7 @@ AFwrAUhead (FILE *fp, struct AF_write *AFw)
 
 
 static int
-AF_setDencod (int Format)
+AF_setDencod(int Format)
 
 {
   int Dencod;
@@ -148,7 +147,7 @@ AF_setDencod (int Format)
     break;
   default:
     Dencod = AU_UNSPEC;  /* Error */
-    assert (0);
+    assert(0);
   }
 
   return Dencod;

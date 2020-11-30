@@ -1,13 +1,13 @@
 /*-------------- Telecommunications & Signal Processing Lab ---------------
 
 Routine:
-  AFILE *AFrdEShead (FILE *fp)
+  AFILE *AFrdEShead(FILE *fp)
 
 Purpose:
   Get file format information from an ESPS sampled data feature file
 
 Description:
-  This routine reads the header for an ESPS sampled data feature file.  The
+  This routine reads the header for an ESPS sampled data feature file. The
   header information is used to set the file data format information in the
   audio file pointer structure.
 
@@ -32,7 +32,7 @@ Description:
       -    ...   --     Audio data
 
   For ESPS sampled data feature files, additional information is embedded in
-  the  header.  This information is stored as "date:", "header_version:",
+  the  header. This information is stored as "date:", "header_version:",
   "program:", "program_version:", "program_compile_date:", "start_time:",
   and "max_value:" information records in the audio file parameter structure.
 
@@ -43,8 +43,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.96 $  $Date: 2017/06/29 13:21:12 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.99 $  $Date: 2020/11/26 11:29:47 $
 
 -------------------------------------------------------------------------*/
 
@@ -77,7 +77,7 @@ Author / revision:
 #define ES_MAXGENERIC 8192
 #define ES_MAXINFO     256
 
-/*  File magic value in file byte order.  ESPS files can be written in either
+/*  File magic value in file byte order. ESPS files can be written in either
     big-endian or little-endian byte order.
 */
 #define FM_ESPS_BE  "\0\0\152\32"   /* Big-endian data */
@@ -158,9 +158,9 @@ struct ES_genItem {
 };
 
 #define SWAPB(value) \
-  VRswapBytes ((const void *) &(value), (void *) &(value), sizeof (value), 1)
+  VRswapBytes((const void *) &(value), (void *) &(value), sizeof(value), 1)
 #define SWAPBXY(x,y) \
-  VRswapBytes ((const void *) &(x), (void *) &(y), sizeof (x), 1)
+  VRswapBytes((const void *) &(x), (void *) &(y), sizeof(x), 1)
 
 /* setjmp / longjmp environment */
 extern jmp_buf AFR_JMPENV;
@@ -169,12 +169,12 @@ AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 /* Local function */
 static int
-AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
-               int Nval, int Type, void *Val);
+AF_getGeneric(const char buff[], int Nbuff, const char ID[], int Fbo,
+              int Nval, int Type, void *Val);
 
 
 AFILE *
-AFrdEShead (FILE *fp)
+AFrdEShead(FILE *fp)
 
 {
   AFILE *AFp;
@@ -190,116 +190,116 @@ AFrdEShead (FILE *fp)
   struct AF_read AFr;
 
 /* Set the long jump environment; on error return a NULL */
-  if (setjmp (AFR_JMPENV))
+  if (setjmp(AFR_JMPENV))
     return NULL;  /* Return from a header read error */
 
 /* Defaults and initial values */
   AFr = AFr_default;
   AFr.RInfo.Info = Info;
   AFr.RInfo.N = 0;
-  AFr.RInfo.Nmax = sizeof (Info);
+  AFr.RInfo.Nmax = sizeof(Info);
 
 /* Read selected preamble values */
 /* We do not know the byte order until after we have read the file magic */
   poffs = 0;
-  offs  = RSKIP (fp, 8L);
-  offs += RHEAD_V (fp, Fpreamb.Data_offset, DS_NATIVE);
-  offs += RHEAD_V (fp, Fpreamb.Record_size, DS_NATIVE);
-  AFsetChunkLim ("pre ", poffs, offs, &AFr.ChunkInfo);
+  offs  = RSKIP(fp, 8L);
+  offs += RHEAD_V(fp, Fpreamb.Data_offset, DS_NATIVE);
+  offs += RHEAD_V(fp, Fpreamb.Record_size, DS_NATIVE);
+  AFsetChunkLim("pre ", poffs, offs, &AFr.ChunkInfo);
   poffs = offs;
 
 /* Check the preamble file magic */
-  offs += RHEAD_S (fp, Fpreamb.Magic);
-  if (SAME_CSTR (Fpreamb.Magic, FM_ESPS_BE)) {
+  offs += RHEAD_S(fp, Fpreamb.Magic);
+  if (SAME_CSTR(Fpreamb.Magic, FM_ESPS_BE)) {
     AFr.DFormat.Swapb = DS_EB;
-    AFsetChunkLim ("ES-b", poffs, offs, &AFr.ChunkInfo);
+    AFsetChunkLim("ES-b", poffs, offs, &AFr.ChunkInfo);
   }
-  else if (SAME_CSTR (Fpreamb.Magic, FM_ESPS_LE)) {
+  else if (SAME_CSTR(Fpreamb.Magic, FM_ESPS_LE)) {
     AFr.DFormat.Swapb = DS_EL;
-    AFsetChunkLim ("ES-l", poffs, offs, &AFr.ChunkInfo);
+    AFsetChunkLim("ES-l", poffs, offs, &AFr.ChunkInfo);
   }
   else {
-    UTwarn ("AFrdEShead - %s", AFM_ES_BadId);
+    UTwarn("AFrdEShead - %s", AFM_ES_BadId);
     return NULL;
   }
 
 /* Fix up the words we have already read */
-  if (UTswapCode (AFr.DFormat.Swapb) == DS_SWAP) {
-    SWAPB (Fpreamb.Data_offset);
-    SWAPB (Fpreamb.Record_size);
+  if (UTswapCode(AFr.DFormat.Swapb) == DS_SWAP) {
+    SWAPB(Fpreamb.Data_offset);
+    SWAPB(Fpreamb.Record_size);
   }
 
 /* Read selected values from the fixed part of the header */
   poffs = offs;
-  offs += RSKIP (fp, 32 - offs);
-  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, 32 - offs);
+  AFsetChunkLim("skip", poffs, offs, &AFr.ChunkInfo);
 
   poffs = offs;
-  offs += RHEAD_V (fp, FheadF.Type, AFr.DFormat.Swapb);
-  offs += RSKIP (fp, 2);
-  offs += RHEAD_S (fp, FheadF.Magic);
-  offs += AFrdInfoIdentText (fp, 26, "date:", &AFr.RInfo, 1);
-  offs += AFrdInfoIdentText (fp,  8, "header_version:", &AFr.RInfo, 1);
-  offs += AFrdInfoIdentText (fp, 16, "program:", &AFr.RInfo, 1);
-  offs += AFrdInfoIdentText (fp,  8, "program_version:", &AFr.RInfo, 1);
-  offs += AFrdInfoIdentText (fp, 26, "program_compile_date:", &AFr.RInfo, 1);
-  offs += RHEAD_V (fp, FheadF.Ndrec, AFr.DFormat.Swapb);
-  offs += RSKIP (fp, 4);
+  offs += RHEAD_V(fp, FheadF.Type, AFr.DFormat.Swapb);
+  offs += RSKIP(fp, 2);
+  offs += RHEAD_S(fp, FheadF.Magic);
+  offs += AFrdInfoIdentText(fp, 26, "date:", &AFr.RInfo, 1);
+  offs += AFrdInfoIdentText(fp,  8, "header_version:", &AFr.RInfo, 1);
+  offs += AFrdInfoIdentText(fp, 16, "program:", &AFr.RInfo, 1);
+  offs += AFrdInfoIdentText(fp,  8, "program_version:", &AFr.RInfo, 1);
+  offs += AFrdInfoIdentText(fp, 26, "program_compile_date:", &AFr.RInfo, 1);
+  offs += RHEAD_V(fp, FheadF.Ndrec, AFr.DFormat.Swapb);
+  offs += RSKIP(fp, 4);
 
-  offs += RHEAD_V (fp, FheadF.Ndouble, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, FheadF.Ndouble, AFr.DFormat.Swapb);
   Ntype  = (FheadF.Ndouble > 0);
-  offs += RHEAD_V (fp, FheadF.Nfloat, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, FheadF.Nfloat, AFr.DFormat.Swapb);
   Ntype += (FheadF.Nfloat > 0);
-  offs += RHEAD_V (fp, FheadF.Nlong, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, FheadF.Nlong, AFr.DFormat.Swapb);
   Ntype += (FheadF.Nlong > 0);
-  offs += RHEAD_V (fp, FheadF.Nshort, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, FheadF.Nshort, AFr.DFormat.Swapb);
   Ntype += (FheadF.Nshort > 0);
-  offs += RHEAD_V (fp, FheadF.Nchar, AFr.DFormat.Swapb);
+  offs += RHEAD_V(fp, FheadF.Nchar, AFr.DFormat.Swapb);
   Ntype += (FheadF.Nchar > 0);
   if (Ntype > 1) {
-     UTwarn ("AFrdEShead - %s", AFM_ES_MixData);
+     UTwarn("AFrdEShead - %s", AFM_ES_MixData);
      return NULL;
   }
 
-  offs += RSKIP (fp, 8);
-  offs += AFrdInfoIdentText (fp, 8, "user:", &AFr.RInfo, 1);
-  AFsetChunkLim ("fmt ", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, 8);
+  offs += AFrdInfoIdentText(fp, 8, "user:", &AFr.RInfo, 1);
+  AFsetChunkLim("fmt ", poffs, offs, &AFr.ChunkInfo);
 
 /* Read selected feature file header values */
   poffs = offs;
-  offs += RSKIP (fp, 188 - offs);
-  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, 188 - offs);
+  AFsetChunkLim("skip", poffs, offs, &AFr.ChunkInfo);
 
   poffs = offs;
-  offs += RHEAD_V (fp, FheadV.Fea_type, AFr.DFormat.Swapb);
-  AFsetChunkLim ("feat", poffs, offs, &AFr.ChunkInfo);
+  offs += RHEAD_V(fp, FheadV.Fea_type, AFr.DFormat.Swapb);
+  AFsetChunkLim("feat", poffs, offs, &AFr.ChunkInfo);
 
 /* Generic items */
   poffs = offs;
-  offs += RSKIP (fp, ES_LHMIN - offs);
-  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, ES_LHMIN - offs);
+  AFsetChunkLim("skip", poffs, offs, &AFr.ChunkInfo);
 
   poffs = offs;
-  NgI = MINV (ES_MAXGENERIC, Fpreamb.Data_offset - ES_LHMIN);
-  offs += RHEAD_SN (fp, GenItems, NgI);
-  AFsetChunkLim ("genI", poffs, offs, &AFr.ChunkInfo);
+  NgI = MINV(ES_MAXGENERIC, Fpreamb.Data_offset - ES_LHMIN);
+  offs += RHEAD_SN(fp, GenItems, NgI);
+  AFsetChunkLim("genI", poffs, offs, &AFr.ChunkInfo);
 
 /* Skip to the start of data */
   poffs = offs;
-  offs += RSKIP (fp, Fpreamb.Data_offset - offs);
-  AFsetChunkLim ("skip", poffs, offs, &AFr.ChunkInfo);
+  offs += RSKIP(fp, Fpreamb.Data_offset - offs);
+  AFsetChunkLim("skip", poffs, offs, &AFr.ChunkInfo);
 
 /* Error checks */
   if (FheadF.Type != ES_FT_FEA) {
-    UTwarn ("AFrdEShead - %s: \"%d\"", AFM_ES_UnsType, (int) FheadF.Type);
+    UTwarn("AFrdEShead - %s: \"%d\"", AFM_ES_UnsType, (int) FheadF.Type);
     return NULL;
   }
-  if (! SAME_CSTR (FheadF.Magic, Fpreamb.Magic)) {
-    UTwarn ("AFrdEShead - %s", AFM_ES_IdMatch);
+  if (!SAME_CSTR(FheadF.Magic, Fpreamb.Magic)) {
+    UTwarn("AFrdEShead - %s", AFM_ES_IdMatch);
     return NULL;
   }
   if (FheadV.Fea_type != ES_FEA_SD) {
-     UTwarn ("AFrdEShead - %s: \"%d\"", AFM_ES_UnsFea, (int) FheadV.Fea_type);
+     UTwarn("AFrdEShead - %s: \"%d\"", AFM_ES_UnsFea, (int) FheadV.Fea_type);
      return NULL;
   }
 
@@ -321,44 +321,44 @@ AFrdEShead (FILE *fp)
     AFr.DFormat.Format = FD_FLOAT64;
   }
   else {
-    UTwarn ("AFrdEShead - %s", AFM_ES_UnsData);
+    UTwarn("AFrdEShead - %s", AFM_ES_UnsData);
     return NULL;
   }
   if (Fpreamb.Record_size != AF_DL[AFr.DFormat.Format] * AFr.NData.Nchan) {
-    UTwarn ("AFrdEShead - %s", AFM_ES_UnsEncod);
+    UTwarn("AFrdEShead - %s", AFM_ES_UnsEncod);
     return NULL;
   }
 
 /* Get the sampling frequency */
-  if (! AF_getGeneric (GenItems, NgI, "record_freq", AFr.DFormat.Swapb,
-                       1, ES_DOUBLE, &AFr.Sfreq)) {
-    UTwarn ("AFrdEShead - %s", AFM_ES_NoSfreq);
+  if (!AF_getGeneric(GenItems, NgI, "record_freq", AFr.DFormat.Swapb,
+                     1, ES_DOUBLE, &AFr.Sfreq)) {
+    UTwarn("AFrdEShead - %s", AFM_ES_NoSfreq);
     return NULL;
   }
 
   /* Other Generic Items */
-  if (AF_getGeneric (GenItems, NgI, "start_time", AFr.DFormat.Swapb, 1,
-                     ES_DOUBLE, &DTemp)) {
-    Nv = sprintf (str, "%.7g", DTemp);
-    AFaddInfoRec ("start_time: ", str, Nv, &AFr.RInfo);
+  if (AF_getGeneric(GenItems, NgI, "start_time", AFr.DFormat.Swapb, 1,
+                    ES_DOUBLE, &DTemp)) {
+    Nv = sprintf(str, "%.7g", DTemp);
+    AFaddInfoRec("start_time: ", str, Nv, &AFr.RInfo);
   }
   /* Pick up "max_value" only if it is a single value */
-  if (AF_getGeneric (GenItems, NgI, "max_value", AFr.DFormat.Swapb, 1,
-                     ES_DOUBLE, &DTemp)) {
-    Nv = sprintf (str, "%.7g", DTemp);
-    AFaddInfoRec ("max_value: ", str, Nv, &AFr.RInfo);
+  if (AF_getGeneric(GenItems, NgI, "max_value", AFr.DFormat.Swapb, 1,
+                    ES_DOUBLE, &DTemp)) {
+    Nv = sprintf(str, "%.7g", DTemp);
+    AFaddInfoRec("max_value: ", str, Nv, &AFr.RInfo);
   }
 
 /* Set the parameters for file access */
   if (FheadF.Ndrec != 0) {
     AFr.NData.Nsamp = FheadF.Ndrec * AFr.NData.Nchan;
     Ldata = AFr.NData.Nsamp * AF_DL[AFr.DFormat.Format];
-    AFsetChunkLim ("data", offs, offs + Ldata, &AFr.ChunkInfo);
+    AFsetChunkLim("data", offs, offs + Ldata, &AFr.ChunkInfo);
   }
   else                /* Ndrec = 0 may indicate unknown no. samples */
-    AFsetChunkLim ("data", offs, AF_EoF, &AFr.ChunkInfo);
+    AFsetChunkLim("data", offs, AF_EoF, &AFr.ChunkInfo);
 
-  AFp = AFsetRead (fp, FT_ESPS, &AFr, AF_FIX_NSAMP_LOW | AF_FIX_NSAMP_HIGH);
+  AFp = AFsetRead(fp, FT_ESPS, &AFr, AF_FIX_NSAMP_LOW | AF_FIX_NSAMP_HIGH);
 
   return AFp;
 }
@@ -367,8 +367,8 @@ AFrdEShead (FILE *fp)
 
 
 static int
-AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
-               int Nval, int Type, void *Val)
+AF_getGeneric(const char buff[], int Nbuff, const char ID[], int Fbo,
+              int Nval, int Type, void *Val)
 
 {
   int ncID, ncIDX, k, nS, Found, Lw, Nr;
@@ -376,38 +376,38 @@ AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
   char *p;
   struct ES_genItem gItem;
 
-  ncID = (int) strlen (ID);
-  ncIDX = RNDUPV (ncID + 1, 4);   /* Length of ID rounded up */
-  assert (ncIDX <= ES_MAX_gID);
+  ncID = (int) strlen(ID);
+  ncIDX = RNDUPV(ncID + 1, 4);   /* Length of ID rounded up */
+  assert(ncIDX <= ES_MAX_gID);
 
   /* Fill in a Generic Item structure */
   gItem.code = 13;
   gItem.ID_len = (UT_uint2_t) (ncIDX / 4);
-  STcopyMax (ID, gItem.ID, ES_MAX_gID-1);
+  STcopyMax(ID, gItem.ID, ES_MAX_gID-1);
   for (k = ncID; k < ncIDX; ++k)
     gItem.ID[k] = '\0';
   gItem.count = (UT_uint4_t) Nval;
   gItem.data_code = (UT_uint2_t) Type;
 
   /* Form the search string */
-  if (UTswapCode (Fbo) == DS_SWAP) {
-    SWAPBXY (gItem.code, sstr[0]);
-    SWAPBXY (gItem.ID_len, sstr[2]);
-    memcpy (&sstr[4], gItem.ID, ncIDX);
-    SWAPBXY (gItem.count, sstr[ncIDX + 4]);
-    SWAPBXY (gItem.data_code, sstr[ncIDX + 8]);
+  if (UTswapCode(Fbo) == DS_SWAP) {
+    SWAPBXY(gItem.code, sstr[0]);
+    SWAPBXY(gItem.ID_len, sstr[2]);
+    memcpy(&sstr[4], gItem.ID, ncIDX);
+    SWAPBXY(gItem.count, sstr[ncIDX + 4]);
+    SWAPBXY(gItem.data_code, sstr[ncIDX + 8]);
   }
   else {
-    memcpy (sstr, &gItem.code, 2);
-    memcpy (&sstr[2], &gItem.ID_len, 2);
-    memcpy (&sstr[4], &gItem.ID, ncIDX);
-    memcpy (&sstr[ncIDX + 4], &gItem.count, 4);
-    memcpy (&sstr[ncIDX + 8], &gItem.data_code, 2);
+    memcpy(sstr, &gItem.code, 2);
+    memcpy(&sstr[2], &gItem.ID_len, 2);
+    memcpy(&sstr[4], &gItem.ID, ncIDX);
+    memcpy(&sstr[ncIDX + 4], &gItem.count, 4);
+    memcpy(&sstr[ncIDX + 8], &gItem.data_code, 2);
   }
   nS = ncIDX + 10;
 
   /* Search for the Generic Item in the buffer */
-  p = STstrstrNM (buff, sstr, Nbuff, nS);
+  p = STstrstrNM(buff, sstr, Nbuff, nS);
   Found = 0;
   if (p != NULL) {
     switch (Type) {
@@ -423,16 +423,16 @@ AF_getGeneric (const char buff[], int Nbuff, const char ID[], int Fbo,
       break;
     default:
       Lw = 0;
-      assert (0);
+      assert(0);
       break;
     }
     p += nS;                  /* Point to values */
     Nr = Nbuff - (int) (p - buff);  /* No. bytes remaining in buffer */
     if (Nval * Lw <= Nr) {
-      if (UTswapCode (Fbo) == DS_SWAP)
-       VRswapBytes (p, Val, Lw, Nval);
+      if (UTswapCode(Fbo) == DS_SWAP)
+       VRswapBytes(p, Val, Lw, Nval);
       else
-        memcpy (Val, p, Nval * Lw);
+        memcpy(Val, p, Nval * Lw);
       Found = 1;
     }
   }

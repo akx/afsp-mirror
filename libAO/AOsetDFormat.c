@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  void AOsetDFormat (struct AO_FOpar *FO, AFILE *AFp[], int Nf)
+  void AOsetDFormat(struct AO_FOpar *FO, AFILE *AFp[], int Nf)
 
 Purpose:
   Determine a compatible output data format for the output file type
@@ -15,13 +15,13 @@ Description:
 
   For use in error messages, the program name should be set using the routine
   UTsetProg.
-  
+
   Output File Type:
     If the file type is set in the structure FO, that value is used. Otherwise
     the file type is determined by the output file name extension. If the file
     name extension is non-standard, a default file type is used.
 
-    The mapping from file name extensions to file types is as follows.  The
+    The mapping from file name extensions to file types is as follows. The
     asterisk indicates that a shortened form can be used.
       .wav*e        - FTW_WAVE, Wave file
       .au           - FTW_AU, AU audio file
@@ -29,10 +29,10 @@ Description:
       .afc or .aifc - FTW_AIFF_C, AIFF-C sound file
       .raw, .dat, or .nh - FTW_NH_NATIVE, headerless file
       .txt or .text - FTW_TXAUD, text file (with header)
-  
+
     The file type is checked for validity and the file type in the structure FO
     is updated if necessary.
-    
+
   Output File Data Format:
     If the data format is defined in the the structure FO, that value is used.
     Otherwise if no input files information is available (Nf == 0), a default
@@ -40,10 +40,10 @@ Description:
 
     If the data format for the input files is available in the array of
     structures AFp, those will be used to determine an output data format of
-    appropriate precision.  First a list of possible data formats for the output
-    file type is set up.  For each data format, there is an associated ranking
-    in precision.  For instance 24-bit integer is ranked higher than 16-bit
-    integer.  For input formats with mixed precisions, the output format will
+    appropriate precision. First a list of possible data formats for the output
+    file type is set up. For each data format, there is an associated ranking
+    in precision. For instance 24-bit integer is ranked higher than 16-bit
+    integer. For input formats with mixed precisions, the output format will
     have the higher precision. Unless the data format is explicitly specified,
     the output precision will be at least 16 bits.
 
@@ -52,7 +52,7 @@ Parameters:
   <-  enum AF_FD_T AOsetDFormat
       Output code for the data format
    -> const struct AO_FOpar *FO
-      Output file parameters.  The file type (FO->FtypeW) can be FTW_UNDEF.
+      Output file parameters. The file type (FO->FtypeW) can be FTW_UNDEF.
       The data format (FO->DFormat.Format) can be FD_UNDEF.
    -> const AFILE *AFp[]
       Audio file pointers for the input files (Nf values)
@@ -60,8 +60,8 @@ Parameters:
       Number of input audio file pointers (can be zero)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.13 $  $Date: 2018/11/14 13:53:26 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.16 $  $Date: 2020/11/23 18:35:18 $
 
 -------------------------------------------------------------------------*/
 
@@ -71,14 +71,14 @@ Author / revision:
 #include <AO.h>
 
 #define ROUTINE       "AOsetFormat"
-#define PGM           ((UTgetProg ())[0] == '\0' ? ROUTINE : UTgetProg ())
+#define PGM           ((UTgetProg())[0] == '\0' ? ROUTINE : UTgetProg())
 #define MAXV(a, b)    (((a) > (b)) ? (a) : (b))
 #define NELEM(array)  ((int) ((sizeof array) / (sizeof array[0])))
 
 /* Resulting precision ranking for data formats. Note that float is considered
    to be more precise than 32-bit integer. This is done so that integer inputs
-   will be represented with integer data formats on output.  Note that the
-   minimum precision for the formats is that of 16-bit integer.  Thus mu-law,
+   will be represented with integer data formats on output. Note that the
+   minimum precision for the formats is that of 16-bit integer. Thus mu-law,
    A-law, and the one-byte formats will be promoted to 16-bit precision.
      0 - undefined,
      1 - 8-bit unsigned or integer
@@ -90,10 +90,10 @@ Author / revision:
      7 - double
 
    The text formats are really floating point formats with 7 significant digits
-   of precision - about the same as float.  text16 may give a more compact
-   representation than text if the underlying data is integer-valued.  For such
+   of precision - about the same as float. text16 may give a more compact
+   representation than text if the underlying data is integer-valued. For such
    data tex16 avoids fractional values (with leading zeros) and/or an exponent.
-    order:{undef, mu-law, A-law, u8, i8, i16, i24, i32, f4 f8, t16, t}
+     order:{undef, mu-law, A-law, u8, i8, i16, i24, i32, f4 f8, t16, t}
 */
 static const int PrecD[] = {0, 2, 2, 2, 1, 1, 3, 4, 5, 6, 7, 6, 6};
 
@@ -120,22 +120,22 @@ static const char *AF_FTWN[] = {
 };
 
 static const enum AF_FD_T *
-AO_AllowFD (enum AF_FTW_T FtypeW);
+AO_AllowFD(enum AF_FTW_T FtypeW);
 
 
 void
-AOsetDFormat (struct AO_FOpar *FO, AFILE *AFp[], int Nf)
+AOsetDFormat(struct AO_FOpar *FO, AFILE *AFp[], int Nf)
 
 {
   int i, PrecI, PrecO;
   enum AF_FD_T Format;
   const enum AF_FD_T *AllowFD;
 
-  assert (FTW_TXAUD+1 == NELEM (AF_FTWN));
-  assert (NELEM (PrecD) == AF_NFD);
+  assert(FTW_TXAUD+1 == NELEM(AF_FTWN));
+  assert(NELEM(PrecD) == AF_NFD);
 
   /* Set the output file type if not set */
-  AOsetFtypeW (FO);
+  AOsetFtypeW(FO);
 
   Format = FO->DFormat.Format;
 
@@ -144,7 +144,7 @@ AOsetDFormat (struct AO_FOpar *FO, AFILE *AFp[], int Nf)
     Format = FD_TEXT;
 
   /* Set up allowable data formats for the output file type */
-  AllowFD = AO_AllowFD (FO->FtypeW);
+  AllowFD = AO_AllowFD(FO->FtypeW);
 
   if (Format == FD_UNDEF) {
     if (Nf <= 0)
@@ -153,9 +153,9 @@ AOsetDFormat (struct AO_FOpar *FO, AFILE *AFp[], int Nf)
     else {
       /* Choose the output data format based on the input data formats */
       PrecO = PrecD[FD_INT16];        /* At least precision for int16 */
-      for (i = 0; i < Nf; ++i) { 
+      for (i = 0; i < Nf; ++i) {
         PrecI = PrecD[AllowFD[AFp[i]->Format]];
-        PrecO = MAXV (PrecO, PrecI);
+        PrecO = MAXV(PrecO, PrecI);
       }
       Format = Prec2FD[PrecO];
     }
@@ -163,16 +163,14 @@ AOsetDFormat (struct AO_FOpar *FO, AFILE *AFp[], int Nf)
 
   /* Check for compatibility of the data format and file type */
   if (Format != AllowFD[Format])
-    UThalt (AOMF_DataFType, PGM, AF_DTN[Format], AF_FTWN[FO->FtypeW]);
+    UThalt(AOMF_DataFType, PGM, AF_DTN[Format], AF_FTWN[FO->FtypeW]);
 
   /* Set the Format */
   FO->DFormat.Format = Format;
-  
-  return;
 }
 
 static const enum AF_FD_T *
-AO_AllowFD (enum AF_FTW_T FtypeW)
+AO_AllowFD(enum AF_FTW_T FtypeW)
 
 {
   const enum AF_FD_T *AllowFD;
@@ -203,10 +201,10 @@ AO_AllowFD (enum AF_FTW_T FtypeW)
           FD_TEXT16, FD_TEXT16, FD_TEXT16, FD_TEXT16, FD_TEXT,
           FD_TEXT, FD_TEXT, FD_TEXT16, FD_TEXT};
 
-  assert (NELEM (Allow_AU) == AF_NFD && NELEM (Allow_WAVE) == AF_NFD &&
-          NELEM (Allow_AIFF) == AF_NFD && NELEM (Allow_AIFF_C) == AF_NFD &&
-          NELEM (Allow_NH) == AF_NFD && NELEM (Allow_TXAUD) == AF_NFD);
-          
+  assert(NELEM(Allow_AU) == AF_NFD && NELEM(Allow_WAVE) == AF_NFD &&
+         NELEM(Allow_AIFF) == AF_NFD && NELEM(Allow_AIFF_C) == AF_NFD &&
+         NELEM(Allow_NH) == AF_NFD && NELEM(Allow_TXAUD) == AF_NFD);
+
   AllowFD = NULL;   /* Stop compiler warning */
   switch (FtypeW) {
   case FTW_AU:
@@ -234,7 +232,7 @@ AO_AllowFD (enum AF_FTW_T FtypeW)
     AllowFD = Allow_TXAUD;
     break;
   default:
-    assert (0);
+    assert(0);
   }
 
   return AllowFD;

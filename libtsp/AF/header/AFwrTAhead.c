@@ -2,15 +2,15 @@
                              McGill University
 
 Routine:
-AFILE *AFwrTAhead (FILE *fp, struct AF_write *AFw)
+AFILE *AFwrTAhead(FILE *fp, struct AF_write *AFw)
 
 Purpose:
   Write header information to a text audio file
 
 Description:
-  This routine writes header information to a text audio file.  Each line of the
-  file header starts with a '%' character.  The minimal information written is
-  as follows.
+  This routine writes header information to a text audio file. Each line of the
+  file header starts with a '%' character. The minimal information written is as
+  follows.
 
     %//
     %
@@ -28,17 +28,16 @@ Description:
 
 Parameters:
   <-  AFILE *AFwrTAhead
-      Audio file pointer for the audio file.  This routine allocates the
-      space for this structure.  If an error is detected, a NULL pointer is
-      returned.
+      Audio file pointer for the audio file. This routine allocates the space
+      for this structure. If an error is detected, a NULL pointer is returned.
    -> FILE *fp
       File pointer for the audio file
   <-> struct AF_write *AFw
       Structure containing file parameters
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.2 $  $Date: 2017/05/15 15:43:17 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.3 $  $Date: 2020/11/25 17:54:50 $
 
 -------------------------------------------------------------------------*/
 
@@ -58,7 +57,7 @@ extern jmp_buf AFW_JMPENV;
 
 
 AFILE *
-AFwrTAhead (FILE *fp, struct AF_write *AFw)
+AFwrTAhead(FILE *fp, struct AF_write *AFw)
 
 {
   AFILE *AFp;
@@ -66,14 +65,14 @@ AFwrTAhead (FILE *fp, struct AF_write *AFw)
   char *Info;
   char *p, *pst, *pend;
 
-  assert (AFw->DFormat.Format == FD_TEXT || AFw->DFormat.Format == FD_TEXT16);
+  assert(AFw->DFormat.Format == FD_TEXT || AFw->DFormat.Format == FD_TEXT16);
 
 /* Set the long jump environment; on error return a NULL */
-  if (setjmp (AFW_JMPENV))
+  if (setjmp(AFW_JMPENV))
     return NULL; /* Return from a header write error */
 
 /* Write the file ID and a following blank comment line */
-  fprintf (fp, "%%//\n%%\n");
+  fprintf(fp, "%%//\n%%\n");
 
 /* Write the information records */
   Info = AFw->WInfo.Info;
@@ -81,18 +80,18 @@ AFwrTAhead (FILE *fp, struct AF_write *AFw)
   pst = &Info[0];
   pend = &Info[N - 1];
   while (pst <=  pend) {
-    p = memchr (pst, '\0', pend - pst + 1);
+    p = memchr(pst, '\0', pend - pst + 1);
     if (p == NULL)
       break;
-    fprintf (fp, "%%%s\n", pst);
+    fprintf(fp, "%%%s\n", pst);
     pst = ++p;    /* Past the NUL character **/
   }
 
 /* Write an end of header line */
-  fprintf (fp, "%%//\n");
+  fprintf(fp, "%%//\n");
 
 /* Set the parameters for file access */
-  AFp = AFsetWrite (fp, FT_TXAUD, AFw);
+  AFp = AFsetWrite(fp, FT_TXAUD, AFw);
 
   return AFp;
 }

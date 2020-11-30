@@ -2,17 +2,17 @@
                              McGill University
 
 Routine:
-  int AFwriteHead (FILE *fp, const void *Buf, int Size, int Nv, int Swapb)
+  int AFwriteHead(FILE *fp, const void *Buf, int Size, int Nv, int Swapb)
 
 Purpose:
   Write (with optionally swap) audio file header values
 
 Description:
-  This routine writes data to an audio file header.  The information to be
+  This routine writes data to an audio file header. The information to be
   written is considered to be organized as Nv elements each of Size bytes.
-  Optionally each of the Nv elements is byte swapped.  The data (Nv * Size
-  bytes) is then written to the file.  If input buffer is buffer is a NULL
-  pointer, this routine writes zero-valued bytes to the file.
+  Optionally each of the Nv elements is byte swapped. The data (Nv * Size bytes)
+  is then written to the file. If input buffer is buffer is a NULL pointer, this
+  routine writes zero-valued bytes to the file.
 
   If an error occurs, this routine issues a longjmp to the AFW_JMPENV
   environment set up by the calling routine.
@@ -29,18 +29,18 @@ Parameters:
    -> int Nv
       Number of elements to be written
    -> int Swapb
-      Byte swap flag.  This parameter is not used for Size = 1.  If the bytes
-      are to be swapped, size must be 2, 4 or 8 bytes.
-      DS_EB     - File data is in big-endian byte order.  The data will be
+      Byte swap flag. This parameter is not used for Size = 1. If the bytes are
+                  to be swapped, size must be 2, 4 or 8 bytes.
+      DS_EB     - File data is in big-endian byte order. The data will be
                   swapped if the current host uses little-endian byte order.
-      DS_EL     - File data is in little-endian byte order data.  The data will
+      DS_EL     - File data is in little-endian byte order data. The data will
                   be swapped if the current host uses big-endian byte order.
       DS_NATIVE - File data is in native byte order
       DS_SWAP   - File data is byte-swapped
 
 Author / revision:
-  P. Kabal  Copyright (C) 2015
-  $Revision: 1.29 $  $Date: 2015/04/09 18:07:41 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.30 $  $Date: 2020/11/25 17:54:50 $
 
 -------------------------------------------------------------------------*/
 
@@ -52,9 +52,9 @@ Author / revision:
 #include <libtsp/UTtypes.h>
 
 #define FWRITE(buf,size,nv,fp) \
-  (int) fwrite ((const char *) buf, (size_t) size, (size_t) nv, fp)
+  (int) fwrite((const char *) buf, (size_t) size, (size_t) nv, fp)
 
-#define BSIZE(x)  ((int)(sizeof (x)))
+#define BSIZE(x)  ((int)(sizeof(x)))
 
 #define NBUF  256 /* Number of doubles */
 #define NPAD  16  /* Number of bytes */
@@ -64,7 +64,7 @@ jmp_buf AFW_JMPENV;   /* Defining point */
 
 
 int
-AFwriteHead (FILE * fp, const void *Buf, int Size, int Nv, int Swapb)
+AFwriteHead(FILE * fp, const void *Buf, int Size, int Nv, int Swapb)
 
 {
   int n, Nreq, Nw;
@@ -79,23 +79,23 @@ AFwriteHead (FILE * fp, const void *Buf, int Size, int Nv, int Swapb)
     Nv = Nv * Size; /* Change to units of bytes */
     Size = 1;
     while (n < Nv) {
-      Nreq = MINV (Nv - n, NPAD);
-      Nw = FWRITE (Pad, 1, Nreq, fp);
+      Nreq = MINV(Nv - n, NPAD);
+      Nw = FWRITE(Pad, 1, Nreq, fp);
       n += Nw;
       if (Nw < Nreq)
         break;
     }
   }
 
-  else if (Size != 1 && UTswapCode (Swapb) == DS_SWAP) {
+  else if (Size != 1 && UTswapCode(Swapb) == DS_SWAP) {
 
     /* Swapped data passes through a temporary buffer */
     p = (const char *) Buf;
     while (n < Nv) {
 
-      Nreq = MINV (Nv - n, BSIZE (Lbuf) / Size);
-      VRswapBytes (p, Lbuf, Size, Nreq);
-      Nw = FWRITE (Lbuf, Size, Nreq, fp);
+      Nreq = MINV(Nv - n, BSIZE(Lbuf) / Size);
+      VRswapBytes(p, Lbuf, Size, Nreq);
+      Nw = FWRITE(Lbuf, Size, Nreq, fp);
       p += Nw * Size;
       n += Nw;
       if (Nw < Nreq)
@@ -106,11 +106,11 @@ AFwriteHead (FILE * fp, const void *Buf, int Size, int Nv, int Swapb)
   else
 
     /* Non-swapped data is written directly from the input buffer */
-    n += FWRITE (Buf, Size, Nv, fp);
+    n += FWRITE(Buf, Size, Nv, fp);
 
   if (n < Nv) {
-    UTsysMsg ("AFwriteHead - %s", AFM_WriteErr);
-    longjmp (AFW_JMPENV, 1);
+    UTsysMsg("AFwriteHead - %s", AFM_WriteErr);
+    longjmp(AFW_JMPENV, 1);
   }
 
   return (Size * n);

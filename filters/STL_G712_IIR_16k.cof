@@ -4,7 +4,7 @@
 !   McGill University
 ! File: STL_G712_IIR_16k.cof
 ! See ITU-T G.191 (2000), Software Tools Library (module iir_g712.c)
-! $Id: STL_G712_IIR_16k.cof 1.4 2002/07/09 AFsp-v10r2 $
+! $Id: STL_G712_IIR_16k.cof 1.4 2002/07/09 AFsp-v10r3 $
 !
 ! ITU-T Recommendation G.712 filter (bandpass).
 ! Each line gives the 5 coefficients for a second-order section

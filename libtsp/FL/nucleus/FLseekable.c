@@ -2,7 +2,7 @@
                          McGill University
 
 Routine:
-  int FLseekable (FILE *fp)
+  int FLseekable(FILE *fp)
 
 Purpose:
   Determine if an I/O stream is random access.
@@ -18,8 +18,8 @@ Parameters:
       File pointer
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.16 $  $Date: 2017/06/09 14:59:08 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.17 $  $Date: 2020/11/29 23:10:56 $
 
 ----------------------------------------------------------------------*/
 
@@ -40,14 +40,14 @@ Author / revision:
 
 
 int
-FLseekable (FILE *fp)
+FLseekable(FILE *fp)
 
 {
   struct stat Fstat;
   int status;
 
-  status = fstat (fileno (fp), &Fstat);
-  if (status == 0 && S_ISREG (Fstat.st_mode))
+  status = fstat(fileno(fp), &Fstat);
+  if (status == 0 && S_ISREG(Fstat.st_mode))
     return 1;
   else
     return 0;

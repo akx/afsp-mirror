@@ -8,8 +8,8 @@ Description:
   Declarations for WAVE file headers
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Date: 2017/09/20 01:09:40 $
+  P. Kabal  Copyright (C) 2020
+  $Date: 2020/11/25 17:56:06 $
 
 ----------------------------------------------------------------------*/
 
@@ -101,7 +101,7 @@ static const unsigned int WV_AF_Spkr_Index[] = {
 /* Map AF speaker location index to WV mask index */
 /* If n = SpkrConfig[i] => mask index (0 - 17) is AF_WV_ChannelMask[n-1] */
 /* Unsupported values are set to WV_X */
-#define WV_X (255)
+#define WV_X  (255)
 static const unsigned int AF_WV_ChannelMask[] = {
      0,      1,       /* FL    FR    */
      2,      3,       /* FC    LFE1  */

@@ -8,8 +8,8 @@ Description:
   Function prototypes for the TSP library AF file internal routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.55 $  $Date: 2017/06/22 11:46:50 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.57 $  $Date: 2020/11/25 17:56:06 $
 
 ----------------------------------------------------------------------*/
 
@@ -33,33 +33,29 @@ typedef struct AF_filepar AFILE;  /* Audio file parameters */
 
 /* Header read/write definitions */
 #define RHEAD_SN(fp,string,N) \
-  AFreadHead (fp, (void *) (string), 1, (int) (N), DS_NATIVE)
-#define RHEAD_S(fp,string) \
-  RHEAD_SN(fp, string, sizeof (string))
+  AFreadHead(fp, (void *) (string), 1, (int) (N), DS_NATIVE)
+#define RHEAD_S(fp,string) RHEAD_SN(fp, string, sizeof(string))
 #define RHEAD_V(fp,value,swap) \
-  AFreadHead (fp, (void *) &(value), (int) (sizeof (value)), 1, (int) (swap))
-#define RSKIP(fp,nbytes) \
-  RHEAD_SN (fp, NULL, (int) (nbytes))
-
+  AFreadHead(fp, (void *) &(value), sizeof(value), 1, (int) (swap))
+#define RSKIP(fp,nbytes) RHEAD_SN(fp, NULL, (int) (nbytes))
 #define WHEAD_SN(fp,string,N) \
-  AFwriteHead (fp, (const void *) (string), 1, (int) (N), DS_NATIVE)
-#define WHEAD_S(fp,string) \
-  WHEAD_SN (fp, string, sizeof (string))
+  AFwriteHead(fp, (const void *) (string), 1, (int) (N), DS_NATIVE)
+#define WHEAD_S(fp,string) WHEAD_SN(fp, string, sizeof(string))
 #define WHEAD_V(fp,value,swap) \
-  AFwriteHead (fp, (const void *) &(value), (int) (sizeof (value)), 1, \
-               (enum UT_DS_T) (swap))
+  AFwriteHead(fp, (const void *) &(value), sizeof(value), 1, \
+              (enum UT_DS_T) (swap))
 
-               /* WRPAD: Add null bytes to bring size up to a multiple of align */
+/* WRPAD: Add null bytes to bring size up to a multiple of align */
 #define WRPAD(fp,size,align) \
-  AFwriteHead (fp, NULL, 1, (int) (RNDUPV(size, align) - (size)), DS_NATIVE)
-#define MCOPY(src,dest)   memcpy ((void *) (dest), \
-                                  (const void *) (src), sizeof (dest))
+  AFwriteHead(fp, NULL, 1, (int) (RNDUPV(size, align) - (size)), DS_NATIVE)
+#define MCOPY(src,dest)   memcpy((void *) (dest), \
+                                  (const void *) (src), sizeof(dest))
 
 #define ICEILV(n,m) (((n) + ((m) - 1)) / (m))  /* int n,m >= 0 */
-#define RNDUPV(n,m) ((m) * ICEILV (n, m))      /* Round up */
+#define RNDUPV(n,m) ((m) * ICEILV(n, m))       /* Round up */
 #define MINV(a, b)  (((a) < (b)) ? (a) : (b))
 
-#define SAME_CSTR(str,ref)  (memcmp (str, ref, sizeof (str)) == 0)
+#define SAME_CSTR(str,ref)  (memcmp(str, ref, sizeof(str)) == 0)
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,17 +63,17 @@ extern "C" {
 
 /* AF/header function prototypes */
 int
-AFfindFtype (FILE *fp);
+AFfindFtype(FILE *fp);
 AFILE *
-AFrdAIhead (FILE *fp);
+AFrdAIhead(FILE *fp);
 AFILE *
-AFrdAUhead (FILE *fp);
+AFrdAUhead(FILE *fp);
 AFILE *
-AFrdBLhead (FILE *fp);
+AFrdBLhead(FILE *fp);
 AFILE *
-AFrdEShead (FILE *fp);
+AFrdEShead(FILE *fp);
 int
-AFrdInfoText (FILE *fp, int Size, const char Ident[], struct AF_info *Info,
+AFrdInfoText(FILE *fp, int Size, const char Ident[], struct AF_info *Info,
               int Align, int Mode);
 #define AFrdInfoIdentText(fp, Size, Ident, Info, Align) \
                           AFrdInfoText(fp, Size, Ident, Info, Align, 0)
@@ -86,46 +82,46 @@ AFrdInfoText (FILE *fp, int Size, const char Ident[], struct AF_info *Info,
 #define AFrdInfoAFspText(fp, Size, Info, Align) \
                           AFrdInfoText(fp, Size, NULL, Info, Align, 2)
 AFILE *
-AFrdINhead (FILE *fp);
+AFrdINhead(FILE *fp);
 AFILE *
-AFrdNShead (FILE *fp);
+AFrdNShead(FILE *fp);
 AFILE *
-AFrdSFhead (FILE *fp);
+AFrdSFhead(FILE *fp);
 AFILE *
-AFrdSPhead (FILE *fp);
+AFrdSPhead(FILE *fp);
 AFILE *
-AFrdSWhead (FILE *fp);
+AFrdSWhead(FILE *fp);
 AFILE *
-AFrdTAhead (FILE *fp);
+AFrdTAhead(FILE *fp);
 AFILE *
-AFrdWVhead (FILE *fp);
+AFrdWVhead(FILE *fp);
 int
-AFreadHead (FILE *fp, void *Buf, int size, int Nelem, int Swapb);
+AFreadHead(FILE *fp, void *Buf, int size, int Nelem, int Swapb);
 void
-AFsetChunkLim (const char *ChunkID, long int Start, long int End,
+AFsetChunkLim(const char *ChunkID, long int Start, long int End,
                struct AF_chunkInfo *ChunkInfo);
 AFILE *
-AFsetNHread (FILE *fp);
+AFsetNHread(FILE *fp);
 AFILE *
-AFsetNHwrite (FILE *fp, struct AF_write *AFw);
+AFsetNHwrite(FILE *fp, struct AF_write *AFw);
 int
-AFupdAIhead (AFILE *AFp);
+AFupdAIhead(AFILE *AFp);
 int
-AFupdAUhead (AFILE *AFp);
+AFupdAUhead(AFILE *AFp);
 int
-AFupdHead (AFILE *AFp);
+AFupdHead(AFILE *AFp);
 int
-AFupdWVhead (AFILE *AFp);
+AFupdWVhead(AFILE *AFp);
 AFILE *
-AFwrAIhead (FILE *fp, struct AF_write *AFw);
+AFwrAIhead(FILE *fp, struct AF_write *AFw);
 AFILE *
-AFwrAUhead (FILE *fp, struct AF_write *AFw);
+AFwrAUhead(FILE *fp, struct AF_write *AFw);
 AFILE *
-AFwrTAhead (FILE *fp, struct AF_write *AFw);
+AFwrTAhead(FILE *fp, struct AF_write *AFw);
 AFILE *
-AFwrWVhead (FILE *fp, struct AF_write *AFw);
+AFwrWVhead(FILE *fp, struct AF_write *AFw);
 int
-AFwriteHead (FILE *fp, const void *Buf, int Size, int Nv, int Swapb);
+AFwriteHead(FILE *fp, const void *Buf, int Size, int Nv, int Swapb);
 
 #ifdef __cplusplus
 }

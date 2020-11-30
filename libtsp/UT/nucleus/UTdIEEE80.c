@@ -2,7 +2,7 @@
                              McGill University
 
 Routine:
-  double UTdIEEE80 (const unsigned char b[10])
+  double UTdIEEE80(const unsigned char b[10])
 
 Purpose:
   Convert an 80-bit IEEE double-extended value to a double
@@ -15,12 +15,12 @@ Parameters:
   <-  double UTdIEEE80
       Returned double value
    -> const unsigned char b[10]
-      Input byte array containing the 80-bit representation.  The first byte
+      Input byte array containing the 80-bit representation. The first byte
       contains the sign bit and the first part of the exponent.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.11 $  $Date: 2017/04/24 03:07:34 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.12 $  $Date: 2020/11/12 18:13:17 $
 
 -------------------------------------------------------------------------*/
 
@@ -30,10 +30,10 @@ Author / revision:
 #include <libtsp/UTtypes.h>
 
 #ifndef INFINITY
-#  define INFINITY  (sqrt(1.0)/0.0)
+  #define INFINITY (1.0e999999999F)
 #endif
 #ifndef NAN
-#  define NAN   (sqrt(-1.0))
+  #define NAN (0.0F/0.0F)
 #endif
 
 #define EXP_BIAS  16383
@@ -46,13 +46,13 @@ Author / revision:
    1-bit    15-bits      64-bits
    sign     exponent     mantissa
    Notes:
-   1) The mantissa is a normalized value with no hidden bit.  The implicit
+   1) The mantissa is a normalized value with no hidden bit. The implicit
       decimal point is after the first bit of the mantissa.
-   2) The exponent code is a biased value.  Consider the exponent code to be
-      an unsigned 15-bit quantity, with values from 0 to 32767.  The exponent
-      code is the true exponent + 16383.  However, exponent code 32767 has a
-      special meaning.  The exponent can take on values in the range
-      [emin, emax], where emin = -16383 and emax = +16383.
+   2) The exponent code is a biased value. Consider the exponent code to be an
+      unsigned 15-bit quantity, with values from 0 to 32767. The exponent code
+      is the xponent + 16383. However, exponent code 32767 has a special
+      meaning. The exponent can take on values in the range [emin, emax], where
+      emin = -16383 and emax = +16383.
    3) Special values:
        exponent          mantissa           represents
        e = emin          m == 0      +/- 0            zero
@@ -63,7 +63,7 @@ Author / revision:
 */
 
 
-double UTdIEEE80 (const unsigned char b[10])
+double UTdIEEE80(const unsigned char b[10])
 
 {
   double dv;
@@ -86,9 +86,9 @@ double UTdIEEE80 (const unsigned char b[10])
 
    else if (expc == EXPC_INF)   /* Infinity or NaN */
 
-/* We can distinguish infinity (mantH == 0 && mantL == 0) from NaN.  However,
-   for NaN, there is machine-dependent information in the mantissa value
-   which we cannot interpret.
+/* We can distinguish infinity (mantH == 0 && mantL == 0) from NaN. However, for
+   NaN, there is machine-dependent information in the mantissa value which we
+   cannot interpret.
 */
      if (mantH == 0 && mantL == 0)
        dv = INFINITY;
@@ -99,11 +99,10 @@ double UTdIEEE80 (const unsigned char b[10])
 
 /* The decoded value is
      dv = m * 2^exp, where m is the mantissa, m < 2.
-   m is calculated from the integer components as
+   The mantissa is calculated from the integer components as
      m = 2^(-31) * (mantH + 2^(-32) * manL)
 */
-    dv = ldexp ((double) mantH, exp - 31) +
-         ldexp ((double) mantL, exp - 63);
+    dv = ldexp((double) mantH, exp - 31) + ldexp((double) mantL, exp - 63);
 
 /* Set the sign */
   if (b[0] & 0x80)

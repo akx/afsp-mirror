@@ -2,23 +2,23 @@
                              McGill University
 
 Routine:
-  void RSKaiserLPF (double h[], int N, double Fc, double alpha, double Gain,
-                    double Woffs, double Wspan)
+  void RSKaiserLPF(double h[], int N, double Fc, double alpha, double Gain,
+                   double Woffs, double Wspan)
 
 Purpose:
   Generate a Kaiser windowed lowpass filter
 
 Description:
   This routine calculates the impulse response of a symmetric lowpass filter
-  which is obtained by applying a Kaiser window to a sin(x)/x function.
-  Consider the continuous-time version of this response
+  which is obtained by applying a Kaiser window to a sin(x)/x function. Consider
+  the continuous-time version of this response
                            sin(2 pi Fc t)
     h(t) = G * Kw(t/T, a)  -------------- ,
                                 pi t
-  where Kw(t/T,a) is a Kaiser window with parameter a, having a non-zero
-  portion spanning -T <= t <= T.  The cutoff of the lowpass filter is Fc.  The
-  gain of the filter is set to approximate G (Gain) in the passband.  The
-  impulse response samples returned are
+  where Kw(t/T,a) is a Kaiser window with parameter a, having a non-zero portion
+  spanning -T <= t <= T. The cutoff of the lowpass filter is Fc. The gain of the
+  filter is set to approximate G (Gain) in the passband. The impulse response
+  samples returned are
 
     h[n] = h(t-T+Woffs),  for 0 <= n <= N-1.
 
@@ -32,8 +32,8 @@ Description:
 
 Parameters:
   <-  double h[]
-      Array containing the impulse response samples.  The reference point in
-      the array is at offset (N-1)/2 - Woffs.
+      Array containing the impulse response samples. The reference point in the
+      array is at offset (N-1)/2 - Woffs.
    -> int N
       Number of impulse response samples
    -> double Fc
@@ -50,8 +50,8 @@ Parameters:
       formulation above, equal to N-1 to get the full window)
 
 Author / revision:
-  P. Kabal  Copyright (C) 2015
-  $Revision: 1.13 $  $Date: 2015/04/10 12:46:11 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.14 $  $Date: 2020/11/23 18:31:59 $
 
 -------------------------------------------------------------------------*/
 
@@ -60,8 +60,8 @@ Author / revision:
 
 
 void
-RSKaiserLPF (double h[], int N, double Fc, double alpha, double Gain,
-             double Woffs, double Wspan)
+RSKaiserLPF(double h[], int N, double Fc, double alpha, double Gain,
+            double Woffs, double Wspan)
 
 {
   int i, k;
@@ -74,12 +74,10 @@ RSKaiserLPF (double h[], int N, double Fc, double alpha, double Gain,
   for (i = 0, k = N-1; i <= k; ++i, --k) {
     t = i - T + Woffs;
     u = k - T + Woffs;
-    h[i] = Ga * FNsinc (2.0 * Fc * t) * FIxKaiser (t / T, alpha);
+    h[i] = Ga * FNsinc(2.0 * Fc * t) * FIxKaiser(t / T, alpha);
     if (-t == u)
       h[k] = h[i];
     else
-      h[k] = Ga * FNsinc (2.0 * Fc * u) * FIxKaiser (u / T, alpha);
+      h[k] = Ga * FNsinc(2.0 * Fc * u) * FIxKaiser(u / T, alpha);
   }
-
-  return;
 }

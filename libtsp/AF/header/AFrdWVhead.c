@@ -1,13 +1,13 @@
 /*-------------- Telecommunications & Signal Processing Lab ---------------
 
 Routine:
-  AFILE *AFrdWVhead (FILE *fp)
+  AFILE *AFrdWVhead(FILE *fp)
 
 Purpose:
   Get file format information from a WAVE file
 
 Description:
-  This routine reads the header for a WAVE file.  The header information is used
+  This routine reads the header for a WAVE file. The header information is used
   to set the file data format information in the audio file pointer structure.
 
   WAVE file:
@@ -37,7 +37,7 @@ Description:
      +4     4    int    Chunk length
      +8    ...   ...      Audio data
 
-  For WAVE files text information can appear in several different chunks.  This
+  For WAVE files text information can appear in several different chunks. This
   information is extracted and stored in the audio file parameter structure.
   - "afsp" chunk text is extracted and stored as individual information
     records.
@@ -68,8 +68,8 @@ Parameters:
       File pointer for the file
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.124 $  $Date: 2017/09/20 01:08:12 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.127 $  $Date: 2020/11/26 11:29:47 $
 
 -------------------------------------------------------------------------*/
 
@@ -102,31 +102,31 @@ AF_READ_DEFAULT(AFr_default); /* Define the AF_read defaults */
 
 /* Local functions */
 static void
-AF_addInfoRec (const char Ident[], const char text[], int Size,
-               struct AF_info *AFInfo);
+AF_addInfoRec(const char Ident[], const char text[], int Size,
+              struct AF_info *AFInfo);
 static int
-AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr);
+AF_decFMT(const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr);
 static int
-AF_rdbext (FILE *fp, int Size, struct AF_info *RInfo);
+AF_rdbext(FILE *fp, int Size, struct AF_info *RInfo);
 static int
-AF_rdDISP_text (FILE *fp, int Size, struct AF_info *RInfo);
+AF_rdDISP_text(FILE *fp, int Size, struct AF_info *RInfo);
 static int
-AF_rdFMT (FILE *fp, struct WV_Ckfmt *Ckfmt);
+AF_rdFMT(FILE *fp, struct WV_Ckfmt *Ckfmt);
 static int
-AF_rdFACT (FILE *fp, struct WV_Ckfact *Ckfact);
+AF_rdFACT(FILE *fp, struct WV_Ckfact *Ckfact);
 static int
-AF_rdLIST_INFO (FILE *fp, int Size, struct AF_info *RInfo, long int pos,
-                struct AF_chunkInfo *ChunkInfo);
+AF_rdLIST_INFO(FILE *fp, int Size, struct AF_info *RInfo, long int pos,
+               struct AF_chunkInfo *ChunkInfo);
 static int
-AF_rdRIFF_WAVE (FILE *fp, struct WV_CkRIFF *CkRIFF);
+AF_rdRIFF_WAVE(FILE *fp, struct WV_CkRIFF *CkRIFF);
 static void
-AF_UnsFormat (int FormatTag);
+AF_UnsFormat(int FormatTag);
 static void
-AF_decChannelConfig (UT_uint4_t ChannelMask, unsigned char *SpkrConfig);
+AF_decChannelConfig(UT_uint4_t ChannelMask, unsigned char *SpkrConfig);
 
 
 AFILE *
-AFrdWVhead (FILE *fp)
+AFrdWVhead(FILE *fp)
 
 {
   AFILE *AFp;
@@ -138,25 +138,25 @@ AFrdWVhead (FILE *fp)
   struct AF_read AFr;
 
 /* Set the long jump environment; on error return a NULL */
-  if (setjmp (AFR_JMPENV))
+  if (setjmp(AFR_JMPENV))
     return NULL;  /* Return from a header read error */
 
 /* Defaults and initial values */
   AFr = AFr_default;
   AFr.RInfo.Info = Info;
   AFr.RInfo.N = 0;
-  AFr.RInfo.Nmax = sizeof (Info);
+  AFr.RInfo.Nmax = sizeof(Info);
   BWF = 0;
 
   Fact_Nframe = AF_NFRAME_UNDEF;
 
 /* Check the file magic for a RIFF/WAVE file */
-  if (AF_rdRIFF_WAVE (fp, &CkRIFF))
+  if (AF_rdRIFF_WAVE(fp, &CkRIFF))
     return NULL;
   offs = 12L; /* Positioned after RIFF/WAVE preamble */
   LRIFF = CkRIFF.ckSize + 8;
-  AFsetChunkLim (ckID_RIFF, 0, LRIFF, &AFr.ChunkInfo);
-  AFsetChunkLim (FM_WAVE, 8, offs, &AFr.ChunkInfo);
+  AFsetChunkLim(ckID_RIFF, 0, LRIFF, &AFr.ChunkInfo);
+  AFsetChunkLim(FM_WAVE, 8, offs, &AFr.ChunkInfo);
 
   Dstart = 0L;
   EoD = 0L;
@@ -166,92 +166,92 @@ AFrdWVhead (FILE *fp)
     poffs = offs;     /* Position at start of chunk */
 
     /* Read the chunk preamble */
-    offs += RHEAD_S (fp, CkHead.ckID);
+    offs += RHEAD_S(fp, CkHead.ckID);
 
     /* fmt chunk */
-    if (SAME_CSTR (CkHead.ckID, ckID_fmt)) {
-      offs += AF_rdFMT (fp, &CkRIFF.Ckfmt);
-      if (AF_decFMT (&CkRIFF.Ckfmt, &AFr))
+    if (SAME_CSTR(CkHead.ckID, ckID_fmt)) {
+      offs += AF_rdFMT(fp, &CkRIFF.Ckfmt);
+      if (AF_decFMT(&CkRIFF.Ckfmt, &AFr))
         return NULL;
-      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
+      AFsetChunkLim(CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
 
     /* fact chunk */
-    else if (SAME_CSTR (CkHead.ckID, ckID_fact)) {
-      offs += AF_rdFACT (fp, &CkRIFF.Ckfact);
+    else if (SAME_CSTR(CkHead.ckID, ckID_fact)) {
+      offs += AF_rdFACT(fp, &CkRIFF.Ckfact);
       Fact_Nframe = CkRIFF.Ckfact.dwSampleLength;
-      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
+      AFsetChunkLim(CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
 
     /* data chunk */
-    else if (SAME_CSTR (CkHead.ckID, ckID_data)) {
-      offs += RHEAD_V (fp, CkRIFF.Ckdata.ckSize, DS_EL);
+    else if (SAME_CSTR(CkHead.ckID, ckID_data)) {
+      offs += RHEAD_V(fp, CkRIFF.Ckdata.ckSize, DS_EL);
       AFr.NData.Ldata = CkRIFF.Ckdata.ckSize;
       Dstart = offs;
-      EoD = RNDUPV (Dstart + AFr.NData.Ldata, ALIGN);
-      AFsetChunkLim (CkHead.ckID, poffs, EoD, &AFr.ChunkInfo);
-      if (EoD >= LRIFF || ! FLseekable (fp)) {
+      EoD = RNDUPV(Dstart + AFr.NData.Ldata, ALIGN);
+      AFsetChunkLim(CkHead.ckID, poffs, EoD, &AFr.ChunkInfo);
+      if (EoD >= LRIFF || !FLseekable(fp)) {
         AtData = 1;
         break;
       }
       else {
         AtData = 0;
-        offs += RSKIP (fp, EoD - Dstart);
+        offs += RSKIP(fp, EoD - Dstart);
       }
     }
 
     /* BWF bext chunk */
-    else if (SAME_CSTR (CkHead.ckID, ckID_bext)) {
-      offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += AF_rdbext (fp, (int) CkHead.ckSize, &AFr.RInfo);
-      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
+    else if (SAME_CSTR(CkHead.ckID, ckID_bext)) {
+      offs += RHEAD_V(fp, CkHead.ckSize, DS_EL);
+      offs += AF_rdbext(fp, (int) CkHead.ckSize, &AFr.RInfo);
+      AFsetChunkLim(CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
       BWF = 1;
     }
 
     /* Text chunks */
-    else if (SAME_CSTR (CkHead.ckID, ckID_afsp)) {
-      offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += AFrdInfoAFspText (fp, (int) CkHead.ckSize, &AFr.RInfo, ALIGN);
-      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
+    else if (SAME_CSTR(CkHead.ckID, ckID_afsp)) {
+      offs += RHEAD_V(fp, CkHead.ckSize, DS_EL);
+      offs += AFrdInfoAFspText(fp, (int) CkHead.ckSize, &AFr.RInfo, ALIGN);
+      AFsetChunkLim(CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
-    else if (SAME_CSTR (CkHead.ckID, ckID_DISP)) {
-      offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += AF_rdDISP_text (fp, (int) CkHead.ckSize, &AFr.RInfo);
-      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
+    else if (SAME_CSTR(CkHead.ckID, ckID_DISP)) {
+      offs += RHEAD_V(fp, CkHead.ckSize, DS_EL);
+      offs += AF_rdDISP_text(fp, (int) CkHead.ckSize, &AFr.RInfo);
+      AFsetChunkLim(CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
-    else if (SAME_CSTR (CkHead.ckID, ckID_LIST)) {
-      offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      AFsetChunkLim (CkHead.ckID, poffs, RNDUPV (offs + CkHead.ckSize, ALIGN),
-                     &AFr.ChunkInfo);
-      offs += AF_rdLIST_INFO (fp, (int) CkHead.ckSize, &AFr.RInfo, offs,
-                              &AFr.ChunkInfo);
+    else if (SAME_CSTR(CkHead.ckID, ckID_LIST)) {
+      offs += RHEAD_V(fp, CkHead.ckSize, DS_EL);
+      AFsetChunkLim(CkHead.ckID, poffs, RNDUPV(offs + CkHead.ckSize, ALIGN),
+                    &AFr.ChunkInfo);
+      offs += AF_rdLIST_INFO(fp, (int) CkHead.ckSize, &AFr.RInfo, offs,
+                             &AFr.ChunkInfo);
     }
     /* Miscellaneous chunks */
     else {
-      offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      offs += RSKIP (fp, RNDUPV (CkHead.ckSize, ALIGN));
-      AFsetChunkLim (CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
+      offs += RHEAD_V(fp, CkHead.ckSize, DS_EL);
+      offs += RSKIP(fp, RNDUPV(CkHead.ckSize, ALIGN));
+      AFsetChunkLim(CkHead.ckID, poffs, offs, &AFr.ChunkInfo);
     }
   }
   /* Error Checks */
   /* Check that we found a fmt and a data chunk */
   if (AFr.DFormat.Format == FD_UNDEF || AFr.NData.Ldata == AF_LDATA_UNDEF) {
-    UTwarn ("AFrdWVhead - %s", AFM_WV_BadHead);
+    UTwarn("AFrdWVhead - %s", AFM_WV_BadHead);
     return NULL;
   }
-  if ((! AtData && offs != LRIFF) || (AtData && EoD != LRIFF))
-    UTwarn ("AFrdWVhead - %s", AFM_WV_BadSize);
+  if ((!AtData && offs != LRIFF) || (AtData && EoD != LRIFF))
+    UTwarn("AFrdWVhead - %s", AFM_WV_BadSize);
 
   /* Use the number of samples from the fact chunk only for non-PCM or WAVE-EX
-     files.  Some PCM files use the fact chunk, but it does NOT specify the
+     files. Some PCM files use the fact chunk, but it does NOT specify the
      number of samples */
   if (CkRIFF.Ckfmt.wFormatTag != WAVE_FORMAT_PCM &&
       Fact_Nframe != AF_NFRAME_UNDEF)
     AFr.NData.Nsamp = AFr.NData.Nchan * Fact_Nframe;
 
   /* Position at the start of data */
-  if (! AtData) {
-    if (AFseek (fp, Dstart, NULL))
+  if (!AtData) {
+    if (AFseek(fp, Dstart, NULL))
       return NULL;
   }
 
@@ -268,7 +268,7 @@ AFrdWVhead (FILE *fp)
     else
       Ftype = FT_WAVE;
   }
-  AFp = AFsetRead (fp, Ftype, &AFr, AF_FIX_NSAMP_HIGH + AF_FIX_LDATA_HIGH);
+  AFp = AFsetRead(fp, Ftype, &AFr, AF_FIX_NSAMP_HIGH + AF_FIX_LDATA_HIGH);
 
   return AFp;
 }
@@ -277,35 +277,35 @@ AFrdWVhead (FILE *fp)
 
 
 static int
-AF_rdRIFF_WAVE (FILE *fp, struct WV_CkRIFF *CkRIFF)
+AF_rdRIFF_WAVE(FILE *fp, struct WV_CkRIFF *CkRIFF)
 
 {
   long int Lfile, LRIFF;
 
-  RHEAD_S (fp, CkRIFF->ckID);
-  if (! SAME_CSTR (CkRIFF->ckID, ckID_RIFF)) {
-    UTwarn ("AFrdWVhead - %s", AFM_WV_BadId);
+  RHEAD_S(fp, CkRIFF->ckID);
+  if (!SAME_CSTR(CkRIFF->ckID, ckID_RIFF)) {
+    UTwarn("AFrdWVhead - %s", AFM_WV_BadId);
     return 1;
   }
 
-  RHEAD_V (fp, CkRIFF->ckSize, DS_EL);
+  RHEAD_V(fp, CkRIFF->ckSize, DS_EL);
   LRIFF = CkRIFF->ckSize + 8;
   if (LRIFF < WV_LHMIN) {
-    UTwarn ("AFrdWVhead - %s", AFM_WV_BadRIFF);
+    UTwarn("AFrdWVhead - %s", AFM_WV_BadRIFF);
     return 1;
   }
 
-  if (FLseekable (fp)) {
-    Lfile = FLfileSize (fp);
+  if (FLseekable(fp)) {
+    Lfile = FLfileSize(fp);
     if (LRIFF > Lfile) {
       CkRIFF->ckSize = Lfile - 8;
-      UTwarn ("AFrdWVhead - %s", AFM_WV_FixRIFF);
+      UTwarn("AFrdWVhead - %s", AFM_WV_FixRIFF);
     }
   }
 
-  RHEAD_S (fp, CkRIFF->WAVEID);
-  if (! SAME_CSTR (CkRIFF->WAVEID, FM_WAVE)) {
-    UTwarn ("AFrdWVhead - %s", AFM_WV_BadId);
+  RHEAD_S(fp, CkRIFF->WAVEID);
+  if (!SAME_CSTR(CkRIFF->WAVEID, FM_WAVE)) {
+    UTwarn("AFrdWVhead - %s", AFM_WV_BadId);
     return 1;
   }
 
@@ -316,39 +316,39 @@ AF_rdRIFF_WAVE (FILE *fp, struct WV_CkRIFF *CkRIFF)
 
 
 static int
-AF_rdFMT (FILE *fp, struct WV_Ckfmt *Ckfmt)
+AF_rdFMT(FILE *fp, struct WV_Ckfmt *Ckfmt)
 
 {
   int offs, NB;
 
-  offs = RHEAD_V (fp, Ckfmt->ckSize, DS_EL);
+  offs = RHEAD_V(fp, Ckfmt->ckSize, DS_EL);
   if (Ckfmt->ckSize < WV_FMT_MINSIZE) {
-    UTwarn ("AFrdWVhead - %s", AFM_WV_BadfmtSize);
-    longjmp (AFR_JMPENV, 1);
+    UTwarn("AFrdWVhead - %s", AFM_WV_BadfmtSize);
+    longjmp(AFR_JMPENV, 1);
   }
 
-  offs += RHEAD_V (fp, Ckfmt->wFormatTag, DS_EL);
-  offs += RHEAD_V (fp, Ckfmt->nChannels, DS_EL);
-  offs += RHEAD_V (fp, Ckfmt->nSamplesPerSec, DS_EL);
-  offs += RHEAD_V (fp, Ckfmt->nAvgBytesPerSec, DS_EL);
-  offs += RHEAD_V (fp, Ckfmt->nBlockAlign, DS_EL);
-  offs += RHEAD_V (fp, Ckfmt->wBitsPerSample, DS_EL);
+  offs += RHEAD_V(fp, Ckfmt->wFormatTag, DS_EL);
+  offs += RHEAD_V(fp, Ckfmt->nChannels, DS_EL);
+  offs += RHEAD_V(fp, Ckfmt->nSamplesPerSec, DS_EL);
+  offs += RHEAD_V(fp, Ckfmt->nAvgBytesPerSec, DS_EL);
+  offs += RHEAD_V(fp, Ckfmt->nBlockAlign, DS_EL);
+  offs += RHEAD_V(fp, Ckfmt->wBitsPerSample, DS_EL);
 
   NB = ((int) Ckfmt->ckSize + 4) - offs;
   if (NB >= 24) {
-    offs += RHEAD_V (fp, Ckfmt->cbSize, DS_EL);
+    offs += RHEAD_V(fp, Ckfmt->cbSize, DS_EL);
     if (Ckfmt->cbSize >= 22) {
-      offs += RHEAD_V (fp, Ckfmt->wValidBitsPerSample, DS_EL);
-      offs += RHEAD_V (fp, Ckfmt->dwChannelMask, DS_EL);
-      offs += RHEAD_V (fp, Ckfmt->SubFormat.wFormatTag, DS_EL);
-      offs += RHEAD_S (fp, Ckfmt->SubFormat.guidx);
+      offs += RHEAD_V(fp, Ckfmt->wValidBitsPerSample, DS_EL);
+      offs += RHEAD_V(fp, Ckfmt->dwChannelMask, DS_EL);
+      offs += RHEAD_V(fp, Ckfmt->SubFormat.wFormatTag, DS_EL);
+      offs += RHEAD_S(fp, Ckfmt->SubFormat.guidx);
     }
     else
       Ckfmt->cbSize = 0;
   }
 
   /* Skip over any extra data at the end of the fmt chunk */
-  offs += RSKIP (fp, RNDUPV (Ckfmt->ckSize + 4, ALIGN) - offs);
+  offs += RSKIP(fp, RNDUPV(Ckfmt->ckSize + 4, ALIGN) - offs);
 
   return offs;
 }
@@ -357,7 +357,7 @@ AF_rdFMT (FILE *fp, struct WV_Ckfmt *Ckfmt)
 
 
 static int
-AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
+AF_decFMT(const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
 
 {
   UT_uint2_t FormatTag;
@@ -373,7 +373,7 @@ AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
   - The CoolEdit float format specifies float data (flagged as 24 bits per
     sample, in a 4-byte container)
   - In calculating the container size, it is expected that nBlockAlign be a
-    multiple of the number of channels.  Note, however, that some compressed
+    multiple of the number of channels. Note, however, that some compressed
     schemes set nBlockAlign to 1.
   WAVE EXTENSIBLE files
   - wBitsPerSample now explicitly is the container size in bits and hence
@@ -386,19 +386,19 @@ AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
     NBytesS = (int) (Ckfmt->nBlockAlign / Ckfmt->nChannels);
 
   if (Ckfmt->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
-    if (Ckfmt->cbSize < 22 || ! IS_VALID_WAVEFORMATEX_GUID (Ckfmt->SubFormat)) {
-      UTwarn ("AFrdWVhead - %s", AFM_WV_BadfmtEx);
+    if (Ckfmt->cbSize < 22 || !IS_VALID_WAVEFORMATEX_GUID(Ckfmt->SubFormat)) {
+      UTwarn("AFrdWVhead - %s", AFM_WV_BadfmtEx);
       return 1;
     }
     /* Extensible file: container size must match wBitsPerSample */
     AFr->DFormat.NbS = 8 * NBytesS;
     if (Ckfmt->wBitsPerSample != 8 * NBytesS) {
-      UTwarn ("AFrdWVhead - %s: %d <-> %d", AFM_WV_BadSS,
-              (int) Ckfmt->wBitsPerSample, 8 * NBytesS);
+      UTwarn("AFrdWVhead - %s: %d <-> %d", AFM_WV_BadSS,
+             (int) Ckfmt->wBitsPerSample, 8 * NBytesS);
     }
     AFr->DFormat.NbS = (int) Ckfmt->wValidBitsPerSample;
     FormatTag = Ckfmt->SubFormat.wFormatTag;
-    AF_decChannelConfig (Ckfmt->dwChannelMask, AFr->NData.SpkrConfig);
+    AF_decChannelConfig(Ckfmt->dwChannelMask, AFr->NData.SpkrConfig);
   }
   else {
     AFr->DFormat.NbS = (int) Ckfmt->wBitsPerSample;
@@ -417,8 +417,8 @@ AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
       AFr->DFormat.Format = FD_FLOAT32;
       AFr->DFormat.NbS = 8 * FDL_FLOAT32;
       AFr->DFormat.FullScale = AF_FULLSCALE_INT24;  /* Same scaling as INT24 */
-      if (! UTcheckIEEE ())
-        UTwarn ("AFrdAIhead - %s", AFM_NoIEEE);
+      if (!UTcheckIEEE())
+        UTwarn("AFrdAIhead - %s", AFM_NoIEEE);
     }
     else if (NBytesS == FDL_INT24)
       AFr->DFormat.Format = FD_INT24;
@@ -427,18 +427,18 @@ AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
     else if (NBytesS == FDL_UINT8)
       AFr->DFormat.Format = FD_UINT8;
     else {
-      UTwarn ("AFrdWVhead - %s: \"%d\"", AFM_WV_UnsDSize, 8 * NBytesS);
+      UTwarn("AFrdWVhead - %s: \"%d\"", AFM_WV_UnsDSize, 8 * NBytesS);
       return 1;
     }
     break;
 
   case WAVE_FORMAT_MULAW:
     if (NBytesS != 1) {
-      UTwarn ("AFrdWVhead - %s: \"%d\"", AFM_WV_BadMulaw, 8 * NBytesS);
+      UTwarn("AFrdWVhead - %s: \"%d\"", AFM_WV_BadMulaw, 8 * NBytesS);
       return 1;
     }
     if (AFr->DFormat.NbS != 8) {
-      UTwarn ("AFrdWVhead - %s: \"%d\"", AFM_WV_BadMulaw, AFr->DFormat.NbS);
+      UTwarn("AFrdWVhead - %s: \"%d\"", AFM_WV_BadMulaw, AFr->DFormat.NbS);
       AFr->DFormat.NbS = 8;
     }
     AFr->DFormat.Format = FD_MULAW8;
@@ -446,11 +446,11 @@ AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
 
   case WAVE_FORMAT_ALAW:
     if (NBytesS != 1) {
-      UTwarn ("AFrdWVhead - %s: \"%d\"", AFM_WV_BadAlaw, 8 * NBytesS);
+      UTwarn("AFrdWVhead - %s: \"%d\"", AFM_WV_BadAlaw, 8 * NBytesS);
       return 1;
     }
     if (AFr->DFormat.NbS != 8) {
-      UTwarn ("AFrdWVhead - %s: \"%d\"", AFM_WV_BadAlaw, AFr->DFormat.NbS);
+      UTwarn("AFrdWVhead - %s: \"%d\"", AFM_WV_BadAlaw, AFr->DFormat.NbS);
       AFr->DFormat.NbS = 8;
     }
     AFr->DFormat.Format = FD_ALAW8;
@@ -462,14 +462,14 @@ AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
     else if (NBytesS == FDL_FLOAT64)
       AFr->DFormat.Format = FD_FLOAT64;
     else
-      UTwarn ("AFrdWVhead - %s: \"%d\"", AFM_WV_BadFloat, 8 * NBytesS);
-    if (! UTcheckIEEE ())
-      UTwarn ("AFrdWVhead - %s", AFM_NoIEEE);
+      UTwarn("AFrdWVhead - %s: \"%d\"", AFM_WV_BadFloat, 8 * NBytesS);
+    if (!UTcheckIEEE())
+      UTwarn("AFrdWVhead - %s", AFM_NoIEEE);
     break;
 
   /* Unsupported data formats */
   default:
-    AF_UnsFormat ((int) Ckfmt->wFormatTag);
+    AF_UnsFormat((int) Ckfmt->wFormatTag);
     return 1;
   }
 
@@ -477,22 +477,22 @@ AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
 
   /* Error checks */
   if (AFr->NData.Nchan <= 0) {
-    UTwarn ("AFrdWVhead - %s : %d", AFM_WV_BadNchan, Ckfmt->nChannels);
+    UTwarn("AFrdWVhead - %s : %d", AFM_WV_BadNchan, Ckfmt->nChannels);
     return 1;
   }
   if ((Ckfmt->nBlockAlign % Ckfmt->nChannels) != 0) {
-    UTwarn ("AFrdWVhead - %s: %d", AFM_WV_BadBlock, Ckfmt->nBlockAlign);
+    UTwarn("AFrdWVhead - %s: %d", AFM_WV_BadBlock, Ckfmt->nBlockAlign);
     return 1;
   }
   if (AFr->DFormat.NbS > 8 * NBytesS) {
-    UTwarn ("AFrdWVhead - %s: %d", AFM_WV_BadNbS, AFr->DFormat.NbS);
+    UTwarn("AFrdWVhead - %s: %d", AFM_WV_BadNbS, AFr->DFormat.NbS);
     AFr->DFormat.NbS = 8 * NBytesS;
   }
 
   /* Consistency check */
   if (Ckfmt->nAvgBytesPerSec != Ckfmt->nChannels * Ckfmt->nSamplesPerSec *
       NBytesS)
-    UTwarn ("AFrdWVhead - %s", AFM_WV_BadBytesSec);
+    UTwarn("AFrdWVhead - %s", AFM_WV_BadBytesSec);
 
   AFr->DFormat.Swapb = DS_EL;
   AFr->Sfreq = (double) Ckfmt->nSamplesPerSec;
@@ -504,18 +504,18 @@ AF_decFMT (const struct WV_Ckfmt *Ckfmt, struct AF_read *AFr)
 
 
 static int
-AF_rdFACT (FILE *fp, struct WV_Ckfact *Ckfact)
+AF_rdFACT(FILE *fp, struct WV_Ckfact *Ckfact)
 
 {
   int offs;
 
-  offs = RHEAD_V (fp, Ckfact->ckSize, DS_EL);
+  offs = RHEAD_V(fp, Ckfact->ckSize, DS_EL);
   if (Ckfact->ckSize < 4) {
-    UTwarn ("AFrdWVhead - %s", AFM_WV_BadFACT);
-    longjmp (AFR_JMPENV, 1);
+    UTwarn("AFrdWVhead - %s", AFM_WV_BadFACT);
+    longjmp(AFR_JMPENV, 1);
   }
-  offs += RHEAD_V (fp, Ckfact->dwSampleLength, DS_EL);
-  offs += RSKIP (fp, RNDUPV (Ckfact->ckSize + 4, ALIGN) - offs);
+  offs += RHEAD_V(fp, Ckfact->dwSampleLength, DS_EL);
+  offs += RSKIP(fp, RNDUPV(Ckfact->ckSize + 4, ALIGN) - offs);
 
   return offs;
 }
@@ -524,31 +524,31 @@ AF_rdFACT (FILE *fp, struct WV_Ckfact *Ckfact)
 
 
 static void
-AF_UnsFormat (int FormatTag)
+AF_UnsFormat(int FormatTag)
 
 {
   switch (FormatTag) {
   case WAVE_FORMAT_ADPCM:
-    UTwarn ("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_ADPCM);
+    UTwarn("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_ADPCM);
     break;
   case WAVE_FORMAT_IMA_ADPCM:
-    UTwarn ("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_IMA_ADPCM);
+    UTwarn("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_IMA_ADPCM);
     break;
   case WAVE_FORMAT_DSPGROUP_TRUESPEECH:
-    UTwarn ("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData,
-            WV_FD_DSPGROUP_TRUESPEECH);
+    UTwarn("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData,
+           WV_FD_DSPGROUP_TRUESPEECH);
     break;
   case WAVE_FORMAT_GSM610:
-    UTwarn ("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_GSM610);
+    UTwarn("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_GSM610);
     break;
   case WAVE_FORMAT_MSG723:
-    UTwarn ("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_MSG723);
+    UTwarn("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_MSG723);
     break;
   case WAVE_FORMAT_MPEGLAYER3:
-    UTwarn ("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_MPEGLAYER3);
+    UTwarn("AFrdWVhead - %s: \"%s\"", AFM_WV_UnsData, WV_FD_MPEGLAYER3);
     break;
   default:
-    UTwarn ("AFrdWVhead - %s: \"0x%04X\"", AFM_WV_UnsData, FormatTag);
+    UTwarn("AFrdWVhead - %s: \"0x%04X\"", AFM_WV_UnsData, FormatTag);
     break;
   }
 }
@@ -557,71 +557,73 @@ AF_UnsFormat (int FormatTag)
 
 
 static int
-AF_rdbext (FILE *fp, int Size, struct AF_info *RInfo)
+AF_rdbext(FILE *fp, int Size, struct AF_info *RInfo)
 
 {
   int offs, nc;
   char buff[256];
   struct WV_Ckbext Ckbext;
 
-  offs  = RHEAD_S (fp, Ckbext.Description);
-  offs += RHEAD_S (fp, Ckbext.Originator);
-  offs += RHEAD_S (fp, Ckbext.OriginatorReference);
-  offs += RHEAD_S (fp, Ckbext.OriginatorDate);
-  offs += RHEAD_S (fp, Ckbext.OriginatorTime);
-  offs += RHEAD_V (fp, Ckbext.TimeReferenceLow, DS_EL);
-  offs += RHEAD_V (fp, Ckbext.TimeReferenceHigh, DS_EL);
-  offs += RHEAD_V (fp, Ckbext.Version, DS_EL);
-  offs += RHEAD_S (fp, Ckbext.UMID);
-  offs += RHEAD_V (fp, Ckbext.LoudnessValue, DS_EL);
-  offs += RHEAD_V (fp, Ckbext.LoudnessRange, DS_EL);
-  offs += RHEAD_V (fp, Ckbext.MaxTruePeakLevel, DS_EL);
-  offs += RHEAD_V (fp, Ckbext.MaxMomentaryLoudness, DS_EL);
-  offs += RHEAD_V (fp, Ckbext.MaxShortTermLoudness, DS_EL);
-  offs += RSKIP (fp, sizeof (Ckbext.Reserved));
+  offs  = RHEAD_S(fp, Ckbext.Description);
+  offs += RHEAD_S(fp, Ckbext.Originator);
+  offs += RHEAD_S(fp, Ckbext.OriginatorReference);
+  offs += RHEAD_S(fp, Ckbext.OriginatorDate);
+  offs += RHEAD_S(fp, Ckbext.OriginatorTime);
+  offs += RHEAD_V(fp, Ckbext.TimeReferenceLow, DS_EL);
+  offs += RHEAD_V(fp, Ckbext.TimeReferenceHigh, DS_EL);
+  offs += RHEAD_V(fp, Ckbext.Version, DS_EL);
+  offs += RHEAD_S(fp, Ckbext.UMID);
+  offs += RHEAD_V(fp, Ckbext.LoudnessValue, DS_EL);
+  offs += RHEAD_V(fp, Ckbext.LoudnessRange, DS_EL);
+  offs += RHEAD_V(fp, Ckbext.MaxTruePeakLevel, DS_EL);
+  offs += RHEAD_V(fp, Ckbext.MaxMomentaryLoudness, DS_EL);
+  offs += RHEAD_V(fp, Ckbext.MaxShortTermLoudness, DS_EL);
+  offs += RSKIP(fp, sizeof(Ckbext.Reserved));
   if (offs < Size)
-    offs += RSKIP (fp, RNDUPV (Size, ALIGN) - offs);
+    offs += RSKIP(fp, RNDUPV(Size, ALIGN) - offs);
 
 /* Return selected values as info records */
-  AF_addInfoRec (BW_RecID_Description, Ckbext.Description,
-                sizeof (Ckbext.Description), RInfo);
-  AF_addInfoRec (BW_RecID_Originator, Ckbext.Originator,
-                sizeof (Ckbext.Originator), RInfo);
-  AF_addInfoRec (BW_RecID_OriginatorDate, Ckbext.OriginatorDate,
-                sizeof (Ckbext.OriginatorDate), RInfo);
-  AF_addInfoRec (BW_RecID_OriginatorTime, Ckbext.OriginatorTime,
-                sizeof (Ckbext.OriginatorTime), RInfo);
-  nc = sprintf (buff, "%d", Ckbext.Version);
-  AF_addInfoRec (BW_RecID_Version, buff, nc, RInfo);
+  AF_addInfoRec(BW_RecID_Description, Ckbext.Description,
+                sizeof(Ckbext.Description), RInfo);
+  AF_addInfoRec(BW_RecID_Originator, Ckbext.Originator,
+                sizeof(Ckbext.Originator), RInfo);
+  AF_addInfoRec(BW_RecID_OriginatorDate, Ckbext.OriginatorDate,
+                sizeof(Ckbext.OriginatorDate), RInfo);
+  AF_addInfoRec(BW_RecID_OriginatorTime, Ckbext.OriginatorTime,
+                sizeof(Ckbext.OriginatorTime), RInfo);
+  nc = sprintf(buff, "%d", Ckbext.Version);
+  AF_addInfoRec(BW_RecID_Version, buff, nc, RInfo);
 
   if (Ckbext.Version >= 1) {
-    AF_addInfoRec (BW_RecID_UMID, Ckbext.UMID, sizeof (Ckbext.UMID), RInfo);
+    AF_addInfoRec(BW_RecID_UMID, Ckbext.UMID, sizeof(Ckbext.UMID), RInfo);
   }
   if (Ckbext.Version >= 2) {
     if (Ckbext.LoudnessValue >= -9999 &&
         Ckbext.LoudnessValue <=  9999) {
       nc = sprintf(buff, "%.2f LUFS", (double) Ckbext.LoudnessValue / 100);
-      AF_addInfoRec (BW_RecID_LoudnessValue, buff, nc, RInfo);
+      AF_addInfoRec(BW_RecID_LoudnessValue, buff, nc, RInfo);
     }
     if (Ckbext.LoudnessRange >= 0 &&
         Ckbext.LoudnessRange <= 9999) {
       nc = sprintf(buff, "%.2f LU", (double) Ckbext.LoudnessRange / 100);
-      AF_addInfoRec (BW_RecID_LoudnessRange, buff, nc, RInfo);
+      AF_addInfoRec(BW_RecID_LoudnessRange, buff, nc, RInfo);
     }
     if (Ckbext.MaxTruePeakLevel >= -9999 &&
         Ckbext.MaxTruePeakLevel <=  9999) {
       nc = sprintf(buff, "%.2f dBTP", (double) Ckbext.MaxTruePeakLevel / 100);
-      AF_addInfoRec (BW_RecID_MaxTruePeakLevel, buff, nc, RInfo);
+      AF_addInfoRec(BW_RecID_MaxTruePeakLevel, buff, nc, RInfo);
     }
     if (Ckbext.MaxMomentaryLoudness >= -9999 &&
         Ckbext.MaxMomentaryLoudness <=  9999) {
-      nc = sprintf(buff, "%.2f LUFS", (double) Ckbext.MaxMomentaryLoudness / 100);
-      AF_addInfoRec (BW_RecID_MaxMomentaryLoudness, buff, nc, RInfo);
+      nc = sprintf(buff, "%.2f LUFS",
+                  (double) Ckbext.MaxMomentaryLoudness / 100);
+      AF_addInfoRec(BW_RecID_MaxMomentaryLoudness, buff, nc, RInfo);
     }
     if (Ckbext.MaxShortTermLoudness >= -9999 &&
         Ckbext.MaxShortTermLoudness <=  9999) {
-      nc = sprintf(buff, "%.2f LUFS", (double) Ckbext.MaxShortTermLoudness / 100);
-      AF_addInfoRec (BW_RecID_MaxShortTermLoudness, buff, nc, RInfo);
+      nc = sprintf(buff, "%.2f LUFS",
+                   (double) Ckbext.MaxShortTermLoudness / 100);
+      AF_addInfoRec(BW_RecID_MaxShortTermLoudness, buff, nc, RInfo);
     }
   }
 
@@ -633,30 +635,28 @@ AF_rdbext (FILE *fp, int Size, struct AF_info *RInfo)
 
 
 static void
-AF_addInfoRec (const char Ident[], const char text[], int Size,
-               struct AF_info *AFInfo)
+AF_addInfoRec(const char Ident[], const char text[], int Size,
+              struct AF_info *AFInfo)
 
 {
   char *p;
 
   /* text is fixed length (Size), if shorter than Size, it is NUL terminated */
-  p = memchr (text, '\0', Size);
+  p = memchr(text, '\0', Size);
   if (p != NULL)
     Size = (int) (p - text);
 
   if (Size == 0)
     return;
 
-  AFaddInfoRec (Ident, text, Size, AFInfo);
-
-  return;
+  AFaddInfoRec(Ident, text, Size, AFInfo);
 }
 
 /* Read a DISP chunk */
 
 
 static int
-AF_rdDISP_text (FILE *fp, int Size, struct AF_info *RInfo)
+AF_rdDISP_text(FILE *fp, int Size, struct AF_info *RInfo)
 
 {
   int offs;
@@ -668,11 +668,11 @@ AF_rdDISP_text (FILE *fp, int Size, struct AF_info *RInfo)
        this format for ANSI text.
      We will ignore the DISP chunk if the identifier is not CF_TEXT.
   */
-  offs = RHEAD_V (fp, DISP_ID, DS_EL);
+  offs = RHEAD_V(fp, DISP_ID, DS_EL);
   if (DISP_ID == CF_TEXT)
-    offs += AFrdInfoIdentText (fp, Size - offs, WV_DISPid[0], RInfo, ALIGN);
+    offs += AFrdInfoIdentText(fp, Size - offs, WV_DISPid[0], RInfo, ALIGN);
   else
-    offs += RSKIP (fp, RNDUPV (Size, ALIGN) - offs);
+    offs += RSKIP(fp, RNDUPV(Size, ALIGN) - offs);
 
   return offs;
 }
@@ -681,8 +681,8 @@ AF_rdDISP_text (FILE *fp, int Size, struct AF_info *RInfo)
 
 
 static int
-AF_rdLIST_INFO (FILE *fp, int Size, struct AF_info *RInfo, long int pos,
-                struct AF_chunkInfo *ChunkInfo)
+AF_rdLIST_INFO(FILE *fp, int Size, struct AF_info *RInfo, long int pos,
+               struct AF_chunkInfo *ChunkInfo)
 
 {
   int k, offs;
@@ -690,22 +690,22 @@ AF_rdLIST_INFO (FILE *fp, int Size, struct AF_info *RInfo, long int pos,
   char ID[4], key[7];
   struct WV_Ckpreamb CkHead;
 
-  offs = RHEAD_S (fp, ID);
-  if (SAME_CSTR (ID, FM_INFO)) {
-    AFsetChunkLim (FM_INFO, pos, pos + offs, ChunkInfo);
+  offs = RHEAD_S(fp, ID);
+  if (SAME_CSTR(ID, FM_INFO)) {
+    AFsetChunkLim(FM_INFO, pos, pos + offs, ChunkInfo);
 
     poffs = offs;
     while (offs < Size) {
-      offs += RHEAD_S (fp, CkHead.ckID);
-      offs += RHEAD_V (fp, CkHead.ckSize, DS_EL);
-      AFsetChunkLim (CkHead.ckID, pos + poffs,
-                     RNDUPV (pos + offs + CkHead.ckSize, ALIGN), ChunkInfo);
+      offs += RHEAD_S(fp, CkHead.ckID);
+      offs += RHEAD_V(fp, CkHead.ckSize, DS_EL);
+      AFsetChunkLim(CkHead.ckID, pos + poffs,
+                    RNDUPV(pos + offs + CkHead.ckSize, ALIGN), ChunkInfo);
 
       /* Look for standard INFO ID values */
       for (k = 0; k < N_LIMAP; ++k) {
-        if (SAME_CSTR (CkHead.ckID, WV_LImap[k].ckID)) {
-          offs += AFrdInfoIdentText (fp, (int) CkHead.ckSize,
-                                     WV_LImap[k].RecID[0], RInfo, ALIGN);
+        if (SAME_CSTR(CkHead.ckID, WV_LImap[k].ckID)) {
+          offs += AFrdInfoIdentText(fp, (int) CkHead.ckSize,
+                                    WV_LImap[k].RecID[0], RInfo, ALIGN);
           break;
         }
       }
@@ -713,14 +713,14 @@ AF_rdLIST_INFO (FILE *fp, int Size, struct AF_info *RInfo, long int pos,
       /* No match, use the INFO ID field as the information record keyword */
       /* Example: key = "IXXX: \0", where IXXX is from CkHead.ckID */
       if (k == N_LIMAP) {
-        STcopyNMax (CkHead.ckID, key, 4, sizeof (key) - 1);
-        STcatMax (": ", key, sizeof (key) - 1);
-        offs += AFrdInfoIdentText (fp, (int) CkHead.ckSize, key, RInfo, ALIGN);
+        STcopyNMax(CkHead.ckID, key, 4, (int) sizeof(key) - 1);
+        STcatMax(": ", key, (int) sizeof(key) - 1);
+        offs += AFrdInfoIdentText(fp, (int) CkHead.ckSize, key, RInfo, ALIGN);
       }
       poffs = offs;
     }
   }
-  offs += RSKIP (fp, RNDUPV (Size, ALIGN) - offs);
+  offs += RSKIP(fp, RNDUPV(Size, ALIGN) - offs);
 
   return offs;
 }
@@ -729,7 +729,7 @@ AF_rdLIST_INFO (FILE *fp, int Size, struct AF_info *RInfo, long int pos,
 
 
 static void
-AF_decChannelConfig (UT_uint4_t ChannelMask, unsigned char *SpkrConfig)
+AF_decChannelConfig(UT_uint4_t ChannelMask, unsigned char *SpkrConfig)
 
 {
   int m, k;
@@ -738,7 +738,7 @@ AF_decChannelConfig (UT_uint4_t ChannelMask, unsigned char *SpkrConfig)
   if (ChannelMask & WV_SPKR_ALL)
     ;
   else if (ChannelMask & ~WV_SPKR_KNOWN)
-    UTwarn ("AFrdWVhead - %s", AFM_WV_UnkChannel);
+    UTwarn("AFrdWVhead - %s", AFM_WV_UnkChannel);
   else if (ChannelMask != 0) {
     for (m = 0; m < WV_N_SPKR_MASK; ++m) {
       if (ChannelMask & WV_Spkr_Mask[m]) {
@@ -748,6 +748,4 @@ AF_decChannelConfig (UT_uint4_t ChannelMask, unsigned char *SpkrConfig)
     }
   }
   SpkrConfig[k] = '\0';
-
-  return;
 }

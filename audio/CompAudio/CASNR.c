@@ -1,33 +1,36 @@
 /*------------- Telecommunications & Signal Processing Lab --------------
                           McGill University
 Routine:
-  void CASNR (const struct Stats_T *Stats, double *SNR, double *SNRG,
-              double *SF, double *SSNR)
+  void CASNR(const struct Stats_X *StatsX)
 
 Purpose:
   Calculate SNR values for two files
 
 Description:
-  This routine calculates SNR values for two files.  Three types of SNR are
-  calculated: the conventional SNR, gain adjusted SNR and segmental SNR.
+  This routine calculates SNR values for two files. Three types of SNR are
+  calculated: the conventional SNR, gain adjusted SNR, and segmental SNR.
 
 Parameters:
-   -> const struct Stats_T *Stats
-      Structure containing the cross-statistics
-  <-  double *SNR
-      Signal-to-noise ratio.  A value of DBL_MAX indicates an infinite SNR.
-  <-  double *SNRG
-      Gain optimized signal-to-noise ratio.  A value of DBL_MAX indicates an
-      infinite SNR.
-  <-  double *SF
-      Gain factor for the gain optimized signal-to-noise ratio
-  <-  double *SSNR
-      Segmental signal-to-noise ratio.  This value is set to -1 if the
-      segmental SNR is not available.
+  <-  struct SNR_T CASNR
+   -> const struct Stats_X *StatsX
+      Structure containing the cross-file statistics
+
+  double CASNR.SNR:
+    Signal-to-noise ratio. A value of DBL_MAX indicates an infinite SNR.
+  double CASNR.SNRG:
+    Gain optimized signal-to-noise ratio. A value of DBL_MAX indicates an
+    infinite SNR.
+  double CASNR.SF:
+    Gain factor for the gain optimized signal-to-noise ratio
+  double CASNR.SSNR
+    Segmental signal-to-noise ratio. This value is set to -1 if the segmental
+    SNR is not available.
+  long int CASNR.Nsseg
+    Number of samples in each segment
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.12 $  $Date: 2017/03/28 00:29:07 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.15 $  $Date: 2020/11/19 13:31:54 $
 
 -----------------------------------------------------------------------*/
 
@@ -36,13 +39,12 @@ Author / revision:
 
 #include "CompAudio.h"
 
-
-void
-CASNR (const struct Stats_T *Stats, double *SNR, double *SNRG, double *SF,
-       double *SSNR)
+struct SNR_X
+CASNR(const struct Stats_X *StatsX)
 
 {
-  double denom;
+  struct SNR_X SNRX;
+  long double denom;
 
 /* Conventional SNR */
 /* (1) File A: zero
@@ -53,18 +55,17 @@ CASNR (const struct Stats_T *Stats, double *SNR, double *SNRG, double *SF,
    (2) File A: nonzero
        SNR calculated, can be 0 to infinity
 */
-  if (Stats->Sx2 == 0.0) {
-    if (Stats->Sy2 == 0.0)
-      *SNR = DBL_MAX;
+  if (StatsX->Sxx == 0.0L) {
+    if (StatsX->Syy == 0.0L)
+      SNRX.SNR = DBL_MAX;
     else
-      *SNR = 0.0;
+      SNRX.SNR = 0.0;
   }
   else {
-    denom = Stats->Sx2 - 2.0 * Stats->Sxy + Stats->Sy2;
-    if (denom > 0.0)
-      *SNR = Stats->Sx2 / denom;
+    if (StatsX->See > 0.0L)
+      SNRX.SNR = StatsX->Sxx / StatsX->See;
     else
-      *SNR = DBL_MAX;
+      SNRX.SNR = DBL_MAX;
   }
 
 /* Gain optimized SNR */
@@ -78,32 +79,33 @@ CASNR (const struct Stats_T *Stats, double *SNR, double *SNRG, double *SF,
    (4) Both File A and File B nonzero:
        SF as calculated, SNRG from 0 to infinity
 */
-  if (Stats->Ndiff == 0) {
-    *SF = 1.0;
-    *SNRG = DBL_MAX;
+  if (StatsX->Ndiff == 0) {
+    SNRX.SF = 1.0;
+    SNRX.SNRG = DBL_MAX;
   }
-  else if (Stats->Sy2 == 0.0) {
-    *SF = 1.0;
-    *SNRG = 1.0;
+  else if (StatsX->Syy == 0.0L) {
+    SNRX.SF = 1.0;
+    SNRX.SNRG = 1.0;
   }
-  else if (Stats->Sx2 == 0.0) {
-    *SF = 0.0;
-    *SNRG = DBL_MAX;
+  else if (StatsX->Sxx == 0.0L) {
+    SNRX.SF = 0.0;
+    SNRX.SNRG = DBL_MAX;
   }
   else {
-    *SF = Stats->Sxy / Stats->Sy2;
-    denom = Stats->Sx2 * Stats->Sy2 - Stats->Sxy * Stats->Sxy;
-    if (denom > 0.0)
-      *SNRG = (Stats->Sx2 * Stats->Sy2) / denom;
+    SNRX.SF = StatsX->Sxy / StatsX->Syy;
+    denom = StatsX->Sxx - StatsX-> Sxy * (StatsX->Sxy / StatsX->Syy);
+    if (denom > 0.0L)
+      SNRX.SNRG = StatsX->Sxx / denom;
     else
-      *SNRG = DBL_MAX;
+      SNRX.SNRG = DBL_MAX;
   }
 
   /* Segmental SNR */
-  if (Stats->Nseg > 0)
-    *SSNR = pow (10.0, (Stats->SNRlog / Stats->Nseg)) - 1.0;
+  if (StatsX->Nseg > 0)
+    SNRX.SSNR = pow(10.0, (StatsX->SNRlog / StatsX->Nseg)) - 1.0;
   else
-    *SSNR = -1.0;
+    SNRX.SSNR = -1.0;
+  SNRX.Nsseg = StatsX->Nsseg;
 
-  return;
+  return SNRX;
 }

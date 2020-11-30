@@ -1,0 +1,57 @@
+.TH AFprintChunkLims - libtsp (3tsp)
+.SH Routine:
+void AFprintChunkLims(const AFILE *AFp, FILE *fpinfo)
+.SH Purpose:
+Print the header/data (chunk) structure for an audio file
+.SH Description:
+This formats and prints the file organization information. For IFF
+(Interchange File Format) audio files, the file is organized a chunks (named
+digital containers). These chunks are used to store auxiliary information
+and the audio data itself. Examples of IFF files supported by AFopnRead are
+AIFF/AIFF-C sound files, WAVE files, and CSL NSP files.
+.PP
+For other file formats pseudo chunks are identified. These pseudo chunks
+typically include the file identification string, the data format information
+("fmt "), and the data storage area ("data").
+.PP
+The AFp->ChunkInfo structure has the following format,
+.ft CW
+.nf
+  struct AF_chunkInfo {
+    struct AF_chunkLim *ChunkLim[Nmax];
+    int Nmax;             Size of ChunkLim
+    int N;                Number of ChunkLim values set
+  }
+.fi
+.ft P
+where struct AF_ChunkLim is defined as
+.ft CW
+.nf
+  struct AF_chunkLim {
+    unsigned char ID[4];  Chunk ID
+    long int Start;       Chunk start position in bytes
+    long int End;         Last byte in the chunk
+  }
+.fi
+.ft P
+.SH Parameters:
+.in +3n
+.ti -3n
+<-  void AFprintChunkLims
+.br
+.ti -3n
+ -> const AFILE *AFp
+.br
+Audio file parameter structure
+.ti -3n
+<-> FILE *fpinfo
+.br
+Output stream for the file information. If fpinfo is NULL, no information
+is written.
+.in -3n
+.SH Author / revision:
+P. Kabal
+/ Revision 1.14  2020-11-26
+.SH See Also
+AFopnRead,
+libtsp

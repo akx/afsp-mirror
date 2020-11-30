@@ -1,29 +1,29 @@
 /*------------- Telecommunications & Signal Processing Lab --------------
                           McGill University
 Routine:
-  void CAprstat (const struct Stats_F Stats[], long int Nchan)
+  void CAprstat(const struct Stats_F StatsF[], long int Nch, double ScaleF)
 
 Purpose:
   Print statistics for an audio file
 
 Description:
-  This routine prints statistics for audio file data.  The standard information
+  This routine prints statistics for audio file data. The standard information
   printed includes the mean, standard deviation, maximum value and minimum
-  value.  two  additional counts(if nonzero) are reported.  These are the number
-  of overloads and the number of anomalous transitions.
+  value. Additional counts (if nonzero) are reported. These are the number of
+  overloads and the number of anomalous transitions.
 
 Parameters:
-   -> const struct Stats_F Stats[]
+   -> const struct Stats_F StatsF[]
       Structure containing the file statistics
-   -> long int Nchan
-      Number of channels
+   -> long int Nch
+      Number of effective channels
    -> double ScaleF
-      Scale factor. This should be the scale factor before any other user
-      supplied scale factor is applied.
+      Scale factor. This is the scale factor before a user supplied gain is
+      applied.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.27 $  $Date: 2017/03/24 13:27:02 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.31 $  $Date: 2020/11/27 02:07:35 $
 
 -----------------------------------------------------------------------*/
 
@@ -36,59 +36,64 @@ Author / revision:
 
 
 void
-CAprstat (const struct Stats_F Stats[], long int Nchan, double ScaleF)
+CAprstat(const struct Stats_F StatsF[], long int Nch, double ScaleF)
 
 {
-  double SFI, sd, sm, ActFactor;
-  int i;
+  double SFI, sd, sd2, sm, ActFactor;
+  int i, PrV;
   long int N;
 
-  /* Avoid divide by zero */
-  if (ScaleF != 0.0)
-    SFI = 1. / ScaleF;
-  else
-    SFI = 0.;
+  SFI = 1.0 / ScaleF;
+  PrV = (SFI >= 128 && SFI <= 32768);
 
-  for (i = 0; i < Nchan; ++i) {
+  for (i = 0; i < Nch; ++i) {
 
-    if (Nchan > 1)
-      printf (CAMF_Channel, i+1);
-    N = Stats[i].N;
+    if (Nch > 1)
+      printf(CAMF_Channel, i+1);
+    N = StatsF[i].N;
     if (N != 0) {
-      printf (CAMF_NumSamp, N);
-      if (Stats[i].Vmax == Stats[i].Vmin)
-        sd = 0.0; /* Calculation below may give sqrt (-eps) */
-      else
-  /* sd^2 is an unbiased estimate of the variance (assuming independent
-     samples), but sd itself is not unbiased. However, the formula is
-     the one usually used for estimating the standard deviation.
+      printf(CAMF_NumSamp, N);
+      if (StatsF[i].Vmax == StatsF[i].Vmin)
+        sd = 0.0; /* Calculation below may give sqrt(-eps) */
+      else {
+        sd2 = (StatsF[i].Sxx - SQRV(StatsF[i].Sx) / N) / MAXV(N-1, 1);
+        sd = sqrt(sd2);
+      }
+  /* sd^2 is an unbiased estimate of the variance (assuming independent samples,
+     but sd itself is not unbiased. However, the formula is the one usually used
+     for estimating the standard deviation.
   */
-      sd = sqrt ((Stats[i].Sx2 - SQRV (Stats[i].Sx) / N) / MAXV (N-1, 1) );
-      sm = Stats[i].Sx / N;
+      sm = StatsF[i].Sx / N;
+      if (PrV)
+        printf(CAMF_SDevMeanV, SFI * sd, 100. * sd, SFI * sm, 100. * sm);
+      else
+        printf(CAMF_SDevMeanP, 100 * sd, 100 * sm);
+      if (PrV)
+        printf(CAMF_MaxMinV, SFI * StatsF[i].Vmax, 100. * StatsF[i].Vmax,
+               SFI * StatsF[i].Vmin, 100. * StatsF[i].Vmin);
+      else
+        printf(CAMF_MaxMinP, 100 * StatsF[i].Vmax, 100 * StatsF[i].Vmin);
 
-      printf (CAMF_SDevMean, SFI * sd, 100. * sd, SFI * sm, 100. * sm);
-      printf (CAMF_MaxMin, SFI * Stats[i].Vmax, 100. * Stats[i].Vmax,
-              SFI * Stats[i].Vmin, 100. * Stats[i].Vmin);
-
-      if (Stats[i].Novload > 0) {
-        if (Stats[i].Nrun == Stats[i].Novload)      /* Isolated overload */
-          printf (CAMF_NumOvld, Stats[i].Novload);
-        else if (Stats[i].Nrun == 1)                /* Overloads in 1 run */
-          printf (CAMF_NumOvld1, Stats[i].Novload);
+      if (StatsF[i].Novload > 0) {
+        if (StatsF[i].Nrun == 0 || StatsF[i].Nrun == StatsF[i].Novload)
+          printf(CAMF_NumOvld, StatsF[i].Novload);
+        else if (StatsF[i].Nrun == 1)               /* Overloads in 1 run */
+          printf(CAMF_NumOvld1, StatsF[i].Novload);
         else
-          printf (CAMF_NumOvldN, Stats[i].Novload, Stats[i].Nrun);
+          printf(CAMF_NumOvldN, StatsF[i].Novload, StatsF[i].Nrun);
       }
 
-      if (Stats[i].Nanomal > 0)
-        printf (CAMF_NumAnom, Stats[i].Nanomal);
+      if (StatsF[i].Nanomal > 0)
+        printf(CAMF_NumAnom, StatsF[i].Nanomal);
 
-      if (Stats[i].ActLev > 0.0) {
-        ActFactor = (Stats[i].Sx2 / N) / SQRV (Stats[i].ActLev);
-        printf (CAMF_ActLevel, SFI * Stats[i].ActLev, 100 * Stats[i].ActLev,
-                100. * ActFactor);
+      if (StatsF[i].ActLev > 0.0) {
+        ActFactor = (StatsF[i].Sxx / N) / SQRV(StatsF[i].ActLev);
+        if (PrV)
+          printf(CAMF_ActLevelV, SFI * StatsF[i].ActLev, 100 * StatsF[i].ActLev,
+                 100. * ActFactor);
+        else
+          printf(CAMF_ActLevelP, 100 * StatsF[i].ActLev, 100. * ActFactor);
       }
     }
   }
-
-  return;
 }

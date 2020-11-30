@@ -8,8 +8,8 @@ Description:
   Declarations for audio utility program options routines
 
 Author / revision:
-  P. Kabal  Copyright (C) 2018
-  $Revision: 1.43 $  $Date: 2018/11/14 13:51:34 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.44 $  $Date: 2020/11/23 18:35:50 $
 
 ----------------------------------------------------------------------*/
 
@@ -53,9 +53,9 @@ struct AO_FOpar {
 /* Initialization macros */
 #define FIpar_INIT(fi)  { \
   if (AFsetInputPar (AFNH_ENV)) \
-    UTwarn ("%s - %s \"%s\"", PROGRAM, AOM_BadEnv, &(AFNH_ENV)[1]); \
-  if (AFsetFileType (AFFTYPE_ENV)) \
-    UTwarn ("%s - %s \"%s\"", PROGRAM, AOM_BadEnv, &(AFFTYPE_ENV)[1]); \
+    UTwarn("%s - %s \"%s\"", PROGRAM, AOM_BadEnv, &(AFNH_ENV)[1]); \
+  if (AFsetFileType(AFFTYPE_ENV)) \
+    UTwarn("%s - %s \"%s\"", PROGRAM, AOM_BadEnv, &(AFFTYPE_ENV)[1]); \
   (fi)->Fname[0] = '\0'; \
   (fi)->Gain = 1.0; \
   (fi)->Lim[0] = 0L; \
@@ -110,30 +110,30 @@ extern "C" {
 
 /* Prototypes */
 struct AO_CmdArg *
-AOArgs (void);
+AOArgs(void);
 int
-AOdecFI (struct AO_FIpar *FI);
+AOdecFI(struct AO_FIpar *FI);
 int
-AOdecFO (struct AO_FOpar *FO);
+AOdecFO(struct AO_FOpar *FO);
 void
-AOinitOpt (const int argc, const char *argv[]);
+AOinitOpt(const int argc, const char *argv[]);
 long int
-AOnFrame (AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
-          long int Nframe);
+AOnFrame(AFILE *AFp[], const struct AO_FIpar FI[], int Nifiles,
+         long int Nframe);
 void
-AOsetDFormat (struct AO_FOpar *FO, AFILE *AFp[], int Nf);
+AOsetDFormat(struct AO_FOpar *FO, AFILE *AFp[], int Nf);
 void
-AOsetFIopt (const struct AO_FIpar *FI, int NsampND, int RAccess);
+AOsetFIopt(const struct AO_FIpar *FI, int NsampND, int RAccess);
 void
-AOsetFOopt (const struct AO_FOpar *FO);
+AOsetFOopt(const struct AO_FOpar *FO);
 enum AF_FD_T
-AOsetFormat (const struct AO_FOpar *FO, AFILE *AFp[], int Nf);
+AOsetFormat(const struct AO_FOpar *FO, AFILE *AFp[], int Nf);
 void
-AOstdin (const struct AO_FIpar FI[], int N);
+AOstdin(const struct AO_FIpar FI[], int N);
 
 /* nucleus folder */
 void
-AOsetFtypeW (struct AO_FOpar *FO);
+AOsetFtypeW(struct AO_FOpar *FO);
 #ifdef __cplusplus
 }
 #endif

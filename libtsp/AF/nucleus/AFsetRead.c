@@ -2,8 +2,8 @@
                              McGill University
 
 Routine:
-  AFILE *AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr,
-                    enum AF_FIX_T Fix)
+  AFILE *AFsetRead(FILE *fp, int Ftype, const struct AF_read *AFr,
+                   enum AF_FIX_T Fix)
 
 Purpose:
   Set up the parameters in an audio file structure for input files
@@ -23,9 +23,8 @@ Description:
 
 Parameters:
   <-  AFILE *AFsetRead
-      Audio file pointer for the audio file.  This routine allocates the
-      space for this structure.  If an error is detected, a NULL pointer is
-      returned.
+      Audio file pointer for the audio file. This routine allocates the space
+      for this structure. If an error is detected, a NULL pointer is returned.
    -> int Ftype
       File type: FT_NH, FT_AU, FT_WAVE, etc.
    -> const struct AF_read *AFr
@@ -40,8 +39,8 @@ Parameters:
                              available
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.71 $  $Date: 2017/07/03 22:25:30 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.72 $  $Date: 2020/11/26 11:33:35 $
 
 -------------------------------------------------------------------------*/
 
@@ -64,17 +63,17 @@ Author / revision:
 
 /* Local functions */
 static int
-AF_NbSInfo (const struct AF_info *AFInfo, const struct AF_dformat *DFormat);
+AF_NbSInfo(const struct AF_info *AFInfo, const struct AF_dformat *DFormat);
 static struct AF_info
-AF_setInfo (const struct AF_info *RInfo);
+AF_setInfo(const struct AF_info *RInfo);
 static unsigned char *
-AF_setSpeaker (unsigned char *SpkrConfigIn, struct AF_info *AFInfo);
+AF_setSpeaker(unsigned char *SpkrConfigIn, struct AF_info *AFInfo);
 static double
-AF_srateInfo (const struct AF_info *AFInfo, double Sfreq);
+AF_srateInfo(const struct AF_info *AFInfo, double Sfreq);
 
 
 AFILE *
-AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, enum AF_FIX_T Fix)
+AFsetRead(FILE *fp, int Ftype, const struct AF_read *AFr, enum AF_FIX_T Fix)
 
 {
   AFILE *AFp;
@@ -82,17 +81,17 @@ AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, enum AF_FIX_T Fix)
   int Lw;
   struct AF_ndata NData;
 
-  assert (Ftype > 0 && Ftype < AF_NFT);
-  assert (AFr->DFormat.Format > 0 && AFr->DFormat.Format < AF_NFD);
+  assert(Ftype > 0 && Ftype < AF_NFT);
+  assert(AFr->DFormat.Format > 0 && AFr->DFormat.Format < AF_NFD);
 
 /* Check data layout consistency */
   Lw = AF_DL[AFr->DFormat.Format];
   NData = AFr->NData;     /* Copy, now writeable */
-  if (AFcheckDataPar (fp, Lw, &Dstart, &NData, Fix))
+  if (AFcheckDataPar(fp, Lw, &Dstart, &NData, Fix))
     return NULL;
 
 /* Set the parameters for file access */
-  AFp = (AFILE *) UTmalloc (sizeof (AFILE));
+  AFp = (AFILE *) UTmalloc(sizeof(AFILE));
 
   /* File pointers and parameters */
   AFp->fp = fp;
@@ -100,7 +99,7 @@ AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, enum AF_FIX_T Fix)
   if (Lw <= 1)
     AFp->Swapb = DS_NATIVE;
   else
-    AFp->Swapb = UTswapCode (AFr->DFormat.Swapb);
+    AFp->Swapb = UTswapCode(AFr->DFormat.Swapb);
   AFp->Start = Dstart;
   AFp->Isamp = 0;
 
@@ -120,13 +119,13 @@ AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, enum AF_FIX_T Fix)
 
   /* File data parameters */
   /* Resolve the sampling frequency */
-  AFp->Sfreq = AF_srateInfo (&AFr->RInfo, AFr->Sfreq);
+  AFp->Sfreq = AF_srateInfo(&AFr->RInfo, AFr->Sfreq);
   if (AFr->Sfreq == AF_SFREQ_UNDEF) {
-    UTwarn ("AFsetRead: %s", AFM_UndSfreq);
+    UTwarn("AFsetRead: %s", AFM_UndSfreq);
     return NULL;
   }
   /* Set up the significant number of bits per sample field */
-  AFp->NbS = AF_NbSInfo (&AFr->RInfo, &AFr->DFormat);
+  AFp->NbS = AF_NbSInfo(&AFr->RInfo, &AFr->DFormat);
   AFp->FullScale = AFr->DFormat.FullScale;
   if (AFp->FullScale == AF_FULLSCALE_DEFAULT)
     AFp->FullScale = AF_FULLSCALE[AFp->Format];
@@ -137,10 +136,10 @@ AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, enum AF_FIX_T Fix)
 
   /* Data descriptors */
   /* Set up the information record structure */
-  AFp->AFInfo = AF_setInfo (&AFr->RInfo);
+  AFp->AFInfo = AF_setInfo(&AFr->RInfo);
   AFp->ChunkInfo = AFr->ChunkInfo;
   /* Set up the loudspeaker configuration */
-  AFp->SpkrConfig = AF_setSpeaker (NData.SpkrConfig, &AFp->AFInfo);
+  AFp->SpkrConfig = AF_setSpeaker(NData.SpkrConfig, &AFp->AFInfo);
 
   return AFp;
 }
@@ -149,13 +148,13 @@ AFsetRead (FILE *fp, int Ftype, const struct AF_read *AFr, enum AF_FIX_T Fix)
 /* -------------------- */
 /* Fill in the AFsp Information structure */
 
-/* This routine allocates the space for the information string.  It is expected
+/* This routine allocates the space for the information string. It is expected
    that the calling routine takes care of freeing up the space.
 */
 
 
 static struct AF_info
-AF_setInfo (const struct AF_info *RInfo)
+AF_setInfo(const struct AF_info *RInfo)
 
 {
   int N;
@@ -168,8 +167,8 @@ AF_setInfo (const struct AF_info *RInfo)
     AFInfo.Nmax = 0;
   }
   else {
-    AFInfo.Info = (char *) UTmalloc (N);
-    memcpy (AFInfo.Info, RInfo->Info, N);
+    AFInfo.Info = (char *) UTmalloc(N);
+    memcpy(AFInfo.Info, RInfo->Info, N);
     AFInfo.N = N;
     AFInfo.Nmax = N;
   }
@@ -183,19 +182,19 @@ AF_setInfo (const struct AF_info *RInfo)
 
 
 static double
-AF_srateInfo (const struct AF_info *AFInfo, double Sfreq)
+AF_srateInfo(const struct AF_info *AFInfo, double Sfreq)
 
 {
   double Fv;
 
   /* Check "sample_rate:" record, if the sampling frequency is integer-valued */
   if (Sfreq == AF_SFREQ_UNDEF || Sfreq == floor(Sfreq)) {
-    Fv = AFgetInfoSfreq (AFInfo);
+    Fv = AFgetInfoSfreq(AFInfo);
     if (Fv != AF_SFREQ_UNDEF) {
       if (Sfreq == AF_SFREQ_UNDEF || ABSV(Fv - Sfreq) <= 0.5)
         Sfreq = Fv;
       else
-        UTwarn ("AFsetRead - %s, %g : %g", AFM_MisSRate, Sfreq, Fv);
+        UTwarn("AFsetRead - %s, %g : %g", AFM_MisSRate, Sfreq, Fv);
     }
   }
 
@@ -206,7 +205,7 @@ AF_srateInfo (const struct AF_info *AFInfo, double Sfreq)
 
 
 static int
-AF_NbSInfo (const struct AF_info *AFInfo, const struct AF_dformat *DFormat)
+AF_NbSInfo(const struct AF_info *AFInfo, const struct AF_dformat *DFormat)
 
 {
   int Res, NbS, Format, IntFormat;
@@ -224,10 +223,10 @@ AF_NbSInfo (const struct AF_info *AFInfo, const struct AF_dformat *DFormat)
   if (NbS == 0) {
     NbS = Res;
     if (IntFormat) {
-      AFNbS = AFgetInfoNbS (AFInfo);
+      AFNbS = AFgetInfoNbS(AFInfo);
       if (AFNbS.Res > 0) {
         if (AFNbS.Res != Res)
-          UTwarn (AFMF_InvNbS, "AFsetRead -", AFNbS.Res, Res);
+          UTwarn(AFMF_InvNbS, "AFsetRead -", AFNbS.Res, Res);
         else
           NbS = AFNbS.NbS;
       }
@@ -236,17 +235,17 @@ AF_NbSInfo (const struct AF_info *AFInfo, const struct AF_dformat *DFormat)
 
   /* Res == 0 for text files */
   if (Res > 0 && (NbS <= 0 || NbS > Res)) {
-    UTwarn (AFMF_InvNbS, "AFsetRead -", NbS, Res);
+    UTwarn(AFMF_InvNbS, "AFsetRead -", NbS, Res);
     NbS = Res;
   }
   else if (Res < NbS) {
-    UTwarn ("AFsetRead - %s", AFM_BadNbS);
+    UTwarn("AFsetRead - %s", AFM_BadNbS);
     NbS = Res;
   }
 
   /* Warn and reset NbS for inappropriate formats */
-  if (NbS != Res && ! IntFormat) {
-    UTwarn ("AFsetRead - %s", AFM_InaNbS);
+  if (NbS != Res && !IntFormat) {
+    UTwarn("AFsetRead - %s", AFM_InaNbS);
     NbS = Res;
   }
 
@@ -259,7 +258,7 @@ AF_NbSInfo (const struct AF_info *AFInfo, const struct AF_dformat *DFormat)
 
 
 static unsigned char *
-AF_setSpeaker (unsigned char *SpkrConfigIn, struct AF_info *AFInfo)
+AF_setSpeaker(unsigned char *SpkrConfigIn, struct AF_info *AFInfo)
 
 {
   int Nspkr;
@@ -267,15 +266,15 @@ AF_setSpeaker (unsigned char *SpkrConfigIn, struct AF_info *AFInfo)
   unsigned char *SpkrConfig;
 
   if (SpkrConfigIn[0] == '\0')
-    SpkrConfigTemp = AFgetInfoSpkr (AFInfo);
+    SpkrConfigTemp = AFgetInfoSpkr(AFInfo);
   else
     SpkrConfigTemp = SpkrConfigIn;
 
-  Nspkr = (int) strlen ((const char *) SpkrConfigTemp);
+  Nspkr = (int) strlen((const char *) SpkrConfigTemp);
   SpkrConfig = NULL;
   if (Nspkr > 0) {
-    SpkrConfig = (unsigned char *) UTmalloc (Nspkr + 1);
-    strcpy ((char *) SpkrConfig, (const char *) SpkrConfigTemp);
+    SpkrConfig = (unsigned char *) UTmalloc(Nspkr + 1);
+    strcpy((char *) SpkrConfig, (const char *) SpkrConfigTemp);
   }
 
   return SpkrConfig;

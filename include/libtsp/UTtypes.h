@@ -8,8 +8,8 @@ Description:
   Type declarations for size dependent storage elements
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.19 $  $Date: 2017/05/01 20:06:07 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.21 $  $Date: 2020/11/23 20:48:53 $
 
 ----------------------------------------------------------------------*/
 
@@ -20,8 +20,8 @@ Author / revision:
 #include <limits.h>
 
 /* To avoid name conflicts with definitions in stdint.h, we prefix our names
-   with UT.  Here the numerical part of the name is the length in bytes (e.g.
-   UT_INT8_MAX and typedef UT_int8_t.  In stdint.h, the numerical part of the
+   with UT. Here the numerical part of the name is the length in bytes (e.g.
+   UT_INT8_MAX and typedef UT_int8_t. In stdint.h, the numerical part of the
    name is the length in bits (e.g. define INT64_MAX and typedef int64_t).
 */
 
@@ -33,8 +33,11 @@ typedef float UT_float4_t;    /* 4-byte float */
 # define UT_FLOAT8_MAX    DBL_MAX
 typedef double UT_float8_t;   /* 8-byte float */
 
+# define UT_FLOATX_MAX    LDBL_MAX
+typedef long double UT_floatx_t;  /* extended float */
+
 /* We don't have a good way of automatically determining the number of bytes in
-   a (long double).  For gcc under Cygwin, a long double is 16 bytes long. On
+   a (long double). For gcc under Cygwin, a long double is 16 bytes long. On
    other systems and/or compilers it varies from 8 to 16 bytes.
 */
 

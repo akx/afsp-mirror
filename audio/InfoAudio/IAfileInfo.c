@@ -2,7 +2,7 @@
                            McGill University
 
 Routine:
-  void IAfileInfo (const AFILE *AFp, const char Fname[], FILE *fpinfo)
+  void IAfileInfo(const AFILE *AFp, const char Fname[], FILE *fpinfo)
 
 Purpose:
   Print file parameters
@@ -15,14 +15,14 @@ Parameters:
    -> const AFILE *AFp
       Point to audio file information structure
    -> const char Fname[]
-      File name\
+      File name
   <-> FILE *fpinfo
-      Output stream for the file information.  If fpinfo is NULL, no information
+      Output stream for the file information. If fpinfo is NULL, no information
       is written.
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.4 $  $Date: 2017/06/26 23:58:54 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.6 $  $Date: 2020/11/23 18:31:41 $
 
 ----------------------------------------------------------------------*/
 
@@ -58,32 +58,30 @@ static const char *DataSwap[] = {
 
 
 void
-IAfileInfo (const AFILE *AFp, const char Fname[], FILE *fpinfo)
+IAfileInfo(const AFILE *AFp, const char Fname[], FILE *fpinfo)
 
 {
   int Dbo, Hbo;
 
   /* Sanity checks */
-  assert (NELEM (DataFormat) == AF_NFD);
-  assert (AFp->Format > 0);
-  assert (AF_DL[AFp->Format] > 1 || AFp->Swapb == DS_NATIVE);
+  assert(NELEM(DataFormat) == AF_NFD);
+  assert(AFp->Format > 0);
+  assert(AF_DL[AFp->Format] > 1 || AFp->Swapb == DS_NATIVE);
 
   if (fpinfo == NULL)
     return;
 
   if (AFp->fp == stdin)
-      fprintf (fpinfo, IAM_stdin);
+      fprintf(fpinfo, IAM_stdin);
   else
-    fprintf (fpinfo, IAMF_FName, Fname);
-  fprintf (fpinfo, IAMF_Header, AFp->Start, AFp->Sfreq, AFp->Nsamp / AFp->Nchan,
+    fprintf(fpinfo, IAMF_FName, Fname);
+  fprintf(fpinfo, IAMF_Header, AFp->Start, AFp->Sfreq, AFp->Nsamp / AFp->Nchan,
           AFp->Nchan, DataFormat[AFp->Format]);
-  Dbo = UTbyteCode (AFp->Swapb);
-  Hbo = UTbyteOrder ();
+  Dbo = UTbyteCode(AFp->Swapb);
+  Hbo = UTbyteOrder();
   if (AF_DL[AFp->Format] <= 1)      /* Text and one-byte formats */
-    fprintf (fpinfo, IAM_ByteStream);
+    fprintf(fpinfo, IAM_ByteStream);
   else
-    fprintf (fpinfo, IAMF_FByteOrder, DataSwap[Dbo]);
-  fprintf (fpinfo, IAMF_HByteOrder, DataSwap[Hbo]);
-
-  return;
+    fprintf(fpinfo, IAMF_FByteOrder, DataSwap[Dbo]);
+  fprintf(fpinfo, IAMF_HByteOrder, DataSwap[Hbo]);
 }

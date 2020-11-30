@@ -2,15 +2,15 @@
                              McGill University
 
 Routine:
-  int AFsetFileType (const char String[])
+  int AFsetFileType(const char String[])
 
 Purpose:
   Set the input audio file type
 
 Description:
-  This routine sets the audio file type.  Normally, the file type is checked
-  when opening an input audio file.  Explicitly setting the audio file type
-  bypasses the need to check the file header for file type match.
+  This routine sets the audio file type. Normally, the file type is checked when
+  opening an input audio file. Explicitly setting the audio file type bypasses
+  the need to check the file header for file type match.
     "auto"      - determine the input file type from the file header
     "AU" or "au" - AU audio file
     "WAVE" or "wave" - WAVE file
@@ -26,8 +26,8 @@ Description:
     "text"      - Text audio file (with header)
 
   If the input string contains has a leading '$', the string is assumed to
-  specify the name of an environment variable after the '$'.  This routine uses
-  the value of this environment variable to determine the parameters.  For
+  specify the name of an environment variable after the '$'. This routine uses
+  the value of this environment variable to determine the parameters. For
   instance, if this routine is called as AFsetFileType("$AF_FILETYPE"), this
   routine would look for the parameter string in environment variable
   AF_FILETYPE.
@@ -39,8 +39,8 @@ Parameters:
       String with the input file type
 
 Author / revision:
-  P. Kabal  Copyright (C) 2017
-  $Revision: 1.24 $  $Date: 2017/06/09 11:02:45 $
+  P. Kabal  Copyright (C) 2020
+  $Revision: 1.25 $  $Date: 2020/11/23 20:48:08 $
 
 -------------------------------------------------------------------------*/
 
@@ -92,7 +92,7 @@ static const int Ftype_vals[] = {
 
 
 int
-AFsetFileType (const char String[])
+AFsetFileType(const char String[])
 
 {
   int n, Err;
@@ -100,7 +100,7 @@ AFsetFileType (const char String[])
 
 /* Check for an environment variable */
   if (String[0] == '$') {
-    p = getenv (&String[1]);
+    p = getenv(&String[1]);
     if (p == NULL)
       p = "";
   }
@@ -109,9 +109,9 @@ AFsetFileType (const char String[])
 
   Err = 0;
   if (p[0] != '\0') {
-    n = STkeyMatch (p, Ftype_keys);
+    n = STkeyMatch(p, Ftype_keys);
     if (n < 0) {
-      UTwarn ("AFsetFileType - %s, \"%.20s\"", AFM_BadFtype, p);
+      UTwarn("AFsetFileType - %s, \"%.20s\"", AFM_BadFtype, p);
       Err = 1;
     }
     else
